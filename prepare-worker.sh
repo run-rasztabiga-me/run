@@ -1,3 +1,5 @@
+# TODO update, outdated
+
 #!/usr/bin/env bash
 
 if [[ -z "${OPENAI_API_KEY}" ]]; then

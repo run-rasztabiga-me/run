@@ -1,6 +1,3 @@
-# TODO update
-# TODO basic, registry, ingress
-
 #!/bin/sh
 set -o errexit
 

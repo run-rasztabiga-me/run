@@ -21,11 +21,12 @@ docker_client = docker.from_env()
 
 model = get_model("openai/gpt-4o")
 # model = get_model("openai/o3-mini-high")
-# model = get_model("google/gemini-2.0-flash-001")  # uparcie zwraca markery formatowania
-# model = get_model("deepseek/deepseek-r1:free") # ciekawe rzeczy dodaje (healthchecki), jest potencjał
+# model = get_model("google/gemini-2.0-flash-001")
+# model = get_model("deepseek/deepseek-r1:free")
 # model = get_model("meta-llama/llama-3.3-70b-instruct")
-# model = get_model("anthropic/claude-3.5-haiku") # jest potencjał, basic ale działa
+# model = get_model("anthropic/claude-3.5-haiku")
 # model = get_model("anthropic/claude-3.7-sonnet")
+# model = get_model("anthropic/claude-3.7-sonnet:thinking")
 # model = get_model("deepseek/deepseek-chat")
 print(model)
 
@@ -183,6 +184,7 @@ def get_k8s_config(tree_str, files_content, dockerfile, image_tag):
         json.dumps(prompt)
     )
 
+
     return json.loads(response)["k8s_config"]
 
 
@@ -272,7 +274,7 @@ def apply_k8s(repo_name, tmp_dir):
     except ApiException as e:
         logger.error(f"Failed to read ingress: {e}")
 
-    # TODO write url to hosts?
+    # TODO write url to etc/hosts?
 
 
 def test_deployment(url, retries=5, delay=5):
@@ -338,10 +340,10 @@ def main():
     # TODO chyba trzeba spreparować repozytoria proste w różnych technologiach (np. python, kotlin, js)
 
     # POC 1
-    repo_url = "https://github.com/run-rasztabiga-me/poc1-fastapi.git" # passed
+    # repo_url = "https://github.com/run-rasztabiga-me/poc1-fastapi.git" # passed
 
     # POC 2
-    # repo_url = "https://github.com/BartlomiejRasztabiga/netguruRecruitment.git" # pending, nie zrobił konteneru dla DB. gpt-4o zrobił, ale chyba apka nie wstaje - sprawdzić
+    repo_url = "https://github.com/run-rasztabiga-me/poc2-fastapi.git" # pending
 
     do_magic(repo_url)
 

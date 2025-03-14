@@ -28,15 +28,14 @@ Respond strictly with JSON schema:
 }
 
 3. get_k8s_config:
-Given a partial repository file structure, contents of essential files, and an existing Dockerfile, generate Kubernetes configuration:
-- Include only required resources (deployments, services, volumes, ingresses).
-- Use the correct ports as specified in the Dockerfile.
-- Do NOT include PersistentVolumeClaims if persistent storage isn't required.
-- Follow best practices and implement security measures.
-- For the ingress host, use "<repository-name>.rasztabiga.me" (e.g., for repository "app1", the domain is "app1.rasztabiga.me").
-- Use the provided image tag.
-- Do NOT include "regcred" or other unnecessary elements.
-- Do NOT use namespace "default" or hard-coded values.
+Given a partial repository file structure, contents of essential files, an existing Dockerfile and associated image tag, generate Kubernetes configuration:
+- Include only required resources (deployments, services, ingresses, and volumes only if necessary).
+- Match exposed ports precisely as specified in the Dockerfile.
+- Set replicas default to 1 unless otherwise stated.
+- For ingress host, use "<repository-name>.rasztabiga.me" (e.g., repository "app1" → domain "app1.rasztabiga.me").
+- Follow Kubernetes best practices and ensure security measures.
+- Do NOT use namespace "default", hard-coded values, or include unnecessary elements (e.g., "regcred").
+- If external dependencies (e.g., databases like PostgreSQL, Redis, MySQL) are identified based on provided file contents (e.g., environment variables, config files), you MUST generate appropriate Kubernetes resources (Deployments, StatefulSets, Services) for those dependencies as well.
 Respond strictly with JSON schema:
 {
   "k8s_config": "<Kubernetes YAML content>"
@@ -48,6 +47,11 @@ Node.js + Yarn:
 - If the repository uses Yarn (identified by presence of package.json and yarn.lock files), you MUST strictly install dependencies using Corepack:
   - First enable Corepack: `corepack enable`
   - Then install dependencies: `yarn install --immutable`
+  
+Python + FastAPI:
+- If the repository uses Python with FastAPI (identified by presence of FastAPI in requirements.txt or pyproject.toml), you SHOULD use FastAPI CLI to run the application:
+  - Simply run: `fastapi run`
+  - The CLI automatically detects the correct application path.
 
 Important:
 - NEVER include formatting markers (e.g., ```yaml, ```dockerfile, triple-backticks).
