@@ -277,7 +277,7 @@ def apply_k8s(repo_name, tmp_dir):
     # TODO write url to etc/hosts?
 
 
-def test_deployment(url, retries=5, delay=5):
+def test_deployment(url, retries=10, delay=10):
     for attempt in range(1, retries + 1):
         try:
             response = requests.get(url)
@@ -310,6 +310,9 @@ def do_magic(repo_url):
     tree_str = prepare_repo_tree_as_string(tmp_dir)
 
     important_files = get_important_files(tree_str)
+
+    logger.info("Important files identified: %s", important_files)
+
     files_content = get_files_content(important_files, tmp_dir)
 
     dockerfile = get_dockerfile(tree_str, files_content)
