@@ -40,6 +40,10 @@ Given a partial repository file structure, contents of essential files, an exist
 - Follow Kubernetes best practices and ensure security measures.
 - Do NOT use namespace "default", hard-coded values, or include unnecessary elements (e.g., "regcred").
 - If external dependencies (e.g., databases like PostgreSQL, Redis, MySQL) are identified based on provided file contents (e.g., environment variables, config files), you MUST generate appropriate Kubernetes resources (Deployments, StatefulSets, Services) for those dependencies as well.
+- If the application uses external stateful dependencies (such as databases, caches, etc.), deploy these using Kubernetes StatefulSets.
+- Persistent storage for StatefulSets must be managed through PersistentVolumeClaims (PVCs).
+- Stateless applications should use Deployments.
+- Use services to expose applications internally and externally as necessary.
 Respond strictly with JSON schema:
 {
   "k8s_config": "<Kubernetes YAML content>"

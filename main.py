@@ -269,7 +269,6 @@ def apply_k8s(repo_name, tmp_dir):
         ingress = ingresses.items[0]
         host = ingress.spec.rules[0].host
         logger.info(f"Ingress URL: http://{host}")
-        print(f"Ingress URL: http://{host}")
         return f"http://{host}"
     except ApiException as e:
         logger.error(f"Failed to read ingress: {e}")
