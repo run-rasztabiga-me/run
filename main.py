@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 
 docker_client = docker.from_env()
 
-model = get_model("openai/gpt-4o")
+# model = get_model("openai/gpt-4o")
 # model = get_model("openai/o3-mini-high")
-# model = get_model("google/gemini-2.0-flash-001")
+model = get_model("google/gemini-2.0-flash-001") # działa dobrze?
 # model = get_model("deepseek/deepseek-r1:free")
 # model = get_model("meta-llama/llama-3.3-70b-instruct")
 # model = get_model("anthropic/claude-3.5-haiku")
