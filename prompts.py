@@ -1,7 +1,22 @@
-IMPORTANT_FILES_PROMPT = """
+COMMON_PROMPT_PART = """
+Your response must strictly adhere to the provided JSON schema and contain only JSON matching exactly the provided schema. NEVER include formatting markers or any additional text.
+
+Examples of valid responses:
+{
+  "files": ["package.json", "src/index.js", ".env"]
+}
+{
+  "dockerfile": "FROM node:20-alpine\\nWORKDIR /app\\nCOPY . .\\nRUN npm install\\nCMD [\"npm\", \"start\"]"
+}
+{
+  "k8s_config": "apiVersion: apps/v1\\nkind: Deployment\\nmetadata:\\n  name: app\\nspec:\\n  replicas: 1\\n  selector:\\n    matchLabels:\\n      app: app\\n  template:\\n    metadata:\\n      labels:\\n        app: app\\n    spec:\\n      containers:\\n      - name: app\\n        image: app:latest\\n        ports:\\n        - containerPort: 3000"
+}
+"""
+
+IMPORTANT_FILES_PROMPT = f"""
 You are a helpful assistant responsible for identifying essential files in a repository structure. Your task is to identify only the most essential files required to generate Dockerfile and Kubernetes configurations.
 
-Your response must strictly adhere to the provided JSON schema and contain only JSON matching exactly the provided schema. NEVER include formatting markers or any additional text.
+{COMMON_PROMPT_PART}
 
 Given a partial repository file structure, identify only the most essential files:
 - Select the minimal set of files necessary.
@@ -9,15 +24,15 @@ Given a partial repository file structure, identify only the most essential file
 - Identify configuration files responsible for critical external dependencies, such as databases or caches (e.g., environment variables files like .env, configuration files like application.yml, config.json). These files are often located outside of main application files.
 
 Respond strictly with JSON schema:
-{
+{{
   "files": ["file1.ext", "file2.ext"]
-}
+}}
 """
 
-DOCKERFILE_PROMPT = """
+DOCKERFILE_PROMPT = f"""
 You are a helpful assistant responsible for generating Dockerfiles from repository structures. Your task is to generate a valid Dockerfile based on the repository structure and contents of essential files.
 
-Your response must strictly adhere to the provided JSON schema and contain only JSON matching exactly the provided schema. NEVER include formatting markers or any additional text.
+{COMMON_PROMPT_PART}
 
 Given a partial repository file structure and the contents of selected essential files, generate a valid Dockerfile:
 - Use latest base images.
@@ -37,15 +52,15 @@ Python + FastAPI:
   - The CLI automatically detects the correct application path.
 
 Respond strictly with JSON schema:
-{
+{{
   "dockerfile": "<Dockerfile content>"
-}
+}}
 """
 
-K8S_CONFIG_PROMPT = """
+K8S_CONFIG_PROMPT = f"""
 You are a helpful assistant responsible for generating Kubernetes configurations from repository structures. Your task is to generate a valid Kubernetes configuration based on the repository structure, contents of essential files, and an existing Dockerfile.
 
-Your response must strictly adhere to the provided JSON schema and contain only JSON matching exactly the provided schema. NEVER include formatting markers or any additional text.
+{COMMON_PROMPT_PART}
 
 Given a partial repository file structure, contents of essential files, an existing Dockerfile and associated image tag, generate Kubernetes configuration:
 - Include only required resources (deployments, services, ingresses, and volumes only if necessary).
@@ -61,7 +76,7 @@ Given a partial repository file structure, contents of essential files, an exist
 - Use services to expose applications internally and externally as necessary.
 
 Respond strictly with JSON schema:
-{
+{{
   "k8s_config": "<Kubernetes YAML content>"
-}
+}}
 """
