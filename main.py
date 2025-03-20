@@ -15,8 +15,7 @@ from kubernetes.client.rest import ApiException
 from models import get_model
 
 # Constants
-CONFUSING_FILES = ["Dockerfile", "k8s.yaml", "docker-compose.yml", "docker-compose.yaml", "k8s"]
-IGNORED_FILES = [".jar", "Dockerfile", "k8s.yaml"]
+CONFUSING_FILES = ["Dockerfile", "k8s.yaml", "docker-compose.yml", "docker-compose.yaml", "k8s", ".jar"]
 DEFAULT_RETRIES = 10
 DEFAULT_DELAY = 10
 DOCKER_START_TIMEOUT = 5
@@ -150,7 +149,7 @@ def get_important_files(tree_str: str) -> List[str]:
     prompt = {"tree": tree_str}
     response = model.ask_model("get_important_files", json.dumps(prompt))
     files = json.loads(response)["files"]
-    return [file for file in files if not any(ignored in file for ignored in IGNORED_FILES)]
+    return files
 
 
 def get_files_content(files: List[str], tmp_dir: str) -> Dict[str, str]:
