@@ -47,9 +47,16 @@ Node.js + Yarn:
   - Then install dependencies: `yarn install --immutable`
   
 Python + FastAPI:
-- If the repository uses Python with FastAPI (identified by presence of FastAPI in requirements.txt or pyproject.toml), you SHOULD use FastAPI CLI to run the application:
-  - Simply run: `fastapi run`
+- If the repository uses Python with FastAPI (identified by presence of FastAPI in requirements.txt or pyproject.toml), you MUST:
+  - Install FastAPI with standard extras: `RUN pip install "fastapi[standard]"`
+  - Run the application: `fastapi run`
   - The CLI automatically detects the correct application path.
+
+Python + Poetry:
+- If the repository uses Poetry (identified by presence of pyproject.toml and poetry.lock files), you MUST install Poetry using pip:
+  - Install Poetry: `RUN pip install poetry`
+  - Disable virtualenvs: `RUN poetry config virtualenvs.create false`
+  - Install dependencies: `RUN poetry install --no-interaction --no-root`
 
 Respond strictly with JSON schema:
 {{
@@ -74,6 +81,11 @@ Given a partial repository file structure, contents of essential files, an exist
 - Persistent storage for StatefulSets must be managed through PersistentVolumeClaims (PVCs).
 - Stateless applications should use Deployments.
 - Use services to expose applications internally and externally as necessary.
+
+Resource Management and Health Checks:
+- Analyze the application type and dependencies from the provided files to determine appropriate resource limits and requests.
+- Set resource limits and requests based on the application's needs
+- Implement appropriate liveness and readiness probes based on the application type
 
 Respond strictly with JSON schema:
 {{

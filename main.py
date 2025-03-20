@@ -16,8 +16,8 @@ from models import get_model
 
 # Constants
 CONFUSING_FILES = ["Dockerfile", "k8s.yaml", "docker-compose.yml", "docker-compose.yaml", "k8s", ".jar"]
-DEFAULT_RETRIES = 10
-DEFAULT_DELAY = 10
+DEFAULT_RETRIES = 15
+DEFAULT_DELAY = 15
 DOCKER_START_TIMEOUT = 5
 K8S_INGRESS_TIMEOUT = 5
 
@@ -311,6 +311,38 @@ def run_docker_image(image: docker.models.images.Image, exposed_ports: List[str]
     return container
 
 
+def normalize_namespace(name: str) -> str:
+    """
+    Normalize namespace name to comply with Kubernetes naming rules.
+    Namespace must be a lowercase RFC 1123 label:
+    - must consist of lower case alphanumeric characters or '-'
+    - must start and end with an alphanumeric character
+    - regex: [a-z0-9]([-a-z0-9]*[a-z0-9])?
+    
+    Args:
+        name: Name to normalize
+        
+    Returns:
+        str: Normalized name
+    """
+    # Replace any non-alphanumeric characters with '-'
+    normalized = ''.join(c if c.isalnum() else '-' for c in name.lower())
+    
+    # Remove leading/trailing hyphens
+    normalized = normalized.strip('-')
+    
+    # Replace multiple consecutive hyphens with a single one
+    normalized = '-'.join(filter(None, normalized.split('-')))
+    
+    # Ensure the name starts and ends with an alphanumeric character
+    if not normalized[0].isalnum():
+        normalized = 'a' + normalized
+    if not normalized[-1].isalnum():
+        normalized = normalized + 'a'
+        
+    return normalized
+
+
 def apply_k8s(repo_name: str, tmp_dir: str) -> Optional[str]:
     """
     Apply Kubernetes configuration.
@@ -331,7 +363,7 @@ def apply_k8s(repo_name: str, tmp_dir: str) -> Optional[str]:
     kubeconfig = os.getenv("KUBECONFIG")
     config.load_kube_config(config_file=kubeconfig if kubeconfig else None)
     
-    namespace = repo_name.lower()
+    namespace = normalize_namespace(repo_name)
     api = client.CoreV1Api()
     networking_api = client.NetworkingV1Api()
 
@@ -399,7 +431,7 @@ def test_deployment(url: str, retries: int = DEFAULT_RETRIES, delay: int = DEFAU
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
-            if response.status_code == 200:
+            if response.status_code == 200 or response.status_code == 404: # some apps don't have default route
                 logger.info(f"Deployment test successful on attempt {attempt}.")
                 return True
         except requests.exceptions.RequestException as e:
@@ -448,7 +480,7 @@ def do_magic(repo_url: str) -> None:
         image = build_docker_image(tmp_dir, image_tag)
 
         exposed_ports = get_exposed_ports(dockerfile)
-        # container = run_docker_image(image, exposed_ports)
+        container = run_docker_image(image, exposed_ports)
 
         k8s = get_k8s_config(tree_str, files_content, dockerfile, image_tag)
         write_k8s_config(tmp_dir, k8s)
@@ -473,10 +505,15 @@ def main() -> None:
     # TODO chyba trzeba spreparować repozytoria proste w różnych technologiach (np. python, kotlin, js)
 
     # POC 1
-    # repo_url = "https://github.com/run-rasztabiga-me/poc1-fastapi.git" # passed
+    # repo_url = "https://github.com/run-rasztabiga-me/poc1-fastapi.git"                # passed
+    # repo_url = "https://github.com/enriquecatala/fastapi-helloworld.git"              # passed
+    # repo_url = "https://github.com/Azure-Samples/azd-simple-fastapi-appservice.git"   # passed
+    # repo_url = "https://github.com/carvalhochris/fastapi-htmx-hello.git"              # passed
+    repo_url = "https://github.com/Sivasuthan9/fastapi-docker-optimized.git"            # passed
+
 
     # POC 2
-    repo_url = "https://github.com/run-rasztabiga-me/poc2-fastapi.git" # pending
+    # repo_url = "https://github.com/run-rasztabiga-me/poc2-fastapi.git" # passed
 
     do_magic(repo_url)
 
