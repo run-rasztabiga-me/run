@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import shutil
+import subprocess
 import time
 from typing import Dict, List, Optional, Tuple, Generator
 
@@ -413,6 +414,39 @@ def apply_k8s(repo_name: str, tmp_dir: str) -> Optional[str]:
     except ApiException as e:
         logger.error(f"Failed to read ingress: {e}")
         return None
+    
+
+def ensure_etc_hosts_entry(url: str) -> None:
+    """
+    Ensure /etc/hosts maps given URL to 127.0.0.1.
+    Adds entry using `sudo` if needed.
+    """
+    logger.info("Ensuring /etc/hosts entry exists for %s", url)
+    hostname = url.replace("http://", "").replace("https://", "").split("/")[0]
+
+    try:
+        with open("/etc/hosts", "r") as f:
+            lines = f.readlines()
+    except IOError as e:
+        logger.error("Could not read /etc/hosts: %s", str(e))
+        raise
+
+    already_present = any(line.strip().endswith(hostname) and line.startswith("127.0.0.1") for line in lines)
+    if already_present:
+        logger.info("/etc/hosts already contains an entry for %s", hostname)
+        return
+
+    entry = f"127.0.0.1\t{hostname}"
+    try:
+        logger.info("Adding entry to /etc/hosts with sudo...")
+        subprocess.run(
+            ["sudo", "sh", "-c", f"echo '{entry}' >> /etc/hosts"],
+            check=True
+        )
+        logger.info("Successfully added entry to /etc/hosts: %s", entry)
+    except subprocess.CalledProcessError as e:
+        logger.error("Failed to add /etc/hosts entry via sudo: %s", e)
+        raise
 
 
 def test_deployment(url: str, retries: int = DEFAULT_RETRIES, delay: int = DEFAULT_DELAY) -> bool:
@@ -488,6 +522,8 @@ def do_magic(repo_url: str) -> None:
         url = apply_k8s(repo_name, tmp_dir)
         if not url:
             raise RuntimeError("Failed to get ingress URL")
+
+        ensure_etc_hosts_entry(url)
 
         if not test_deployment(url):
             raise RuntimeError("Deployment test failed")
