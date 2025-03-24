@@ -58,6 +58,8 @@ Python + Poetry:
   - Install Poetry: `RUN pip install poetry`
   - Disable virtualenvs: `RUN poetry config virtualenvs.create false`
   - Install dependencies: `RUN poetry install --no-interaction --no-root`
+  
+# TODO support UV
 
 Respond strictly with JSON schema:
 {{

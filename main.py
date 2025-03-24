@@ -53,24 +53,38 @@ def prepare_working_directory(tmp_dir: str) -> None:
 
 def clone_repo(repo_url: str, tmp_dir: str) -> None:
     """
-    Clone repository and remove confusing files.
-    
+    Clone repository and recursively remove confusing files.
+
     Args:
         repo_url: URL of the repository to clone
         tmp_dir: Path to the temporary directory
-        
+
     Raises:
         git.exc.GitCommandError: If repository cloning fails
     """
     logger.info("Cloning repository...")
     Repo.clone_from(repo_url, tmp_dir)
 
-    for file in CONFUSING_FILES:
-        path = os.path.join(tmp_dir, file)
-        if os.path.isfile(path):
-            os.remove(path)
-        elif os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors=True)
+    # Recursively search and remove confusing files
+    for root, dirs, files in os.walk(tmp_dir, topdown=True):
+        # Skip .git directory
+        if '.git' in dirs:
+            dirs.remove('.git')
+
+        # Check files in current directory
+        for file in files:
+            if file in CONFUSING_FILES:
+                file_path = os.path.join(root, file)
+                logger.info(f"Removing confusing file: {file_path}")
+                os.remove(file_path)
+
+        # Check directories in current directory
+        for dir_name in list(dirs):  # Create a copy of dirs to modify during iteration
+            if dir_name in CONFUSING_FILES:
+                dir_path = os.path.join(root, dir_name)
+                logger.info(f"Removing confusing directory: {dir_path}")
+                shutil.rmtree(dir_path, ignore_errors=True)
+                dirs.remove(dir_name)  # Remove from dirs to prevent further traversal
 
 
 def prepare_repo_tree_as_string(tmp_dir: str) -> str:
@@ -550,11 +564,13 @@ def main() -> None:
     # repo_url = "https://github.com/enriquecatala/fastapi-helloworld.git"              # passed
     # repo_url = "https://github.com/Azure-Samples/azd-simple-fastapi-appservice.git"   # passed
     # repo_url = "https://github.com/carvalhochris/fastapi-htmx-hello.git"              # passed
-    repo_url = "https://github.com/Sivasuthan9/fastapi-docker-optimized.git"            # passed
-
+    # repo_url = "https://github.com/Sivasuthan9/fastapi-docker-optimized.git"          # passed
+    # repo_url = "https://github.com/renceInbox/fastapi-todo.git"                       # passed
 
     # POC 2
-    # repo_url = "https://github.com/run-rasztabiga-me/poc2-fastapi.git" # passed
+    # repo_url = "https://github.com/run-rasztabiga-me/poc2-fastapi.git"                # passed
+    repo_url = "https://github.com/seapagan/fastapi_async_sqlalchemy2_example.git"                       # pending
+
 
     do_magic(repo_url)
 
