@@ -88,23 +88,27 @@ def prepare_repo_tree_as_string(tmp_dir: str) -> str:
     return tree_to_str(dir_tree, trim_dir=tmp_dir)
 
 
-def tree(some_dir: str, level: int, ignore: List[str]) -> Generator[Tuple[str, List[str], List[str]], None, None]:
+def tree(some_dir: str, level: int, ignore: List[str]) -> Generator[
+    Tuple[str, List[str], List[Tuple[str, int]]], None, None]:
     """
     Generate tree structure of directory.
-    
+
     Args:
         some_dir: Path to the directory
         level: Depth level to traverse
         ignore: List of directories to ignore
-        
+
     Yields:
-        Tuple of (root, dirs, files)
+        Tuple of (root, dirs, files_with_sizes)
     """
     assert os.path.isdir(some_dir)
     num_sep = some_dir.count(os.path.sep)
-    
+
     for root, dirs, files in os.walk(some_dir):
-        yield root, dirs, files
+        # Convert files to list of tuples with file sizes
+        files_with_sizes = [(file, os.path.getsize(os.path.join(root, file))) for file in files]
+        yield root, dirs, files_with_sizes
+
         num_sep_this = root.count(os.path.sep)
         if num_sep + level <= num_sep_this:
             del dirs[:]
@@ -113,23 +117,24 @@ def tree(some_dir: str, level: int, ignore: List[str]) -> Generator[Tuple[str, L
                 dirs.remove(i)
 
 
-def tree_to_str(tree_gen: Generator[Tuple[str, List[str], List[str]], None, None], trim_dir: Optional[str] = None) -> str:
+def tree_to_str(tree_gen: Generator[Tuple[str, List[str], List[Tuple[str, int]]], None, None],
+                trim_dir: Optional[str] = None) -> str:
     """
     Convert tree generator to string.
-    
+
     Args:
         tree_gen: Tree generator
         trim_dir: Directory to trim from paths
-        
+
     Returns:
         str: Tree as string
     """
     tree_str = ""
-    for root, _, files in tree_gen:
+    for root, _, files_with_sizes in tree_gen:
         if trim_dir:
             root = root.replace(trim_dir, "")
-        for file in files:
-            tree_str += f"{root}/{file}\n"
+        for file, size in files_with_sizes:
+            tree_str += f"{root}/{file} - {size} bytes\n"
     return tree_str
 
 

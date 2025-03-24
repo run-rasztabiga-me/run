@@ -22,6 +22,7 @@ Given a partial repository file structure, identify only the most essential file
 - Select the minimal set of files necessary.
 - Include files essential to application build and execution (e.g., package.json, requirements.txt, build.gradle, pom.xml).
 - Identify configuration files responsible for critical external dependencies, such as databases or caches (e.g., environment variables files like .env, configuration files like application.yml, config.json). These files are often located outside of main application files.
+- Consider the file size and avoid using large files unless absolutely necessary.
 
 Respond strictly with JSON schema:
 {{
