@@ -16,7 +16,7 @@ from kubernetes.client.rest import ApiException
 from models import get_model
 
 # Constants
-CONFUSING_FILES = ["Dockerfile", "k8s.yaml", "docker-compose.yml", "docker-compose.yaml", "k8s", ".jar"]
+CONFUSING_FILES = ["Dockerfile", "k8s.yaml", "docker-compose.yml", "docker-compose.yaml", "docker_compose", "k8s", ".jar", ".dockerignore", ".git", ".idea", ".vscode", ".fleet"]
 DEFAULT_RETRIES = 15
 DEFAULT_DELAY = 15
 DOCKER_START_TIMEOUT = 5
@@ -29,13 +29,16 @@ docker_client = docker.from_env()
 
 # model = get_model("openai/gpt-4o")
 # model = get_model("openai/o3-mini-high")
-model = get_model("google/gemini-2.0-flash-001") # działa naprawde bardzo dobrze, prawie zawsze sukces na poc2
+model = get_model("google/gemini-2.0-flash-001")                  # działa naprawde bardzo dobrze, prawie zawsze sukces na poc2
+# model = get_model("google/gemini-2.5-pro-exp-03-25:free")
+# model = get_model("google/gemini-2.0-flash-thinking-exp:free")
 # model = get_model("deepseek/deepseek-r1:free")
 # model = get_model("meta-llama/llama-3.3-70b-instruct")
 # model = get_model("anthropic/claude-3.5-haiku")
 # model = get_model("anthropic/claude-3.7-sonnet")
 # model = get_model("anthropic/claude-3.7-sonnet:thinking")
 # model = get_model("deepseek/deepseek-chat")
+# model = get_model("qwen/qwen2.5-vl-32b-instruct:free")
 print(model)
 
 
@@ -67,10 +70,6 @@ def clone_repo(repo_url: str, tmp_dir: str) -> None:
 
     # Recursively search and remove confusing files
     for root, dirs, files in os.walk(tmp_dir, topdown=True):
-        # Skip .git directory
-        if '.git' in dirs:
-            dirs.remove('.git')
-
         # Check files in current directory
         for file in files:
             if file in CONFUSING_FILES:
@@ -98,19 +97,17 @@ def prepare_repo_tree_as_string(tmp_dir: str) -> str:
         str: Repository tree as string
     """
     logger.info("Preparing tree...")
-    dir_tree = tree(tmp_dir, level=1, ignore=[".git"])
+    dir_tree = tree(tmp_dir)
     return tree_to_str(dir_tree, trim_dir=tmp_dir)
 
 
-def tree(some_dir: str, level: int, ignore: List[str]) -> Generator[
+def tree(some_dir: str) -> Generator[
     Tuple[str, List[str], List[Tuple[str, int]]], None, None]:
     """
     Generate tree structure of directory.
 
     Args:
         some_dir: Path to the directory
-        level: Depth level to traverse
-        ignore: List of directories to ignore
 
     Yields:
         Tuple of (root, dirs, files_with_sizes)
@@ -122,13 +119,6 @@ def tree(some_dir: str, level: int, ignore: List[str]) -> Generator[
         # Convert files to list of tuples with file sizes
         files_with_sizes = [(file, os.path.getsize(os.path.join(root, file))) for file in files]
         yield root, dirs, files_with_sizes
-
-        num_sep_this = root.count(os.path.sep)
-        if num_sep + level <= num_sep_this:
-            del dirs[:]
-        for i in ignore:
-            if i in dirs:
-                dirs.remove(i)
 
 
 def tree_to_str(tree_gen: Generator[Tuple[str, List[str], List[Tuple[str, int]]], None, None],
@@ -522,6 +512,7 @@ def do_magic(repo_url: str) -> None:
         clone_repo(repo_url, tmp_dir)
 
         tree_str = prepare_repo_tree_as_string(tmp_dir)
+        print(tree_str)
         important_files = get_important_files(tree_str)
         logger.info("Important files identified: %s", important_files)
 
@@ -569,8 +560,11 @@ def main() -> None:
 
     # POC 2
     # repo_url = "https://github.com/run-rasztabiga-me/poc2-fastapi.git"                # passed
-    repo_url = "https://github.com/seapagan/fastapi_async_sqlalchemy2_example.git"                       # pending
+    repo_url = "https://github.com/beerjoa/fastapi-postgresql-boilerplate.git"          # pending
 
+
+    # POC X
+    # repo_url = "https://github.com/igorbenav/FastAPI-boilerplate.git"
 
     do_magic(repo_url)
 

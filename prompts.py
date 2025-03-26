@@ -58,8 +58,6 @@ Python + Poetry:
   - Install Poetry: `RUN pip install poetry`
   - Disable virtualenvs: `RUN poetry config virtualenvs.create false`
   - Install dependencies: `RUN poetry install --no-interaction --no-root`
-  
-# TODO support UV
 
 Respond strictly with JSON schema:
 {{
@@ -84,6 +82,7 @@ Given a partial repository file structure, contents of essential files, an exist
 - Persistent storage for StatefulSets must be managed through PersistentVolumeClaims (PVCs).
 - Stateless applications should use Deployments.
 - Use services to expose applications internally and externally as necessary.
+- Kubernetes secrets MUST be in base64 format.
 
 Resource Management and Health Checks:
 - Analyze the application type and dependencies from the provided files to determine appropriate resource limits and requests.
