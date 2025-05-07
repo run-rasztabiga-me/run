@@ -9,10 +9,13 @@ from git import Repo
 from pydantic import BaseModel, Field
 
 from autogen_agentchat.agents import AssistantAgent
+from autogen_agentchat.base import TerminationCondition
 from autogen_agentchat.conditions import TextMessageTermination
+from typing import Any, Dict, List, Optional, Set, Callable, Union
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_agentchat.ui import Console
 from autogen_core.tools import BaseTool
+from autogen_agentchat.messages import TextMessage, BaseChatMessage, BaseAgentEvent
 from autogen_ext.models.openai import OpenAIChatCompletionClient, _model_info
 
 # Setup
@@ -254,13 +257,70 @@ You can use the prepare_repo_tree tool to get an overview of the repository stru
 Use the get_file_content tool to retrieve the content of specific files that you determine are important. This tool requires the repository name and the file path relative to the repository root.
 
 You can also use the write_file tool to create new files or modify existing ones in the repository. This tool requires the repository name, the file path relative to the repository root, and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
+
+IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application. After you have created a Dockerfile using the write_file tool, respond with a message that includes the word "DONE" to indicate that you have completed the task.
 """,
     reflect_on_tool_use=True,
-    model_client_stream=True,  # Enable streaming tokens for better console output
+    model_client_stream=False,  # Enable streaming tokens for better console output
 )
 
+# Define a custom termination condition that checks if the Dockerfile has been generated
+class DockerfileGeneratedTermination(TerminationCondition):
+    def __init__(self, agent_name: str):
+        self.agent_name = agent_name
+        self.dockerfile_generated = False
+
+    @property
+    def terminated(self) -> bool:
+        return self.dockerfile_generated
+
+    async def reset(self) -> None:
+        self.dockerfile_generated = False
+
+    async def __call__(self, messages: List[Union[Dict[str, Any], BaseChatMessage, BaseAgentEvent]]) -> Any:
+        # If already terminated, don't check again
+        if self.terminated:
+            from autogen_agentchat.base import TerminatedException
+            raise TerminatedException("Termination condition has already been reached")
+
+        # Check if any message indicates that a Dockerfile has been created
+        for message in messages:
+            # Handle different types of message objects
+            if isinstance(message, TextMessage):
+                # For TextMessage objects, access properties directly
+                if message.source == self.agent_name and isinstance(message.content, str):
+                    content = message.content
+                    # Check if the message is a tool result indicating a Dockerfile was created
+                    if "Created file Dockerfile successfully" in content or "Modified file Dockerfile successfully" in content:
+                        self.dockerfile_generated = True
+                    # Check if the message contains the word "DONE" to indicate task completion
+                    if "DONE" in content:
+                        self.dockerfile_generated = True
+            elif isinstance(message, dict):
+                # For dictionary-like messages, use get() method
+                if message.get("name") == self.agent_name and isinstance(message.get("content"), str):
+                    content = message.get("content", "")
+                    # Check if the message is a tool result indicating a Dockerfile was created
+                    if "Created file Dockerfile successfully" in content or "Modified file Dockerfile successfully" in content:
+                        self.dockerfile_generated = True
+                    # Check if the message contains the word "DONE" to indicate task completion
+                    if "DONE" in content:
+                        self.dockerfile_generated = True
+                    # Also check for tool calls that might have created a Dockerfile
+                    tool_calls = message.get("tool_calls", [])
+                    for tool_call in tool_calls:
+                        if tool_call.get("name") == "write_file":
+                            args = tool_call.get("args", {})
+                            if args.get("file_path") == "Dockerfile":
+                                self.dockerfile_generated = True
+
+        if self.dockerfile_generated:
+            from autogen_agentchat.messages import StopMessage
+            return StopMessage(content="Dockerfile has been generated successfully", source="DockerfileGeneratedTermination")
+        return None
+
 # Add termination condition and create a team
-termination_condition = TextMessageTermination("repo_management_agent")
+termination_condition = DockerfileGeneratedTermination("repo_management_agent")
 
 # Create a team with the agent and the termination condition
 team = RoundRobinGroupChat(
