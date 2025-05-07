@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import shutil
+import time
 from typing import Dict, Generator, List, Optional, Tuple
 
 import docker
@@ -28,6 +29,7 @@ docker_client = docker.from_env()
 CONFUSING_FILES = {".git", ".github", ".gitignore", ".gitmodules", ".gitattributes", 
                   ".gitlab-ci.yml", ".travis.yml", "LICENSE", "README.md", "CHANGELOG.md",
                   "__pycache__", ".pytest_cache", ".coverage", "htmlcov", ".idea", ".vscode"}
+DOCKER_START_TIMEOUT = 5
 
 # Define a model client
 model_info = _model_info.get_info("gpt-4o")
@@ -41,6 +43,7 @@ model_client = OpenAIChatCompletionClient(
 # TODO:
 # 1. Nie trzeba przekazywac repo_name ciagle
 # 2. Moze dodac memory?
+# 3. Dodac rzeczy z prompta (prompts.py) np technology-specific guidelines (moze jako task? rozpoznajacy technologie i podajacy jakies docsy)
 
 # Define tool input/output models
 class CloneRepoInput(BaseModel):
@@ -59,6 +62,10 @@ class WriteFileInput(BaseModel):
     content: str = Field(..., description="Content to write to the file")
 
 class BuildDockerImageInput(BaseModel):
+    repo_name: str = Field(..., description="Name of the repository")
+    image_tag: str = Field(..., description="Tag for the Docker image")
+
+class RunDockerContainerInput(BaseModel):
     repo_name: str = Field(..., description="Name of the repository")
     image_tag: str = Field(..., description="Tag for the Docker image")
 
@@ -285,6 +292,74 @@ class BuildDockerImageTool(BaseTool[BuildDockerImageInput, str]):
             return f"Unexpected error: {str(e)}"
 
 
+class RunDockerContainerTool(BaseTool[RunDockerContainerInput, str]):
+    name: str = "run_docker_container"
+    description: str = "Run a Docker container from a built image"
+    args_schema: type[BaseModel] = RunDockerContainerInput
+
+    def __init__(self):
+        super().__init__(
+            args_type=RunDockerContainerInput,
+            return_type=str,
+            name=self.name,
+            description=self.description
+        )
+
+    def _get_exposed_ports(self, dockerfile_content: str) -> List[str]:
+        """Extract exposed ports from Dockerfile content."""
+        exposed_ports = []
+        for line in dockerfile_content.split("\n"):
+            if "EXPOSE" in line:
+                exposed_ports = line.split(" ")[1:]
+        return exposed_ports
+
+    async def run(self, args: RunDockerContainerInput, cancellation_token=None) -> str:
+        """Run a Docker container from a built image."""
+        tmp_dir = f"./tmp/{args.repo_name}"
+
+        if not os.path.isdir(tmp_dir):
+            return f"Error: Repository directory {tmp_dir} does not exist. Please clone the repository first."
+
+        dockerfile_path = os.path.join(tmp_dir, "Dockerfile")
+        if not os.path.isfile(dockerfile_path):
+            return f"Error: Dockerfile does not exist in the repository. Please create a Dockerfile first."
+
+        try:
+            # Read Dockerfile to extract exposed ports
+            with open(dockerfile_path, "r") as f:
+                dockerfile_content = f.read()
+
+            exposed_ports = self._get_exposed_ports(dockerfile_content)
+            if not exposed_ports:
+                return f"Error: No exposed ports found in Dockerfile. Please make sure the Dockerfile contains an EXPOSE instruction."
+
+            # Create port mapping
+            ports = {f"{port}/tcp": None for port in exposed_ports}
+
+            logger.info(f"Running Docker container from image {args.image_tag}...")
+            container = docker_client.containers.run(args.image_tag, detach=True, ports=ports)
+
+            # Wait for container to start
+            time.sleep(DOCKER_START_TIMEOUT)
+            container.reload()
+
+            # Get container information
+            container_info = {
+                "id": container.id,
+                "name": container.name,
+                "status": container.status,
+                "ports": container.ports
+            }
+
+            return f"Successfully started Docker container from image {args.image_tag}. Container information: {container_info}"
+        except docker.errors.ImageNotFound as e:
+            return f"Error: Docker image {args.image_tag} not found. Please build the image first: {str(e)}"
+        except docker.errors.APIError as e:
+            return f"Error with Docker API: {str(e)}"
+        except Exception as e:
+            return f"Unexpected error: {str(e)}"
+
+
 # Define an AssistantAgent with the model, tools, system message, and reflection enabled.
 agent = AssistantAgent(
     name="repo_management_agent",
@@ -294,7 +369,8 @@ agent = AssistantAgent(
         PrepareRepoTreeTool(),
         GetFileContentTool(),
         WriteFileTool(),
-        BuildDockerImageTool()
+        BuildDockerImageTool(),
+        RunDockerContainerTool()
     ],
     system_message="""You are a helpful assistant specialized in working with Git repositories.
 You have access to tools that can help you with these tasks. When given a repository URL, you can:
@@ -303,6 +379,7 @@ You have access to tools that can help you with these tasks. When given a reposi
 3. Retrieve the content of files you determine are necessary to understand the application
 4. Write or modify files in the repository (e.g., Dockerfile, Kubernetes manifests)
 5. Build and push Docker images based on the Dockerfile
+6. Run Docker containers from built images to test if they work
 
 You should use the clone_repo tool to clone a repository. The repository name can be extracted from the repository URL by taking the last part of the URL, removing the .git extension, and replacing dots with hyphens.
 For example, for the URL "https://github.com/run-rasztabiga-me/poc1-fastapi.git", the repository name would be "poc1-fastapi".
@@ -315,7 +392,9 @@ You can use the write_file tool to create new files or modify existing ones in t
 
 After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the repository name and the image tag. The image tag should follow the format "registry/repository-name:tag" (e.g., "localhost:5000/poc1-fastapi:latest").
 
-IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application AND built a Docker image based on that Dockerfile. After you have created a Dockerfile using the write_file tool and built a Docker image using the build_docker_image tool, respond with a message that includes the word "DONE" to indicate that you have completed the task.
+After building a Docker image, you can use the run_docker_container tool to run a container from that image and test if it works. This tool requires the repository name and the image tag. It will automatically extract the exposed ports from the Dockerfile and map them to random ports on the host.
+
+IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application, built a Docker image based on that Dockerfile, AND run a Docker container from that image to test if it works. After you have completed all these steps, respond with a message that includes the word "DONE" to indicate that you have completed the task.
 """,
     reflect_on_tool_use=True,
     model_client_stream=False,  # Enable streaming tokens for better console output
@@ -327,14 +406,16 @@ class DockerBuildTermination(TerminationCondition):
         self.agent_name = agent_name
         self.dockerfile_generated = False
         self.docker_image_built = False
+        self.docker_container_run = False
 
     @property
     def terminated(self) -> bool:
-        return self.dockerfile_generated and self.docker_image_built
+        return self.dockerfile_generated and self.docker_image_built and self.docker_container_run
 
     async def reset(self) -> None:
         self.dockerfile_generated = False
         self.docker_image_built = False
+        self.docker_container_run = False
 
     async def __call__(self, messages: List[Union[Dict[str, Any], BaseChatMessage, BaseAgentEvent]]) -> Any:
         # If already terminated, don't check again
@@ -355,10 +436,14 @@ class DockerBuildTermination(TerminationCondition):
                     # Check if the message indicates a Docker image was built
                     if "Successfully built and pushed Docker image" in content:
                         self.docker_image_built = True
+                    # Check if the message indicates a Docker container was run
+                    if "Successfully started Docker container" in content:
+                        self.docker_container_run = True
                     # Check if the message contains the word "DONE" to indicate task completion
                     if "DONE" in content:
                         self.dockerfile_generated = True
                         self.docker_image_built = True
+                        self.docker_container_run = True
             elif isinstance(message, dict):
                 # For dictionary-like messages, use get() method
                 if message.get("name") == self.agent_name and isinstance(message.get("content"), str):
@@ -369,11 +454,15 @@ class DockerBuildTermination(TerminationCondition):
                     # Check if the message indicates a Docker image was built
                     if "Successfully built and pushed Docker image" in content:
                         self.docker_image_built = True
+                    # Check if the message indicates a Docker container was run
+                    if "Successfully started Docker container" in content:
+                        self.docker_container_run = True
                     # Check if the message contains the word "DONE" to indicate task completion
                     if "DONE" in content:
                         self.dockerfile_generated = True
                         self.docker_image_built = True
-                    # Also check for tool calls that might have created a Dockerfile or built a Docker image
+                        self.docker_container_run = True
+                    # Also check for tool calls that might have created a Dockerfile, built a Docker image, or run a Docker container
                     tool_calls = message.get("tool_calls", [])
                     for tool_call in tool_calls:
                         if tool_call.get("name") == "write_file":
@@ -382,10 +471,12 @@ class DockerBuildTermination(TerminationCondition):
                                 self.dockerfile_generated = True
                         elif tool_call.get("name") == "build_docker_image":
                             self.docker_image_built = True
+                        elif tool_call.get("name") == "run_docker_container":
+                            self.docker_container_run = True
 
-        if self.dockerfile_generated and self.docker_image_built:
+        if self.dockerfile_generated and self.docker_image_built and self.docker_container_run:
             from autogen_agentchat.messages import StopMessage
-            return StopMessage(content="Dockerfile has been generated and Docker image has been built successfully", source="DockerBuildTermination")
+            return StopMessage(content="Dockerfile has been generated, Docker image has been built, and Docker container has been run successfully", source="DockerBuildTermination")
         return None
 
 # Add termination condition and create a team
@@ -401,7 +492,7 @@ team = RoundRobinGroupChat(
 async def main() -> None:
     # Use the team's run_stream method to get better console output
     async for message in team.run_stream(
-        task="I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application and build a Docker image with the tag 'localhost:5000/poc1-fastapi:latest'."
+        task="I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application, build a Docker image with the tag 'localhost:5000/poc1-fastapi:latest', and run a Docker container from that image to see if it works."
     ):  # type: ignore
         print(type(message).__name__, message)
 
