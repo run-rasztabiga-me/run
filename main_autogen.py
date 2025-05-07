@@ -4,6 +4,7 @@ import os
 import shutil
 from typing import Dict, Generator, List, Optional, Tuple
 
+import docker
 from dotenv import load_dotenv
 from git import Repo
 from pydantic import BaseModel, Field
@@ -21,6 +22,7 @@ from autogen_ext.models.openai import OpenAIChatCompletionClient, _model_info
 # Setup
 load_dotenv()
 logger = logging.getLogger(__name__)
+docker_client = docker.from_env()
 
 # Constants
 CONFUSING_FILES = {".git", ".github", ".gitignore", ".gitmodules", ".gitattributes", 
@@ -55,6 +57,10 @@ class WriteFileInput(BaseModel):
     repo_name: str = Field(..., description="Name of the repository")
     file_path: str = Field(..., description="Path to the file relative to the repository root")
     content: str = Field(..., description="Content to write to the file")
+
+class BuildDockerImageInput(BaseModel):
+    repo_name: str = Field(..., description="Name of the repository")
+    image_tag: str = Field(..., description="Tag for the Docker image")
 
 # Define tools
 class CloneRepoTool(BaseTool[CloneRepoInput, str]):
@@ -232,6 +238,53 @@ class WriteFileTool(BaseTool[WriteFileInput, str]):
             return f"Error writing to file {args.file_path}: {str(e)}"
 
 
+class BuildDockerImageTool(BaseTool[BuildDockerImageInput, str]):
+    name: str = "build_docker_image"
+    description: str = "Build and push a Docker image from the repository"
+    args_schema: type[BaseModel] = BuildDockerImageInput
+
+    def __init__(self):
+        super().__init__(
+            args_type=BuildDockerImageInput,
+            return_type=str,
+            name=self.name,
+            description=self.description
+        )
+
+    async def run(self, args: BuildDockerImageInput, cancellation_token=None) -> str:
+        """Build and push a Docker image from the repository."""
+        tmp_dir = f"./tmp/{args.repo_name}"
+
+        if not os.path.isdir(tmp_dir):
+            return f"Error: Repository directory {tmp_dir} does not exist. Please clone the repository first."
+
+        dockerfile_path = os.path.join(tmp_dir, "Dockerfile")
+        if not os.path.isfile(dockerfile_path):
+            return f"Error: Dockerfile does not exist in the repository. Please create a Dockerfile first."
+
+        try:
+            logger.info(f"Building Docker image with tag {args.image_tag}...")
+            image, build_logs = docker_client.images.build(path=tmp_dir, tag=args.image_tag, forcerm=True, pull=False)
+
+            # Log build output
+            for log in build_logs:
+                if 'stream' in log:
+                    log_line = log['stream'].strip()
+                    if log_line:
+                        logger.info(log_line)
+
+            logger.info(f"Pushing Docker image {args.image_tag}...")
+            docker_client.images.push(args.image_tag)
+
+            return f"Successfully built and pushed Docker image {args.image_tag}"
+        except docker.errors.BuildError as e:
+            return f"Error building Docker image: {str(e)}"
+        except docker.errors.APIError as e:
+            return f"Error with Docker API: {str(e)}"
+        except Exception as e:
+            return f"Unexpected error: {str(e)}"
+
+
 # Define an AssistantAgent with the model, tools, system message, and reflection enabled.
 agent = AssistantAgent(
     name="repo_management_agent",
@@ -240,7 +293,8 @@ agent = AssistantAgent(
         CloneRepoTool(),
         PrepareRepoTreeTool(),
         GetFileContentTool(),
-        WriteFileTool()
+        WriteFileTool(),
+        BuildDockerImageTool()
     ],
     system_message="""You are a helpful assistant specialized in working with Git repositories.
 You have access to tools that can help you with these tasks. When given a repository URL, you can:
@@ -248,6 +302,7 @@ You have access to tools that can help you with these tasks. When given a reposi
 2. Analyze the repository structure to identify important files
 3. Retrieve the content of files you determine are necessary to understand the application
 4. Write or modify files in the repository (e.g., Dockerfile, Kubernetes manifests)
+5. Build and push Docker images based on the Dockerfile
 
 You should use the clone_repo tool to clone a repository. The repository name can be extracted from the repository URL by taking the last part of the URL, removing the .git extension, and replacing dots with hyphens.
 For example, for the URL "https://github.com/run-rasztabiga-me/poc1-fastapi.git", the repository name would be "poc1-fastapi".
@@ -256,26 +311,30 @@ You can use the prepare_repo_tree tool to get an overview of the repository stru
 
 Use the get_file_content tool to retrieve the content of specific files that you determine are important. This tool requires the repository name and the file path relative to the repository root.
 
-You can also use the write_file tool to create new files or modify existing ones in the repository. This tool requires the repository name, the file path relative to the repository root, and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
+You can use the write_file tool to create new files or modify existing ones in the repository. This tool requires the repository name, the file path relative to the repository root, and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
 
-IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application. After you have created a Dockerfile using the write_file tool, respond with a message that includes the word "DONE" to indicate that you have completed the task.
+After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the repository name and the image tag. The image tag should follow the format "registry/repository-name:tag" (e.g., "localhost:5000/poc1-fastapi:latest").
+
+IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application AND built a Docker image based on that Dockerfile. After you have created a Dockerfile using the write_file tool and built a Docker image using the build_docker_image tool, respond with a message that includes the word "DONE" to indicate that you have completed the task.
 """,
     reflect_on_tool_use=True,
     model_client_stream=False,  # Enable streaming tokens for better console output
 )
 
-# Define a custom termination condition that checks if the Dockerfile has been generated
-class DockerfileGeneratedTermination(TerminationCondition):
+# Define a custom termination condition that checks if the Dockerfile has been generated and Docker image has been built
+class DockerBuildTermination(TerminationCondition):
     def __init__(self, agent_name: str):
         self.agent_name = agent_name
         self.dockerfile_generated = False
+        self.docker_image_built = False
 
     @property
     def terminated(self) -> bool:
-        return self.dockerfile_generated
+        return self.dockerfile_generated and self.docker_image_built
 
     async def reset(self) -> None:
         self.dockerfile_generated = False
+        self.docker_image_built = False
 
     async def __call__(self, messages: List[Union[Dict[str, Any], BaseChatMessage, BaseAgentEvent]]) -> Any:
         # If already terminated, don't check again
@@ -293,9 +352,13 @@ class DockerfileGeneratedTermination(TerminationCondition):
                     # Check if the message is a tool result indicating a Dockerfile was created
                     if "Created file Dockerfile successfully" in content or "Modified file Dockerfile successfully" in content:
                         self.dockerfile_generated = True
+                    # Check if the message indicates a Docker image was built
+                    if "Successfully built and pushed Docker image" in content:
+                        self.docker_image_built = True
                     # Check if the message contains the word "DONE" to indicate task completion
                     if "DONE" in content:
                         self.dockerfile_generated = True
+                        self.docker_image_built = True
             elif isinstance(message, dict):
                 # For dictionary-like messages, use get() method
                 if message.get("name") == self.agent_name and isinstance(message.get("content"), str):
@@ -303,24 +366,30 @@ class DockerfileGeneratedTermination(TerminationCondition):
                     # Check if the message is a tool result indicating a Dockerfile was created
                     if "Created file Dockerfile successfully" in content or "Modified file Dockerfile successfully" in content:
                         self.dockerfile_generated = True
+                    # Check if the message indicates a Docker image was built
+                    if "Successfully built and pushed Docker image" in content:
+                        self.docker_image_built = True
                     # Check if the message contains the word "DONE" to indicate task completion
                     if "DONE" in content:
                         self.dockerfile_generated = True
-                    # Also check for tool calls that might have created a Dockerfile
+                        self.docker_image_built = True
+                    # Also check for tool calls that might have created a Dockerfile or built a Docker image
                     tool_calls = message.get("tool_calls", [])
                     for tool_call in tool_calls:
                         if tool_call.get("name") == "write_file":
                             args = tool_call.get("args", {})
                             if args.get("file_path") == "Dockerfile":
                                 self.dockerfile_generated = True
+                        elif tool_call.get("name") == "build_docker_image":
+                            self.docker_image_built = True
 
-        if self.dockerfile_generated:
+        if self.dockerfile_generated and self.docker_image_built:
             from autogen_agentchat.messages import StopMessage
-            return StopMessage(content="Dockerfile has been generated successfully", source="DockerfileGeneratedTermination")
+            return StopMessage(content="Dockerfile has been generated and Docker image has been built successfully", source="DockerBuildTermination")
         return None
 
 # Add termination condition and create a team
-termination_condition = DockerfileGeneratedTermination("repo_management_agent")
+termination_condition = DockerBuildTermination("repo_management_agent")
 
 # Create a team with the agent and the termination condition
 team = RoundRobinGroupChat(
@@ -332,7 +401,7 @@ team = RoundRobinGroupChat(
 async def main() -> None:
     # Use the team's run_stream method to get better console output
     async for message in team.run_stream(
-        task="I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application."
+        task="I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application and build a Docker image with the tag 'localhost:5000/poc1-fastapi:latest'."
     ):  # type: ignore
         print(type(message).__name__, message)
 
