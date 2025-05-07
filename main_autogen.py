@@ -9,8 +9,9 @@ from git import Repo
 from pydantic import BaseModel, Field
 
 from autogen_agentchat.agents import AssistantAgent
+from autogen_agentchat.conditions import TextMessageTermination
+from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_agentchat.ui import Console
-from autogen_agentchat import Team
 from autogen_core.tools import BaseTool
 from autogen_ext.models.openai import OpenAIChatCompletionClient, _model_info
 
@@ -255,18 +256,25 @@ Use the get_file_content tool to retrieve the content of specific files that you
 You can also use the write_file tool to create new files or modify existing ones in the repository. This tool requires the repository name, the file path relative to the repository root, and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
 """,
     reflect_on_tool_use=True,
-    model_client_stream=True,  # Enable streaming tokens for better console output with Team
+    model_client_stream=True,  # Enable streaming tokens for better console output
 )
 
-# Run the agent as part of a team to ensure console output.
-async def main() -> None:
-    # Create a team with just our agent
-    team = Team(agents=[agent], admin_name="admin")
+# Add termination condition and create a team
+termination_condition = TextMessageTermination("repo_management_agent")
 
-    # Initiate the chat with the team
-    await team.initiate_chat(
-        admin_input="I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application."
-    )
+# Create a team with the agent and the termination condition
+team = RoundRobinGroupChat(
+    [agent],
+    termination_condition=termination_condition,
+)
+
+# Run the team with a task and print the messages to the console
+async def main() -> None:
+    # Use the team's run_stream method to get better console output
+    async for message in team.run_stream(
+        task="I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application."
+    ):  # type: ignore
+        print(type(message).__name__, message)
 
     # Close the connection to the model client.
     await model_client.close()
