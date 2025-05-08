@@ -44,6 +44,9 @@ model_client = OpenAIChatCompletionClient(
 # 1. Nie trzeba przekazywac repo_name ciagle
 # 2. Moze dodac memory?
 # 3. Dodac rzeczy z prompta (prompts.py) np technology-specific guidelines (moze jako task? rozpoznajacy technologie i podajacy jakies docsy)
+# 4. Dodac generowanie manifestow k8s
+# 5. Dodac apply na klaster
+# 6. Dodac wybor modeli (trzeba uderzac bezposrednio do API danego modelu)
 
 # Define tool input/output models
 class CloneRepoInput(BaseModel):
