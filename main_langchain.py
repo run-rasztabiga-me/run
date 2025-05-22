@@ -1,15 +1,18 @@
 import time
+import subprocess
 from dotenv import load_dotenv
 import os
 import shutil
 import logging
 import docker
 from git import Repo
-from typing import List, Tuple, Generator
+from typing import List, Tuple, Generator, Optional
 from langgraph.prebuilt import create_react_agent
 from langchain.chat_models import init_chat_model
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
+from kubernetes import client, config, utils
+from kubernetes.client.rest import ApiException
 
 # Setup
 load_dotenv()
@@ -22,12 +25,16 @@ CONFUSING_FILES = {".git", ".github", ".gitignore", ".gitmodules",
                    "README.md", "CHANGELOG.md", "__pycache__", ".pytest_cache",
                    ".coverage", "htmlcov", ".idea", ".vscode"}
 DOCKER_START_TIMEOUT = 5
+K8S_INGRESS_TIMEOUT = 5
 
 
 # TODO
 # 1. Dodac schema i wiele argumentow do tooli bo sobie nie radzi
 # 2. Nie umie odpalic obrazu dockera bo mu przeszkadzaja porty
 # 3. Przepisac na graph z react agent
+# 4. Przerobic zeby wypychal obrazy do rejestru na homelabie
+# 5. Przerobic zeby kubectl aplikowal na homelabie
+# 6. Jak uderzyc do k8s zeby zweryfikowac czy dziala?
 
 # Define schemas for tools
 class CloneRepoInputSchema(BaseModel):
@@ -258,10 +265,155 @@ def run_docker_container(repo_name: str, image_tag: str) -> str:
     return f"Unexpected error: {str(e)}"
 
 
+def normalize_namespace(name: str) -> str:
+  """
+  Normalize namespace name to comply with Kubernetes naming rules.
+  Namespace must be a lowercase RFC 1123 label:
+  - must consist of lower case alphanumeric characters or '-'
+  - must start and end with an alphanumeric character
+  - regex: [a-z0-9]([-a-z0-9]*[a-z0-9])?
+  
+  Args:
+      name: Name to normalize
+      
+  Returns:
+      str: Normalized name
+  """
+  # Replace any non-alphanumeric characters with '-'
+  normalized = ''.join(c if c.isalnum() else '-' for c in name.lower())
+  
+  # Remove leading/trailing hyphens
+  normalized = normalized.strip('-')
+  
+  # Replace multiple consecutive hyphens with a single one
+  normalized = '-'.join(filter(None, normalized.split('-')))
+  
+  # Ensure the name starts and ends with an alphanumeric character
+  if not normalized[0].isalnum():
+    normalized = 'a' + normalized
+  if not normalized[-1].isalnum():
+    normalized = normalized + 'a'
+      
+  return normalized
+
+
+class ApplyK8sManifestInputSchema(BaseModel):
+  repo_name: str = Field(description="Name of the repository")
+  manifest_path: str = Field(description="Path to the Kubernetes manifest file or directory relative to the repository root")
+
+
+@tool("apply_k8s_manifest", args_schema=ApplyK8sManifestInputSchema)
+def apply_k8s_manifest(repo_name: str, manifest_path: str) -> str:
+  """
+  Apply Kubernetes manifest to cluster. This can handle either a single manifest file or a directory containing multiple manifest files.
+  
+  Args:
+      repo_name: Name of the repository
+      manifest_path: Path to the Kubernetes manifest file or directory relative to the repository root
+      
+  Returns:
+      str: Ingress URL if successful, error message otherwise
+  """
+  tmp_dir = f"./tmp/{repo_name}"
+  
+  if not os.path.isdir(tmp_dir):
+    return f"Error: Repository directory {tmp_dir} does not exist. Please clone the repository first."
+  
+  manifest_path_full = os.path.join(tmp_dir, manifest_path)
+  if not os.path.exists(manifest_path_full):
+    return f"Error: Manifest path {manifest_path} does not exist in the repository."
+  
+  logger.info(f"Applying Kubernetes manifest from {manifest_path_full}...")
+  
+  try:
+    # Load Kubernetes configuration
+    kubeconfig = os.getenv("KUBECONFIG")
+    config.load_kube_config(config_file=kubeconfig if kubeconfig else None)
+    
+    namespace = normalize_namespace(repo_name)
+    api = client.CoreV1Api()
+    networking_api = client.NetworkingV1Api()
+
+    # Delete namespace if exists
+    try:
+      api.delete_namespace(name=namespace)
+      logger.info(f"Namespace '{namespace}' deletion initiated.")
+    except ApiException as e:
+      if e.status == 404:
+        logger.info(f"Namespace '{namespace}' not found, skipping deletion.")
+      else:
+        return f"Error deleting namespace: {str(e)}"
+
+    # Wait for namespace to be deleted
+    wait_count = 0
+    while wait_count < 10:  # Maximum 10 retries
+      try:
+        api.read_namespace(name=namespace)
+        logger.info("Waiting for namespace to delete...")
+        time.sleep(2)
+        wait_count += 1
+      except ApiException as e:
+        if e.status == 404:
+          logger.info("Namespace deleted.")
+          break
+        return f"Error checking namespace: {str(e)}"
+      
+    if wait_count >= 10:
+      return f"Timed out waiting for namespace '{namespace}' to be deleted."
+
+    # Create namespace
+    namespace_body = client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace))
+    api.create_namespace(namespace_body)
+    logger.info(f"Namespace '{namespace}' created.")
+
+    # Apply Kubernetes manifests
+    manifest_files = []
+    
+    # Handle both single file and directory cases
+    if os.path.isfile(manifest_path_full):
+      manifest_files.append(manifest_path_full)
+      logger.info(f"Found single manifest file: {manifest_path_full}")
+    elif os.path.isdir(manifest_path_full):
+      # Get all yaml/yml files in the directory
+      for file in os.listdir(manifest_path_full):
+        if file.endswith('.yaml') or file.endswith('.yml'):
+          manifest_files.append(os.path.join(manifest_path_full, file))
+      logger.info(f"Found {len(manifest_files)} manifest files in directory {manifest_path_full}")
+    
+    if not manifest_files:
+      return f"Error: No Kubernetes manifest files found in {manifest_path}"
+    
+    # Apply each manifest file
+    for manifest_file in manifest_files:
+      logger.info(f"Applying manifest from {manifest_file}...")
+      utils.create_from_yaml(client.ApiClient(), manifest_file, namespace=namespace)
+    
+    logger.info("All Kubernetes resources applied successfully.")
+
+    # Get URL from ingress
+    try:
+      time.sleep(K8S_INGRESS_TIMEOUT)
+      ingresses = networking_api.list_namespaced_ingress(namespace)
+      if not ingresses.items:
+        logger.info("No ingress found")
+        return f"Kubernetes manifests applied successfully, but no ingress was found."
+      
+      ingress = ingresses.items[0]
+      host = ingress.spec.rules[0].host
+      logger.info(f"Ingress URL: http://{host}")
+      return f"Kubernetes manifests applied successfully. Ingress URL: http://{host}"
+    except ApiException as e:
+      logger.info(f"No ingress found or error reading ingress: {e}")
+      return f"Kubernetes manifests applied successfully, but could not retrieve ingress information: {str(e)}"
+      
+  except Exception as e:
+    return f"Error applying Kubernetes manifests: {str(e)}"
+
+
 # Initialize LangGraph agent
 
 tools = [clone_repo, prepare_repo_tree, get_file_content, write_file,
-         build_docker_image, run_docker_container]
+         build_docker_image, run_docker_container, apply_k8s_manifest]
 
 system_message = """You are a helpful assistant specialized in working with Git repositories.
 You have access to tools that can help you with these tasks. When given a repository URL, you can:
@@ -301,7 +453,9 @@ After successfully running a Docker container, generate Kubernetes manifests for
 
 Use the write_file tool to save these Kubernetes manifests in the repository.
 
-IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application, built a Docker image based on that Dockerfile, run a Docker container from that image to test if it works, AND generated appropriate Kubernetes manifests for the application. After you have completed all these steps, respond with a message that includes the word \"DONE\" to indicate that you have completed the task.
+After generating the Kubernetes manifests, you can use the apply_k8s_manifest tool to apply them to a Kubernetes cluster. This tool requires the repository name and the path to the Kubernetes manifest file or directory relative to the repository root. You can provide either a single manifest file or a directory containing multiple YAML files. It will create a namespace for the application based on the repository name, delete any existing namespace with the same name, and apply all the manifests. If any manifest includes an Ingress resource, the tool will return the URL for accessing the application.
+
+IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application, built a Docker image based on that Dockerfile, run a Docker container from that image to test if it works, generated appropriate Kubernetes manifests for the application, AND applied those manifests to a Kubernetes cluster. After you have completed all these steps, respond with a message that includes the word \"DONE\" to indicate that you have completed the task.
 """
 
 llm = init_chat_model(
@@ -316,7 +470,7 @@ agent = create_react_agent(
 )
 
 if __name__ == "__main__":
-  task = "I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application, build a Docker image with the tag 'localhost:5000/poc1-fastapi:latest', run a Docker container from that image to see if it works, and generate Kubernetes manifests for the application."
+  task = "I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application, build a Docker image with the tag 'localhost:5000/poc1-fastapi:latest', run a Docker container from that image to see if it works, generate Kubernetes manifests for the application, and apply those manifests to a Kubernetes cluster."
   for chunk in agent.stream({"messages": [{"role": "user", "content": task}]},stream_mode="updates"):
     print(chunk)
     print("\n")
