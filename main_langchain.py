@@ -16,6 +16,12 @@ from kubernetes.client.rest import ApiException
 
 # Setup
 load_dotenv()
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[] # Remove default handler to avoid duplicates
+)
 logger = logging.getLogger(__name__)
 docker_client = docker.from_env()
 
@@ -26,6 +32,7 @@ CONFUSING_FILES = {".git", ".github", ".gitignore", ".gitmodules",
                    ".coverage", "htmlcov", ".idea", ".vscode"}
 DOCKER_START_TIMEOUT = 5
 K8S_INGRESS_TIMEOUT = 5
+DOCKER_REGISTRY = os.environ.get('DOCKER_REGISTRY', 'localhost:5001')
 
 
 # TODO
@@ -181,21 +188,67 @@ def build_docker_image(repo_name: str, image_tag: str) -> str:
   if not os.path.isfile(dockerfile_path):
     return f"Error: Dockerfile does not exist in the repository. Please create a Dockerfile first."
 
+  # Add registry address if not already in the tag
+  if DOCKER_REGISTRY not in image_tag:
+    image_tag = f"{DOCKER_REGISTRY}/{image_tag}"
+    logger.info(f"Added registry address to image tag: {image_tag}")
+
   try:
+    # Detect current architecture
+    current_arch = subprocess.check_output(["uname", "-m"]).decode().strip().lower()
+    logger.info(f"Detected architecture: {current_arch}")
+    
+    # Use platform-specific build options
+    build_args = {}
+    platform = None
+    
+    # Check if we're on ARM architecture (Apple Silicon)
+    # if current_arch in ["arm64", "aarch64"]:
+    #   logger.info("ARM64 architecture detected, using cross-building for AMD64")
+    #   platform = "linux/amd64"
+    
     logger.info(f"Building Docker image with tag {image_tag}...")
-    image, build_logs = docker_client.images.build(path=tmp_dir, tag=image_tag,
-                                                   forcerm=True, pull=False)
+    
+    # Use buildx if cross-platform building is needed
 
-    for log in build_logs:
-      if 'stream' in log:
-        log_line = log['stream'].strip()
-        if log_line:
-          logger.info(log_line)
+    if platform:
+      # Create Docker buildx command
+      buildx_cmd = [
+          "docker", "buildx", "build", 
+          "--platform", platform, 
+          "-t", image_tag, 
+          "--push",
+          tmp_dir
+      ]
+      
+      logger.info(f"Executing cross-platform build: {' '.join(buildx_cmd)}")
+      subprocess.check_call(buildx_cmd)
+      
+      # Since we pushed directly with buildx, we don't need to push again
+      logger.info(f"Docker image {image_tag} built and pushed using buildx")
+      return f"Successfully built and pushed multi-platform Docker image {image_tag} for {platform}"
+    else:
+      # Use regular docker build for same architecture
+      image, build_logs = docker_client.images.build(
+          path=tmp_dir, 
+          tag=image_tag,
+          forcerm=True, 
+          pull=False,
+          buildargs=build_args
+      )
 
-    logger.info(f"Pushing Docker image {image_tag}...")
-    docker_client.images.push(image_tag)
+      for log in build_logs:
+        if 'stream' in log:
+          log_line = log['stream'].strip()
+          if log_line:
+            logger.info(log_line)
 
-    return f"Successfully built and pushed Docker image {image_tag}"
+      logger.info(f"Pushing Docker image {image_tag}...")
+      docker_client.images.push(image_tag)
+
+      return f"Successfully built and pushed Docker image {image_tag}"
+  except subprocess.CalledProcessError as e:
+    return f"Error during cross-platform Docker build: {str(e)}"
   except docker.errors.BuildError as e:
     return f"Error building Docker image: {str(e)}"
   except docker.errors.APIError as e:
@@ -434,7 +487,7 @@ Use the get_file_content tool to retrieve the content of specific files that you
 
 You can use the write_file tool to create new files or modify existing ones in the repository. This tool requires the repository name, the file path relative to the repository root, and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
 
-After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the repository name and the image tag. The image tag should follow the format \"localhost:30500/repository-name:tag\" (e.g., \"localhost:30500/poc1-fastapi:latest\").
+After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the repository name and the image tag. The image tag should follow the format \"localhost:5001/repository-name:tag\" (e.g., \"localhost:5001/poc1-fastapi:latest\").
 
 After building a Docker image, you can use the run_docker_container tool to run a container from that image and test if it works. This tool requires the repository name and the image tag. It will automatically extract the exposed ports from the Dockerfile and map them to random ports on the host.
 
@@ -459,7 +512,7 @@ Given a repository URL from the user, you should automatically:
 1. Clone the repository
 2. Analyze the repository structure and find important files to understand the application
 3. Create a Dockerfile for the application
-4. Build a Docker image with the tag 'localhost:30500/[repository-name]:latest'
+4. Build a Docker image with the tag 'localhost:5001/[repository-name]:latest'
 5. Run a Docker container from that image to verify it works correctly
 6. Generate appropriate Kubernetes manifests for the application
 7. Apply those manifests to a Kubernetes cluster
@@ -481,7 +534,22 @@ agent = create_react_agent(
 )
 
 if __name__ == "__main__":
+  # Configure a console handler to ensure logs are visible
+  console_handler = logging.StreamHandler()
+  console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+  
+  # Add the handler to the root logger
+  logging.getLogger().addHandler(console_handler)
+  
+  # Set log level for specific loggers to reduce noise
+  logging.getLogger('urllib3').setLevel(logging.WARNING)
+  logging.getLogger('docker').setLevel(logging.WARNING)
+  
+  # Process the task
   task = "https://github.com/run-rasztabiga-me/poc1-fastapi.git"
+  logger.info("Starting agent with task: " + task)
+  
+  # Stream agent responses
   for chunk in agent.stream({"messages": [{"role": "user", "content": task}]},stream_mode="updates"):
     print(chunk)
     print("\n")

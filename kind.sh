@@ -10,8 +10,6 @@ if [ "$(docker inspect -f '{{.State.Running}}' "${reg_name}" 2>/dev/null || true
     registry:2
 fi
 
-# TODO usunac patch
-
 # 2. Create kind cluster with containerd registry config dir enabled
 #
 # NOTE: the containerd config patch is not necessary with images from kind v0.27.0+
@@ -29,15 +27,6 @@ containerdConfigPatches:
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry]
     config_path = "/etc/containerd/certs.d"
-nodes:
-- role: control-plane
-  extraPortMappings:
-  - containerPort: 80
-    hostPort: 80
-    protocol: TCP
-  - containerPort: 443
-    hostPort: 443
-    protocol: TCP
 EOF
 
 # 3. Add the registry config to the nodes
