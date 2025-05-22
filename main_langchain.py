@@ -434,7 +434,7 @@ Use the get_file_content tool to retrieve the content of specific files that you
 
 You can use the write_file tool to create new files or modify existing ones in the repository. This tool requires the repository name, the file path relative to the repository root, and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
 
-After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the repository name and the image tag. The image tag should follow the format \"registry/repository-name:tag\" (e.g., \"localhost:5000/poc1-fastapi:latest\").
+After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the repository name and the image tag. The image tag should follow the format \"localhost:30500/repository-name:tag\" (e.g., \"localhost:30500/poc1-fastapi:latest\").
 
 After building a Docker image, you can use the run_docker_container tool to run a container from that image and test if it works. This tool requires the repository name and the image tag. It will automatically extract the exposed ports from the Dockerfile and map them to random ports on the host.
 
@@ -455,6 +455,17 @@ Use the write_file tool to save these Kubernetes manifests in the repository.
 
 After generating the Kubernetes manifests, you can use the apply_k8s_manifest tool to apply them to a Kubernetes cluster. This tool requires the repository name and the path to the Kubernetes manifest file or directory relative to the repository root. You can provide either a single manifest file or a directory containing multiple YAML files. It will create a namespace for the application based on the repository name, delete any existing namespace with the same name, and apply all the manifests. If any manifest includes an Ingress resource, the tool will return the URL for accessing the application.
 
+Given a repository URL from the user, you should automatically:
+1. Clone the repository
+2. Analyze the repository structure and find important files to understand the application
+3. Create a Dockerfile for the application
+4. Build a Docker image with the tag 'localhost:30500/[repository-name]:latest'
+5. Run a Docker container from that image to verify it works correctly
+6. Generate appropriate Kubernetes manifests for the application
+7. Apply those manifests to a Kubernetes cluster
+
+The user will only provide the repository URL. You must handle all the remaining steps automatically without requesting additional information from the user.
+
 IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application, built a Docker image based on that Dockerfile, run a Docker container from that image to test if it works, generated appropriate Kubernetes manifests for the application, AND applied those manifests to a Kubernetes cluster. After you have completed all these steps, respond with a message that includes the word \"DONE\" to indicate that you have completed the task.
 """
 
@@ -470,7 +481,7 @@ agent = create_react_agent(
 )
 
 if __name__ == "__main__":
-  task = "I want to clone this repository: https://github.com/run-rasztabiga-me/poc1-fastapi.git. Analyze the repository and find what files you think are necessary to understand the application. Then create a Dockerfile for this application, build a Docker image with the tag 'localhost:5000/poc1-fastapi:latest', run a Docker container from that image to see if it works, generate Kubernetes manifests for the application, and apply those manifests to a Kubernetes cluster."
+  task = "https://github.com/run-rasztabiga-me/poc1-fastapi.git"
   for chunk in agent.stream({"messages": [{"role": "user", "content": task}]},stream_mode="updates"):
     print(chunk)
     print("\n")
