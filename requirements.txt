@@ -37,6 +37,10 @@ langchain-community==0.3.23
 langchain-core==0.3.59
 langchain-openai==0.3.16
 langchain-text-splitters==0.3.8
+langgraph==0.4.5
+langgraph-checkpoint==2.0.26
+langgraph-prebuilt==0.1.8
+langgraph-sdk==0.1.70
 langsmith==0.3.42
 markdown-it-py==3.0.0
 marshmallow==3.26.1
@@ -48,6 +52,7 @@ oauthlib==3.2.2
 openai==1.77.0
 opentelemetry-api==1.32.1
 orjson==3.10.18
+ormsgpack==1.9.1
 packaging==24.2
 pillow==11.2.1
 propcache==0.3.1
@@ -80,6 +85,7 @@ typing_extensions==4.12.2
 urllib3==2.2.3
 websocket-client==1.8.0
 wrapt==1.17.2
+xxhash==3.5.0
 yarl==1.20.0
 zipp==3.21.0
 zstandard==0.23.0
