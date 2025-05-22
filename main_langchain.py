@@ -34,6 +34,9 @@ DOCKER_START_TIMEOUT = 5
 K8S_INGRESS_TIMEOUT = 5
 DOCKER_REGISTRY = os.environ.get('DOCKER_REGISTRY', 'localhost:5001')
 
+# Global state
+REPO_NAME = None  # Will be set when the repository is cloned
+
 
 # TODO
 # 1. Dodac schema i wiele argumentow do tooli bo sobie nie radzi
@@ -42,6 +45,7 @@ DOCKER_REGISTRY = os.environ.get('DOCKER_REGISTRY', 'localhost:5001')
 # 4. Przerobic zeby wypychal obrazy do rejestru na homelabie
 # 5. Przerobic zeby kubectl aplikowal na homelabie
 # 6. Jak uderzyc do k8s zeby zweryfikowac czy dziala?
+# 7. Dodac curl tool zeby sprawdzic czy dziala
 
 # Define schemas for tools
 class CloneRepoInputSchema(BaseModel):
@@ -51,7 +55,9 @@ class CloneRepoInputSchema(BaseModel):
 @tool("clone_repo", args_schema=CloneRepoInputSchema)
 def clone_repo(repo_url: str) -> str:
   """Clone repository and recursively remove confusing files."""
+  global REPO_NAME
   repo_name = repo_url.split("/")[-1].replace(".git", "").replace(".", "-")
+  REPO_NAME = repo_name
   tmp_dir = f"./tmp/{repo_name}"
 
   logger.info("Preparing working directory...")
@@ -79,14 +85,17 @@ def clone_repo(repo_url: str) -> str:
 
 
 class PrepareRepoTreeInputSchema(BaseModel):
-  repo_name: str = Field(
-      description="Name of the repository to prepare the tree for")
+  pass
 
 
 @tool("prepare_repo_tree", args_schema=PrepareRepoTreeInputSchema)
-def prepare_repo_tree(repo_name: str) -> str:
+def prepare_repo_tree() -> str:
   """Prepare repository tree structure as a string."""
-  tmp_dir = f"./tmp/{repo_name}"
+  global REPO_NAME
+  if REPO_NAME is None:
+    return "Error: No repository has been cloned yet. Please clone a repository first."
+  
+  tmp_dir = f"./tmp/{REPO_NAME}"
 
   if not os.path.isdir(tmp_dir):
     return f"Error: Repository directory {tmp_dir} does not exist. Please clone the repository first."
@@ -117,15 +126,18 @@ def _tree_to_str(tree_gen: Generator[Tuple[str, List[str], List[Tuple[str, int]]
 
 
 class GetFileContentInputSchema(BaseModel):
-  repo_name: str = Field(description="Name of the repository")
   file_path: str = Field(
       description="Path to the file relative to the repository root")
 
 
 @tool("get_file_content", args_schema=GetFileContentInputSchema)
-def get_file_content(repo_name: str, file_path: str) -> str:
+def get_file_content(file_path: str) -> str:
   """Retrieve the content of a specific file from the repository."""
-  tmp_dir = f"./tmp/{repo_name}"
+  global REPO_NAME
+  if REPO_NAME is None:
+    return "Error: No repository has been cloned yet. Please clone a repository first."
+    
+  tmp_dir = f"./tmp/{REPO_NAME}"
   file_path_full = os.path.join(tmp_dir, file_path)
 
   if not os.path.isdir(tmp_dir):
@@ -144,16 +156,19 @@ def get_file_content(repo_name: str, file_path: str) -> str:
 
 
 class WriteFileInputSchema(BaseModel):
-  repo_name: str = Field(description="Name of the repository")
   file_path: str = Field(
       description="Path to the file relative to the repository root")
   content: str = Field(description="Content to write to the file")
 
 
 @tool("write_file", args_schema=WriteFileInputSchema)
-def write_file(repo_name: str, file_path: str, content: str) -> str:
+def write_file(file_path: str, content: str) -> str:
   """Write content to a file in the repository."""
-  tmp_dir = f"./tmp/{repo_name}"
+  global REPO_NAME
+  if REPO_NAME is None:
+    return "Error: No repository has been cloned yet. Please clone a repository first."
+    
+  tmp_dir = f"./tmp/{REPO_NAME}"
   file_path_full = os.path.join(tmp_dir, file_path)
 
   if not os.path.isdir(tmp_dir):
@@ -172,14 +187,17 @@ def write_file(repo_name: str, file_path: str, content: str) -> str:
 
 
 class BuildDockerImageInputSchema(BaseModel):
-  repo_name: str = Field(description="Name of the repository")
   image_tag: str = Field(description="Tag for the Docker image")
 
 
 @tool("build_docker_image", args_schema=BuildDockerImageInputSchema)
-def build_docker_image(repo_name: str, image_tag: str) -> str:
+def build_docker_image(image_tag: str) -> str:
   """Build and push a Docker image from the repository."""
-  tmp_dir = f"./tmp/{repo_name}"
+  global REPO_NAME
+  if REPO_NAME is None:
+    return "Error: No repository has been cloned yet. Please clone a repository first."
+    
+  tmp_dir = f"./tmp/{REPO_NAME}"
 
   if not os.path.isdir(tmp_dir):
     return f"Error: Repository directory {tmp_dir} does not exist. Please clone the repository first."
@@ -258,7 +276,6 @@ def build_docker_image(repo_name: str, image_tag: str) -> str:
 
 
 class RunDockerContainerInputSchema(BaseModel):
-  repo_name: str = Field(description="Name of the repository")
   image_tag: str = Field(description="Tag for the Docker image")
 
 
@@ -273,9 +290,13 @@ def _get_exposed_ports(dockerfile_content: str) -> List[str]:
 
 
 @tool("run_docker_container", args_schema=RunDockerContainerInputSchema)
-def run_docker_container(repo_name: str, image_tag: str) -> str:
+def run_docker_container(image_tag: str) -> str:
   """Run a Docker container from a built image."""
-  tmp_dir = f"./tmp/{repo_name}"
+  global REPO_NAME
+  if REPO_NAME is None:
+    return "Error: No repository has been cloned yet. Please clone a repository first."
+    
+  tmp_dir = f"./tmp/{REPO_NAME}"
 
   if not os.path.isdir(tmp_dir):
     return f"Error: Repository directory {tmp_dir} does not exist. Please clone the repository first."
@@ -350,24 +371,64 @@ def normalize_namespace(name: str) -> str:
   return normalized
 
 
+def ensure_etc_hosts_entry(hostname: str) -> None:
+  """
+  Ensures that a hostname has an entry in the /etc/hosts file.
+  Maps the hostname to the local IP address (127.0.0.1).
+  
+  Args:
+      hostname: The hostname to add to /etc/hosts
+  """
+  logger.info(f"Ensuring /etc/hosts entry for {hostname}...")
+  
+  # Check if the hostname is already in /etc/hosts
+  try:
+    with open('/etc/hosts', 'r') as file:
+      hosts_content = file.read()
+      
+    # If hostname already exists in hosts file, no need to modify
+    if hostname in hosts_content:
+      logger.info(f"Hostname {hostname} already exists in /etc/hosts")
+      return
+      
+    # Prepare the new entry to add (map to 127.0.0.1)
+    new_entry = f"\n127.0.0.1\t{hostname}"
+    
+    # Since modifying /etc/hosts requires sudo, use subprocess
+    add_hosts_cmd = ['sudo', 'sh', '-c', f'echo "{new_entry}" >> /etc/hosts']
+    logger.info(f"Adding {hostname} to /etc/hosts with command: {' '.join(add_hosts_cmd)}")
+    
+    result = subprocess.run(add_hosts_cmd, capture_output=True, text=True)
+    if result.returncode == 0:
+      logger.info(f"Successfully added {hostname} to /etc/hosts")
+    else:
+      logger.warning(f"Failed to add {hostname} to /etc/hosts: {result.stderr}")
+      
+  except Exception as e:
+    logger.warning(f"Error ensuring /etc/hosts entry: {str(e)}")
+    # Continue execution even if this fails, as it's not critical
+
+
 class ApplyK8sManifestInputSchema(BaseModel):
-  repo_name: str = Field(description="Name of the repository")
   manifest_path: str = Field(description="Path to the Kubernetes manifest file or directory relative to the repository root")
 
 
 @tool("apply_k8s_manifest", args_schema=ApplyK8sManifestInputSchema)
-def apply_k8s_manifest(repo_name: str, manifest_path: str) -> str:
+def apply_k8s_manifest(manifest_path: str) -> str:
   """
   Apply Kubernetes manifest to cluster. This can handle either a single manifest file or a directory containing multiple manifest files.
   
   Args:
-      repo_name: Name of the repository
       manifest_path: Path to the Kubernetes manifest file or directory relative to the repository root
       
   Returns:
       str: Ingress URL if successful, error message otherwise
   """
-  tmp_dir = f"./tmp/{repo_name}"
+  global REPO_NAME
+  if REPO_NAME is None:
+    return "Error: No repository has been cloned yet. Please clone a repository first."
+    
+  tmp_dir = f"./tmp/{REPO_NAME}"
   
   if not os.path.isdir(tmp_dir):
     return f"Error: Repository directory {tmp_dir} does not exist. Please clone the repository first."
@@ -383,7 +444,7 @@ def apply_k8s_manifest(repo_name: str, manifest_path: str) -> str:
     kubeconfig = os.getenv("KUBECONFIG")
     config.load_kube_config(config_file=kubeconfig if kubeconfig else None)
     
-    namespace = normalize_namespace(repo_name)
+    namespace = normalize_namespace(REPO_NAME)
     api = client.CoreV1Api()
     networking_api = client.NetworkingV1Api()
 
@@ -454,6 +515,10 @@ def apply_k8s_manifest(repo_name: str, manifest_path: str) -> str:
       ingress = ingresses.items[0]
       host = ingress.spec.rules[0].host
       logger.info(f"Ingress URL: http://{host}")
+      
+      # Ensure /etc/hosts entry for the host
+      ensure_etc_hosts_entry(host)
+      
       return f"Kubernetes manifests applied successfully. Ingress URL: http://{host}"
     except ApiException as e:
       logger.info(f"No ingress found or error reading ingress: {e}")
@@ -475,23 +540,20 @@ You have access to tools that can help you with these tasks. When given a reposi
 3. Retrieve the content of files you determine are necessary to understand the application
 4. Write or modify files in the repository (e.g., Dockerfile, Kubernetes manifests)
 5. Build and push Docker images based on the Dockerfile
-6. Run Docker containers from built images to test if they work
-7. Generate Kubernetes manifests for the application
+6. Generate Kubernetes manifests for the application
 
 You should use the clone_repo tool to clone a repository. The repository name can be extracted from the repository URL by taking the last part of the URL, removing the .git extension, and replacing dots with hyphens.
 For example, for the URL \"https://github.com/run-rasztabiga-me/poc1-fastapi.git\", the repository name would be \"poc1-fastapi\".
 
 You can use the prepare_repo_tree tool to get an overview of the repository structure if needed, but you should focus on identifying and examining files that are most relevant to understanding the application and creating the required outputs.
 
-Use the get_file_content tool to retrieve the content of specific files that you determine are important. This tool requires the repository name and the file path relative to the repository root.
+Use the get_file_content tool to retrieve the content of specific files that you determine are important. This tool requires the file path relative to the repository root.
 
-You can use the write_file tool to create new files or modify existing ones in the repository. This tool requires the repository name, the file path relative to the repository root, and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
+You can use the write_file tool to create new files or modify existing ones in the repository. This tool requires the file path relative to the repository root and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
 
-After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the repository name and the image tag. The image tag should follow the format \"localhost:5001/repository-name:tag\" (e.g., \"localhost:5001/poc1-fastapi:latest\").
+After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the image tag. The image tag should follow the format \"localhost:5001/repository-name:tag\" (e.g., \"localhost:5001/poc1-fastapi:latest\").
 
-After building a Docker image, you can use the run_docker_container tool to run a container from that image and test if it works. This tool requires the repository name and the image tag. It will automatically extract the exposed ports from the Dockerfile and map them to random ports on the host.
-
-After successfully running a Docker container, generate Kubernetes manifests for the application. These manifests should:
+After building a Docker image, generate Kubernetes manifests for the application. These manifests should:
 - Include all required resources (Deployments, Services, Ingresses, and Volumes if necessary)
 - Match exposed ports precisely as specified in the Dockerfile
 - Set replicas default to 1 unless otherwise stated
@@ -506,24 +568,23 @@ After successfully running a Docker container, generate Kubernetes manifests for
 
 Use the write_file tool to save these Kubernetes manifests in the repository.
 
-After generating the Kubernetes manifests, you can use the apply_k8s_manifest tool to apply them to a Kubernetes cluster. This tool requires the repository name and the path to the Kubernetes manifest file or directory relative to the repository root. You can provide either a single manifest file or a directory containing multiple YAML files. It will create a namespace for the application based on the repository name, delete any existing namespace with the same name, and apply all the manifests. If any manifest includes an Ingress resource, the tool will return the URL for accessing the application.
+After generating the Kubernetes manifests, you can use the apply_k8s_manifest tool to apply them to a Kubernetes cluster. This tool requires the path to the Kubernetes manifest file or directory relative to the repository root. You can provide either a single manifest file or a directory containing multiple YAML files. It will create a namespace for the application based on the repository name, delete any existing namespace with the same name, and apply all the manifests. If any manifest includes an Ingress resource, the tool will return the URL for accessing the application.
 
 Given a repository URL from the user, you should automatically:
 1. Clone the repository
 2. Analyze the repository structure and find important files to understand the application
 3. Create a Dockerfile for the application
 4. Build a Docker image with the tag 'localhost:5001/[repository-name]:latest'
-5. Run a Docker container from that image to verify it works correctly
-6. Generate appropriate Kubernetes manifests for the application
-7. Apply those manifests to a Kubernetes cluster
+5. Generate appropriate Kubernetes manifests for the application
+6. Apply those manifests to a Kubernetes cluster
 
 The user will only provide the repository URL. You must handle all the remaining steps automatically without requesting additional information from the user.
 
-IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application, built a Docker image based on that Dockerfile, run a Docker container from that image to test if it works, generated appropriate Kubernetes manifests for the application, AND applied those manifests to a Kubernetes cluster. After you have completed all these steps, respond with a message that includes the word \"DONE\" to indicate that you have completed the task.
+IMPORTANT: You must continue the conversation until you have successfully generated a Dockerfile for the application, built a Docker image based on that Dockerfile, generated appropriate Kubernetes manifests for the application, AND applied those manifests to a Kubernetes cluster. After you have completed all these steps, respond with a message that includes the word \"DONE\" to indicate that you have completed the task.
 """
 
 llm = init_chat_model(
-    model="gpt-4o",
+    model="gpt-4.1",
     # temperature=0
 )
 
@@ -545,11 +606,14 @@ if __name__ == "__main__":
   logging.getLogger('urllib3').setLevel(logging.WARNING)
   logging.getLogger('docker').setLevel(logging.WARNING)
   
+  # Reset global state
+  REPO_NAME = None
+  
   # Process the task
   task = "https://github.com/run-rasztabiga-me/poc1-fastapi.git"
   logger.info("Starting agent with task: " + task)
   
   # Stream agent responses
-  for chunk in agent.stream({"messages": [{"role": "user", "content": task}]},stream_mode="updates"):
+  for chunk in agent.stream({"messages": [{"role": "user", "content": task}]},{"recursion_limit": 30},stream_mode="updates"):
     print(chunk)
     print("\n")
