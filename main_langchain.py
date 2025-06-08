@@ -46,6 +46,7 @@ REPO_NAME = None  # Will be set when the repository is cloned
 # 5. Przerobic zeby kubectl aplikowal na homelabie
 # 6. Jak uderzyc do k8s zeby zweryfikowac czy dziala?
 # 7. Dodac curl tool zeby sprawdzic czy dziala
+# 8. Dodac "ls" tool do listowania plikow w danym katalogu
 
 # Define schemas for tools
 class CloneRepoInputSchema(BaseModel):
@@ -528,10 +529,82 @@ def apply_k8s_manifest(manifest_path: str) -> str:
     return f"Error applying Kubernetes manifests: {str(e)}"
 
 
+class ListDirectoryInputSchema(BaseModel):
+  dir_path: str = Field(description="Path to the directory relative to the repository root")
+
+
+@tool("ls", args_schema=ListDirectoryInputSchema)
+def list_directory(dir_path: str) -> str:
+  """
+  List files in a directory within the repository.
+  
+  Args:
+      dir_path: Path to the directory relative to the repository root
+      
+  Returns:
+      str: List of files and directories in the specified path
+  """
+  global REPO_NAME
+  if REPO_NAME is None:
+    return "Error: No repository has been cloned yet. Please clone a repository first."
+    
+  tmp_dir = f"./tmp/{REPO_NAME}"
+  
+  if not os.path.isdir(tmp_dir):
+    return f"Error: Repository directory {tmp_dir} does not exist. Please clone the repository first."
+  
+  # Handle empty or '.' paths to refer to repository root
+  if not dir_path or dir_path == '.':
+    dir_path_full = tmp_dir
+  else:
+    dir_path_full = os.path.join(tmp_dir, dir_path)
+  
+  if not os.path.exists(dir_path_full):
+    return f"Error: Directory {dir_path} does not exist in the repository."
+  
+  if not os.path.isdir(dir_path_full):
+    return f"Error: {dir_path} is not a directory."
+  
+  try:
+    items = os.listdir(dir_path_full)
+    
+    # Create a formatted output
+    result = f"Contents of {dir_path or './'} directory:\n"
+    
+    # Separate directories and files
+    directories = []
+    files = []
+    
+    for item in items:
+      item_path = os.path.join(dir_path_full, item)
+      if os.path.isdir(item_path):
+        directories.append(f"{item}/")
+      else:
+        file_size = os.path.getsize(item_path)
+        files.append(f"{item} - {file_size} bytes")
+    
+    # Display directories first, then files
+    if directories:
+      result += "\nDirectories:\n"
+      result += "\n".join(sorted(directories))
+      
+    if files:
+      result += "\n\nFiles:\n"
+      result += "\n".join(sorted(files))
+    
+    if not items:
+      result += "(empty directory)"
+      
+    return result
+    
+  except Exception as e:
+    return f"Error listing directory {dir_path}: {str(e)}"
+
+
 # Initialize LangGraph agent
 
 tools = [clone_repo, prepare_repo_tree, get_file_content, write_file,
-         build_docker_image, run_docker_container, apply_k8s_manifest]
+         build_docker_image, run_docker_container, apply_k8s_manifest, list_directory]
 
 system_message = """You are a helpful assistant specialized in working with Git repositories.
 You have access to tools that can help you with these tasks. When given a repository URL, you can:
@@ -541,6 +614,7 @@ You have access to tools that can help you with these tasks. When given a reposi
 4. Write or modify files in the repository (e.g., Dockerfile, Kubernetes manifests)
 5. Build and push Docker images based on the Dockerfile
 6. Generate Kubernetes manifests for the application
+7. List directory contents within the repository
 
 You should use the clone_repo tool to clone a repository. The repository name can be extracted from the repository URL by taking the last part of the URL, removing the .git extension, and replacing dots with hyphens.
 For example, for the URL \"https://github.com/run-rasztabiga-me/poc1-fastapi.git\", the repository name would be \"poc1-fastapi\".
@@ -569,6 +643,8 @@ After building a Docker image, generate Kubernetes manifests for the application
 Use the write_file tool to save these Kubernetes manifests in the repository.
 
 After generating the Kubernetes manifests, you can use the apply_k8s_manifest tool to apply them to a Kubernetes cluster. This tool requires the path to the Kubernetes manifest file or directory relative to the repository root. You can provide either a single manifest file or a directory containing multiple YAML files. It will create a namespace for the application based on the repository name, delete any existing namespace with the same name, and apply all the manifests. If any manifest includes an Ingress resource, the tool will return the URL for accessing the application.
+
+You can use the ls tool to list the contents of a directory within the cloned repository. This tool requires the directory path relative to the repository root. You can use an empty string or "." to list the contents of the repository root directory. The tool will display directories and files separately, with directories having a trailing slash and files showing their sizes in bytes. This is useful for exploring the repository structure in a more focused way than the prepare_repo_tree tool.
 
 Given a repository URL from the user, you should automatically:
 1. Clone the repository
