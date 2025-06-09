@@ -29,7 +29,7 @@ docker_client = docker.from_env()
 CONFUSING_FILES = {".git", ".github", ".gitignore", ".gitmodules",
                    ".gitattributes", ".gitlab-ci.yml", ".travis.yml", "LICENSE",
                    "README.md", "CHANGELOG.md", "__pycache__", ".pytest_cache",
-                   ".coverage", "htmlcov", ".idea", ".vscode"}
+                   ".coverage", "htmlcov", ".idea", ".vscode", "docker-compose.yml",}
 DOCKER_START_TIMEOUT = 5
 K8S_INGRESS_TIMEOUT = 5
 DOCKER_REGISTRY = os.environ.get('DOCKER_REGISTRY', 'localhost:5001')
@@ -625,6 +625,8 @@ Use the get_file_content tool to retrieve the content of specific files that you
 
 You can use the write_file tool to create new files or modify existing ones in the repository. This tool requires the file path relative to the repository root and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
 
+When creating a Dockerfile, carefully analyze the application code to ensure that any health check endpoint you specify actually exists in the application. For example, if you use HEALTHCHECK instruction, the endpoint should be implemented in the application code.
+
 After creating a Dockerfile, you can use the build_docker_image tool to build and push a Docker image based on that Dockerfile. This tool requires the image tag. The image tag should follow the format \"localhost:5001/repository-name:tag\" (e.g., \"localhost:5001/poc1-fastapi:latest\").
 
 After building a Docker image, generate Kubernetes manifests for the application. These manifests should:
@@ -638,7 +640,9 @@ After building a Docker image, generate Kubernetes manifests for the application
 - Deploy stateless applications using Deployments
 - Use Services to expose applications internally and externally as necessary
 - Ensure all Kubernetes secrets are in base64 format
-- Include appropriate resource limits/requests and health checks (liveness and readiness probes)
+- Include appropriate resource limits/requests
+- When configuring health checks (liveness and readiness probes), verify that the specified endpoints actually exist in the application code first
+- DO NOT create or include a namespace in the manifests - namespaces will be created automatically by the apply_k8s_manifest tool
 
 Use the write_file tool to save these Kubernetes manifests in the repository.
 
@@ -660,8 +664,8 @@ IMPORTANT: You must continue the conversation until you have successfully genera
 """
 
 llm = init_chat_model(
-    model="gpt-4.1",
-    # temperature=0
+    model="gpt-4.1-mini",
+    temperature=0
 )
 
 agent = create_react_agent(
@@ -686,10 +690,25 @@ if __name__ == "__main__":
   REPO_NAME = None
   
   # Process the task
-  task = "https://github.com/run-rasztabiga-me/poc1-fastapi.git"
-  logger.info("Starting agent with task: " + task)
+  
+  # POC 1
+  # repo_url = "https://github.com/run-rasztabiga-me/poc1-fastapi.git"                # passed
+  # repo_url = "https://github.com/enriquecatala/fastapi-helloworld.git"              # passed
+  # repo_url = "https://github.com/Azure-Samples/azd-simple-fastapi-appservice.git"   # passed
+  # repo_url = "https://github.com/carvalhochris/fastapi-htmx-hello.git"              # passed
+  # repo_url = "https://github.com/Sivasuthan9/fastapi-docker-optimized.git"          # passed
+  # repo_url = "https://github.com/renceInbox/fastapi-todo.git"                       # passed
+
+  # POC 2
+  # repo_url = "https://github.com/run-rasztabiga-me/poc2-fastapi.git"                # passed
+  # repo_url = "https://github.com/beerjoa/fastapi-postgresql-boilerplate.git"        # passed
+
+  # POC X
+  # repo_url = "https://github.com/igorbenav/FastAPI-boilerplate.git"                 # pending 
+
+  logger.info("Starting agent with task: " + repo_url)
   
   # Stream agent responses
-  for chunk in agent.stream({"messages": [{"role": "user", "content": task}]},{"recursion_limit": 30},stream_mode="updates"):
+  for chunk in agent.stream({"messages": [{"role": "user", "content": repo_url}]},{"recursion_limit": 100},stream_mode="updates"):
     print(chunk)
     print("\n")
