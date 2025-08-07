@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 CONFUSING_FILES = {".git", ".github", ".gitignore", ".gitmodules",
                    ".gitattributes", ".gitlab-ci.yml", ".travis.yml", "LICENSE",
                    "README.md", "CHANGELOG.md", "__pycache__", ".pytest_cache",
-                   ".coverage", "htmlcov", ".idea", ".vscode", "docker-compose.yml"}
+                   ".coverage", "htmlcov", ".idea", ".vscode", "docker-compose.yml", "Dockerfile"}
 
 # Global state
 REPO_NAME = None  # Will be set when the repository is cloned
@@ -260,6 +260,8 @@ Use the get_file_content tool to retrieve the content of specific files that you
 
 You can use the write_file tool to create new files or modify existing ones in the repository. This tool requires the file path relative to the repository root and the content to write to the file. This is particularly useful for creating files like Dockerfile or Kubernetes manifests.
 
+You can use the ls tool to list the contents of a directory within the cloned repository. This tool requires the directory path relative to the repository root. You can use an empty string or "." to list the contents of the repository root directory. The tool will display directories and files separately, with directories having a trailing slash and files showing their sizes in bytes. This is useful for exploring the repository structure in a more focused way than the prepare_repo_tree tool.
+
 Your objective is to create:
 
 1. A Dockerfile that properly containerizes the application. When creating the Dockerfile, carefully analyze the application code to ensure that any health check endpoint you specify actually exists in the application.
@@ -279,8 +281,6 @@ Your objective is to create:
    - When configuring health checks (liveness and readiness probes), verify that the specified endpoints actually exist in the application code first
    - DO NOT create or include a namespace in the manifests
 
-You can use the ls tool to list the contents of a directory within the cloned repository. This tool requires the directory path relative to the repository root. You can use an empty string or "." to list the contents of the repository root directory. The tool will display directories and files separately, with directories having a trailing slash and files showing their sizes in bytes. This is useful for exploring the repository structure in a more focused way than the prepare_repo_tree tool.
-
 Given a repository URL from the user, you should automatically:
 1. Clone the repository
 2. Analyze the repository structure and find important files to understand the application
@@ -293,8 +293,9 @@ IMPORTANT: Your task is only to analyze the repository and generate the required
 """
 
 llm = init_chat_model(
-    model="gpt-4.1-mini",
-    temperature=0
+    model="gpt-5-mini",
+    model_provider="openai",
+    temperature=1
 )
 
 agent = create_react_agent(

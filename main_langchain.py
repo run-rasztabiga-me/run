@@ -29,7 +29,7 @@ docker_client = docker.from_env()
 CONFUSING_FILES = {".git", ".github", ".gitignore", ".gitmodules",
                    ".gitattributes", ".gitlab-ci.yml", ".travis.yml", "LICENSE",
                    "README.md", "CHANGELOG.md", "__pycache__", ".pytest_cache",
-                   ".coverage", "htmlcov", ".idea", ".vscode", "docker-compose.yml",}
+                   ".coverage", "htmlcov", ".idea", ".vscode", "docker-compose.yml", "Dockerfile"}
 DOCKER_START_TIMEOUT = 5
 K8S_INGRESS_TIMEOUT = 5
 DOCKER_REGISTRY = os.environ.get('DOCKER_REGISTRY', 'localhost:5001')
@@ -704,7 +704,9 @@ if __name__ == "__main__":
   # repo_url = "https://github.com/beerjoa/fastapi-postgresql-boilerplate.git"        # passed
 
   # POC X
-  # repo_url = "https://github.com/igorbenav/FastAPI-boilerplate.git"                 # pending 
+  # repo_url = "https://github.com/igorbenav/FastAPI-boilerplate.git"                 # pending
+
+  repo_url = "https://github.com/0xHamy/zerodayf.git"
 
   logger.info("Starting agent with task: " + repo_url)
   
