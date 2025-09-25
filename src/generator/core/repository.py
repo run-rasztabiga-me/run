@@ -5,6 +5,8 @@ from git import Repo
 from typing import List, Tuple, Generator, Optional
 from pathlib import Path
 
+from ...utils.repository_utils import extract_repo_name
+
 
 class RepositoryManager:
     """Manages repository operations including cloning, file operations, and cleanup."""
@@ -41,7 +43,7 @@ class RepositoryManager:
         Returns:
             Success message with cloned directory path
         """
-        repo_name = self._extract_repo_name(repo_url)
+        repo_name = extract_repo_name(repo_url)
         self._repo_name = repo_name
         tmp_dir = f"./tmp/{repo_name}"
         self._tmp_dir = tmp_dir
@@ -173,9 +175,6 @@ class RepositoryManager:
         dir_tree = self._tree(self._tmp_dir)
         return self._tree_to_str(dir_tree, trim_dir=self._tmp_dir)
 
-    def _extract_repo_name(self, repo_url: str) -> str:
-        """Extract repository name from URL."""
-        return repo_url.split("/")[-1].replace(".git", "").replace(".", "-")
 
     def _validate_repository(self) -> bool:
         """Validate that repository has been cloned and directory exists."""

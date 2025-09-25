@@ -28,15 +28,18 @@ class ConfigurationGenerator:
             handlers=[]  # Remove default handler to avoid duplicates
         )
 
-    def generate(self, repo_url: str) -> None:
+    def generate(self, repo_url: str) -> str:
         """
         Generate configurations for the given repository URL.
 
         Args:
             repo_url: URL of the Git repository to process
+
+        Returns:
+            Complete agent output for result parsing
         """
         self.logger.info(f"Starting configuration generation for repository: {repo_url}")
-        self.agent.generate_configurations(repo_url)
+        return self.agent.generate_configurations(repo_url)
 
     def get_repository_manager(self):
         """Get the repository manager from the agent."""
