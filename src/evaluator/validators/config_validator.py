@@ -1,202 +1,343 @@
-import os
+import json
 import logging
+import subprocess
+import yaml
 from typing import List
+from pathlib import Path
 
 from ..core.models import ValidationIssue, ValidationSeverity
 
 
 class ConfigurationValidator:
-    """Validates generated Docker and Kubernetes configurations using external linters.
+    """Validates generated Docker and Kubernetes configurations using external linters and build tests.
 
-    TODO: Integrate with external linters as described in Chapter 4:
-    - Hadolint for Dockerfile validation
-    - Kube-linter for Kubernetes manifest validation
-
-    Current implementation provides basic file existence checks and placeholder scoring.
-    Custom validation rules have been removed in favor of industry-standard linters.
+    Implements validation tasks:
+    7. Dockerfile syntax validation
+    8. Static analysis with Hadolint
+    9. Docker image building (TODO)
+    10. Kubernetes manifest syntax validation
+    11. Static analysis with Kube-linter
+    12. Kubernetes manifest application in Kind (TODO)
+    13. Runtime validation - application availability (TODO)
     """
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    def validate_dockerfile(self, dockerfile_path: str) -> List[ValidationIssue]:
+    def validate_dockerfiles(self, dockerfile_paths: List[str]) -> List[ValidationIssue]:
         """
-        Validate a Dockerfile using Hadolint (external linter).
-
-        TODO: Integrate with Hadolint as described in Chapter 4:
-        - Install Hadolint binary or use Docker image
-        - Execute Hadolint on the Dockerfile: hadolint --format json <dockerfile_path>
-        - Parse Hadolint JSON output and convert to ValidationIssue objects
-        - Support different output formats (JSON, checkstyle, etc.)
-        - Map Hadolint rule codes (DL3xxx, DL4xxx, etc.) to rule_id field
-        - Convert Hadolint severity levels to ValidationSeverity enum
-        - Handle cases where Hadolint is not installed
+        Validate Dockerfiles with syntax and static analysis.
 
         Args:
-            dockerfile_path: Path to the Dockerfile
+            dockerfile_paths: List of paths to Dockerfiles
 
         Returns:
-            List of validation issues found by Hadolint
+            List of validation issues from all Dockerfiles
         """
-        if not os.path.exists(dockerfile_path):
-            return [ValidationIssue(
+        all_issues = []
+        for dockerfile_path in dockerfile_paths:
+            # 7. Dockerfile syntax validation
+            all_issues.extend(self._validate_dockerfile_syntax(dockerfile_path))
+
+            # 8. Static analysis with Hadolint
+            all_issues.extend(self._run_hadolint(dockerfile_path))
+
+        return all_issues
+
+    def validate_k8s_manifests(self, manifest_paths: List[str]) -> List[ValidationIssue]:
+        """
+        Validate Kubernetes manifests with syntax and static analysis.
+
+        Args:
+            manifest_paths: List of paths to Kubernetes manifest files
+
+        Returns:
+            List of validation issues
+        """
+        issues = []
+
+        for manifest_path in manifest_paths:
+            # 10. Kubernetes manifest syntax validation
+            issues.extend(self._validate_k8s_syntax(manifest_path))
+
+            # 11. Static analysis with Kube-linter
+            issues.extend(self._run_kube_linter(manifest_path))
+
+        return issues
+
+    def _validate_dockerfile_syntax(self, dockerfile_path: str) -> List[ValidationIssue]:
+        """
+        7. Dockerfile syntax validation using docker build --dry-run or dockerfile parser.
+        """
+        issues = []
+        try:
+            # Try to parse Dockerfile syntax by attempting a dry-run build
+            result = subprocess.run([
+                'docker', 'build', '--dry-run', '--no-cache', '-f', dockerfile_path, '.'
+            ], capture_output=True, text=True, timeout=30)
+
+            if result.returncode != 0:
+                # Parse error from docker build output
+                issues.append(ValidationIssue(
+                    file_path=dockerfile_path,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Dockerfile syntax error: {result.stderr.strip()}",
+                    rule_id="DOCKERFILE_SYNTAX",
+                    category="syntax"
+                ))
+        except subprocess.TimeoutExpired:
+            issues.append(ValidationIssue(
                 file_path=dockerfile_path,
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
-                message="Dockerfile not found",
-                rule_id="FILE_NOT_FOUND",
-                category="file_missing"
-            )]
-
-        # TODO: Replace with actual Hadolint integration
-        self.logger.info(f"TODO: Run Hadolint validation on {dockerfile_path}")
-        return []
-
-    def validate_k8s_manifests(self, manifests_path: str) -> List[ValidationIssue]:
-        """
-        Validate Kubernetes manifests using Kube-linter.
-
-        TODO: Integrate with Kube-linter as described in Chapter 4:
-        - Install Kube-linter binary
-        - Execute Kube-linter on manifest files/directories: kube-linter lint --format json <manifests_path>
-        - Parse Kube-linter JSON/SARIF output and convert to ValidationIssue objects
-        - Handle both single files and directories
-        - Map Kube-linter check names to rule_id field
-        - Convert Kube-linter severity levels to ValidationSeverity enum
-        - Handle cases where Kube-linter is not installed
-
-        Args:
-            manifests_path: Path to Kubernetes manifests (file or directory)
-
-        Returns:
-            List of validation issues found by Kube-linter
-        """
-        if not os.path.exists(manifests_path):
-            return [ValidationIssue(
-                file_path=manifests_path,
+                message="Dockerfile syntax validation timed out",
+                rule_id="DOCKERFILE_TIMEOUT",
+                category="syntax"
+            ))
+        except Exception as e:
+            issues.append(ValidationIssue(
+                file_path=dockerfile_path,
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
-                message="Kubernetes manifests not found",
-                rule_id="FILE_NOT_FOUND",
-                category="file_missing"
-            )]
+                message=f"Failed to validate Dockerfile syntax: {str(e)}",
+                rule_id="DOCKERFILE_VALIDATION_ERROR",
+                category="syntax"
+            ))
 
-        # TODO: Replace with actual Kube-linter integration
-        self.logger.info(f"TODO: Run Kube-linter validation on {manifests_path}")
+        return issues
+
+    def _run_hadolint(self, dockerfile_path: str) -> List[ValidationIssue]:
+        """
+        8. Static analysis with Hadolint.
+        """
+        issues = []
+        try:
+            # Run hadolint with JSON output
+            result = subprocess.run([
+                'hadolint', '--format', 'json', dockerfile_path
+            ], capture_output=True, text=True, timeout=30)
+
+            if result.stdout:
+                # Parse hadolint JSON output
+                hadolint_issues = json.loads(result.stdout)
+                for issue in hadolint_issues:
+                    severity = self._map_hadolint_severity(issue.get('level', 'error'))
+                    issues.append(ValidationIssue(
+                        file_path=dockerfile_path,
+                        line_number=issue.get('line'),
+                        severity=severity,
+                        message=issue.get('message', ''),
+                        rule_id=issue.get('code', 'HADOLINT'),
+                        category="best_practices"
+                    ))
+
+        except subprocess.TimeoutExpired:
+            issues.append(ValidationIssue(
+                file_path=dockerfile_path,
+                line_number=None,
+                severity=ValidationSeverity.WARNING,
+                message="Hadolint analysis timed out",
+                rule_id="HADOLINT_TIMEOUT",
+                category="tool_error"
+            ))
+        except FileNotFoundError:
+            issues.append(ValidationIssue(
+                file_path=dockerfile_path,
+                line_number=None,
+                severity=ValidationSeverity.WARNING,
+                message="Hadolint not installed - static analysis skipped",
+                rule_id="HADOLINT_NOT_FOUND",
+                category="tool_error"
+            ))
+        except Exception as e:
+            issues.append(ValidationIssue(
+                file_path=dockerfile_path,
+                line_number=None,
+                severity=ValidationSeverity.WARNING,
+                message=f"Hadolint analysis failed: {str(e)}",
+                rule_id="HADOLINT_ERROR",
+                category="tool_error"
+            ))
+
+        return issues
+
+    def _validate_k8s_syntax(self, manifest_path: str) -> List[ValidationIssue]:
+        """
+        10. Kubernetes manifest syntax validation using YAML parser and basic structure checks.
+        """
+        issues = []
+        try:
+            with open(manifest_path, 'r') as f:
+                docs = list(yaml.safe_load_all(f))
+
+            for i, doc in enumerate(docs):
+                if doc is None:
+                    continue
+
+                # Check required Kubernetes fields
+                if not isinstance(doc, dict):
+                    issues.append(ValidationIssue(
+                        file_path=manifest_path,
+                        line_number=None,
+                        severity=ValidationSeverity.ERROR,
+                        message=f"Document {i+1} is not a valid Kubernetes object",
+                        rule_id="K8S_INVALID_OBJECT",
+                        category="syntax"
+                    ))
+                    continue
+
+                # Check for required fields
+                required_fields = ['apiVersion', 'kind']
+                for field in required_fields:
+                    if field not in doc:
+                        issues.append(ValidationIssue(
+                            file_path=manifest_path,
+                            line_number=None,
+                            severity=ValidationSeverity.ERROR,
+                            message=f"Missing required field '{field}' in document {i+1}",
+                            rule_id="K8S_MISSING_FIELD",
+                            category="syntax"
+                        ))
+
+        except yaml.YAMLError as e:
+            issues.append(ValidationIssue(
+                file_path=manifest_path,
+                line_number=getattr(e, 'problem_mark', {}).get('line', None),
+                severity=ValidationSeverity.ERROR,
+                message=f"YAML syntax error: {str(e)}",
+                rule_id="K8S_YAML_SYNTAX",
+                category="syntax"
+            ))
+        except Exception as e:
+            issues.append(ValidationIssue(
+                file_path=manifest_path,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message=f"Failed to validate Kubernetes manifest syntax: {str(e)}",
+                rule_id="K8S_VALIDATION_ERROR",
+                category="syntax"
+            ))
+
+        return issues
+
+    def _run_kube_linter(self, manifest_path: str) -> List[ValidationIssue]:
+        """
+        11. Static analysis with Kube-linter.
+        """
+        issues = []
+        try:
+            # Run kube-linter with JSON output
+            result = subprocess.run([
+                'kube-linter', 'lint', '--format', 'json', manifest_path
+            ], capture_output=True, text=True, timeout=30)
+
+            if result.stdout:
+                # Parse kube-linter JSON output
+                output = json.loads(result.stdout)
+                reports = output.get('Reports', [])
+
+                for report in reports:
+                    issues.append(ValidationIssue(
+                        file_path=manifest_path,
+                        line_number=None,  # kube-linter doesn't provide line numbers
+                        severity=self._map_kube_linter_severity(report.get('Level', 'warning')),
+                        message=report.get('Message', ''),
+                        rule_id=report.get('Check', 'KUBE_LINTER'),
+                        category="best_practices"
+                    ))
+
+        except subprocess.TimeoutExpired:
+            issues.append(ValidationIssue(
+                file_path=manifest_path,
+                line_number=None,
+                severity=ValidationSeverity.WARNING,
+                message="Kube-linter analysis timed out",
+                rule_id="KUBE_LINTER_TIMEOUT",
+                category="tool_error"
+            ))
+        except FileNotFoundError:
+            issues.append(ValidationIssue(
+                file_path=manifest_path,
+                line_number=None,
+                severity=ValidationSeverity.WARNING,
+                message="Kube-linter not installed - static analysis skipped",
+                rule_id="KUBE_LINTER_NOT_FOUND",
+                category="tool_error"
+            ))
+        except Exception as e:
+            issues.append(ValidationIssue(
+                file_path=manifest_path,
+                line_number=None,
+                severity=ValidationSeverity.WARNING,
+                message=f"Kube-linter analysis failed: {str(e)}",
+                rule_id="KUBE_LINTER_ERROR",
+                category="tool_error"
+            ))
+
+        return issues
+
+    def _map_hadolint_severity(self, hadolint_level: str) -> ValidationSeverity:
+        """Map Hadolint severity levels to ValidationSeverity."""
+        mapping = {
+            'error': ValidationSeverity.ERROR,
+            'warning': ValidationSeverity.WARNING,
+            'info': ValidationSeverity.INFO,
+            'style': ValidationSeverity.INFO
+        }
+        return mapping.get(hadolint_level.lower(), ValidationSeverity.WARNING)
+
+    def _map_kube_linter_severity(self, kube_linter_level: str) -> ValidationSeverity:
+        """Map Kube-linter severity levels to ValidationSeverity."""
+        mapping = {
+            'error': ValidationSeverity.ERROR,
+            'warning': ValidationSeverity.WARNING,
+            'info': ValidationSeverity.INFO
+        }
+        return mapping.get(kube_linter_level.lower(), ValidationSeverity.WARNING)
+
+    # TODO: Implement remaining validation tasks
+
+    def build_docker_images(self, dockerfile_paths: List[str]) -> List[ValidationIssue]:
+        """
+        9. Docker image building validation.
+
+        TODO: Implement Docker build testing:
+        - For each Dockerfile, attempt to build the image
+        - Use docker build command with temporary tags
+        - Capture build output and errors
+        - Clean up created images after validation
+        - Report build failures as validation issues
+        """
+        self.logger.info("TODO: Implement Docker image building validation")
         return []
 
-
-class DockerLinter:
-    """Specialized Docker linter using Hadolint.
-
-    TODO: Implement Hadolint integration as described in Chapter 4:
-    - Use subprocess to call Hadolint binary: hadolint --format json <dockerfile>
-    - Parse JSON output and convert to ValidationIssue objects
-    - Handle different severity levels (error, warning, info, style)
-    - Support Hadolint configuration files (.hadolint.yml)
-    - Handle cases where Hadolint is not installed
-    - Consider using Docker image if binary not available: docker run --rm -i hadolint/hadolint
-    """
-
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-
-    def lint_with_hadolint(self, dockerfile_path: str) -> List[ValidationIssue]:
+    def apply_k8s_manifests_in_kind(self, manifest_paths: List[str]) -> List[ValidationIssue]:
         """
-        Run Hadolint on Dockerfile and return validation issues.
+        12. Kubernetes manifest application in Kind environment.
 
-        TODO: Implement Hadolint execution:
-        Example command: hadolint --format json /path/to/Dockerfile
-        Example Docker command: docker run --rm -i hadolint/hadolint < /path/to/Dockerfile
-
-        Expected JSON output format:
-        [
-          {
-            "file": "/path/to/Dockerfile",
-            "line": 1,
-            "column": 1,
-            "level": "error",
-            "code": "DL3006",
-            "message": "Always tag the version of an image explicitly."
-          }
-        ]
-
-        Args:
-            dockerfile_path: Path to the Dockerfile to validate
-
-        Returns:
-            List of validation issues from Hadolint
+        TODO: Implement Kind cluster testing:
+        - Ensure Kind cluster is running
+        - Apply manifests using kubectl apply
+        - Check for application errors
+        - Verify resources are created successfully
+        - Clean up applied resources after validation
+        - Report application failures as validation issues
         """
-        self.logger.info(f"TODO: Run Hadolint on {dockerfile_path}")
+        self.logger.info("TODO: Implement Kind cluster manifest application")
         return []
 
-
-class KubernetesLinter:
-    """Specialized Kubernetes linter using Kube-linter and other tools.
-
-    TODO: Integrate with Kubernetes linters as described in Chapter 4:
-    - Kube-linter for security and best practices
-    - Optional: kubeval for schema validation
-    - Optional: kube-score for additional recommendations
-    """
-
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-
-    def lint_with_kube_linter(self, manifest_path: str) -> List[ValidationIssue]:
+    def validate_runtime_availability(self, manifest_paths: List[str]) -> List[ValidationIssue]:
         """
-        Run Kube-linter on Kubernetes manifests.
+        13. Runtime validation - application availability through load balancer.
 
-        TODO: Implement Kube-linter execution:
-        Example command: kube-linter lint --format json /path/to/manifests
-
-        Expected JSON output format includes checks for:
-        - Security best practices
-        - Resource limits and requests
-        - Health checks (liveness/readiness probes)
-        - Image pull policies
-        - Service account configurations
-
-        Args:
-            manifest_path: Path to Kubernetes manifest file or directory
-
-        Returns:
-            List of validation issues from Kube-linter
+        TODO: Implement runtime availability checks:
+        - Wait for deployments to be ready
+        - Find services and ingresses with external access
+        - Test HTTP endpoints for connectivity
+        - Verify application responds correctly
+        - Check health check endpoints if available
+        - Report connectivity failures as validation issues
         """
-        self.logger.info(f"TODO: Run Kube-linter on {manifest_path}")
-        return []
-
-    def lint_with_kubeval(self, manifest_path: str) -> List[ValidationIssue]:
-        """
-        Run kubeval for Kubernetes schema validation.
-
-        TODO: Optional integration with kubeval:
-        - Validates manifests against Kubernetes API schemas
-        - Useful for catching structural/syntax errors
-        - Command: kubeval /path/to/manifests/*.yaml
-
-        Args:
-            manifest_path: Path to manifest file
-
-        Returns:
-            List of validation issues from kubeval
-        """
-        self.logger.info(f"TODO: Run kubeval on {manifest_path}")
-        return []
-
-    def lint_with_kube_score(self, manifest_path: str) -> List[ValidationIssue]:
-        """
-        Run kube-score for additional Kubernetes recommendations.
-
-        TODO: Optional integration with kube-score:
-        - Provides recommendations for production-ready configurations
-        - Command: kube-score score /path/to/manifests/*.yaml
-
-        Args:
-            manifest_path: Path to manifest file
-
-        Returns:
-            List of validation issues from kube-score
-        """
-        self.logger.info(f"TODO: Run kube-score on {manifest_path}")
+        self.logger.info("TODO: Implement runtime availability validation")
         return []

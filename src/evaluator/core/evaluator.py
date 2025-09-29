@@ -145,23 +145,15 @@ class ConfigurationEvaluator:
         try:
             # Validate Dockerfiles if they exist
             if generation_result.dockerfiles:
-                for dockerfile_path in generation_result.dockerfiles:
-                    dockerfile_issues = self.validator.validate_dockerfile(dockerfile_path)
-                    quality_metrics.validation_issues.extend(dockerfile_issues)
-                # Calculate score based on first dockerfile for now
-                if generation_result.dockerfiles:
-                    dockerfile_issues = self.validator.validate_dockerfile(generation_result.dockerfiles[0])
-                    quality_metrics.dockerfile_score = self._calculate_dockerfile_score(dockerfile_issues)
+                dockerfile_issues = self.validator.validate_dockerfiles(generation_result.dockerfiles)
+                quality_metrics.validation_issues.extend(dockerfile_issues)
+                quality_metrics.dockerfile_score = self._calculate_dockerfile_score(dockerfile_issues)
 
             # Validate Kubernetes manifests if they exist
             if generation_result.k8s_manifests:
-                for k8s_manifest_path in generation_result.k8s_manifests:
-                    k8s_issues = self.validator.validate_k8s_manifests(k8s_manifest_path)
-                    quality_metrics.validation_issues.extend(k8s_issues)
-                # Calculate score based on first manifest for now
-                if generation_result.k8s_manifests:
-                    k8s_issues = self.validator.validate_k8s_manifests(generation_result.k8s_manifests[0])
-                    quality_metrics.k8s_manifests_score = self._calculate_k8s_score(k8s_issues)
+                k8s_issues = self.validator.validate_k8s_manifests(generation_result.k8s_manifests)
+                quality_metrics.validation_issues.extend(k8s_issues)
+                quality_metrics.k8s_manifests_score = self._calculate_k8s_score(k8s_issues)
 
             # Calculate overall metrics
             quality_metrics.overall_score = self._calculate_overall_score(quality_metrics)
