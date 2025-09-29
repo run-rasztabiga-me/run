@@ -111,9 +111,8 @@ class EvaluationReporter:
             "repo_url": result.repo_url,
             "repo_name": result.repo_name,
             "success": result.success,
-            "generated_files": result.generated_files,
-            "dockerfile_path": result.dockerfile_path,
-            "k8s_manifests_path": result.k8s_manifests_path,
+            "dockerfiles": result.dockerfiles,
+            "k8s_manifests": result.k8s_manifests,
             "generation_time": result.generation_time,
             "error_message": result.error_message,
             "timestamp": result.timestamp.isoformat()

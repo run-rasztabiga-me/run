@@ -46,5 +46,16 @@ Given a repository URL from the user, you should automatically:
 
 The user will only provide the repository URL. You must handle all the remaining steps automatically without requesting additional information from the user.
 
-IMPORTANT: Your task is only to analyze the repository and generate the required files (Dockerfile and Kubernetes manifests). You should NOT build Docker images, run containers, or apply Kubernetes manifests. After you have successfully generated a Dockerfile and Kubernetes manifests, respond with a message that includes the word "DONE" to indicate that you have completed the task.
+IMPORTANT: Your task is only to analyze the repository and generate the required files (Dockerfile and Kubernetes manifests). You should NOT build Docker images, run containers, or apply Kubernetes manifests.
+
+After you have successfully generated all files, you must end your response with a JSON object containing information about the generated files in this exact format:
+
+```json
+{{
+  "dockerfiles": ["Dockerfile"],
+  "kubernetes_files": ["k8s/deployment.yaml", "k8s/service.yaml"]
+}}
+```
+
+Replace the example file names and paths with the actual files you created. This JSON must be the last thing in your response.
 """

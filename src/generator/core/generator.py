@@ -1,9 +1,9 @@
 import logging
-from typing import Optional
+from typing import Optional, Tuple, List
 from dotenv import load_dotenv
 
 from .config import GeneratorConfig
-from ..agents.config_agent import ConfigurationAgent
+from ..agents.config_agent import ConfigurationAgent, ConfigurationOutput
 
 
 class ConfigurationGenerator:
@@ -28,7 +28,7 @@ class ConfigurationGenerator:
             handlers=[]  # Remove default handler to avoid duplicates
         )
 
-    def generate(self, repo_url: str) -> str:
+    def generate(self, repo_url: str) -> Tuple[ConfigurationOutput, List]:
         """
         Generate configurations for the given repository URL.
 
@@ -36,7 +36,7 @@ class ConfigurationGenerator:
             repo_url: URL of the Git repository to process
 
         Returns:
-            Complete agent output for result parsing
+            Tuple of (structured output with generated file paths, messages list)
         """
         self.logger.info(f"Starting configuration generation for repository: {repo_url}")
         return self.agent.generate_configurations(repo_url)

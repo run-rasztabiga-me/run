@@ -28,7 +28,10 @@ def main():
     # repo_url = "https://github.com/run-rasztabiga-me/poc2-fastapi.git"
 
     # Generate configurations
-    generator.generate(repo_url)
+    config_output, messages = generator.generate(repo_url)
+    print(f"Generated files:")
+    print(f"  Dockerfiles: {config_output.dockerfiles}")
+    print(f"  Kubernetes files: {config_output.kubernetes_files}")
 
 
 if __name__ == "__main__":

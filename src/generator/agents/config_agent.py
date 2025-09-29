@@ -1,13 +1,19 @@
 import logging
-from typing import List
+from typing import List, Tuple, Any
 from langgraph.prebuilt import create_react_agent
 from langchain.chat_models import init_chat_model
-from langchain_core.tools import BaseTool
+from pydantic import BaseModel, Field
 
 from ..core.config import GeneratorConfig
 from ..core.repository import RepositoryManager
 from ..tools.repository_tools import RepositoryTools
 from .prompts import CONFIGURATION_AGENT_SYSTEM_PROMPT
+
+
+class ConfigurationOutput(BaseModel):
+    """Model for configuration generation output."""
+    dockerfiles: List[str] = Field(description="List of generated Dockerfile paths")
+    kubernetes_files: List[str] = Field(description="List of generated Kubernetes manifest paths")
 
 
 class ConfigurationAgent:
@@ -31,14 +37,14 @@ class ConfigurationAgent:
             model=self.config.model_name,
             model_provider=self.config.model_provider,
             temperature=self.config.temperature,
-            # use_responses_api=True, # TODO experimental, it messes up the output (different format)
         )
 
-        # Create agent
+        # Create agent with structured output
         self.agent = create_react_agent(
             model=llm,
             tools=tools,
-            prompt=self._get_system_message()
+            prompt=self._get_system_message(),
+            response_format=ConfigurationOutput
         )
 
     def _get_system_message(self) -> str:
@@ -48,7 +54,7 @@ class ConfigurationAgent:
             domain_suffix=self.config.domain_suffix
         )
 
-    def generate_configurations(self, repo_url: str) -> str:
+    def generate_configurations(self, repo_url: str) -> Tuple[ConfigurationOutput, List]:
         """
         Generate configurations for a given repository URL.
 
@@ -56,22 +62,18 @@ class ConfigurationAgent:
             repo_url: URL of the repository to process
 
         Returns:
-            Complete agent output as string for parsing
+            Tuple of (structured output with generated files information, messages list)
         """
         self.logger.info(f"Starting configuration generation for: {repo_url}")
 
-        agent_output = []
-
-        # Stream agent responses and collect output
-        for chunk in self.agent.stream(
+        # Run agent to generate files - response_format ensures structured output
+        result = self.agent.invoke(
             {"messages": [{"role": "user", "content": repo_url}]},
-            {"recursion_limit": self.config.recursion_limit},
-            stream_mode="updates"
-        ):
-            self.logger.debug(f"Agent chunk: {chunk}")
-            agent_output.append(str(chunk))
+            {"recursion_limit": self.config.recursion_limit}
+        )
 
-        return "\n".join(agent_output)
+        # Extract structured response and return messages
+        return result['structured_response'], result['messages']
 
     def get_repository_manager(self) -> RepositoryManager:
         """Get the repository manager instance."""

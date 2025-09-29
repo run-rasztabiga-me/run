@@ -7,7 +7,6 @@ from pathlib import Path
 from .models import (
     EvaluationReport, EvaluationStatus, GenerationResult, ExecutionMetrics, QualityMetrics
 )
-from ..metrics.collector import MetricsCollector, LangSmithMetricsCollector
 from ..validators.config_validator import ConfigurationValidator
 from ..reports.reporter import EvaluationReporter
 from ...generator.core.generator import ConfigurationGenerator
@@ -28,10 +27,9 @@ class ConfigurationEvaluator:
 
         # Initialize components
         self.generator = ConfigurationGenerator(self.generator_config)
-        self.metrics_collector = LangSmithMetricsCollector()
         self.validator = ConfigurationValidator()
         self.reporter = EvaluationReporter()
-        self.generator_integration = GeneratorIntegration(self.generator, self.metrics_collector)
+        self.generator_integration = GeneratorIntegration(self.generator)
 
     def evaluate_repository(self, repo_url: str) -> EvaluationReport:
         """
@@ -120,20 +118,14 @@ class ConfigurationEvaluator:
 
     def _generate_with_metrics(self, repo_url: str) -> tuple[GenerationResult, ExecutionMetrics]:
         """Generate configurations while collecting execution metrics."""
-        start_time = time.time()
-
-        # Start metrics collection
-        self.metrics_collector.start_collection()
-
         try:
             # Use the generator integration to handle the generation process
             generation_result, execution_metrics = self.generator_integration.generate_with_monitoring(repo_url)
-
             return generation_result, execution_metrics
 
         except Exception as e:
-            execution_metrics = self.metrics_collector.stop_collection()
-            execution_metrics.total_time = time.time() - start_time
+            execution_metrics = ExecutionMetrics()
+            execution_metrics.total_time = 0
             execution_metrics.error_count += 1
 
             generation_result = GenerationResult(
@@ -141,7 +133,7 @@ class ConfigurationEvaluator:
                 repo_name=extract_repo_name(repo_url),
                 success=False,
                 error_message=str(e),
-                generation_time=time.time() - start_time
+                generation_time=0
             )
 
             return generation_result, execution_metrics
@@ -151,21 +143,25 @@ class ConfigurationEvaluator:
         quality_metrics = QualityMetrics()
 
         try:
-            # Validate Dockerfile if it exists
-            if generation_result.dockerfile_path:
-                dockerfile_issues = self.validator.validate_dockerfile(
-                    generation_result.dockerfile_path
-                )
-                quality_metrics.validation_issues.extend(dockerfile_issues)
-                quality_metrics.dockerfile_score = self._calculate_dockerfile_score(dockerfile_issues)
+            # Validate Dockerfiles if they exist
+            if generation_result.dockerfiles:
+                for dockerfile_path in generation_result.dockerfiles:
+                    dockerfile_issues = self.validator.validate_dockerfile(dockerfile_path)
+                    quality_metrics.validation_issues.extend(dockerfile_issues)
+                # Calculate score based on first dockerfile for now
+                if generation_result.dockerfiles:
+                    dockerfile_issues = self.validator.validate_dockerfile(generation_result.dockerfiles[0])
+                    quality_metrics.dockerfile_score = self._calculate_dockerfile_score(dockerfile_issues)
 
             # Validate Kubernetes manifests if they exist
-            if generation_result.k8s_manifests_path:
-                k8s_issues = self.validator.validate_k8s_manifests(
-                    generation_result.k8s_manifests_path
-                )
-                quality_metrics.validation_issues.extend(k8s_issues)
-                quality_metrics.k8s_manifests_score = self._calculate_k8s_score(k8s_issues)
+            if generation_result.k8s_manifests:
+                for k8s_manifest_path in generation_result.k8s_manifests:
+                    k8s_issues = self.validator.validate_k8s_manifests(k8s_manifest_path)
+                    quality_metrics.validation_issues.extend(k8s_issues)
+                # Calculate score based on first manifest for now
+                if generation_result.k8s_manifests:
+                    k8s_issues = self.validator.validate_k8s_manifests(generation_result.k8s_manifests[0])
+                    quality_metrics.k8s_manifests_score = self._calculate_k8s_score(k8s_issues)
 
             # Calculate overall metrics
             quality_metrics.overall_score = self._calculate_overall_score(quality_metrics)

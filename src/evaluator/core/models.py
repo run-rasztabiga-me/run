@@ -25,9 +25,8 @@ class GenerationResult:
     repo_url: str
     repo_name: str
     success: bool
-    generated_files: List[str] = field(default_factory=list)
-    dockerfile_path: Optional[str] = None
-    k8s_manifests_path: Optional[str] = None
+    dockerfiles: List[str] = field(default_factory=list)
+    k8s_manifests: List[str] = field(default_factory=list)
     generation_time: Optional[float] = None
     error_message: Optional[str] = None
     timestamp: datetime = field(default_factory=datetime.now)
@@ -47,8 +46,8 @@ class ValidationIssue:
 @dataclass
 class ExecutionMetrics:
     """Metrics collected during agent execution."""
-    total_time: float
-    tool_calls_count: int
+    total_time: float = 0.0
+    tool_calls_count: int = 0
     tool_calls_breakdown: Dict[str, int] = field(default_factory=dict)
     tokens_used: Optional[int] = None
     input_tokens: Optional[int] = None
