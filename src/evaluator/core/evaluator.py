@@ -27,7 +27,7 @@ class ConfigurationEvaluator:
 
         # Initialize components
         self.generator = ConfigurationGenerator(self.generator_config)
-        self.validator = ConfigurationValidator()
+        self.validator = ConfigurationValidator(self.generator.get_repository_manager())
         self.reporter = EvaluationReporter()
         self.generator_integration = GeneratorIntegration(self.generator)
 

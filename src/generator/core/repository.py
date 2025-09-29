@@ -32,6 +32,36 @@ class RepositoryManager:
         """Get the current temporary directory path."""
         return self._tmp_dir
 
+    def get_repo_path(self) -> Path:
+        """
+        Get the repository directory as an absolute Path object.
+
+        Returns:
+            Absolute Path object to the repository directory
+
+        Raises:
+            ValueError: If no repository has been cloned yet
+        """
+        if not self._tmp_dir:
+            raise ValueError("No repository has been cloned yet. Please clone a repository first.")
+
+        return Path(self._tmp_dir).resolve()
+
+    def get_full_path(self, relative_path: str) -> Path:
+        """
+        Get the absolute full path for a file relative to the repository root.
+
+        Args:
+            relative_path: Path relative to the repository root (e.g., "Dockerfile", "k8s/deployment.yaml")
+
+        Returns:
+            Absolute Path object to the file
+
+        Raises:
+            ValueError: If no repository has been cloned yet
+        """
+        return self.get_repo_path() / relative_path
+
     def clone_repository(self, repo_url: str, cleanup: bool = True) -> str:
         """
         Clone repository and optionally remove confusing files.
@@ -45,20 +75,23 @@ class RepositoryManager:
         """
         repo_name = extract_repo_name(repo_url)
         self._repo_name = repo_name
-        tmp_dir = f"./tmp/{repo_name}"
-        self._tmp_dir = tmp_dir
+        tmp_dir_relative = f"./tmp/{repo_name}"
+
+        # Store absolute path internally
+        tmp_dir_absolute = Path(tmp_dir_relative).resolve()
+        self._tmp_dir = str(tmp_dir_absolute)
 
         self.logger.info("Preparing working directory...")
-        shutil.rmtree(tmp_dir, ignore_errors=True)
-        os.makedirs(tmp_dir, exist_ok=True)
+        shutil.rmtree(self._tmp_dir, ignore_errors=True)
+        os.makedirs(self._tmp_dir, exist_ok=True)
 
         self.logger.info(f"Cloning repository {repo_url}...")
-        Repo.clone_from(repo_url, tmp_dir)
+        Repo.clone_from(repo_url, self._tmp_dir)
 
         if cleanup:
-            self._cleanup_confusing_files(tmp_dir)
+            self._cleanup_confusing_files(self._tmp_dir)
 
-        return f"Repository {repo_url} cloned successfully to {tmp_dir}"
+        return f"Repository {repo_url} cloned successfully to {self._tmp_dir}"
 
     def get_file_content(self, file_path: str) -> str:
         """

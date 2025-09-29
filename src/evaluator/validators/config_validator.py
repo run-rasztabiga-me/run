@@ -6,6 +6,7 @@ from typing import List
 from pathlib import Path
 
 from ..core.models import ValidationIssue, ValidationSeverity
+from ...generator.core.repository import RepositoryManager
 
 
 class ConfigurationValidator:
@@ -21,8 +22,9 @@ class ConfigurationValidator:
     13. Runtime validation - application availability (TODO)
     """
 
-    def __init__(self):
+    def __init__(self, repository_manager: RepositoryManager):
         self.logger = logging.getLogger(__name__)
+        self.repository_manager = repository_manager
 
     def validate_dockerfiles(self, dockerfile_paths: List[str]) -> List[ValidationIssue]:
         """
@@ -67,14 +69,29 @@ class ConfigurationValidator:
 
     def _validate_dockerfile_syntax(self, dockerfile_path: str) -> List[ValidationIssue]:
         """
-        7. Dockerfile syntax validation using docker build --dry-run or dockerfile parser.
+        7. Dockerfile syntax validation using docker build --check.
         """
         issues = []
         try:
-            # Try to parse Dockerfile syntax by attempting a dry-run build
+            # Use repository manager to get absolute path
+            dockerfile_full_path = self.repository_manager.get_full_path(dockerfile_path)
+
+            if not dockerfile_full_path.exists():
+                issues.append(ValidationIssue(
+                    file_path=dockerfile_path,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Dockerfile not found at {dockerfile_path}",
+                    rule_id="DOCKERFILE_NOT_FOUND",
+                    category="file_missing"
+                ))
+                return issues
+
+            # Use docker build --check to validate syntax without building
+            # Run from repository directory for proper build context
             result = subprocess.run([
-                'docker', 'build', '--dry-run', '--no-cache', '-f', dockerfile_path, '.'
-            ], capture_output=True, text=True, timeout=30)
+                'docker', 'build', '--check', '-f', str(dockerfile_full_path), '.'
+            ], capture_output=True, text=True, timeout=30, cwd=str(dockerfile_full_path.parent))
 
             if result.returncode != 0:
                 # Parse error from docker build output
@@ -113,9 +130,23 @@ class ConfigurationValidator:
         """
         issues = []
         try:
+            # Use repository manager to get absolute path
+            dockerfile_full_path = self.repository_manager.get_full_path(dockerfile_path)
+
+            if not dockerfile_full_path.exists():
+                issues.append(ValidationIssue(
+                    file_path=dockerfile_path,
+                    line_number=None,
+                    severity=ValidationSeverity.WARNING,
+                    message=f"Dockerfile not found for Hadolint analysis: {dockerfile_path}",
+                    rule_id="DOCKERFILE_NOT_FOUND",
+                    category="file_missing"
+                ))
+                return issues
+
             # Run hadolint with JSON output
             result = subprocess.run([
-                'hadolint', '--format', 'json', dockerfile_path
+                'hadolint', '--format', 'json', str(dockerfile_full_path)
             ], capture_output=True, text=True, timeout=30)
 
             if result.stdout:
@@ -168,7 +199,10 @@ class ConfigurationValidator:
         """
         issues = []
         try:
-            with open(manifest_path, 'r') as f:
+            # Use repository manager to get absolute path
+            manifest_full_path = self.repository_manager.get_full_path(manifest_path)
+
+            with open(manifest_full_path, 'r') as f:
                 docs = list(yaml.safe_load_all(f))
 
             for i, doc in enumerate(docs):
@@ -227,9 +261,12 @@ class ConfigurationValidator:
         """
         issues = []
         try:
+            # Use repository manager to get absolute path
+            manifest_full_path = self.repository_manager.get_full_path(manifest_path)
+
             # Run kube-linter with JSON output
             result = subprocess.run([
-                'kube-linter', 'lint', '--format', 'json', manifest_path
+                'kube-linter', 'lint', '--format', 'json', str(manifest_full_path)
             ], capture_output=True, text=True, timeout=30)
 
             if result.stdout:
