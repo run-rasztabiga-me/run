@@ -264,14 +264,18 @@ class ConfigurationValidator:
             if result.stdout:
                 # Parse kube-linter JSON output
                 output = json.loads(result.stdout)
-                reports = output.get('Reports', [])
+                reports = output.get('Reports') or []
 
                 for report in reports:
+                    # Extract message from Diagnostic.Message
+                    diagnostic = report.get('Diagnostic', {})
+                    message = diagnostic.get('Message', '')
+
                     issues.append(ValidationIssue(
                         file_path=manifest_path,
                         line_number=None,  # kube-linter doesn't provide line numbers
-                        severity=self._map_kube_linter_severity(report.get('Level', 'warning')),
-                        message=report.get('Message', ''),
+                        severity=ValidationSeverity.WARNING,  # kube-linter reports are typically warnings
+                        message=message,
                         rule_id=report.get('Check', 'KUBE_LINTER')
                     ))
 
