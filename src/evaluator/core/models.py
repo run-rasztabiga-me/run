@@ -40,7 +40,6 @@ class ValidationIssue:
     severity: ValidationSeverity
     message: str
     rule_id: Optional[str] = None
-    category: Optional[str] = None
 
 
 @dataclass

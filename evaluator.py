@@ -95,7 +95,7 @@ def main():
 def evaluate_single_repo(repo_url: str):
     """Evaluate a single repository (utility function)."""
     generator_config = GeneratorConfig(
-        model_name="gpt-4o-mini",
+        model_name="gpt-5-nano",
         model_provider="openai",
         temperature=0
     )

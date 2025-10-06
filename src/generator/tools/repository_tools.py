@@ -48,6 +48,9 @@ class RepositoryTools:
         @tool("get_file_content", args_schema=ToolSchemas.GetFileContentInput)
         def get_file_content(file_path: str) -> str:
             """Retrieve the content of a specific file from the repository."""
+            # Remove leading slash if present to avoid path resolution issues
+            if file_path.startswith('/'):
+                file_path = file_path.lstrip('/')
             return repo_manager.get_file_content(file_path)
 
         return get_file_content

@@ -20,7 +20,7 @@ class GeneratorConfig(BaseModel):
     temperature: float = 0
 
     # Agent settings
-    recursion_limit: int = 50
+    recursion_limit: int = 100
 
     # Directory settings
     tmp_dir_base: str = "./tmp"

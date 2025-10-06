@@ -82,8 +82,7 @@ class ConfigurationValidator:
                     line_number=None,
                     severity=ValidationSeverity.ERROR,
                     message=f"Dockerfile not found at {dockerfile_path}",
-                    rule_id="DOCKERFILE_NOT_FOUND",
-                    category="file_missing"
+                    rule_id="DOCKERFILE_NOT_FOUND"
                 ))
                 return issues
 
@@ -100,8 +99,7 @@ class ConfigurationValidator:
                     line_number=None,
                     severity=ValidationSeverity.ERROR,
                     message=f"Dockerfile syntax error: {result.stderr.strip()}",
-                    rule_id="DOCKERFILE_SYNTAX",
-                    category="syntax"
+                    rule_id="DOCKERFILE_SYNTAX"
                 ))
         except subprocess.TimeoutExpired:
             issues.append(ValidationIssue(
@@ -109,8 +107,7 @@ class ConfigurationValidator:
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
                 message="Dockerfile syntax validation timed out",
-                rule_id="DOCKERFILE_TIMEOUT",
-                category="syntax"
+                rule_id="DOCKERFILE_TIMEOUT"
             ))
         except Exception as e:
             issues.append(ValidationIssue(
@@ -118,8 +115,7 @@ class ConfigurationValidator:
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
                 message=f"Failed to validate Dockerfile syntax: {str(e)}",
-                rule_id="DOCKERFILE_VALIDATION_ERROR",
-                category="syntax"
+                rule_id="DOCKERFILE_VALIDATION_ERROR"
             ))
 
         return issues
@@ -137,10 +133,9 @@ class ConfigurationValidator:
                 issues.append(ValidationIssue(
                     file_path=dockerfile_path,
                     line_number=None,
-                    severity=ValidationSeverity.WARNING,
+                    severity=ValidationSeverity.ERROR,
                     message=f"Dockerfile not found for Hadolint analysis: {dockerfile_path}",
-                    rule_id="DOCKERFILE_NOT_FOUND",
-                    category="file_missing"
+                    rule_id="DOCKERFILE_NOT_FOUND"
                 ))
                 return issues
 
@@ -159,36 +154,32 @@ class ConfigurationValidator:
                         line_number=issue.get('line'),
                         severity=severity,
                         message=issue.get('message', ''),
-                        rule_id=issue.get('code', 'HADOLINT'),
-                        category="best_practices"
+                        rule_id=issue.get('code', 'HADOLINT')
                     ))
 
         except subprocess.TimeoutExpired:
             issues.append(ValidationIssue(
                 file_path=dockerfile_path,
                 line_number=None,
-                severity=ValidationSeverity.WARNING,
+                severity=ValidationSeverity.ERROR,
                 message="Hadolint analysis timed out",
-                rule_id="HADOLINT_TIMEOUT",
-                category="tool_error"
+                rule_id="HADOLINT_TIMEOUT"
             ))
         except FileNotFoundError:
             issues.append(ValidationIssue(
                 file_path=dockerfile_path,
                 line_number=None,
-                severity=ValidationSeverity.WARNING,
+                severity=ValidationSeverity.ERROR,
                 message="Hadolint not installed - static analysis skipped",
-                rule_id="HADOLINT_NOT_FOUND",
-                category="tool_error"
+                rule_id="HADOLINT_NOT_FOUND"
             ))
         except Exception as e:
             issues.append(ValidationIssue(
                 file_path=dockerfile_path,
                 line_number=None,
-                severity=ValidationSeverity.WARNING,
+                severity=ValidationSeverity.ERROR,
                 message=f"Hadolint analysis failed: {str(e)}",
-                rule_id="HADOLINT_ERROR",
-                category="tool_error"
+                rule_id="HADOLINT_ERROR"
             ))
 
         return issues
@@ -216,8 +207,7 @@ class ConfigurationValidator:
                         line_number=None,
                         severity=ValidationSeverity.ERROR,
                         message=f"Document {i+1} is not a valid Kubernetes object",
-                        rule_id="K8S_INVALID_OBJECT",
-                        category="syntax"
+                        rule_id="K8S_INVALID_OBJECT"
                     ))
                     continue
 
@@ -230,8 +220,7 @@ class ConfigurationValidator:
                             line_number=None,
                             severity=ValidationSeverity.ERROR,
                             message=f"Missing required field '{field}' in document {i+1}",
-                            rule_id="K8S_MISSING_FIELD",
-                            category="syntax"
+                            rule_id="K8S_MISSING_FIELD"
                         ))
 
         except yaml.YAMLError as e:
@@ -240,8 +229,7 @@ class ConfigurationValidator:
                 line_number=getattr(e, 'problem_mark', {}).get('line', None),
                 severity=ValidationSeverity.ERROR,
                 message=f"YAML syntax error: {str(e)}",
-                rule_id="K8S_YAML_SYNTAX",
-                category="syntax"
+                rule_id="K8S_YAML_SYNTAX"
             ))
         except Exception as e:
             issues.append(ValidationIssue(
@@ -249,8 +237,7 @@ class ConfigurationValidator:
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
                 message=f"Failed to validate Kubernetes manifest syntax: {str(e)}",
-                rule_id="K8S_VALIDATION_ERROR",
-                category="syntax"
+                rule_id="K8S_VALIDATION_ERROR"
             ))
 
         return issues
@@ -280,36 +267,32 @@ class ConfigurationValidator:
                         line_number=None,  # kube-linter doesn't provide line numbers
                         severity=self._map_kube_linter_severity(report.get('Level', 'warning')),
                         message=report.get('Message', ''),
-                        rule_id=report.get('Check', 'KUBE_LINTER'),
-                        category="best_practices"
+                        rule_id=report.get('Check', 'KUBE_LINTER')
                     ))
 
         except subprocess.TimeoutExpired:
             issues.append(ValidationIssue(
                 file_path=manifest_path,
                 line_number=None,
-                severity=ValidationSeverity.WARNING,
+                severity=ValidationSeverity.ERROR,
                 message="Kube-linter analysis timed out",
-                rule_id="KUBE_LINTER_TIMEOUT",
-                category="tool_error"
+                rule_id="KUBE_LINTER_TIMEOUT"
             ))
         except FileNotFoundError:
             issues.append(ValidationIssue(
                 file_path=manifest_path,
                 line_number=None,
-                severity=ValidationSeverity.WARNING,
+                severity=ValidationSeverity.ERROR,
                 message="Kube-linter not installed - static analysis skipped",
-                rule_id="KUBE_LINTER_NOT_FOUND",
-                category="tool_error"
+                rule_id="KUBE_LINTER_NOT_FOUND"
             ))
         except Exception as e:
             issues.append(ValidationIssue(
                 file_path=manifest_path,
                 line_number=None,
-                severity=ValidationSeverity.WARNING,
+                severity=ValidationSeverity.ERROR,
                 message=f"Kube-linter analysis failed: {str(e)}",
-                rule_id="KUBE_LINTER_ERROR",
-                category="tool_error"
+                rule_id="KUBE_LINTER_ERROR"
             ))
 
         return issues

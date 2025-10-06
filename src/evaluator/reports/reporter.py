@@ -147,8 +147,7 @@ class EvaluationReporter:
                     "line_number": issue.line_number,
                     "severity": issue.severity.value,
                     "message": issue.message,
-                    "rule_id": issue.rule_id,
-                    "category": issue.category
+                    "rule_id": issue.rule_id
                 }
                 for issue in metrics.validation_issues
             ]
@@ -204,7 +203,7 @@ class EvaluationReporter:
             # Header
             writer.writerow([
                 'Repo Name', 'File Path', 'Line Number', 'Severity',
-                'Message', 'Rule ID', 'Category'
+                'Message', 'Rule ID'
             ])
 
             # Data rows
@@ -217,8 +216,7 @@ class EvaluationReporter:
                             issue.line_number,
                             issue.severity.value,
                             issue.message,
-                            issue.rule_id,
-                            issue.category
+                            issue.rule_id
                         ])
 
     def _export_html_report(self, reports: List[EvaluationReport], filepath: str) -> None:

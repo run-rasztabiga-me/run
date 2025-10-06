@@ -142,6 +142,8 @@ class ConfigurationEvaluator:
         """Assess the quality of generated configurations."""
         quality_metrics = QualityMetrics()
 
+        # TODO opracować algorytm na liczenie score'u
+
         try:
             # Validate Dockerfiles if they exist
             if generation_result.dockerfiles:
@@ -157,14 +159,6 @@ class ConfigurationEvaluator:
 
             # Calculate overall metrics
             quality_metrics.overall_score = self._calculate_overall_score(quality_metrics)
-            quality_metrics.best_practices_violations = len([
-                issue for issue in quality_metrics.validation_issues
-                if issue.category == "best_practices"
-            ])
-            quality_metrics.security_issues = len([
-                issue for issue in quality_metrics.validation_issues
-                if issue.category == "security"
-            ])
 
         except Exception as e:
             self.logger.error(f"Quality assessment failed: {str(e)}")
@@ -198,7 +192,7 @@ class ConfigurationEvaluator:
         return max(0.0, score)
 
     def _calculate_overall_score(self, quality_metrics: QualityMetrics) -> float:
-        """Calculate overall quality score."""
+        """Calculate overall quality score as the average of Dockerfile and Kubernetes manifest scores."""
         scores = []
         if quality_metrics.dockerfile_score is not None:
             scores.append(quality_metrics.dockerfile_score)

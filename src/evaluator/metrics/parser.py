@@ -6,7 +6,7 @@ from typing import Dict, Any, Optional, List
 class StructuredResultParser:
     """
     Parser to extract structured results from generator output.
-    This is a placeholder for when the generator is modified to return JSON.
+    TODO This is a placeholder for when the generator is modified to return JSON.
     """
 
     def __init__(self):
