@@ -1,4 +1,5 @@
 import logging
+import uuid
 from typing import List, Tuple, Any
 from langgraph.prebuilt import create_react_agent
 from langchain.chat_models import init_chat_model
@@ -54,7 +55,7 @@ class ConfigurationAgent:
             domain_suffix=self.config.domain_suffix
         )
 
-    def generate_configurations(self, repo_url: str) -> Tuple[ConfigurationOutput, List]:
+    def generate_configurations(self, repo_url: str) -> Tuple[ConfigurationOutput, List, str]:
         """
         Generate configurations for a given repository URL.
 
@@ -62,18 +63,25 @@ class ConfigurationAgent:
             repo_url: URL of the repository to process
 
         Returns:
-            Tuple of (structured output with generated files information, messages list)
+            Tuple of (structured output with generated files information, messages list, run_id)
         """
         self.logger.info(f"Starting configuration generation for: {repo_url}")
+
+        # Generate a unique run_id for LangSmith tracing
+        run_id = str(uuid.uuid4())
 
         # Run agent to generate files - response_format ensures structured output
         result = self.agent.invoke(
             {"messages": [{"role": "user", "content": repo_url}]},
-            {"recursion_limit": self.config.recursion_limit}
+            {
+                "recursion_limit": self.config.recursion_limit,
+                "run_id": run_id,
+                "tags": [] # TODO?
+            }
         )
 
-        # Extract structured response and return messages
-        return result['structured_response'], result['messages']
+        # Extract structured response and return messages with run_id
+        return result['structured_response'], result['messages'], run_id
 
     def get_repository_manager(self) -> RepositoryManager:
         """Get the repository manager instance."""
