@@ -62,6 +62,9 @@ class RepositoryTools:
         @tool("write_file", args_schema=ToolSchemas.WriteFileInput)
         def write_file(file_path: str, content: str) -> str:
             """Write content to a file in the repository."""
+            # Remove leading slash if present to avoid path resolution issues
+            if file_path.startswith('/'):
+                file_path = file_path.lstrip('/')
             return repo_manager.write_file(file_path, content)
 
         return write_file

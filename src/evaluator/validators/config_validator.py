@@ -92,14 +92,19 @@ class ConfigurationValidator:
                 'docker', 'build', '--check', '-f', str(dockerfile_full_path), '.'
             ], capture_output=True, text=True, timeout=30, cwd=str(dockerfile_full_path.parent))
 
-            if result.returncode != 0:
-                # Parse error from docker build output
+            # Parse docker build --check output from stdout
+            if result.stdout:
+                issues.extend(self._parse_docker_check_output(result.stdout, dockerfile_path))
+
+            # If return code is non-zero and no issues were parsed, add a generic error
+            if result.returncode != 0 and not issues:
+                error_msg = result.stderr.strip() if result.stderr else "Unknown error"
                 issues.append(ValidationIssue(
                     file_path=dockerfile_path,
                     line_number=None,
                     severity=ValidationSeverity.ERROR,
-                    message=f"Dockerfile syntax error: {result.stderr.strip()}",
-                    rule_id="DOCKERFILE_SYNTAX"
+                    message=f"Dockerfile validation failed: {error_msg}",
+                    rule_id="DOCKERFILE_CHECK_FAILED"
                 ))
         except subprocess.TimeoutExpired:
             issues.append(ValidationIssue(
@@ -294,6 +299,61 @@ class ConfigurationValidator:
                 message=f"Kube-linter analysis failed: {str(e)}",
                 rule_id="KUBE_LINTER_ERROR"
             ))
+
+        return issues
+
+    def _parse_docker_check_output(self, output: str, dockerfile_path: str) -> List[ValidationIssue]:
+        """Parse docker build --check output to extract warnings and errors."""
+        issues = []
+        lines = output.split('\n')
+
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+
+            # Look for WARNING or ERROR lines
+            if line.startswith('WARNING:') or line.startswith('ERROR:'):
+                severity = ValidationSeverity.WARNING if line.startswith('WARNING:') else ValidationSeverity.ERROR
+
+                # Extract rule ID and description
+                parts = line.split(' - ', 1)
+                if len(parts) >= 2:
+                    rule_info = parts[0].split(':', 1)[1].strip()  # Get part after WARNING:/ERROR:
+                    description = parts[1] if len(parts) > 1 else ""
+                else:
+                    rule_info = line.split(':', 1)[1].strip() if ':' in line else "DOCKER_CHECK"
+                    description = ""
+
+                # Try to extract line number from the next lines (look for Dockerfile:N)
+                line_number = None
+                message_parts = [description] if description else []
+
+                # Read next few lines to get more context
+                j = i + 1
+                while j < len(lines) and j < i + 5:
+                    next_line = lines[j].strip()
+                    if next_line.startswith('Dockerfile:'):
+                        try:
+                            line_number = int(next_line.split(':')[1])
+                        except (IndexError, ValueError):
+                            pass
+                    elif next_line and not next_line.startswith('---'):
+                        message_parts.append(next_line)
+                    j += 1
+
+                message = ' '.join(message_parts) if message_parts else rule_info
+
+                issues.append(ValidationIssue(
+                    file_path=dockerfile_path,
+                    line_number=line_number,
+                    severity=severity,
+                    message=message.strip(),
+                    rule_id=rule_info.split()[0] if rule_info else "DOCKER_CHECK"
+                ))
+
+                i = j  # Skip the lines we've already processed
+            else:
+                i += 1
 
         return issues
 
