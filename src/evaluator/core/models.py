@@ -53,9 +53,8 @@ class ExecutionMetrics:
     output_tokens: Optional[int] = None
     error_count: int = 0
     retry_count: int = 0
-    # Thesis-specific metrics
-    run_number: Optional[int] = None
-    success_detected_via_done: bool = False
+    # LangSmith trace identifier
+    run_id: Optional[str] = None
 
 
 @dataclass
@@ -64,8 +63,6 @@ class QualityMetrics:
     dockerfile_score: Optional[float] = None
     k8s_manifests_score: Optional[float] = None
     overall_score: Optional[float] = None
-    best_practices_violations: int = 0
-    security_issues: int = 0
     validation_issues: List[ValidationIssue] = field(default_factory=list)
 
 
@@ -83,8 +80,6 @@ class EvaluationReport:
     end_time: Optional[datetime] = None
     total_evaluation_time: Optional[float] = None
     notes: List[str] = field(default_factory=list)
-    # Multiple run support
-    run_results: List['EvaluationReport'] = field(default_factory=list)
 
     @property
     def duration(self) -> Optional[float]:

@@ -101,7 +101,6 @@ class EvaluationReporter:
             "generation_result": self._generation_result_to_dict(report.generation_result) if report.generation_result else None,
             "execution_metrics": self._execution_metrics_to_dict(report.execution_metrics) if report.execution_metrics else None,
             "quality_metrics": self._quality_metrics_to_dict(report.quality_metrics) if report.quality_metrics else None,
-            "run_results": [self._report_to_dict(run_report) for run_report in report.run_results],
             "notes": report.notes
         }
 
@@ -129,8 +128,7 @@ class EvaluationReporter:
             "output_tokens": metrics.output_tokens,
             "error_count": metrics.error_count,
             "retry_count": metrics.retry_count,
-            "run_number": metrics.run_number,
-            "success_detected_via_done": metrics.success_detected_via_done
+            "run_id": metrics.run_id
         }
 
     def _quality_metrics_to_dict(self, metrics) -> Dict[str, Any]:
@@ -139,8 +137,6 @@ class EvaluationReporter:
             "dockerfile_score": metrics.dockerfile_score,
             "k8s_manifests_score": metrics.k8s_manifests_score,
             "overall_score": metrics.overall_score,
-            "best_practices_violations": metrics.best_practices_violations,
-            "security_issues": metrics.security_issues,
             "validation_issues": [
                 {
                     "file_path": issue.file_path,
@@ -174,8 +170,7 @@ class EvaluationReporter:
             writer.writerow([
                 'Repo Name', 'Repo URL', 'Status', 'Generation Success',
                 'Generation Time (s)', 'Tool Calls', 'Overall Score',
-                'Dockerfile Score', 'K8s Score', 'Validation Issues',
-                'Security Issues', 'Best Practice Violations'
+                'Dockerfile Score', 'K8s Score', 'Validation Issues'
             ])
 
             # Data rows
@@ -190,9 +185,7 @@ class EvaluationReporter:
                     report.quality_metrics.overall_score if report.quality_metrics else 0,
                     report.quality_metrics.dockerfile_score if report.quality_metrics else 0,
                     report.quality_metrics.k8s_manifests_score if report.quality_metrics else 0,
-                    len(report.quality_metrics.validation_issues) if report.quality_metrics else 0,
-                    report.quality_metrics.security_issues if report.quality_metrics else 0,
-                    report.quality_metrics.best_practices_violations if report.quality_metrics else 0
+                    len(report.quality_metrics.validation_issues) if report.quality_metrics else 0
                 ])
 
     def _export_detailed_csv(self, reports: List[EvaluationReport], filepath: str) -> None:

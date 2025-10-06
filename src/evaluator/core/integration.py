@@ -41,6 +41,7 @@ class GeneratorIntegration:
             generation_time = time.time() - start_time
             execution_metrics = ExecutionMetrics()
             execution_metrics.total_time = generation_time
+            execution_metrics.run_id = run_id
 
             # Extract metrics from LangSmith if run_id is available
             if run_id:
@@ -59,7 +60,6 @@ class GeneratorIntegration:
             self.logger.info("Using structured output from ConfigurationOutput")
             total_files = len(config_output.dockerfiles) + len(config_output.kubernetes_files)
             success = total_files > 0
-            execution_metrics.success_detected_via_done = True
 
             generation_result = GenerationResult(
                 repo_url=repo_url,
