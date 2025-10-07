@@ -1,0 +1,5 @@
+checks:
+  # Disable checks that don't make sense when manifests are in separate files
+  doNotAutoAddDefaults: false
+  exclude:
+    - "dangling-service"

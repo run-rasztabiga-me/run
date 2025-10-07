@@ -1,10 +1,8 @@
 import json
 import logging
 import subprocess
-import yaml
 from typing import List
 from pathlib import Path
-from importlib import resources
 
 from ..core.models import ValidationIssue, ValidationSeverity
 from ...generator.core.repository import RepositoryManager
@@ -83,7 +81,7 @@ class ConfigurationValidator:
                     line_number=None,
                     severity=ValidationSeverity.ERROR,
                     message=f"Dockerfile not found at {dockerfile_path}",
-                    rule_id="DOCKERFILE_NOT_FOUND"
+                    rule_id="DOCKER_NOT_FOUND"
                 ))
                 return issues
 
@@ -105,7 +103,7 @@ class ConfigurationValidator:
                     line_number=None,
                     severity=ValidationSeverity.ERROR,
                     message=f"Dockerfile validation failed: {error_msg}",
-                    rule_id="DOCKERFILE_CHECK_FAILED"
+                    rule_id="DOCKER_VALIDATION_FAILED"
                 ))
         except subprocess.TimeoutExpired:
             issues.append(ValidationIssue(
@@ -113,7 +111,7 @@ class ConfigurationValidator:
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
                 message="Dockerfile syntax validation timed out",
-                rule_id="DOCKERFILE_TIMEOUT"
+                rule_id="DOCKER_TIMEOUT"
             ))
         except Exception as e:
             issues.append(ValidationIssue(
@@ -121,7 +119,7 @@ class ConfigurationValidator:
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
                 message=f"Failed to validate Dockerfile syntax: {str(e)}",
-                rule_id="DOCKERFILE_VALIDATION_ERROR"
+                rule_id="DOCKER_ERROR"
             ))
 
         return issues
@@ -141,7 +139,7 @@ class ConfigurationValidator:
                     line_number=None,
                     severity=ValidationSeverity.ERROR,
                     message=f"Dockerfile not found for Hadolint analysis: {dockerfile_path}",
-                    rule_id="DOCKERFILE_NOT_FOUND"
+                    rule_id="HADOLINT_FILE_NOT_FOUND"
                 ))
                 return issues
 
@@ -192,58 +190,54 @@ class ConfigurationValidator:
 
     def _validate_k8s_syntax(self, manifest_path: str) -> List[ValidationIssue]:
         """
-        10. Kubernetes manifest syntax validation using YAML parser and basic structure checks.
+        10. Kubernetes manifest syntax validation using kubectl dry-run.
+
+        Uses kubectl apply --dry-run=server for proper schema validation against Kubernetes API.
         """
         issues = []
         try:
             # Use repository manager to get absolute path
             manifest_full_path = self.repository_manager.get_full_path(manifest_path)
 
-            with open(manifest_full_path, 'r') as f:
-                docs = list(yaml.safe_load_all(f))
+            # Use kubectl dry-run for validation
+            result = subprocess.run([
+                'kubectl', 'apply', '--dry-run=server', '-f', str(manifest_full_path)
+            ], capture_output=True, text=True, timeout=30)
 
-            for i, doc in enumerate(docs):
-                if doc is None:
-                    continue
+            if result.returncode != 0:
+                # Parse kubectl error output
+                error_msg = result.stderr.strip()
+                issues.append(ValidationIssue(
+                    file_path=manifest_path,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Kubernetes validation failed: {error_msg}",
+                    rule_id="KUBECTL_VALIDATION_FAILED"
+                ))
 
-                # Check required Kubernetes fields
-                if not isinstance(doc, dict):
-                    issues.append(ValidationIssue(
-                        file_path=manifest_path,
-                        line_number=None,
-                        severity=ValidationSeverity.ERROR,
-                        message=f"Document {i+1} is not a valid Kubernetes object",
-                        rule_id="K8S_INVALID_OBJECT"
-                    ))
-                    continue
-
-                # Check for required fields
-                required_fields = ['apiVersion', 'kind']
-                for field in required_fields:
-                    if field not in doc:
-                        issues.append(ValidationIssue(
-                            file_path=manifest_path,
-                            line_number=None,
-                            severity=ValidationSeverity.ERROR,
-                            message=f"Missing required field '{field}' in document {i+1}",
-                            rule_id="K8S_MISSING_FIELD"
-                        ))
-
-        except yaml.YAMLError as e:
+        except subprocess.TimeoutExpired:
             issues.append(ValidationIssue(
                 file_path=manifest_path,
-                line_number=getattr(e, 'problem_mark', {}).get('line', None),
+                line_number=None,
                 severity=ValidationSeverity.ERROR,
-                message=f"YAML syntax error: {str(e)}",
-                rule_id="K8S_YAML_SYNTAX"
+                message="kubectl validation timed out",
+                rule_id="KUBECTL_TIMEOUT"
+            ))
+        except FileNotFoundError:
+            issues.append(ValidationIssue(
+                file_path=manifest_path,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message="kubectl not installed - Kubernetes validation skipped",
+                rule_id="KUBECTL_NOT_FOUND"
             ))
         except Exception as e:
             issues.append(ValidationIssue(
                 file_path=manifest_path,
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
-                message=f"Failed to validate Kubernetes manifest syntax: {str(e)}",
-                rule_id="K8S_VALIDATION_ERROR"
+                message=f"Failed to validate Kubernetes manifest: {str(e)}",
+                rule_id="KUBECTL_ERROR"
             ))
 
         return issues
