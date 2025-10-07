@@ -4,6 +4,7 @@ import subprocess
 import yaml
 from typing import List
 from pathlib import Path
+from importlib import resources
 
 from ..core.models import ValidationIssue, ValidationSeverity
 from ...generator.core.repository import RepositoryManager
@@ -256,10 +257,17 @@ class ConfigurationValidator:
             # Use repository manager to get absolute path
             manifest_full_path = self.repository_manager.get_full_path(manifest_path)
 
-            # Run kube-linter with JSON output
-            result = subprocess.run([
-                'kube-linter', 'lint', '--format', 'json', str(manifest_full_path)
-            ], capture_output=True, text=True, timeout=30)
+            # Get config file path using importlib.resources
+            # The config file is located in the same package as this module
+            config_path = Path(__file__).parent / '.kube-linter.yaml'
+
+            # Run kube-linter with JSON output and config file if it exists
+            cmd = ['kube-linter', 'lint', '--format', 'json']
+            if config_path.exists():
+                cmd.extend(['--config', str(config_path)])
+            cmd.append(str(manifest_full_path))
+
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
 
             if result.stdout:
                 # Parse kube-linter JSON output
