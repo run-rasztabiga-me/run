@@ -7,6 +7,7 @@ def main():
     """Main entry point for the configuration generator."""
     # Configure console logging
     console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(
         logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     )

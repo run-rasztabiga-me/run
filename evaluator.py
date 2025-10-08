@@ -6,10 +6,10 @@ from src.evaluator.core.evaluator import ConfigurationEvaluator
 from src.generator.core.config import GeneratorConfig
 
 
-def main():
-    """Main entry point for the evaluator."""
-    # Configure console logging
+def setup_logging():
+    """Configure logging for the evaluator."""
     console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(
         logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     )
@@ -25,6 +25,10 @@ def main():
     logging.getLogger('httpx').setLevel(logging.WARNING)
     logging.getLogger('httpcore').setLevel(logging.WARNING)
 
+
+def main():
+    """Main entry point for the evaluator."""
+    setup_logging()
     logger = logging.getLogger(__name__)
 
     # Repository URLs to evaluate (matching thesis test repositories)
@@ -100,6 +104,7 @@ def main():
 
 def evaluate_single_repo(repo_url: str):
     """Evaluate a single repository (utility function)."""
+    setup_logging()
     logger = logging.getLogger(__name__)
 
     generator_config = GeneratorConfig(
