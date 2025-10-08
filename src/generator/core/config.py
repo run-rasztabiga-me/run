@@ -15,7 +15,7 @@ class GeneratorConfig(BaseModel):
     default_replicas: int = 1
 
     # LLM settings
-    model_name: str = Field(default="gpt-4o-mini")
+    model_name: str = Field(default="gpt-5-nano")
     model_provider: str = Field(default="openai")
     temperature: float = 0
 

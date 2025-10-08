@@ -18,7 +18,7 @@ def main():
 
     # Create configuration generator
     config = GeneratorConfig(
-        model_name="gpt-4o-mini",
+        model_name="gpt-5-nano",
         model_provider="openai",
         temperature=0
     )

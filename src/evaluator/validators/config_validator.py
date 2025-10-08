@@ -768,6 +768,9 @@ class ConfigurationValidator:
         Returns:
             Path to patched manifest file (temporary file)
         """
+
+        # TODO tu jest bug, bo jezeli to jest oficjalny obraz (np. postgres) to tez go spatchujemy. musimy ignorowac inne obrazy niz te ktore nam LLM zwrocil w outpucie
+
         try:
             # Load manifest documents
             with open(manifest_path, 'r') as f:

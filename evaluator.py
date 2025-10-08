@@ -33,8 +33,8 @@ def main():
 
     # Repository URLs to evaluate (matching thesis test repositories)
     test_repos = [
-        "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
-        # "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+        # "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
+        "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
     ]
 
     # Additional test repositories (commented out for now)
@@ -82,7 +82,8 @@ def evaluate_single_repo(repo_url: str):
     logger = logging.getLogger(__name__)
 
     generator_config = GeneratorConfig(
-        model_name="gpt-4o-mini",
+        # model_name="gpt-5-nano",
+        model_name="gpt-5",
         model_provider="openai",
         temperature=0
     )
