@@ -50,6 +50,15 @@ class ValidationIssue:
 
 
 @dataclass
+class DockerBuildMetrics:
+    """Metrics collected during Docker image build."""
+    image_tag: str
+    build_time: float  # seconds
+    image_size_mb: float  # megabytes
+    layers_count: int  # number of layers
+
+
+@dataclass
 class ExecutionMetrics:
     """Metrics collected during agent execution."""
     total_time: float = 0.0
@@ -62,6 +71,8 @@ class ExecutionMetrics:
     retry_count: int = 0
     # LangSmith trace identifier
     run_id: Optional[str] = None
+    # Docker build metrics
+    docker_build_metrics: List['DockerBuildMetrics'] = field(default_factory=list)
 
 
 @dataclass

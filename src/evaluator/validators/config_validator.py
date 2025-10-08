@@ -3,10 +3,11 @@ import logging
 import subprocess
 import yaml
 import re
-from typing import List, Dict, Tuple
+import time
+from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 
-from ..core.models import ValidationIssue, ValidationSeverity
+from ..core.models import ValidationIssue, ValidationSeverity, DockerBuildMetrics
 from ...generator.core.repository import RepositoryManager
 from ...generator.core.config import GeneratorConfig
 from ...common.models import DockerImageInfo
@@ -18,10 +19,10 @@ class ConfigurationValidator:
     Implements validation tasks:
     7. Dockerfile syntax validation
     8. Static analysis with Hadolint
-    9. Docker image building (TODO)
+    9. Docker image building
     10. Kubernetes manifest syntax validation
     11. Static analysis with Kube-linter
-    12. Kubernetes manifest application in Kind (TODO)
+    12. Kubernetes manifest application in K8S cluster
     13. Runtime validation - application availability (TODO)
     """
 
@@ -387,7 +388,7 @@ class ConfigurationValidator:
         }
         return mapping.get(kube_linter_level.lower(), ValidationSeverity.WARNING)
 
-    def build_docker_images(self, docker_images: List[DockerImageInfo], repo_name: str) -> List[ValidationIssue]:
+    def build_docker_images(self, docker_images: List[DockerImageInfo], repo_name: str) -> Tuple[List[ValidationIssue], List[DockerBuildMetrics]]:
         """
         9. Docker image building validation.
 
@@ -398,9 +399,10 @@ class ConfigurationValidator:
             repo_name: Name of the repository being validated
 
         Returns:
-            List of validation issues encountered during build/push
+            Tuple of (validation issues, build metrics)
         """
         issues = []
+        build_metrics = []
 
         for image_info in docker_images:
             self.logger.info(f"Building Docker image: {image_info.image_tag} from {image_info.dockerfile_path}")
@@ -409,14 +411,17 @@ class ConfigurationValidator:
             full_image_name = self.config.get_full_image_name(repo_name, image_info.image_tag)
 
             # Build and push the image using buildx with insecure registry support
-            build_push_issues = self._build_and_push_image(
+            build_push_issues, metrics = self._build_and_push_image(
                 dockerfile_path=image_info.dockerfile_path,
                 build_context=image_info.build_context,
-                image_name=full_image_name
+                image_name=full_image_name,
+                image_tag=image_info.image_tag
             )
             issues.extend(build_push_issues)
+            if metrics:
+                build_metrics.append(metrics)
 
-        return issues
+        return issues, build_metrics
 
     def apply_k8s_manifests(self, manifest_paths: List[str], repo_name: str) -> List[ValidationIssue]:
         """
@@ -485,7 +490,7 @@ class ConfigurationValidator:
         self.logger.info("TODO: Implement runtime availability validation")
         return []
 
-    def _build_and_push_image(self, dockerfile_path: str, build_context: str, image_name: str) -> List[ValidationIssue]:
+    def _build_and_push_image(self, dockerfile_path: str, build_context: str, image_name: str, image_tag: str) -> Tuple[List[ValidationIssue], Optional[DockerBuildMetrics]]:
         """
         Build and push a Docker image using buildx with insecure registry support.
 
@@ -493,11 +498,13 @@ class ConfigurationValidator:
             dockerfile_path: Path to Dockerfile relative to repository root
             build_context: Build context path relative to repository root
             image_name: Full image name including registry and tag
+            image_tag: Image tag (for metrics tracking)
 
         Returns:
-            List of validation issues encountered during build/push
+            Tuple of (validation issues, build metrics)
         """
         issues = []
+        metrics = None
         try:
             # Get absolute paths
             dockerfile_full_path = self.repository_manager.get_full_path(dockerfile_path)
@@ -511,7 +518,7 @@ class ConfigurationValidator:
                     message=f"Dockerfile not found at {dockerfile_path}",
                     rule_id="DOCKER_BUILD_FILE_NOT_FOUND"
                 ))
-                return issues
+                return issues, None
 
             if not context_full_path.exists():
                 issues.append(ValidationIssue(
@@ -521,11 +528,15 @@ class ConfigurationValidator:
                     message=f"Build context directory not found at {build_context}",
                     rule_id="DOCKER_BUILD_CONTEXT_NOT_FOUND"
                 ))
-                return issues
+                return issues, None
 
             # Build and push the image using buildx with config for insecure registry
             # Build for linux/amd64 to ensure compatibility with Kubernetes cluster
             self.logger.info(f"Building and pushing Docker image with buildx: {image_name}")
+
+            # Start timing
+            build_start = time.time()
+
             result = subprocess.run([
                 'docker', 'buildx', 'build',
                 '--platform', 'linux/amd64',
@@ -534,6 +545,9 @@ class ConfigurationValidator:
                 '-f', str(dockerfile_full_path),
                 str(context_full_path)
             ], capture_output=True, text=True, timeout=600)
+
+            # Calculate build time
+            build_time = time.time() - build_start
 
             if result.returncode != 0:
                 error_msg = result.stderr.strip() if result.stderr else result.stdout.strip()
@@ -546,6 +560,35 @@ class ConfigurationValidator:
                 ))
             else:
                 self.logger.info(f"Successfully built and pushed image: {image_name}")
+
+                # Get image size and layers using docker inspect
+                try:
+                    # Get size
+                    size_result = subprocess.run([
+                        'docker', 'image', 'inspect', image_name, '--format', '{{.Size}}'
+                    ], capture_output=True, text=True, timeout=10)
+
+                    # Get layers count
+                    layers_result = subprocess.run([
+                        'docker', 'image', 'inspect', image_name, '--format', '{{len .RootFS.Layers}}'
+                    ], capture_output=True, text=True, timeout=10)
+
+                    if size_result.returncode == 0 and layers_result.returncode == 0:
+                        image_size_bytes = int(size_result.stdout.strip())
+                        image_size_mb = image_size_bytes / (1024 * 1024)
+                        layers_count = int(layers_result.stdout.strip())
+
+                        metrics = DockerBuildMetrics(
+                            image_tag=image_tag,
+                            build_time=build_time,
+                            image_size_mb=round(image_size_mb, 2),
+                            layers_count=layers_count
+                        )
+                        self.logger.info(f"Image metrics: {image_size_mb:.2f} MB, {layers_count} layers, built in {build_time:.1f}s")
+                    else:
+                        self.logger.warning(f"Could not inspect image metrics for {image_name}")
+                except Exception as e:
+                    self.logger.warning(f"Failed to collect image metrics: {str(e)}")
 
         except subprocess.TimeoutExpired:
             issues.append(ValidationIssue(
@@ -564,7 +607,7 @@ class ConfigurationValidator:
                 rule_id="DOCKER_BUILDX_ERROR"
             ))
 
-        return issues
+        return issues, metrics
 
     def _sanitize_namespace_name(self, repo_name: str) -> str:
         """

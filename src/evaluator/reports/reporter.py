@@ -135,7 +135,16 @@ class EvaluationReporter:
             "output_tokens": metrics.output_tokens,
             "error_count": metrics.error_count,
             "retry_count": metrics.retry_count,
-            "run_id": metrics.run_id
+            "run_id": metrics.run_id,
+            "docker_build_metrics": [
+                {
+                    "image_tag": m.image_tag,
+                    "build_time": m.build_time,
+                    "image_size_mb": m.image_size_mb,
+                    "layers_count": m.layers_count
+                }
+                for m in metrics.docker_build_metrics
+            ]
         }
 
     def _quality_metrics_to_dict(self, metrics) -> Dict[str, Any]:

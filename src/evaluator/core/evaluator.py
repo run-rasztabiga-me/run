@@ -1,7 +1,7 @@
 import logging
 import time
 import uuid
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from pathlib import Path
 
 from .models import (
@@ -68,10 +68,38 @@ class ConfigurationEvaluator:
                 report.mark_failed(f"Generation failed: {generation_result.error_message}")
                 return report
 
+            # Add note about generated files
+            report.add_note(f"Generated {len(generation_result.docker_images)} Dockerfiles and {len(generation_result.k8s_manifests)} K8s manifests")
+
             # Step 2: Validate and assess quality
             report.add_note("Starting quality assessment")
-            quality_metrics = self._assess_quality(generation_result)
+            quality_metrics, build_metrics = self._assess_quality(generation_result)
             report.quality_metrics = quality_metrics
+
+            # Add build metrics to execution metrics
+            if build_metrics:
+                execution_metrics.docker_build_metrics.extend(build_metrics)
+                # Add note about build metrics
+                total_size = sum(m.image_size_mb for m in build_metrics)
+                avg_time = sum(m.build_time for m in build_metrics) / len(build_metrics)
+                report.add_note(f"Built {len(build_metrics)} Docker images (total: {total_size:.1f} MB, avg time: {avg_time:.1f}s)")
+
+            # Add note about validation results
+            if quality_metrics.validation_issues:
+                error_count = len([i for i in quality_metrics.validation_issues if i.severity.value == "error"])
+                warning_count = len([i for i in quality_metrics.validation_issues if i.severity.value == "warning"])
+                if generation_result.docker_images:
+                    report.add_note(f"Dockerfile validation: {error_count} errors, {warning_count} warnings")
+                if generation_result.k8s_manifests:
+                    k8s_issues = [i for i in quality_metrics.validation_issues if 'k8s' in i.file_path.lower() or 'kubectl' in i.rule_id.lower() or 'kube' in i.rule_id.lower()]
+                    k8s_errors = len([i for i in k8s_issues if i.severity.value == "error"])
+                    k8s_warnings = len([i for i in k8s_issues if i.severity.value == "warning"])
+                    report.add_note(f"K8s validation: {k8s_errors} errors, {k8s_warnings} warnings")
+
+            # Add note about deployment
+            if generation_result.k8s_manifests:
+                namespace = generation_result.repo_name.lower().replace('_', '-')
+                report.add_note(f"Deployed to namespace: {namespace}")
 
             # Step 3: Generate detailed report
             report.add_note("Generating evaluation report")
@@ -141,9 +169,10 @@ class ConfigurationEvaluator:
 
             return generation_result, execution_metrics
 
-    def _assess_quality(self, generation_result: GenerationResult) -> QualityMetrics:
+    def _assess_quality(self, generation_result: GenerationResult) -> Tuple[QualityMetrics, List]:
         """Assess the quality of generated configurations."""
         quality_metrics = QualityMetrics()
+        build_metrics = []
 
         # TODO opracować algorytm na liczenie score'u
 
@@ -155,7 +184,7 @@ class ConfigurationEvaluator:
                 quality_metrics.validation_issues.extend(dockerfile_issues)
 
                 # Then try to build the images (if syntax validation passed)
-                build_issues = self.validator.build_docker_images(
+                build_issues, build_metrics = self.validator.build_docker_images(
                     generation_result.docker_images,
                     generation_result.repo_name
                 )
@@ -188,7 +217,7 @@ class ConfigurationEvaluator:
         except Exception as e:
             self.logger.error(f"Quality assessment failed: {str(e)}")
 
-        return quality_metrics
+        return quality_metrics, build_metrics
 
     def _calculate_dockerfile_score(self, issues: List) -> float:
         """Calculate Dockerfile quality score based on validation issues."""

@@ -81,7 +81,7 @@ class RepositoryManager:
         tmp_dir_absolute = Path(tmp_dir_relative).resolve()
         self._tmp_dir = str(tmp_dir_absolute)
 
-        self.logger.info("Preparing working directory...")
+        self.logger.debug("Preparing working directory...")
         shutil.rmtree(self._tmp_dir, ignore_errors=True)
         os.makedirs(self._tmp_dir, exist_ok=True)
 
@@ -112,7 +112,7 @@ class RepositoryManager:
             return f"Error: File {file_path} does not exist in the repository."
 
         try:
-            self.logger.info(f"Reading file content: {file_path_full}")
+            self.logger.debug(f"Reading file content: {file_path_full}")
             with open(file_path_full, "r", encoding="utf-8") as f:
                 content = f.read()
             return content
@@ -138,7 +138,7 @@ class RepositoryManager:
 
         try:
             action = "Modified" if os.path.exists(file_path_full) else "Created"
-            self.logger.info(f"Writing file: {file_path_full}")
+            self.logger.debug(f"Writing file: {file_path_full}")
             with open(file_path_full, "w", encoding="utf-8") as f:
                 f.write(content)
             return f"{action} file {file_path} successfully."
@@ -204,7 +204,7 @@ class RepositoryManager:
         if not self._validate_repository():
             return "Error: No repository has been cloned yet. Please clone a repository first."
 
-        self.logger.info("Preparing tree...")
+        self.logger.debug("Preparing tree...")
         dir_tree = self._tree(self._tmp_dir)
         return self._tree_to_str(dir_tree, trim_dir=self._tmp_dir)
 
@@ -221,13 +221,13 @@ class RepositoryManager:
             for file in files:
                 if file in self.confusing_files:
                     file_path = os.path.join(root, file)
-                    self.logger.info(f"Removing confusing file: {file_path}")
+                    self.logger.debug(f"Removing confusing file: {file_path}")
                     os.remove(file_path)
 
             for dir_name in list(dirs):
                 if dir_name in self.confusing_files:
                     dir_path = os.path.join(root, dir_name)
-                    self.logger.info(f"Removing confusing directory: {dir_path}")
+                    self.logger.debug(f"Removing confusing directory: {dir_path}")
                     shutil.rmtree(dir_path, ignore_errors=True)
                     dirs.remove(dir_name)
 

@@ -70,6 +70,8 @@ class GeneratorIntegration:
                 generation_time=generation_time
             )
 
+            self.logger.info(f"Generated {len(config_output.docker_images)} Dockerfiles and {len(config_output.kubernetes_files)} K8s manifests")
+
 
         except Exception as e:
             generation_time = time.time() - start_time
