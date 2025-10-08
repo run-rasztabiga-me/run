@@ -110,7 +110,14 @@ class EvaluationReporter:
             "repo_url": result.repo_url,
             "repo_name": result.repo_name,
             "success": result.success,
-            "dockerfiles": result.dockerfiles,
+            "docker_images": [
+                {
+                    "dockerfile_path": img.dockerfile_path,
+                    "image_tag": img.image_tag,
+                    "build_context": img.build_context
+                }
+                for img in result.docker_images
+            ],
             "k8s_manifests": result.k8s_manifests,
             "generation_time": result.generation_time,
             "error_message": result.error_message,

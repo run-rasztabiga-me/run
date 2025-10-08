@@ -52,10 +52,22 @@ After you have successfully generated all files, you must end your response with
 
 ```json
 {{
-  "dockerfiles": ["Dockerfile"],
+  "docker_images": [
+    {{
+      "dockerfile_path": "Dockerfile",
+      "image_tag": "backend",
+      "build_context": "."
+    }}
+  ],
   "kubernetes_files": ["k8s/deployment.yaml", "k8s/service.yaml"]
 }}
 ```
 
-Replace the example file names and paths with the actual files you created. This JSON must be the last thing in your response.
+Guidelines for the structured output:
+- For single-service applications: use image_tag equal to the repository name or the service type (e.g., "api", "app", "backend")
+- For multi-service applications: use descriptive tags for each service's role (e.g., "frontend", "backend", "api", "worker", "postgres")
+- The build_context should point to the directory containing the code for that service (usually "." for single-service, or subdirectories like "frontend/", "backend/" for multi-service)
+- Replace the example file names and paths with the actual files you created
+
+This JSON must be the last thing in your response.
 """

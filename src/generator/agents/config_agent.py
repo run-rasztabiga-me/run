@@ -9,12 +9,18 @@ from ..core.config import GeneratorConfig
 from ..core.repository import RepositoryManager
 from ..tools.repository_tools import RepositoryTools
 from .prompts import CONFIGURATION_AGENT_SYSTEM_PROMPT
+from ...common.models import DockerImageInfo
 
 
 class ConfigurationOutput(BaseModel):
     """Model for configuration generation output."""
-    dockerfiles: List[str] = Field(description="List of generated Dockerfile paths")
+    docker_images: List[DockerImageInfo] = Field(description="List of Docker images to build with their metadata")
     kubernetes_files: List[str] = Field(description="List of generated Kubernetes manifest paths")
+
+    @property
+    def dockerfiles(self) -> List[str]:
+        """Backward compatibility - returns list of dockerfile paths."""
+        return [img.dockerfile_path for img in self.docker_images]
 
 
 class ConfigurationAgent:

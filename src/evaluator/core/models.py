@@ -3,6 +3,8 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 
+from ...common.models import DockerImageInfo
+
 
 class EvaluationStatus(Enum):
     """Evaluation status enumeration."""
@@ -25,11 +27,16 @@ class GenerationResult:
     repo_url: str
     repo_name: str
     success: bool
-    dockerfiles: List[str] = field(default_factory=list)
+    docker_images: List[DockerImageInfo] = field(default_factory=list)
     k8s_manifests: List[str] = field(default_factory=list)
     generation_time: Optional[float] = None
     error_message: Optional[str] = None
     timestamp: datetime = field(default_factory=datetime.now)
+
+    @property
+    def dockerfiles(self) -> List[str]:
+        """Backward compatibility - returns list of dockerfile paths."""
+        return [img.dockerfile_path for img in self.docker_images]
 
 
 @dataclass

@@ -58,14 +58,14 @@ class GeneratorIntegration:
 
             # Use structured output from ConfigurationOutput
             self.logger.info("Using structured output from ConfigurationOutput")
-            total_files = len(config_output.dockerfiles) + len(config_output.kubernetes_files)
+            total_files = len(config_output.docker_images) + len(config_output.kubernetes_files)
             success = total_files > 0
 
             generation_result = GenerationResult(
                 repo_url=repo_url,
                 repo_name=repo_name,
                 success=success,
-                dockerfiles=config_output.dockerfiles,
+                docker_images=config_output.docker_images,
                 k8s_manifests=config_output.kubernetes_files,
                 generation_time=generation_time
             )

@@ -27,7 +27,10 @@ class ConfigurationEvaluator:
 
         # Initialize components
         self.generator = ConfigurationGenerator(self.generator_config)
-        self.validator = ConfigurationValidator(self.generator.get_repository_manager())
+        self.validator = ConfigurationValidator(
+            self.generator.get_repository_manager(),
+            self.generator_config
+        )
         self.reporter = EvaluationReporter()
         self.generator_integration = GeneratorIntegration(self.generator)
 
@@ -145,11 +148,22 @@ class ConfigurationEvaluator:
         # TODO opracować algorytm na liczenie score'u
 
         try:
-            # Validate Dockerfiles if they exist
-            if generation_result.dockerfiles:
+            # Validate and build Docker images if they exist
+            if generation_result.docker_images:
+                # First validate Dockerfiles syntax and best practices
                 dockerfile_issues = self.validator.validate_dockerfiles(generation_result.dockerfiles)
                 quality_metrics.validation_issues.extend(dockerfile_issues)
-                quality_metrics.dockerfile_score = self._calculate_dockerfile_score(dockerfile_issues)
+
+                # Then try to build the images (if syntax validation passed)
+                build_issues = self.validator.build_docker_images(
+                    generation_result.docker_images,
+                    generation_result.repo_name
+                )
+                quality_metrics.validation_issues.extend(build_issues)
+
+                # Calculate score based on all issues
+                all_dockerfile_issues = dockerfile_issues + build_issues
+                quality_metrics.dockerfile_score = self._calculate_dockerfile_score(all_dockerfile_issues)
 
             # Validate Kubernetes manifests if they exist
             if generation_result.k8s_manifests:

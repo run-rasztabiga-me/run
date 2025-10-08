@@ -6,6 +6,8 @@ from pathlib import Path
 
 from ..core.models import ValidationIssue, ValidationSeverity
 from ...generator.core.repository import RepositoryManager
+from ...generator.core.config import GeneratorConfig
+from ...common.models import DockerImageInfo
 
 
 class ConfigurationValidator:
@@ -21,9 +23,10 @@ class ConfigurationValidator:
     13. Runtime validation - application availability (TODO)
     """
 
-    def __init__(self, repository_manager: RepositoryManager):
+    def __init__(self, repository_manager: RepositoryManager, config: GeneratorConfig = None):
         self.logger = logging.getLogger(__name__)
         self.repository_manager = repository_manager
+        self.config = config or GeneratorConfig()
 
     def validate_dockerfiles(self, dockerfile_paths: List[str]) -> List[ValidationIssue]:
         """
@@ -382,21 +385,36 @@ class ConfigurationValidator:
         }
         return mapping.get(kube_linter_level.lower(), ValidationSeverity.WARNING)
 
-    # TODO: Implement remaining validation tasks
-
-    def build_docker_images(self, dockerfile_paths: List[str]) -> List[ValidationIssue]:
+    def build_docker_images(self, docker_images: List[DockerImageInfo], repo_name: str) -> List[ValidationIssue]:
         """
         9. Docker image building validation.
 
-        TODO: Implement Docker build testing:
-        - For each Dockerfile, attempt to build the image
-        - Use docker build command with temporary tags
-        - Capture build output and errors
-        - Clean up created images after validation
-        - Report build failures as validation issues
+        Builds Docker images from Dockerfiles and pushes them to the configured private registry.
+
+        Args:
+            docker_images: List of DockerImageInfo objects with build metadata
+            repo_name: Name of the repository being validated
+
+        Returns:
+            List of validation issues encountered during build/push
         """
-        self.logger.info("TODO: Implement Docker image building validation")
-        return []
+        issues = []
+
+        for image_info in docker_images:
+            self.logger.info(f"Building Docker image: {image_info.image_tag} from {image_info.dockerfile_path}")
+
+            # Generate full image name with registry
+            full_image_name = self.config.get_full_image_name(repo_name, image_info.image_tag)
+
+            # Build and push the image using buildx with insecure registry support
+            build_push_issues = self._build_and_push_image(
+                dockerfile_path=image_info.dockerfile_path,
+                build_context=image_info.build_context,
+                image_name=full_image_name
+            )
+            issues.extend(build_push_issues)
+
+        return issues
 
     def apply_k8s_manifests_in_kind(self, manifest_paths: List[str]) -> List[ValidationIssue]:
         """
@@ -427,3 +445,82 @@ class ConfigurationValidator:
         """
         self.logger.info("TODO: Implement runtime availability validation")
         return []
+
+    def _build_and_push_image(self, dockerfile_path: str, build_context: str, image_name: str) -> List[ValidationIssue]:
+        """
+        Build and push a Docker image using buildx with insecure registry support.
+
+        Args:
+            dockerfile_path: Path to Dockerfile relative to repository root
+            build_context: Build context path relative to repository root
+            image_name: Full image name including registry and tag
+
+        Returns:
+            List of validation issues encountered during build/push
+        """
+        issues = []
+        try:
+            # Get absolute paths
+            dockerfile_full_path = self.repository_manager.get_full_path(dockerfile_path)
+            context_full_path = self.repository_manager.get_full_path(build_context)
+
+            if not dockerfile_full_path.exists():
+                issues.append(ValidationIssue(
+                    file_path=dockerfile_path,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Dockerfile not found at {dockerfile_path}",
+                    rule_id="DOCKER_BUILD_FILE_NOT_FOUND"
+                ))
+                return issues
+
+            if not context_full_path.exists():
+                issues.append(ValidationIssue(
+                    file_path=build_context,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Build context directory not found at {build_context}",
+                    rule_id="DOCKER_BUILD_CONTEXT_NOT_FOUND"
+                ))
+                return issues
+
+            # Build and push the image using buildx with config for insecure registry
+            self.logger.info(f"Building and pushing Docker image with buildx: {image_name}")
+            result = subprocess.run([
+                'docker', 'buildx', 'build',
+                '--push',
+                '-t', image_name,
+                '-f', str(dockerfile_full_path),
+                str(context_full_path)
+            ], capture_output=True, text=True, timeout=600)
+
+            if result.returncode != 0:
+                error_msg = result.stderr.strip() if result.stderr else result.stdout.strip()
+                issues.append(ValidationIssue(
+                    file_path=dockerfile_path,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Docker buildx build/push failed: {error_msg}",
+                    rule_id="DOCKER_BUILDX_FAILED"
+                ))
+            else:
+                self.logger.info(f"Successfully built and pushed image: {image_name}")
+
+        except subprocess.TimeoutExpired:
+            issues.append(ValidationIssue(
+                file_path=dockerfile_path,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message="Docker buildx build/push timed out (>10 minutes)",
+                rule_id="DOCKER_BUILDX_TIMEOUT"
+            ))
+        except Exception as e:
+            issues.append(ValidationIssue(
+                file_path=dockerfile_path,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message=f"Docker buildx error: {str(e)}",
+                rule_id="DOCKER_BUILDX_ERROR"
+            ))
+
+        return issues

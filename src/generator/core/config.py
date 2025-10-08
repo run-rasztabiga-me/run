@@ -7,7 +7,7 @@ class GeneratorConfig(BaseModel):
     """Configuration settings for the configuration generator."""
 
     # Docker settings
-    docker_registry: str = Field(default_factory=lambda: os.environ.get('DOCKER_REGISTRY', 'localhost:5001'))
+    docker_registry: str = Field(default_factory=lambda: os.environ.get('REGISTRY_URL', '192.168.0.124:32000'))
     default_image_tag: str = "latest"
 
     # Kubernetes settings
@@ -29,10 +29,20 @@ class GeneratorConfig(BaseModel):
     docker_start_timeout: int = 5
     k8s_ingress_timeout: int = 5
 
-    def get_image_tag(self, repo_name: str, tag: str = None) -> str:
-        """Generate full image tag with registry."""
-        tag = tag or self.default_image_tag
-        return f"{self.docker_registry}/{repo_name}:{tag}"
+    def get_full_image_name(self, repo_name: str, image_tag: str, version: str = None) -> str:
+        """
+        Generate full image name with registry and tag.
+
+        Args:
+            repo_name: Name of the repository
+            image_tag: Tag identifying the image role (e.g., 'frontend', 'backend')
+            version: Version tag (defaults to default_image_tag if not provided)
+
+        Returns:
+            Full image name in format: {registry}/{repo_name}-{image_tag}:{version}
+        """
+        version = version or self.default_image_tag
+        return f"{self.docker_registry}/{repo_name}-{image_tag}:{version}"
 
     def get_ingress_host(self, repo_name: str) -> str:
         """Generate ingress hostname."""
