@@ -167,9 +167,20 @@ class ConfigurationEvaluator:
 
             # Validate Kubernetes manifests if they exist
             if generation_result.k8s_manifests:
+                # Syntax validation with kubectl dry-run and static analysis
                 k8s_issues = self.validator.validate_k8s_manifests(generation_result.k8s_manifests)
                 quality_metrics.validation_issues.extend(k8s_issues)
-                quality_metrics.k8s_manifests_score = self._calculate_k8s_score(k8s_issues)
+
+                # Apply to cluster and verify deployment
+                apply_issues = self.validator.apply_k8s_manifests(
+                    generation_result.k8s_manifests,
+                    generation_result.repo_name
+                )
+                quality_metrics.validation_issues.extend(apply_issues)
+
+                # Calculate score based on all issues
+                all_k8s_issues = k8s_issues + apply_issues
+                quality_metrics.k8s_manifests_score = self._calculate_k8s_score(all_k8s_issues)
 
             # Calculate overall metrics
             quality_metrics.overall_score = self._calculate_overall_score(quality_metrics)

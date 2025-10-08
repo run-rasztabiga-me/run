@@ -22,11 +22,9 @@ class ConfigurationGenerator:
 
     def _setup_logging(self) -> None:
         """Configure logging settings."""
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[]  # Remove default handler to avoid duplicates
-        )
+        # Don't reconfigure logging - use the configuration from main entry point
+        # This avoids conflicts with evaluator.py's logging setup
+        pass
 
     def generate(self, repo_url: str) -> Tuple[ConfigurationOutput, List, str]:
         """

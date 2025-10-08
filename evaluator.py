@@ -16,9 +16,16 @@ def main():
     logging.getLogger().addHandler(console_handler)
     logging.getLogger().setLevel(logging.INFO)
 
+    # Enable detailed logging from our code
+    logging.getLogger('src').setLevel(logging.INFO)
+
     # Set log level for specific loggers to reduce noise
     logging.getLogger('urllib3').setLevel(logging.WARNING)
     logging.getLogger('docker').setLevel(logging.WARNING)
+    logging.getLogger('httpx').setLevel(logging.WARNING)
+    logging.getLogger('httpcore').setLevel(logging.WARNING)
+
+    logger = logging.getLogger(__name__)
 
     # Repository URLs to evaluate (matching thesis test repositories)
     test_repos = [
@@ -47,29 +54,29 @@ def main():
         generator_config=generator_config
     )
 
-    print(f"🚀 Starting Configuration Generation Evaluation")
-    print(f"📋 Standard Evaluation: {len(test_repos)} repositories")
-    print("=" * 60)
+    logger.info("🚀 Starting Configuration Generation Evaluation")
+    logger.info(f"📋 Standard Evaluation: {len(test_repos)} repositories")
+    logger.info("=" * 60)
 
     try:
         # Standard batch evaluation
         reports = evaluator.evaluate_batch(test_repos)
 
         # Export results
-        print("\n📊 Generating evaluation reports...")
+        logger.info("📊 Generating evaluation reports...")
         exported_files = evaluator.export_batch_results(reports)
 
-        print("\n✅ Evaluation completed!")
-        print(f"📁 Reports exported to:")
+        logger.info("✅ Evaluation completed!")
+        logger.info("📁 Reports exported to:")
         for format_type, filepath in exported_files.items():
-            print(f"  - {format_type.upper()}: {filepath}")
+            logger.info(f"  - {format_type.upper()}: {filepath}")
 
-        # Print summary to console
-        print("\n📈 Summary:")
+        # Log summary
+        logger.info("📈 Summary:")
         successful = sum(1 for r in reports if r.generation_result and r.generation_result.success)
-        print(f"  - Total repositories: {len(reports)}")
-        print(f"  - Successful generations: {successful}")
-        print(f"  - Success rate: {(successful/len(reports)*100):.1f}%")
+        logger.info(f"  - Total repositories: {len(reports)}")
+        logger.info(f"  - Successful generations: {successful}")
+        logger.info(f"  - Success rate: {(successful/len(reports)*100):.1f}%")
 
         if successful > 0:
             avg_time = sum(
@@ -80,22 +87,23 @@ def main():
                 r.quality_metrics.overall_score for r in reports
                 if r.quality_metrics and r.quality_metrics.overall_score
             ) / successful if any(r.quality_metrics for r in reports) else 0
-            print(f"  - Average generation time: {avg_time:.1f}s")
-            print(f"  - Average quality score: {avg_score:.1f}/100")
+            logger.info(f"  - Average generation time: {avg_time:.1f}s")
+            logger.info(f"  - Average quality score: {avg_score:.1f}/100")
 
     except KeyboardInterrupt:
-        print("\n⚠️  Evaluation interrupted by user")
+        logger.warning("⚠️  Evaluation interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Evaluation failed: {str(e)}")
-        logging.error(f"Evaluation failed: {str(e)}", exc_info=True)
+        logger.error(f"❌ Evaluation failed: {str(e)}", exc_info=True)
         sys.exit(1)
 
 
 def evaluate_single_repo(repo_url: str):
     """Evaluate a single repository (utility function)."""
+    logger = logging.getLogger(__name__)
+
     generator_config = GeneratorConfig(
-        model_name="gpt-5-nano",
+        model_name="gpt-4o-mini",
         model_provider="openai",
         temperature=0
     )
@@ -104,12 +112,12 @@ def evaluate_single_repo(repo_url: str):
         generator_config=generator_config
     )
 
-    print(f"🔍 Evaluating: {repo_url}")
+    logger.info(f"🔍 Evaluating: {repo_url}")
     report = evaluator.evaluate_repository(repo_url)
 
     # Save individual report
     report_file = evaluator.save_report(report)
-    print(f"📄 Report saved to: {report_file}")
+    logger.info(f"📄 Report saved to: {report_file}")
 
     return report
 

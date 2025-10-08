@@ -1,7 +1,9 @@
 import json
 import logging
 import subprocess
-from typing import List
+import yaml
+import re
+from typing import List, Dict, Tuple
 from pathlib import Path
 
 from ..core.models import ValidationIssue, ValidationSeverity
@@ -416,20 +418,57 @@ class ConfigurationValidator:
 
         return issues
 
-    def apply_k8s_manifests_in_kind(self, manifest_paths: List[str]) -> List[ValidationIssue]:
+    def apply_k8s_manifests(self, manifest_paths: List[str], repo_name: str) -> List[ValidationIssue]:
         """
-        12. Kubernetes manifest application in Kind environment.
+        12. Kubernetes manifest application.
 
-        TODO: Implement Kind cluster testing:
-        - Ensure Kind cluster is running
-        - Apply manifests using kubectl apply
-        - Check for application errors
-        - Verify resources are created successfully
-        - Clean up applied resources after validation
-        - Report application failures as validation issues
+        Applies K8s manifests to configured cluster in a dedicated namespace.
+
+        Args:
+            manifest_paths: List of paths to Kubernetes manifest files
+            repo_name: Repository name (used for namespace creation)
+
+        Returns:
+            List of validation issues encountered during application
         """
-        self.logger.info("TODO: Implement Kind cluster manifest application")
-        return []
+        issues = []
+
+        # Generate namespace name from repo_name (sanitize for K8s naming)
+        namespace = self._sanitize_namespace_name(repo_name)
+
+        try:
+            # 1. Delete old namespace if exists (cleanup previous runs)
+            self._delete_namespace(namespace)
+
+            # 2. Create new namespace
+            create_issues = self._create_namespace(namespace)
+            issues.extend(create_issues)
+
+            if any(issue.severity == ValidationSeverity.ERROR for issue in create_issues):
+                return issues  # Can't proceed without namespace
+
+            # 3. Apply each manifest to the namespace
+            applied_resources = []
+            for manifest_path in manifest_paths:
+                apply_issues, resources = self._apply_manifest(manifest_path, namespace, repo_name)
+                issues.extend(apply_issues)
+                applied_resources.extend(resources)
+
+            # 4. Wait for resources to be ready
+            if applied_resources:
+                ready_issues = self._wait_for_resources_ready(applied_resources, namespace)
+                issues.extend(ready_issues)
+
+        except Exception as e:
+            issues.append(ValidationIssue(
+                file_path="cluster",
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message=f"Failed to apply manifests: {str(e)}",
+                rule_id="K8S_APPLY_ERROR"
+            ))
+
+        return issues
 
     def validate_runtime_availability(self, manifest_paths: List[str]) -> List[ValidationIssue]:
         """
@@ -485,9 +524,11 @@ class ConfigurationValidator:
                 return issues
 
             # Build and push the image using buildx with config for insecure registry
+            # Build for linux/amd64 to ensure compatibility with Kubernetes cluster
             self.logger.info(f"Building and pushing Docker image with buildx: {image_name}")
             result = subprocess.run([
                 'docker', 'buildx', 'build',
+                '--platform', 'linux/amd64',
                 '--push',
                 '-t', image_name,
                 '-f', str(dockerfile_full_path),
@@ -522,5 +563,380 @@ class ConfigurationValidator:
                 message=f"Docker buildx error: {str(e)}",
                 rule_id="DOCKER_BUILDX_ERROR"
             ))
+
+        return issues
+
+    def _sanitize_namespace_name(self, repo_name: str) -> str:
+        """
+        Sanitize repository name for use as Kubernetes namespace.
+
+        K8s namespace rules:
+        - Must be DNS label (RFC 1123)
+        - Lowercase alphanumeric + hyphens
+        - Max 63 chars
+        - Start/end with alphanumeric
+
+        Args:
+            repo_name: Repository name to sanitize
+
+        Returns:
+            Sanitized namespace name
+        """
+        # Convert to lowercase
+        namespace = repo_name.lower()
+
+        # Replace invalid characters with hyphens
+        namespace = re.sub(r'[^a-z0-9-]', '-', namespace)
+
+        # Remove leading/trailing hyphens
+        namespace = namespace.strip('-')
+
+        # Truncate to 63 chars
+        namespace = namespace[:63]
+
+        # Ensure it ends with alphanumeric (remove trailing hyphens after truncation)
+        namespace = namespace.rstrip('-')
+
+        return namespace
+
+    def _delete_namespace(self, namespace: str) -> None:
+        """
+        Delete namespace if it exists (cleanup from previous runs).
+
+        Uses --ignore-not-found so it doesn't fail if namespace doesn't exist.
+        Also waits for namespace to be fully deleted before returning.
+
+        Args:
+            namespace: Namespace name to delete
+        """
+        self.logger.info(f"Cleaning up old namespace: {namespace}")
+
+        try:
+            # Delete namespace (ignore if doesn't exist)
+            subprocess.run([
+                'kubectl', 'delete', 'namespace', namespace, '--ignore-not-found=true'
+            ], capture_output=True, text=True, timeout=30)
+
+            # Wait for namespace to be fully deleted (max 60s)
+            # This is important - if we create namespace too quickly, it might still be terminating
+            subprocess.run([
+                'kubectl', 'wait', '--for=delete', f'namespace/{namespace}',
+                '--timeout=60s'
+            ], capture_output=True, text=True, timeout=70)
+
+        except subprocess.TimeoutExpired:
+            self.logger.warning(f"Timeout waiting for namespace {namespace} deletion")
+        except Exception as e:
+            self.logger.warning(f"Error deleting namespace {namespace}: {str(e)}")
+
+    def _create_namespace(self, namespace: str) -> List[ValidationIssue]:
+        """
+        Create a new Kubernetes namespace.
+
+        Args:
+            namespace: Namespace name to create
+
+        Returns:
+            List of validation issues if creation failed
+        """
+        issues = []
+
+        self.logger.info(f"Creating namespace: {namespace}")
+
+        try:
+            result = subprocess.run([
+                'kubectl', 'create', 'namespace', namespace
+            ], capture_output=True, text=True, timeout=30)
+
+            if result.returncode != 0:
+                issues.append(ValidationIssue(
+                    file_path=namespace,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Failed to create namespace: {result.stderr}",
+                    rule_id="K8S_NAMESPACE_CREATE_FAILED"
+                ))
+            else:
+                self.logger.info(f"Successfully created namespace: {namespace}")
+
+        except subprocess.TimeoutExpired:
+            issues.append(ValidationIssue(
+                file_path=namespace,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message="Namespace creation timed out",
+                rule_id="K8S_NAMESPACE_TIMEOUT"
+            ))
+        except Exception as e:
+            issues.append(ValidationIssue(
+                file_path=namespace,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message=f"Error creating namespace: {str(e)}",
+                rule_id="K8S_NAMESPACE_ERROR"
+            ))
+
+        return issues
+
+    def _extract_resource_names(self, manifest_path: Path) -> List[Dict[str, str]]:
+        """
+        Extract resource kind and name from manifest YAML for status checking.
+
+        Args:
+            manifest_path: Path to manifest file
+
+        Returns:
+            List of dicts: [{"kind": "Deployment", "name": "app-name"}, ...]
+        """
+        resources = []
+
+        try:
+            with open(manifest_path, 'r') as f:
+                # YAML file can contain multiple documents
+                docs = list(yaml.safe_load_all(f))
+
+            for doc in docs:
+                if doc and isinstance(doc, dict):
+                    kind = doc.get('kind')
+                    name = doc.get('metadata', {}).get('name')
+
+                    if kind and name:
+                        resources.append({
+                            'kind': kind,
+                            'name': name
+                        })
+
+        except Exception as e:
+            self.logger.warning(f"Failed to extract resource names from {manifest_path}: {str(e)}")
+
+        return resources
+
+    def _patch_image_names(self, manifest_path: Path, repo_name: str) -> Path:
+        """
+        Patch image names in manifest to use full registry path.
+
+        Transforms short image names (e.g., 'poc1-fastapi:latest') to full registry paths
+        (e.g., '192.168.0.124:32000/poc1-fastapi-backend:latest').
+
+        Args:
+            manifest_path: Path to original manifest file
+            repo_name: Repository name for building full image names
+
+        Returns:
+            Path to patched manifest file (temporary file)
+        """
+        try:
+            # Load manifest documents
+            with open(manifest_path, 'r') as f:
+                docs = list(yaml.safe_load_all(f))
+
+            # Patch each document
+            for doc in docs:
+                if not doc or not isinstance(doc, dict):
+                    continue
+
+                kind = doc.get('kind')
+                if kind not in ['Deployment', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob']:
+                    continue
+
+                # Get containers from the appropriate path based on kind
+                if kind in ['Deployment', 'StatefulSet', 'DaemonSet']:
+                    containers = doc.get('spec', {}).get('template', {}).get('spec', {}).get('containers', [])
+                elif kind == 'Job':
+                    containers = doc.get('spec', {}).get('template', {}).get('spec', {}).get('containers', [])
+                elif kind == 'CronJob':
+                    containers = doc.get('spec', {}).get('jobTemplate', {}).get('spec', {}).get('template', {}).get('spec', {}).get('containers', [])
+                else:
+                    containers = []
+
+                # Patch each container's image
+                for container in containers:
+                    if 'image' not in container:
+                        continue
+
+                    image = container['image']
+
+                    # Check if image already has registry prefix
+                    if '/' in image and image.startswith(self.config.docker_registry):
+                        # Already has correct registry, skip
+                        self.logger.debug(f"Image already has registry prefix: {image}")
+                        continue
+
+                    # Extract image tag (part before ':' or whole string if no ':')
+                    if ':' in image:
+                        image_tag, version = image.split(':', 1)
+                    else:
+                        image_tag = image
+                        version = self.config.default_image_tag
+
+                    # Remove any registry prefix from image_tag
+                    if '/' in image_tag:
+                        image_tag = image_tag.split('/')[-1]
+
+                    # Build full image name
+                    full_image = self.config.get_full_image_name(repo_name, image_tag, version)
+
+                    self.logger.info(f"Patching image name: {image} → {full_image}")
+                    container['image'] = full_image
+
+            # Write patched manifest to temporary file
+            temp_path = manifest_path.with_suffix('.patched.yaml')
+            with open(temp_path, 'w') as f:
+                yaml.safe_dump_all(docs, f)
+
+            self.logger.debug(f"Created patched manifest: {temp_path}")
+            return temp_path
+
+        except Exception as e:
+            self.logger.error(f"Failed to patch image names in {manifest_path}: {str(e)}")
+            # Return original path if patching fails
+            return manifest_path
+
+    def _apply_manifest(self, manifest_path: str, namespace: str, repo_name: str) -> Tuple[List[ValidationIssue], List[Dict[str, str]]]:
+        """
+        Apply a single manifest file to cluster in specified namespace.
+
+        Automatically patches image names to use full registry path before applying.
+
+        Args:
+            manifest_path: Path to manifest file relative to repository root
+            namespace: Kubernetes namespace to apply to
+            repo_name: Repository name for patching image names
+
+        Returns:
+            Tuple of (issues, applied_resources)
+            - issues: List of ValidationIssues
+            - applied_resources: List of dicts with resource info for status checking
+        """
+        issues = []
+        applied_resources = []
+        patched_manifest_path = None
+
+        try:
+            manifest_full_path = self.repository_manager.get_full_path(manifest_path)
+
+            if not manifest_full_path.exists():
+                issues.append(ValidationIssue(
+                    file_path=manifest_path,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Manifest file not found: {manifest_path}",
+                    rule_id="K8S_MANIFEST_NOT_FOUND"
+                ))
+                return issues, applied_resources
+
+            # Patch image names to use full registry path
+            patched_manifest_path = self._patch_image_names(manifest_full_path, repo_name)
+
+            # Apply patched manifest to namespace
+            self.logger.info(f"Applying manifest {manifest_path} to namespace {namespace}")
+            result = subprocess.run([
+                'kubectl', 'apply', '-f', str(patched_manifest_path), '-n', namespace
+            ], capture_output=True, text=True, timeout=60)
+
+            if result.returncode != 0:
+                issues.append(ValidationIssue(
+                    file_path=manifest_path,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"kubectl apply failed: {result.stderr.strip()}",
+                    rule_id="K8S_APPLY_FAILED"
+                ))
+            else:
+                self.logger.info(f"Successfully applied {manifest_path}")
+
+                # Extract resource names for status checking (from original manifest)
+                applied_resources = self._extract_resource_names(manifest_full_path)
+
+        except subprocess.TimeoutExpired:
+            issues.append(ValidationIssue(
+                file_path=manifest_path,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message="kubectl apply timed out",
+                rule_id="K8S_APPLY_TIMEOUT"
+            ))
+        except Exception as e:
+            issues.append(ValidationIssue(
+                file_path=manifest_path,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message=f"Error applying manifest: {str(e)}",
+                rule_id="K8S_APPLY_ERROR"
+            ))
+        finally:
+            # Cleanup patched manifest file
+            if patched_manifest_path and patched_manifest_path != manifest_full_path:
+                try:
+                    patched_manifest_path.unlink(missing_ok=True)
+                    self.logger.debug(f"Cleaned up patched manifest: {patched_manifest_path}")
+                except Exception as e:
+                    self.logger.warning(f"Failed to cleanup patched manifest {patched_manifest_path}: {str(e)}")
+
+        return issues, applied_resources
+
+    def _wait_for_resources_ready(self, resources: List[Dict[str, str]], namespace: str, timeout: int = 300) -> List[ValidationIssue]:
+        """
+        Wait for deployments/statefulsets to be ready.
+
+        Args:
+            resources: List of resource dicts with 'kind' and 'name'
+            namespace: Kubernetes namespace
+            timeout: Timeout in seconds (default 300s = 5min)
+
+        Returns:
+            List of validation issues for resources that didn't become ready
+        """
+        issues = []
+
+        for resource in resources:
+            kind = resource['kind']
+            name = resource['name']
+
+            # Only wait for Deployments and StatefulSets (they have rollout status)
+            if kind not in ['Deployment', 'StatefulSet']:
+                continue
+
+            self.logger.info(f"Waiting for {kind}/{name} to be ready in namespace {namespace}")
+
+            try:
+                # kubectl wait --for=condition=available deployment/name -n namespace --timeout=300s
+                condition = 'available' if kind == 'Deployment' else 'ready'
+
+                result = subprocess.run([
+                    'kubectl', 'wait',
+                    f'--for=condition={condition}',
+                    f'{kind.lower()}/{name}',
+                    '-n', namespace,
+                    f'--timeout={timeout}s'
+                ], capture_output=True, text=True, timeout=timeout + 10)
+
+                if result.returncode != 0:
+                    issues.append(ValidationIssue(
+                        file_path=name,
+                        line_number=None,
+                        severity=ValidationSeverity.ERROR,
+                        message=f"{kind} {name} not ready within {timeout}s: {result.stderr.strip()}",
+                        rule_id="K8S_RESOURCE_NOT_READY"
+                    ))
+                else:
+                    self.logger.info(f"{kind}/{name} is ready")
+
+            except subprocess.TimeoutExpired:
+                issues.append(ValidationIssue(
+                    file_path=name,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"{kind} {name} readiness check timed out",
+                    rule_id="K8S_READY_TIMEOUT"
+                ))
+            except Exception as e:
+                issues.append(ValidationIssue(
+                    file_path=name,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Error checking {kind} {name} status: {str(e)}",
+                    rule_id="K8S_READY_CHECK_ERROR"
+                ))
 
         return issues
