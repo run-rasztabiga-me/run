@@ -17,7 +17,7 @@ class GeneratorConfig(BaseModel):
     # LLM settings
     model_name: str = Field(default="gpt-5-nano")
     model_provider: str = Field(default="openai")
-    temperature: float = 0
+    temperature: Optional[float] = None
 
     # Agent settings
     recursion_limit: int = 100

@@ -203,7 +203,8 @@ class ConfigurationEvaluator:
                 # Apply to cluster and verify deployment
                 apply_issues = self.validator.apply_k8s_manifests(
                     generation_result.k8s_manifests,
-                    generation_result.repo_name
+                    generation_result.repo_name,
+                    generation_result.docker_images
                 )
                 quality_metrics.validation_issues.extend(apply_issues)
 

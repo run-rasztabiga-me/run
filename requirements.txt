@@ -1,8 +1,10 @@
 annotated-types==0.7.0
+anthropic==0.69.0
 anyio==4.11.0
 certifi==2025.8.3
 charset-normalizer==3.4.3
 distro==1.9.0
+docstring_parser==0.17.0
 dotenv==0.9.9
 gitdb==4.0.12
 GitPython==3.1.45
@@ -14,7 +16,8 @@ jiter==0.11.0
 jsonpatch==1.33
 jsonpointer==3.0.0
 langchain==0.3.27
-langchain-core==0.3.76
+langchain-anthropic==0.3.22
+langchain-core==0.3.78
 langchain-openai==0.3.33
 langchain-text-splitters==0.3.11
 langgraph==0.6.7
