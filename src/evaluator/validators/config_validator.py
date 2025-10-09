@@ -543,6 +543,7 @@ class ConfigurationValidator:
             result = subprocess.run([
                 'docker', 'buildx', 'build',
                 '--platform', 'linux/amd64',
+                '--no-cache',
                 '--push',
                 '-t', image_name,
                 '-f', str(dockerfile_full_path),
