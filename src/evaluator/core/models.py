@@ -29,6 +29,7 @@ class GenerationResult:
     success: bool
     docker_images: List[DockerImageInfo] = field(default_factory=list)
     k8s_manifests: List[str] = field(default_factory=list)
+    test_endpoint: Optional[str] = None
     generation_time: Optional[float] = None
     error_message: Optional[str] = None
     timestamp: datetime = field(default_factory=datetime.now)

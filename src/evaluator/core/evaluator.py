@@ -101,7 +101,29 @@ class ConfigurationEvaluator:
                 namespace = generation_result.repo_name.lower().replace('_', '-')
                 report.add_note(f"Deployed to namespace: {namespace}")
 
-            # Step 3: Generate detailed report
+            # Step 3: Runtime validation - test endpoint health
+            if generation_result.k8s_manifests and generation_result.test_endpoint:
+                report.add_note(f"Testing endpoint: {generation_result.test_endpoint}")
+                namespace = generation_result.repo_name.lower().replace('_', '-')
+                runtime_issues = self.validator.validate_runtime_availability(
+                    generation_result.k8s_manifests,
+                    namespace,
+                    generation_result.test_endpoint
+                )
+                quality_metrics.validation_issues.extend(runtime_issues)
+
+                # Log runtime validation results
+                if runtime_issues:
+                    error_count = len([i for i in runtime_issues if i.severity.value == "error"])
+                    warning_count = len([i for i in runtime_issues if i.severity.value == "warning"])
+                    if error_count > 0:
+                        report.add_note(f"Runtime validation: {error_count} errors, {warning_count} warnings")
+                    elif warning_count > 0:
+                        report.add_note(f"Runtime validation: {warning_count} warnings (no errors)")
+                else:
+                    report.add_note(f"Runtime validation passed: endpoint is healthy")
+
+            # Step 4: Generate detailed report
             report.add_note("Generating evaluation report")
             report.mark_completed()
 

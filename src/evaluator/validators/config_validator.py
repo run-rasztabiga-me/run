@@ -478,20 +478,156 @@ class ConfigurationValidator:
 
         return issues
 
-    def validate_runtime_availability(self, manifest_paths: List[str]) -> List[ValidationIssue]:
+    def get_ingress_url(self, namespace: str) -> Optional[str]:
         """
-        13. Runtime validation - application availability through load balancer.
+        Get the ingress URL from the Kubernetes cluster.
 
-        TODO: Implement runtime availability checks:
-        - Wait for deployments to be ready
-        - Find services and ingresses with external access
-        - Test HTTP endpoints for connectivity
-        - Verify application responds correctly
-        - Check health check endpoints if available
-        - Report connectivity failures as validation issues
+        Args:
+            namespace: Kubernetes namespace where resources are deployed
+
+        Returns:
+            Ingress URL if found, None otherwise
         """
-        self.logger.info("TODO: Implement runtime availability validation")
-        return []
+        try:
+            # Get all ingresses in the namespace
+            result = subprocess.run([
+                'kubectl', 'get', 'ingress',
+                '-n', namespace,
+                '-o', 'json'
+            ], capture_output=True, text=True, timeout=30)
+
+            if result.returncode != 0:
+                self.logger.warning(f"Failed to get ingresses from cluster: {result.stderr}")
+                return None
+
+            import json
+            ingresses_data = json.loads(result.stdout)
+            ingresses = ingresses_data.get('items', [])
+
+            if not ingresses:
+                self.logger.warning(f"No ingresses found in namespace {namespace}")
+                return None
+
+            # Take the first ingress
+            ingress = ingresses[0]
+
+            # Extract host from ingress spec
+            rules = ingress.get('spec', {}).get('rules', [])
+            if rules and len(rules) > 0:
+                host = rules[0].get('host')
+                if host:
+                    # Check if TLS is configured
+                    tls = ingress.get('spec', {}).get('tls', [])
+                    protocol = 'https' if tls else 'http'
+
+                    ingress_name = ingress.get('metadata', {}).get('name', 'unknown')
+                    self.logger.info(f"Found ingress '{ingress_name}' with host: {host}")
+
+                    return f"{protocol}://{host}"
+
+        except subprocess.TimeoutExpired:
+            self.logger.warning("Timeout while getting ingress from cluster")
+        except Exception as e:
+            self.logger.warning(f"Failed to get ingress URL from cluster: {str(e)}")
+
+        return None
+
+    def check_endpoint_health(self, base_url: str, endpoint_path: str, timeout: int = 30, retries: int = 5) -> List[ValidationIssue]:
+        """
+        Check if an application endpoint is accessible and returns 2xx status.
+
+        Args:
+            base_url: Base URL of the application (e.g., "http://app.example.com")
+            endpoint_path: Relative path to test (e.g., "/health", "/")
+            timeout: Timeout for each request in seconds
+            retries: Number of retry attempts with exponential backoff
+
+        Returns:
+            List of validation issues if endpoint is not accessible
+        """
+        import requests
+        from requests.exceptions import RequestException
+
+        issues = []
+
+        # Ensure endpoint_path starts with /
+        if not endpoint_path.startswith('/'):
+            endpoint_path = '/' + endpoint_path
+
+        full_url = f"{base_url}{endpoint_path}"
+        self.logger.info(f"Testing endpoint: {full_url}")
+
+        last_error = None
+        for attempt in range(retries):
+            try:
+                # Wait with exponential backoff (except first attempt)
+                if attempt > 0:
+                    wait_time = 2 ** attempt  # 2, 4, 8, 16 seconds
+                    self.logger.info(f"Retry {attempt + 1}/{retries} after {wait_time}s...")
+                    time.sleep(wait_time)
+
+                response = requests.get(full_url, timeout=timeout, verify=False)
+
+                if 200 <= response.status_code < 300:
+                    self.logger.info(f"Endpoint {full_url} is healthy (status {response.status_code})")
+                    return []  # Success!
+                else:
+                    last_error = f"Endpoint returned non-2xx status: {response.status_code}"
+                    self.logger.warning(f"Attempt {attempt + 1}: {last_error}")
+
+            except RequestException as e:
+                last_error = str(e)
+                self.logger.warning(f"Attempt {attempt + 1}: Connection failed - {last_error}")
+
+        # All retries failed
+        issues.append(ValidationIssue(
+            file_path="runtime",
+            line_number=None,
+            severity=ValidationSeverity.ERROR,
+            message=f"Endpoint {full_url} not accessible after {retries} attempts: {last_error}",
+            rule_id="ENDPOINT_HEALTH_CHECK_FAILED"
+        ))
+
+        return issues
+
+    def validate_runtime_availability(self, manifest_paths: List[str], namespace: str, test_endpoint: str) -> List[ValidationIssue]:
+        """
+        13. Runtime validation - application availability through ingress.
+
+        Args:
+            manifest_paths: List of paths to Kubernetes manifest files
+            namespace: Kubernetes namespace where resources are deployed
+            test_endpoint: Relative path to test endpoint (e.g., "/health")
+
+        Returns:
+            List of validation issues if application is not accessible
+        """
+        issues = []
+
+        # Get ingress URL
+        ingress_url = self.get_ingress_url(namespace)
+
+        if not ingress_url:
+            issues.append(ValidationIssue(
+                file_path="runtime",
+                line_number=None,
+                severity=ValidationSeverity.WARNING,
+                message="No ingress URL found in manifests, skipping runtime health check",
+                rule_id="NO_INGRESS_URL"
+            ))
+            return issues
+
+        self.logger.info(f"Found ingress URL: {ingress_url}")
+
+        # Wait a bit for ingress to be fully configured
+        self.logger.info("Waiting for ingress to be fully configured...")
+        time.sleep(self.config.k8s_ingress_timeout)
+
+        # Check endpoint health
+        health_issues = self.check_endpoint_health(ingress_url, test_endpoint)
+        issues.extend(health_issues)
+
+        return issues
 
     def _build_and_push_image(self, dockerfile_path: str, build_context: str, image_name: str, image_tag: str) -> Tuple[List[ValidationIssue], Optional[DockerBuildMetrics]]:
         """

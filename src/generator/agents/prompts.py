@@ -59,7 +59,8 @@ After you have successfully generated all files, you must end your response with
       "build_context": "."
     }}
   ],
-  "kubernetes_files": ["k8s/deployment.yaml", "k8s/service.yaml"]
+  "kubernetes_files": ["k8s/deployment.yaml", "k8s/service.yaml"],
+  "test_endpoint": "/health"
 }}
 ```
 
@@ -68,6 +69,7 @@ Guidelines for the structured output:
 - For multi-service applications: use descriptive tags for each service's role (e.g., "frontend", "backend", "api", "worker", "postgres")
 - The build_context should point to the directory containing the code for that service (usually "." for single-service, or subdirectories like "frontend/", "backend/" for multi-service)
 - Replace the example file names and paths with the actual files you created
+- The test_endpoint should be a relative path (starting with "/") to an endpoint that you've verified exists in the application code and should return a 2xx HTTP status code. Common examples include "/", "/health", "/api/health", "/api/v1/health", or any other working endpoint you've identified in the codebase. IMPORTANT: You must analyze the application's routes/endpoints to ensure this endpoint actually exists before specifying it.
 
 This JSON must be the last thing in your response.
 """
