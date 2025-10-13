@@ -85,7 +85,8 @@ def evaluate_single_repo(repo_url: str):
         model_name="gpt-5-mini",
         # model_name="gpt-5",
         model_provider="openai",
-        # temperature=0
+        temperature=0,
+        seed=42
     )
 
     evaluator = ConfigurationEvaluator(

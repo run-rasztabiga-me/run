@@ -40,11 +40,17 @@ class ConfigurationAgent:
         tools = repo_tools.create_tools()
 
         # Initialize LLM
-        llm = init_chat_model(
-            model=self.config.model_name,
-            model_provider=self.config.model_provider,
-            temperature=self.config.temperature,
-        )
+        llm_kwargs = {
+            "model": self.config.model_name,
+            "model_provider": self.config.model_provider,
+            "temperature": self.config.temperature,
+        }
+
+        # Add seed if configured
+        if self.config.seed is not None:
+            llm_kwargs["model_kwargs"] = {"seed": self.config.seed}
+
+        llm = init_chat_model(**llm_kwargs)
 
         # Create agent with structured output
         self.agent = create_react_agent(
