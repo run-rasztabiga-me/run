@@ -590,6 +590,41 @@ class ConfigurationValidator:
 
         return issues
 
+    def _ensure_hosts_entry(self, hostname: str) -> None:
+        """
+        Ensure entry exists in /etc/hosts for hostname resolution.
+        Does not add duplicate entries if hostname already exists.
+
+        Args:
+            hostname: Hostname to ensure (e.g., "poc2-fastapi.rasztabiga.me")
+        """
+        ip_address = self.config.k8s_cluster_ip
+        entry = f"{ip_address}   {hostname}"
+
+        try:
+            # Check if entry already exists
+            with open('/etc/hosts', 'r') as f:
+                content = f.read()
+                # Check if hostname is already mapped (anywhere in the file)
+                for line in content.splitlines():
+                    if hostname in line and not line.strip().startswith('#'):
+                        self.logger.info(f"Entry for {hostname} already exists in /etc/hosts")
+                        return
+
+            # Add entry using sudo (requires passwordless sudo or user interaction)
+            self.logger.info(f"Adding /etc/hosts entry: {entry}")
+            result = subprocess.run([
+                'sudo', 'sh', '-c', f'echo "{entry}" >> /etc/hosts'
+            ], capture_output=True, text=True, timeout=10)
+
+            if result.returncode != 0:
+                self.logger.warning(f"Failed to add /etc/hosts entry: {result.stderr}")
+            else:
+                self.logger.info(f"Successfully added /etc/hosts entry for {hostname}")
+
+        except Exception as e:
+            self.logger.warning(f"Error ensuring /etc/hosts entry: {str(e)}")
+
     def validate_runtime_availability(self, manifest_paths: List[str], namespace: str, test_endpoint: str) -> List[ValidationIssue]:
         """
         13. Runtime validation - application availability through ingress.
@@ -612,12 +647,30 @@ class ConfigurationValidator:
                 file_path="runtime",
                 line_number=None,
                 severity=ValidationSeverity.WARNING,
-                message="No ingress URL found in manifests, skipping runtime health check",
+                message="No ingress URL found in cluster, skipping runtime health check",
                 rule_id="NO_INGRESS_URL"
             ))
             return issues
 
         self.logger.info(f"Found ingress URL: {ingress_url}")
+
+        # Extract hostname from URL for /etc/hosts entry
+        from urllib.parse import urlparse
+        parsed_url = urlparse(ingress_url)
+        hostname = parsed_url.hostname
+
+        if not hostname:
+            issues.append(ValidationIssue(
+                file_path="runtime",
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message=f"Failed to extract hostname from ingress URL: {ingress_url}",
+                rule_id="INVALID_INGRESS_URL"
+            ))
+            return issues
+
+        # Ensure /etc/hosts entry exists for DNS resolution
+        self._ensure_hosts_entry(hostname)
 
         # Wait a bit for ingress to be fully configured
         self.logger.info("Waiting for ingress to be fully configured...")

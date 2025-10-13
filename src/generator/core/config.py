@@ -11,6 +11,7 @@ class GeneratorConfig(BaseModel):
     default_image_tag: str = "latest"
 
     # Kubernetes settings
+    k8s_cluster_ip: str = Field(default_factory=lambda: os.environ.get('K8S_CLUSTER_IP', '192.168.0.124'))
     domain_suffix: str = "rasztabiga.me"
     default_replicas: int = 1
 
