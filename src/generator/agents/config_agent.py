@@ -47,9 +47,9 @@ class ConfigurationAgent:
             "temperature": self.config.temperature,
         }
 
-        # Add seed if configured
+        # Add seed if configured (as explicit parameter)
         if self.config.seed is not None:
-            llm_kwargs["model_kwargs"] = {"seed": self.config.seed}
+            llm_kwargs["seed"] = self.config.seed
 
         llm = init_chat_model(**llm_kwargs)
 

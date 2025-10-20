@@ -21,7 +21,12 @@ You can use the ls tool to list the contents of a directory within the cloned re
 
 Your objective is to create:
 
-1. A Dockerfile that properly containerizes the application. When creating the Dockerfile, carefully analyze the application code to ensure that any health check endpoint you specify actually exists in the application.
+1. A Dockerfile that properly containerizes the application. When creating the Dockerfile:
+   - Carefully analyze the application code to ensure that any health check endpoint you specify actually exists in the application
+   - IMPORTANT: For multi-service repositories, write COPY instructions as if the build context is the service directory itself
+   - For example, if the Dockerfile is at "backend/Dockerfile" and you need to copy "backend/src/" to "/app/src", use "COPY src /app/src" NOT "COPY backend/src /app/src"
+   - This is because the build_context will be set to the service directory (e.g., "backend/") to minimize context size
+   - For single-service repositories, the build context will be "." (repository root), so COPY paths should be relative to the root
 
 2. Kubernetes manifests for the application. These manifests should:
    - Include all required resources (Deployments, Services, Ingresses, and Volumes if necessary)
@@ -54,20 +59,30 @@ After you have successfully generated all files, you must end your response with
 {{
   "docker_images": [
     {{
-      "dockerfile_path": "Dockerfile",
+      "dockerfile_path": "backend/Dockerfile",
       "image_tag": "backend",
-      "build_context": "."
+      "build_context": "backend"
+    }},
+    {{
+      "dockerfile_path": "frontend/Dockerfile",
+      "image_tag": "frontend",
+      "build_context": "frontend"
     }}
   ],
-  "kubernetes_files": ["k8s/deployment.yaml", "k8s/service.yaml"],
-  "test_endpoint": "/health"
+  "kubernetes_files": ["k8s/backend-deployment.yaml", "k8s/frontend-deployment.yaml", "k8s/service.yaml"],
+  "test_endpoint": "/"
 }}
 ```
 
 Guidelines for the structured output:
 - For single-service applications: use image_tag equal to the repository name or the service type (e.g., "api", "app", "backend")
 - For multi-service applications: use descriptive tags for each service's role (e.g., "frontend", "backend", "api", "worker", "postgres")
-- The build_context should point to the directory containing the code for that service (usually "." for single-service, or subdirectories like "frontend/", "backend/" for multi-service)
+- IMPORTANT: The build_context should be set strategically to minimize build context size:
+  * For single-service applications: use "." (repository root)
+  * For multi-service applications: use the service directory (e.g., "backend/", "frontend/")
+  * This reduces build context size and improves build performance
+  * Remember: Dockerfile COPY instructions must be written relative to the build_context, not the repository root
+- The dockerfile_path should specify where the Dockerfile is located (e.g., "Dockerfile" for root, "backend/Dockerfile" for service-specific)
 - Replace the example file names and paths with the actual files you created
 - The test_endpoint should be a relative path (starting with "/") to an endpoint that you've verified exists in the application code and should return a 2xx HTTP status code. Common examples include "/", "/health", "/api/health", "/api/v1/health", or any other working endpoint you've identified in the codebase. IMPORTANT: You must analyze the application's routes/endpoints to ensure this endpoint actually exists before specifying it.
 

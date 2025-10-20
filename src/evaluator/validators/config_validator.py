@@ -734,6 +734,7 @@ class ConfigurationValidator:
                 '--platform', 'linux/amd64',
                 '--no-cache',
                 '--push',
+                '--progress=plain',
                 '-t', image_name,
                 '-f', str(dockerfile_full_path),
                 str(context_full_path)
@@ -752,7 +753,34 @@ class ConfigurationValidator:
                     rule_id="DOCKER_BUILDX_FAILED"
                 ))
             else:
-                self.logger.info(f"Successfully built and pushed image: {image_name}")
+                self.logger.info(f"✓ Build completed successfully for image: {image_name}")
+
+                # Log build output for debugging
+                if result.stdout:
+                    self.logger.debug(f"Build output:\n{result.stdout}")
+                if result.stderr:
+                    self.logger.debug(f"Build stderr:\n{result.stderr}")
+
+                # Verify the image was actually pushed to the registry
+                # Use 'docker buildx imagetools inspect' to check without pulling
+                self.logger.info(f"Verifying image push to registry: {image_name}")
+                verify_result = subprocess.run([
+                    'docker', 'buildx', 'imagetools', 'inspect', image_name
+                ], capture_output=True, text=True, timeout=30)
+
+                if verify_result.returncode != 0:
+                    error_msg = verify_result.stderr.strip() if verify_result.stderr else verify_result.stdout.strip()
+                    issues.append(ValidationIssue(
+                        file_path=dockerfile_path,
+                        line_number=None,
+                        severity=ValidationSeverity.ERROR,
+                        message=f"Image built but push verification failed - image not found in registry: {error_msg}",
+                        rule_id="DOCKER_PUSH_VERIFICATION_FAILED"
+                    ))
+                    return issues, None
+
+                self.logger.info(f"Successfully verified image in registry: {image_name}")
+                self.logger.debug(f"Image manifest:\n{verify_result.stdout}")
 
                 # Get image size and layers using docker inspect
                 try:
@@ -1125,14 +1153,14 @@ class ConfigurationValidator:
 
         return issues, applied_resources
 
-    def _wait_for_resources_ready(self, resources: List[Dict[str, str]], namespace: str, timeout: int = 300) -> List[ValidationIssue]:
+    def _wait_for_resources_ready(self, resources: List[Dict[str, str]], namespace: str, timeout: int = 120) -> List[ValidationIssue]:
         """
         Wait for deployments/statefulsets to be ready.
 
         Args:
             resources: List of resource dicts with 'kind' and 'name'
             namespace: Kubernetes namespace
-            timeout: Timeout in seconds (default 300s = 5min)
+            timeout: Timeout in seconds (default 120s = 2min)
 
         Returns:
             List of validation issues for resources that didn't become ready

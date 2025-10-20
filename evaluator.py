@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import List
+import urllib3
 
 from src.evaluator.core.evaluator import ConfigurationEvaluator
 from src.generator.core.config import GeneratorConfig
@@ -24,6 +24,9 @@ def setup_logging():
     logging.getLogger('docker').setLevel(logging.WARNING)
     logging.getLogger('httpx').setLevel(logging.WARNING)
     logging.getLogger('httpcore').setLevel(logging.WARNING)
+
+    # Disable urllib3 SSL warnings for unverified HTTPS requests
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def main():

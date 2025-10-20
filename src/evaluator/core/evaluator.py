@@ -216,6 +216,18 @@ class ConfigurationEvaluator:
                 all_dockerfile_issues = dockerfile_issues + build_issues
                 quality_metrics.dockerfile_score = self._calculate_dockerfile_score(all_dockerfile_issues)
 
+                # Check if any critical build errors occurred
+                has_build_errors = any(
+                    issue.severity == ValidationSeverity.ERROR
+                    for issue in build_issues
+                )
+
+                if has_build_errors:
+                    self.logger.error("Docker image build failed. Skipping Kubernetes deployment.")
+                    # Return early - don't proceed to K8s validation if images didn't build
+                    quality_metrics.overall_score = self._calculate_overall_score(quality_metrics)
+                    return quality_metrics, build_metrics
+
             # Validate Kubernetes manifests if they exist
             if generation_result.k8s_manifests:
                 # Syntax validation with kubectl dry-run and static analysis
