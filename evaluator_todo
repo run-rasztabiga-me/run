@@ -1,0 +1,372 @@
+  Koncepcja
+
+  Sprawdzenie czy LLM wygenerował kompletną i spójną konfigurację, czyli:
+  - Czy nie brakuje potrzebnych zasobów K8s?
+  - Czy zasoby są poprawnie połączone ze sobą?
+  - Czy konfiguracje są wewnętrznie spójne (porty, env vars, labels)?
+
+  Konkretne sprawdzenia:
+
+  A. Missing Resources Detection
+
+  # Przykład: Deployment bez Service
+  - Jeśli jest Deployment z containerPort → powinien być Service
+  - Jeśli jest StatefulSet → powinien być Headless Service
+  - Jeśli jest Service type LoadBalancer/NodePort → powinien być Ingress (opcjonalnie)
+  - Jeśli używasz ConfigMap/Secret w envFrom → muszą być zdefiniowane
+  - Jeśli jest PVC → powinien być PV lub StorageClass
+
+  Implementacja:
+  def check_deployment_has_service(manifests):
+      deployments = extract_resources_by_kind(manifests, 'Deployment')
+      services = extract_resources_by_kind(manifests, 'Service')
+
+      issues = []
+      for deployment in deployments:
+          # Extract labels from deployment
+          labels = deployment.spec.template.metadata.labels
+
+          # Check if any service selects this deployment
+          has_matching_service = False
+          for service in services:
+              if service.spec.selector matches labels:
+                  has_matching_service = True
+                  break
+
+          if not has_matching_service:
+              issues.append(f"Deployment {name} has no matching Service")
+
+      return issues
+
+  B. Dependency Graph Validation
+
+  # Sprawdzenie czy Service → Deployment mapping jest poprawny
+  Service.spec.selector MUSI matchować Deployment.spec.template.metadata.labels
+
+  # Sprawdzenie czy Ingress → Service mapping jest poprawny
+  Ingress.spec.rules[].http.paths[].backend.service.name MUSI istnieć
+
+  # Sprawdzenie czy ConfigMap/Secret references są poprawne
+  Deployment.spec.template.spec.containers[].envFrom[].configMapRef.name MUSI istnieć
+
+  C. Port Consistency
+
+  To jest BARDZO ważne dla LLM - często tu są błędy!
+
+  # 3-level port consistency:
+  1. Dockerfile: EXPOSE 8080
+  2. K8s Deployment: containerPort: 8080
+  3. K8s Service: port: 80, targetPort: 8080
+
+  # Walidacja:
+  - containerPort MUSI matchować EXPOSE z Dockerfile
+  - Service.targetPort MUSI matchować containerPort
+  - Ingress backendPort MUSI matchować Service.port
+
+  Scoring:
+  Completeness Score = (actual_resources / expected_resources) * 100
+  Consistency Score = 100 - (inconsistencies * penalty)
+
+  ---
+  3. Comparative Analysis (Ground Truth)
+
+  Koncepcja
+
+  Porównanie wygenerowanej konfiguracji z "złotym standardem" (ręcznie stworzoną lub referencyjną konfiguracją).
+
+  A. Structural Similarity
+
+  Exact matching (zbyt restrykcyjne):
+
+  # Nie zadziała - LLM może użyć innych nazw, kolejności, etc.
+  generated_yaml == reference_yaml  # ❌ Too strict
+
+  Semantic similarity (lepsze):
+
+  # Porównaj strukturę zasobów:
+  def compare_resource_structure(generated, reference):
+      metrics = {
+          'resource_types_match': set(gen.kinds) == set(ref.kinds),
+          'resource_count_diff': abs(len(gen) - len(ref)),
+          'missing_resources': ref.kinds - gen.kinds,
+          'extra_resources': gen.kinds - ref.kinds
+      }
+      return metrics
+
+  Field-level comparison:
+
+  # Dla każdego Deployment sprawdź key fields:
+  def compare_deployments(generated_dep, reference_dep):
+      checks = {
+          'replicas': gen.replicas == ref.replicas,
+          'image': gen.image.split(':')[0] == ref.image.split(':')[0],  # Ignore tags
+          'has_resources': bool(gen.resources) == bool(ref.resources),
+          'has_probes': bool(gen.livenessProbe) == bool(ref.livenessProbe),
+          'ports_match': gen.containerPort == ref.containerPort,
+          'env_vars_coverage': len(gen.env) / len(ref.env) if ref.env else 1.0
+      }
+      return checks
+
+  B. Diff-based Analysis
+
+  # Użyj biblioteki do semantic YAML diff
+  from deepdiff import DeepDiff
+
+  diff = DeepDiff(
+      reference_manifest,
+      generated_manifest,
+      ignore_order=True,
+      exclude_paths=["metadata.creationTimestamp", "metadata.name"]  # Ignoruj dynamiczne fieldy
+  )
+
+  # Kategoryzuj różnice:
+  critical_diffs = diff['values_changed'] in ['spec.containers', 'spec.ports']
+  minor_diffs = diff['values_changed'] in ['metadata.labels']
+  acceptable_diffs = diff['values_changed'] in ['metadata.annotations']
+
+  C. Best Practice Compliance Score
+
+  # Sprawdź czy wygenerowana konfiguracja zawiera best practices z reference:
+  best_practices_checklist = {
+      'has_resource_limits': check_resource_limits(manifest),
+      'has_liveness_probe': check_liveness_probe(manifest),
+      'has_readiness_probe': check_readiness_probe(manifest),
+      'uses_secrets_for_sensitive': check_secrets_usage(manifest),
+      'has_labels': check_standard_labels(manifest),
+      'non_root_user': check_security_context(manifest),
+  }
+
+  compliance_score = sum(best_practices_checklist.values()) / len(best_practices_checklist) * 100
+
+  D. Dla twojej pracy magisterskiej:
+
+  Możesz stworzyć "reference dataset":
+  test-repos/
+  ├── poc1-fastapi/
+  │   ├── generated/          # Wygenerowane przez LLM
+  │   │   ├── Dockerfile
+  │   │   └── k8s-manifest.yaml
+  │   └── reference/          # Ręcznie stworzone (ground truth)
+  │       ├── Dockerfile
+  │       └── k8s-manifest.yaml
+  └── poc2-fastapi/
+      └── ...
+
+  Metryki:
+  - Structural similarity score (0-100%)
+  - Field coverage score (ile required fields zostało pokrytych)
+  - Best practice compliance delta (reference vs generated)
+
+  ---
+  4. LLM-specific Metrics
+
+  Koncepcja
+
+  Metryki specyficzne dla oceny procesu generacji przez LLM, nie tylko wyniku końcowego.
+
+  A. Hallucination Detection
+
+  Dependencies Hallucination:
+
+  # LLM może "wymyślić" nieistniejące pakiety lub wersje
+  def check_package_hallucinations(dockerfile_path, repo_path):
+      # Extract packages from Dockerfile
+      packages = extract_pip_packages(dockerfile_path)  # np. ["fastapi==0.104.1", "uvicorn[standard]"]
+
+      # Check against actual requirements.txt in repo
+      actual_requirements = parse_requirements(f"{repo_path}/requirements.txt")
+
+      hallucinations = {
+          'invented_packages': packages - actual_requirements,  # Pakiety które nie są w repo
+          'wrong_versions': check_version_mismatches(packages, actual_requirements),
+          'missing_packages': actual_requirements - packages  # Pominięte ważne pakiety
+      }
+
+      return hallucinations
+
+  Configuration Hallucination:
+
+  # LLM może "wymyślić" porty, ścieżki, env vars które nie istnieją w kodzie
+  def check_port_hallucination(dockerfile, repo_path):
+      # Extract EXPOSE port from Dockerfile
+      exposed_port = extract_expose_port(dockerfile)  # np. 8080
+
+      # Scan application code for actual port usage
+      actual_ports = scan_code_for_ports(repo_path)  # np. uvicorn.run(app, port=8000)
+
+      if exposed_port not in actual_ports:
+          return f"Hallucinated port: {exposed_port}, actual: {actual_ports}"
+
+  File Path Hallucination:
+
+  # LLM może używać ścieżek które nie istnieją
+  def check_path_hallucination(dockerfile, repo_path):
+      # Extract COPY/ADD paths
+      copy_sources = extract_copy_paths(dockerfile)  # ["./app", "./requirements.txt"]
+
+      # Check if they exist in repo
+      missing_paths = []
+      for path in copy_sources:
+          if not os.path.exists(f"{repo_path}/{path}"):
+              missing_paths.append(path)
+
+      return missing_paths
+
+  B. Tool Call Efficiency
+
+  Z twoich metrics z LangSmith możesz analizować:
+
+  def analyze_tool_efficiency(tool_calls_breakdown):
+      efficiency_metrics = {
+          # Czy agent wielokrotnie czytał ten sam plik?
+          'redundant_reads': count_duplicate_reads(tool_calls_breakdown),
+
+          # Czy agent próbował niepotrzebnych operacji?
+          'wasted_operations': count_failed_operations(tool_calls_breakdown),
+
+          # Optymalna liczba tool calls dla typu projektu
+          'efficiency_ratio': actual_calls / expected_calls_for_project_size,
+
+          # Czy agent użył właściwych narzędzi?
+          'tool_selection_accuracy': count_appropriate_tool_usage(tool_calls_breakdown)
+      }
+
+      return efficiency_metrics
+
+  Przykład:
+  # Dobry agent (efficient):
+  tool_calls = [
+      "read_file: requirements.txt",
+      "read_file: main.py",
+      "read_file: Dockerfile",  # Checking if exists
+      "write_file: Dockerfile",
+      "write_file: k8s-manifest.yaml"
+  ]  # 5 calls - efficient!
+
+  # Zły agent (inefficient):
+  tool_calls = [
+      "read_file: main.py",
+      "read_file: main.py",  # ❌ Redundant!
+      "read_file: requirements.txt",
+      "list_files: .",
+      "list_files: ./app",  # ❌ Wasted
+      "read_file: nonexistent.txt",  # ❌ Failed
+      "read_file: Dockerfile",
+      "read_file: Dockerfile",  # ❌ Redundant!
+      "write_file: Dockerfile",
+      "edit_file: Dockerfile",  # ❌ Could write correctly first time
+      "write_file: k8s-manifest.yaml"
+  ]  # 11 calls - inefficient!
+
+  C. Context Usage Patterns
+
+  def analyze_context_usage(messages, repo_size):
+      metrics = {
+          # Czy agent przeczytał kluczowe pliki?
+          'key_files_coverage': check_if_read(['requirements.txt', 'main.py', 'README.md']),
+
+          # Czy agent nie przeczytał zbędnych plików?
+          'irrelevant_files_ratio': count_reads_of(['.git/', '__pycache__', 'tests/']),
+
+          # Jak duży % repo agent przeskanował?
+          'repo_coverage': files_read / total_files_in_repo,
+
+          # Czy agent zadawał pytania clarifying?
+          'clarification_questions': count_messages_with_questions(messages)
+      }
+      return metrics
+
+  D. Reasoning Quality
+
+  def analyze_reasoning_quality(messages):
+      # Analiza "thought process" w odpowiedziach LLM
+
+      quality_indicators = {
+          # Czy LLM wyjaśnił swoje decyzje?
+          'explanation_present': check_for_explanations(messages),
+
+          # Czy LLM rozpoznał framework?
+          'framework_detection': check_if_detected_framework(messages),  # "This is a FastAPI app"
+
+          # Czy LLM zidentyfikował dependencje?
+          'dependency_awareness': check_dependency_mentions(messages),  # "App uses PostgreSQL"
+
+          # Czy LLM rozważył alternatywy?
+          'consideration_of_alternatives': check_for_alternatives(messages),  # "Could use X or Y"
+
+          # Czy LLM poprawił się po błędzie?
+          'error_recovery': check_self_correction(messages)
+      }
+
+      return quality_indicators
+
+  E. Token Efficiency
+
+  def analyze_token_efficiency(execution_metrics):
+      return {
+          # Ile tokenów na wygenerowany zasób?
+          'tokens_per_resource': total_tokens / (num_dockerfiles + num_k8s_manifests),
+
+          # Ile tokenów na linię kodu?
+          'tokens_per_loc': total_tokens / total_lines_generated,
+
+          # Input/output ratio
+          'io_ratio': output_tokens / input_tokens,
+
+          # Porównanie z baseline (GPT-3.5, Claude, etc.)
+          'efficiency_vs_baseline': compare_with_baseline_model(execution_metrics)
+      }
+
+  F. Consistency Across Runs
+
+  Dla pracy magisterskiej super metryka:
+
+  # Uruchom generację 3-5 razy z tym samym seedem dla tego samego repo
+  def measure_consistency(repo_url, num_runs=5):
+      results = []
+      for i in range(num_runs):
+          result = generator.generate(repo_url, seed=42)
+          results.append(result)
+
+      consistency_metrics = {
+          # Czy za każdym razem generuje te same typy zasobów?
+          'resource_types_variance': calculate_variance([r.resource_types for r in results]),
+
+          # Czy wartości są stabilne? (np. zawsze port 8000, nie raz 8000 raz 8080)
+          'value_stability': calculate_value_variance(results),
+
+          # Strukturalna podobieństwo między runami
+          'structural_similarity': average_pairwise_similarity(results),
+
+          # Czy quality scores są stabilne?
+          'quality_variance': std_dev([r.quality_score for r in results])
+      }
+
+      return consistency_metrics
+
+  ---
+  Implementacja dla twojej pracy
+
+  Zaproponuję konkretną strukturę:
+
+  # Nowy moduł: src/evaluator/validators/completeness_validator.py
+  class CompletenessValidator:
+      def validate_deployment_service_pairing(self, manifests) -> List[ValidationIssue]
+      def validate_port_consistency(self, dockerfile, manifests) -> List[ValidationIssue]
+      def validate_dependency_graph(self, manifests) -> List[ValidationIssue]
+      def calculate_completeness_score(self, issues) -> float
+
+  # Nowy moduł: src/evaluator/validators/comparison_validator.py
+  class ComparisonValidator:
+      def compare_with_reference(self, generated, reference) -> Dict[str, Any]
+      def calculate_structural_similarity(self, gen, ref) -> float
+      def calculate_field_coverage(self, gen, ref) -> float
+
+  # Nowy moduł: src/evaluator/metrics/llm_metrics.py
+  class LLMMetricsAnalyzer:
+      def detect_hallucinations(self, generated, repo_path) -> List[Hallucination]
+      def analyze_tool_efficiency(self, tool_calls) -> Dict[str, float]
+      def analyze_reasoning_quality(self, messages) -> Dict[str, bool]
+      def measure_consistency(self, repo_url, runs=5) -> Dict[str, float]
+
+  Chcesz, żebym zaimplementował któryś z tych modułów? Które metryki są dla Ciebie najbardziej interesujące?

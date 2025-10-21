@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Any, Tuple
 from pathlib import Path
 
 from .models import (
-    EvaluationReport, EvaluationStatus, GenerationResult, ExecutionMetrics, QualityMetrics
+    EvaluationReport, EvaluationStatus, GenerationResult, ExecutionMetrics, QualityMetrics, ValidationSeverity
 )
 from ..validators.config_validator import ConfigurationValidator
 from ..reports.reporter import EvaluationReporter
@@ -96,13 +96,24 @@ class ConfigurationEvaluator:
                     k8s_warnings = len([i for i in k8s_issues if i.severity.value == "warning"])
                     report.add_note(f"K8s validation: {k8s_errors} errors, {k8s_warnings} warnings")
 
-            # Add note about deployment
-            if generation_result.k8s_manifests:
+            # Check if there were Docker build errors
+            has_build_errors = False
+            if generation_result.docker_images:
+                docker_build_issues = [
+                    i for i in quality_metrics.validation_issues
+                    if i.rule_id in ['DOCKER_BUILDX_FAILED', 'DOCKER_PUSH_FAILED', 'DOCKER_BUILD_FILE_NOT_FOUND', 'DOCKER_BUILD_CONTEXT_NOT_FOUND']
+                    and i.severity == ValidationSeverity.ERROR
+                ]
+                has_build_errors = len(docker_build_issues) > 0
+
+            # Add note about deployment (only if no build errors)
+            if generation_result.k8s_manifests and not has_build_errors:
                 namespace = generation_result.repo_name.lower().replace('_', '-')
                 report.add_note(f"Deployed to namespace: {namespace}")
 
             # Step 3: Runtime validation - test endpoint health
-            if generation_result.k8s_manifests and generation_result.test_endpoint:
+            # Skip if there were Docker build errors
+            if generation_result.k8s_manifests and generation_result.test_endpoint and not has_build_errors:
                 report.add_note(f"Testing endpoint: {generation_result.test_endpoint}")
                 namespace = generation_result.repo_name.lower().replace('_', '-')
                 runtime_issues = self.validator.validate_runtime_availability(
@@ -122,6 +133,8 @@ class ConfigurationEvaluator:
                         report.add_note(f"Runtime validation: {warning_count} warnings (no errors)")
                 else:
                     report.add_note(f"Runtime validation passed: endpoint is healthy")
+            elif has_build_errors:
+                report.add_note("Runtime validation skipped due to Docker build errors")
 
             # Step 4: Generate detailed report
             report.add_note("Generating evaluation report")

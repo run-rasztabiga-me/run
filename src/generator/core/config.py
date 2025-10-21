@@ -37,12 +37,21 @@ class GeneratorConfig(BaseModel):
 
         Args:
             repo_name: Name of the repository
-            image_tag: Tag identifying the image role (e.g., 'frontend', 'backend')
+            image_tag: Tag identifying the image role (e.g., 'frontend', 'backend', or 'frontend:latest')
             version: Version tag (defaults to default_image_tag if not provided)
 
         Returns:
             Full image name in format: {registry}/{repo_name}-{image_tag}:{version}
         """
+        # Strip any existing version tag from image_tag if present
+        # (LLM sometimes generates 'backend:latest' instead of just 'backend')
+        if ':' in image_tag:
+            image_tag_base, existing_version = image_tag.split(':', 1)
+            # Use the existing version if no version was explicitly provided
+            if version is None:
+                version = existing_version
+            image_tag = image_tag_base
+
         version = version or self.default_image_tag
         return f"{self.docker_registry}/{repo_name}-{image_tag}:{version}"
 

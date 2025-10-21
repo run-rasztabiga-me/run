@@ -19,11 +19,17 @@ def setup_logging():
     # Enable detailed logging from our code
     logging.getLogger('src').setLevel(logging.INFO)
 
+    # Enable LangChain/LangGraph agent tool logging
+    logging.getLogger('langchain').setLevel(logging.INFO)
+    logging.getLogger('langchain_core').setLevel(logging.INFO)
+    logging.getLogger('langgraph').setLevel(logging.INFO)
+
     # Set log level for specific loggers to reduce noise
     logging.getLogger('urllib3').setLevel(logging.WARNING)
     logging.getLogger('docker').setLevel(logging.WARNING)
     logging.getLogger('httpx').setLevel(logging.WARNING)
     logging.getLogger('httpcore').setLevel(logging.WARNING)
+    logging.getLogger('langsmith').setLevel(logging.WARNING)  # Reduce LangSmith noise
 
     # Disable urllib3 SSL warnings for unverified HTTPS requests
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

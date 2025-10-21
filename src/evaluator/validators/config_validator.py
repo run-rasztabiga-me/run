@@ -722,26 +722,24 @@ class ConfigurationValidator:
                 ))
                 return issues, None
 
-            # Build and push the image using buildx with config for insecure registry
-            # Build for linux/amd64 to ensure compatibility with Kubernetes cluster
-            self.logger.info(f"Building and pushing Docker image with buildx: {image_name}")
+            # Build the image using buildx for linux/amd64 platform
+            # Then push separately using regular docker push (which supports insecure registries)
+            self.logger.info(f"Building Docker image with buildx: {image_name}")
 
             # Start timing
             build_start = time.time()
 
+            # Step 1: Build with buildx (load into local docker)
             result = subprocess.run([
                 'docker', 'buildx', 'build',
                 '--platform', 'linux/amd64',
                 '--no-cache',
-                '--push',
+                '--load',  # Load into local docker instead of pushing
                 '--progress=plain',
                 '-t', image_name,
                 '-f', str(dockerfile_full_path),
                 str(context_full_path)
             ], capture_output=True, text=True, timeout=600)
-
-            # Calculate build time
-            build_time = time.time() - build_start
 
             if result.returncode != 0:
                 error_msg = result.stderr.strip() if result.stderr else result.stdout.strip()
@@ -749,67 +747,112 @@ class ConfigurationValidator:
                     file_path=dockerfile_path,
                     line_number=None,
                     severity=ValidationSeverity.ERROR,
-                    message=f"Docker buildx build/push failed: {error_msg}",
+                    message=f"Docker buildx build failed: {error_msg}",
                     rule_id="DOCKER_BUILDX_FAILED"
                 ))
-            else:
-                self.logger.info(f"✓ Build completed successfully for image: {image_name}")
+                return issues, None
 
-                # Log build output for debugging
-                if result.stdout:
-                    self.logger.debug(f"Build output:\n{result.stdout}")
-                if result.stderr:
-                    self.logger.debug(f"Build stderr:\n{result.stderr}")
+            self.logger.info(f"✓ Build completed successfully for image: {image_name}")
 
-                # Verify the image was actually pushed to the registry
-                # Use 'docker buildx imagetools inspect' to check without pulling
-                self.logger.info(f"Verifying image push to registry: {image_name}")
-                verify_result = subprocess.run([
-                    'docker', 'buildx', 'imagetools', 'inspect', image_name
-                ], capture_output=True, text=True, timeout=30)
+            # Log build output for debugging
+            if result.stdout:
+                self.logger.debug(f"Build output:\n{result.stdout}")
+            if result.stderr:
+                self.logger.debug(f"Build stderr:\n{result.stderr}")
 
-                if verify_result.returncode != 0:
-                    error_msg = verify_result.stderr.strip() if verify_result.stderr else verify_result.stdout.strip()
+            # Step 2: Push to registry using regular docker push (supports insecure registries)
+            self.logger.info(f"Pushing image to registry: {image_name}")
+            push_result = subprocess.run([
+                'docker', 'push', image_name
+            ], capture_output=True, text=True, timeout=300)
+
+            # Calculate build time (includes push)
+            build_time = time.time() - build_start
+
+            if push_result.returncode != 0:
+                error_msg = push_result.stderr.strip() if push_result.stderr else push_result.stdout.strip()
+                issues.append(ValidationIssue(
+                    file_path=dockerfile_path,
+                    line_number=None,
+                    severity=ValidationSeverity.ERROR,
+                    message=f"Docker push failed: {error_msg}",
+                    rule_id="DOCKER_PUSH_FAILED"
+                ))
+                return issues, None
+
+            self.logger.info(f"✓ Successfully pushed image to registry: {image_name}")
+
+            # Step 3: Verify the image exists in the registry using HTTP API
+            # Extract registry address and image path from full image name
+            # Format: registry/repo-name-tag:version
+            if '/' in image_name:
+                registry_and_image = image_name.split('/', 1)
+                registry = registry_and_image[0]
+                image_path = registry_and_image[1]
+
+                # Split image path into name and tag
+                if ':' in image_path:
+                    image_repo, image_tag_version = image_path.rsplit(':', 1)
+                else:
+                    image_repo = image_path
+                    image_tag_version = 'latest'
+
+                # Verify using HTTP registry API
+                self.logger.info(f"Verifying image in registry: {image_name}")
+                import requests
+                verify_url = f"http://{registry}/v2/{image_repo}/manifests/{image_tag_version}"
+
+                try:
+                    verify_response = requests.head(verify_url, timeout=10)
+                    if verify_response.status_code == 200:
+                        self.logger.info(f"✓ Successfully verified image in registry: {image_name}")
+                    else:
+                        issues.append(ValidationIssue(
+                            file_path=dockerfile_path,
+                            line_number=None,
+                            severity=ValidationSeverity.ERROR,
+                            message=f"Image pushed but verification failed - registry returned status {verify_response.status_code}",
+                            rule_id="DOCKER_PUSH_VERIFICATION_FAILED"
+                        ))
+                        return issues, None
+                except Exception as e:
                     issues.append(ValidationIssue(
                         file_path=dockerfile_path,
                         line_number=None,
                         severity=ValidationSeverity.ERROR,
-                        message=f"Image built but push verification failed - image not found in registry: {error_msg}",
+                        message=f"Image pushed but verification failed: {str(e)}",
                         rule_id="DOCKER_PUSH_VERIFICATION_FAILED"
                     ))
                     return issues, None
 
-                self.logger.info(f"Successfully verified image in registry: {image_name}")
-                self.logger.debug(f"Image manifest:\n{verify_result.stdout}")
+            # Get image size and layers using docker inspect
+            try:
+                # Get size
+                size_result = subprocess.run([
+                    'docker', 'image', 'inspect', image_name, '--format', '{{.Size}}'
+                ], capture_output=True, text=True, timeout=10)
 
-                # Get image size and layers using docker inspect
-                try:
-                    # Get size
-                    size_result = subprocess.run([
-                        'docker', 'image', 'inspect', image_name, '--format', '{{.Size}}'
-                    ], capture_output=True, text=True, timeout=10)
+                # Get layers count
+                layers_result = subprocess.run([
+                    'docker', 'image', 'inspect', image_name, '--format', '{{len .RootFS.Layers}}'
+                ], capture_output=True, text=True, timeout=10)
 
-                    # Get layers count
-                    layers_result = subprocess.run([
-                        'docker', 'image', 'inspect', image_name, '--format', '{{len .RootFS.Layers}}'
-                    ], capture_output=True, text=True, timeout=10)
+                if size_result.returncode == 0 and layers_result.returncode == 0:
+                    image_size_bytes = int(size_result.stdout.strip())
+                    image_size_mb = image_size_bytes / (1024 * 1024)
+                    layers_count = int(layers_result.stdout.strip())
 
-                    if size_result.returncode == 0 and layers_result.returncode == 0:
-                        image_size_bytes = int(size_result.stdout.strip())
-                        image_size_mb = image_size_bytes / (1024 * 1024)
-                        layers_count = int(layers_result.stdout.strip())
-
-                        metrics = DockerBuildMetrics(
-                            image_tag=image_tag,
-                            build_time=build_time,
-                            image_size_mb=round(image_size_mb, 2),
-                            layers_count=layers_count
-                        )
-                        self.logger.info(f"Image metrics: {image_size_mb:.2f} MB, {layers_count} layers, built in {build_time:.1f}s")
-                    else:
-                        self.logger.warning(f"Could not inspect image metrics for {image_name}")
-                except Exception as e:
-                    self.logger.warning(f"Failed to collect image metrics: {str(e)}")
+                    metrics = DockerBuildMetrics(
+                        image_tag=image_tag,
+                        build_time=build_time,
+                        image_size_mb=round(image_size_mb, 2),
+                        layers_count=layers_count
+                    )
+                    self.logger.info(f"Image metrics: {image_size_mb:.2f} MB, {layers_count} layers, built in {build_time:.1f}s")
+                else:
+                    self.logger.warning(f"Could not inspect image metrics for {image_name}")
+            except Exception as e:
+                self.logger.warning(f"Failed to collect image metrics: {str(e)}")
 
         except subprocess.TimeoutExpired:
             issues.append(ValidationIssue(
