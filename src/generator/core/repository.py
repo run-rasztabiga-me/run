@@ -85,7 +85,6 @@ class RepositoryManager:
         shutil.rmtree(self._tmp_dir, ignore_errors=True)
         os.makedirs(self._tmp_dir, exist_ok=True)
 
-        self.logger.info(f"Cloning repository {repo_url}...")
         Repo.clone_from(repo_url, self._tmp_dir)
 
         if cleanup:

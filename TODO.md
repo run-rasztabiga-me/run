@@ -7,7 +7,7 @@
    - Remove mutable global state (`_tmp_dir`, `_repo_name`) and stringly-typed responses to support concurrent experiments safely.
 3. **Validation Pipeline Modularization**
    - Decompose `ConfigurationValidator` into pluggable `ValidationStep`s (syntax, Hadolint, build, apply, runtime) coordinated by a pipeline runner.
-   - Inject command runners to mock external binaries in tests and record per-step timings, severities, and tool availability for reporting.
+   - Route external tool invocations through a command runner abstraction to capture timings, severities, and tool availability for reporting.
 4. **Artifact Store for Generated Outputs**
    - Introduce an `ArtifactStore` that captures generated Dockerfiles/K8s manifests into run-scoped directories, tracks provenance, and exposes them for reports.
    - Update generator/validator collaboration to reference artifacts via the store instead of raw repo paths.

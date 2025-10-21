@@ -36,6 +36,7 @@ Your objective is to create:
    - Follow Kubernetes best practices and ensure security measures
    - If external dependencies (e.g., databases like PostgreSQL, Redis, MySQL) are identified, generate appropriate Kubernetes resources for those dependencies as well
    - Deploy stateful dependencies using StatefulSets with appropriate PersistentVolumeClaims
+   - IMPORTANT: For stateful applications (databases, etc.), use subPath in volumeMounts to avoid permission issues with persistent volume root directories. This prevents "Operation not permitted" errors when containers try to set permissions on mounted volumes. Configure data directories to point to subdirectories within the mount path.
    - Deploy stateless applications using Deployments
    - Use Services to expose applications internally and externally as necessary
    - Ensure all Kubernetes secrets are in base64 format

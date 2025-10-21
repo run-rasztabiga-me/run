@@ -798,29 +798,42 @@ class ConfigurationValidator:
                     image_tag_version = 'latest'
 
                 # Verify using HTTP registry API
-                self.logger.info(f"Verifying image in registry: {image_name}")
+                # Give registry a moment to index the pushed image
+                time.sleep(1)
+
                 import requests
                 verify_url = f"http://{registry}/v2/{image_repo}/manifests/{image_tag_version}"
+                self.logger.info(f"Verifying image in registry: {image_name}")
+                self.logger.debug(f"Verification URL: {verify_url}")
 
-                try:
-                    verify_response = requests.head(verify_url, timeout=10)
-                    if verify_response.status_code == 200:
-                        self.logger.info(f"✓ Successfully verified image in registry: {image_name}")
-                    else:
-                        issues.append(ValidationIssue(
-                            file_path=dockerfile_path,
-                            line_number=None,
-                            severity=ValidationSeverity.ERROR,
-                            message=f"Image pushed but verification failed - registry returned status {verify_response.status_code}",
-                            rule_id="DOCKER_PUSH_VERIFICATION_FAILED"
-                        ))
-                        return issues, None
-                except Exception as e:
+                # Retry verification a few times in case registry is still indexing
+                verified = False
+                last_error = None
+                for attempt in range(3):
+                    try:
+                        self.logger.debug(f"Verification attempt {attempt + 1}/3: HEAD {verify_url}")
+                        verify_response = requests.head(verify_url, timeout=10)
+                        if verify_response.status_code == 200:
+                            self.logger.info(f"✓ Successfully verified image in registry: {image_name}")
+                            verified = True
+                            break
+                        else:
+                            last_error = f"registry returned status {verify_response.status_code}"
+                            self.logger.warning(f"Verification attempt {attempt + 1}/3 failed: {last_error}")
+                            if attempt < 2:  # Don't sleep after last attempt
+                                time.sleep(1)
+                    except Exception as e:
+                        last_error = str(e)
+                        self.logger.warning(f"Verification attempt {attempt + 1}/3 failed: {last_error}")
+                        if attempt < 2:  # Don't sleep after last attempt
+                            time.sleep(1)
+
+                if not verified:
                     issues.append(ValidationIssue(
                         file_path=dockerfile_path,
                         line_number=None,
                         severity=ValidationSeverity.ERROR,
-                        message=f"Image pushed but verification failed: {str(e)}",
+                        message=f"Image pushed but verification failed after 3 attempts (URL: {verify_url}): {last_error}",
                         rule_id="DOCKER_PUSH_VERIFICATION_FAILED"
                     ))
                     return issues, None
