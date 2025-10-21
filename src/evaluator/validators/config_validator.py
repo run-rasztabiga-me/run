@@ -802,7 +802,8 @@ class ConfigurationValidator:
                 time.sleep(1)
 
                 import requests
-                verify_url = f"http://{registry}/v2/{image_repo}/manifests/{image_tag_version}"
+                # Use tags/list endpoint which is more reliable than manifests endpoint
+                verify_url = f"http://{registry}/v2/{image_repo}/tags/list"
                 self.logger.info(f"Verifying image in registry: {image_name}")
                 self.logger.debug(f"Verification URL: {verify_url}")
 
@@ -811,17 +812,25 @@ class ConfigurationValidator:
                 last_error = None
                 for attempt in range(3):
                     try:
-                        self.logger.debug(f"Verification attempt {attempt + 1}/3: HEAD {verify_url}")
-                        verify_response = requests.head(verify_url, timeout=10)
+                        self.logger.debug(f"Verification attempt {attempt + 1}/3: GET {verify_url}")
+                        verify_response = requests.get(verify_url, timeout=10)
                         if verify_response.status_code == 200:
-                            self.logger.info(f"✓ Successfully verified image in registry: {image_name}")
-                            verified = True
-                            break
+                            # Check if the expected tag is in the list
+                            tags_data = verify_response.json()
+                            tags = tags_data.get('tags', [])
+                            if tags and image_tag_version in tags:
+                                self.logger.info(f"✓ Successfully verified image in registry: {image_name}")
+                                verified = True
+                                break
+                            else:
+                                last_error = f"tag '{image_tag_version}' not found in tags list: {tags}"
+                                self.logger.warning(f"Verification attempt {attempt + 1}/3 failed: {last_error}")
                         else:
                             last_error = f"registry returned status {verify_response.status_code}"
                             self.logger.warning(f"Verification attempt {attempt + 1}/3 failed: {last_error}")
-                            if attempt < 2:  # Don't sleep after last attempt
-                                time.sleep(1)
+
+                        if attempt < 2:  # Don't sleep after last attempt
+                            time.sleep(1)
                     except Exception as e:
                         last_error = str(e)
                         self.logger.warning(f"Verification attempt {attempt + 1}/3 failed: {last_error}")
