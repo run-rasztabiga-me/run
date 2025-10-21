@@ -2,6 +2,7 @@
 1. **Experiment Orchestration Layer**
    - Replace hard-coded repo/model loops in `evaluator.py` with an `ExperimentRunner` that reads structured configs (YAML/JSON) covering model × repo matrices, repetition counts, and shared environment settings.
    - Keep `ConfigurationEvaluator` stateless; have the runner schedule runs, persist aggregated metrics, and prepare thesis-friendly CSV/JSON outputs.
+   - **Parallel execution considerations**: When running experiments in parallel, handle collisions between namespaces, URLs, Docker images, etc. Consider focusing on single-threaded execution initially to avoid resource conflicts and ensure deterministic behavior.
 2. **Repository Lifecycle Management**
    - Refactor `RepositoryManager` into a context-managed `RepositoryWorkspace` that allocates unique workdirs per run, exposes typed file APIs, and guarantees cleanup.
    - Remove mutable global state (`_tmp_dir`, `_repo_name`) and stringly-typed responses to support concurrent experiments safely.
@@ -26,3 +27,6 @@
 9. **LLM Behaviour Analytics**
    - Create an `LLMMetricsAnalyzer` that inspects LangSmith traces for tool efficiency, redundant calls, context usage, reasoning quality, and token efficiency per generated artifact.
    - Extend the experiment runner to schedule repeated runs (same seed/model) and compute consistency metrics such as resource variance, value stability, and quality score dispersion.
+10. **LangSmith Evaluations Integration**
+    - Investigate integrating LangSmith evaluation runs to score generated artifacts with automated rubric/checklist evaluators and capture qualitative feedback alongside existing metrics.
+    - Teach the experiment runner to optionally trigger LangSmith evaluations per run and persist the resulting scores in experiment summaries for cross-model analysis.

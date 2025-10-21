@@ -29,7 +29,18 @@ class EvaluationReporter:
         os.makedirs(output_dir, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{report.repo_name}_{timestamp}_{report.evaluation_id[:8]}.json"
+        filename_parts = []
+        if report.experiment_name:
+            filename_parts.append(self._sanitize_token(report.experiment_name))
+        if report.model_name:
+            filename_parts.append(self._sanitize_token(report.model_name))
+        if report.repo_name:
+            filename_parts.append(self._sanitize_token(report.repo_name))
+        if report.repetition_index is not None:
+            filename_parts.append(f"run{report.repetition_index + 1}")
+
+        core_name = "__".join(filter(None, filename_parts)) or "report"
+        filename = f"{core_name}_{timestamp}_{report.evaluation_id[:8]}.json"
         filepath = os.path.join(output_dir, filename)
 
         try:
@@ -101,7 +112,13 @@ class EvaluationReporter:
             "generation_result": self._generation_result_to_dict(report.generation_result) if report.generation_result else None,
             "execution_metrics": self._execution_metrics_to_dict(report.execution_metrics) if report.execution_metrics else None,
             "quality_metrics": self._quality_metrics_to_dict(report.quality_metrics) if report.quality_metrics else None,
-            "notes": report.notes
+            "notes": report.notes,
+            "experiment_name": report.experiment_name,
+            "model_name": report.model_name,
+            "model_provider": report.model_provider,
+            "model_parameters": report.model_parameters or None,
+            "repetition_index": report.repetition_index,
+            "extra_metadata": report.extra_metadata or None,
         }
 
     def _generation_result_to_dict(self, result) -> Dict[str, Any]:
@@ -164,6 +181,12 @@ class EvaluationReporter:
                 for issue in metrics.validation_issues
             ]
         }
+
+    def _sanitize_token(self, value: str) -> str:
+        """Sanitize text for filesystem usage."""
+        sanitized = "".join(ch if ch.isalnum() or ch in ("-", "_") else "-" for ch in (value or ""))
+        sanitized = "-".join(filter(None, sanitized.split("-")))
+        return sanitized or "value"
 
 
     def _export_json(self, reports: List[EvaluationReport], filepath: str) -> None:

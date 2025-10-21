@@ -1,0 +1,23 @@
+experiments:
+  - name: multi_model_fastapi_comparison
+    description: Compare three LLMs across two FastAPI sample repositories.
+    repos:
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
+      - https://github.com/run-rasztabiga-me/poc2-fastapi.git
+    models:
+      - provider: openai
+        name: gpt-5-nano
+        label: openai_gpt5_nano
+        temperature: 0.0
+        seed: 42
+      - provider: openai
+        name: gpt-5-mini
+        label: openai_gpt5_mini
+        temperature: 0.0
+        seed: 42
+      - provider: openai
+        name: gpt-5
+        label: openai_gpt5
+        temperature: 0.0
+        seed: 42
+    repetitions: 1

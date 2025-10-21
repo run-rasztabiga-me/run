@@ -1,0 +1,13 @@
+experiments:
+  - name: gpt5_nano_fastapi_baseline
+    description: Baseline run for gpt-5-nano on poc1 FastAPI sample.
+    repos:
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
+    models:
+      - provider: openai
+        name: gpt-5-nano
+        temperature: 0.0
+        seed: 42
+    repetitions: 1
+    generator_overrides:
+      recursion_limit: 120

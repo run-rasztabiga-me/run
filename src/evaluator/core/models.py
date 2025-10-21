@@ -99,6 +99,12 @@ class EvaluationReport:
     end_time: Optional[datetime] = None
     total_evaluation_time: Optional[float] = None
     notes: List[str] = field(default_factory=list)
+    experiment_name: Optional[str] = None
+    model_name: Optional[str] = None
+    model_provider: Optional[str] = None
+    model_parameters: Dict[str, Any] = field(default_factory=dict)
+    repetition_index: Optional[int] = None
+    extra_metadata: Dict[str, Any] = field(default_factory=dict)
 
     @property
     def duration(self) -> Optional[float]:
