@@ -34,6 +34,8 @@ class EvaluationReporter:
             filename_parts.append(self._sanitize_token(report.experiment_name))
         if report.model_name:
             filename_parts.append(self._sanitize_token(report.model_name))
+        if report.prompt_id:
+            filename_parts.append(self._sanitize_token(report.prompt_id))
         if report.repo_name:
             filename_parts.append(self._sanitize_token(report.repo_name))
         if report.repetition_index is not None:
@@ -118,6 +120,8 @@ class EvaluationReporter:
             "model_provider": report.model_provider,
             "model_parameters": report.model_parameters or None,
             "repetition_index": report.repetition_index,
+            "prompt_id": report.prompt_id,
+            "prompt_override": report.prompt_override,
             "extra_metadata": report.extra_metadata or None,
         }
 

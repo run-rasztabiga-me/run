@@ -20,6 +20,8 @@ class GeneratorConfig(BaseModel):
     model_provider: str = Field(default="openai")
     temperature: float = Field(default=0.7)
     seed: Optional[int] = Field(default=42)
+    system_prompt: Optional[str] = Field(default=None, description="Override system prompt for configuration agent.")
+    prompt_version: Optional[str] = Field(default=None, description="Identifier for the prompt variant used.")
 
     # Agent settings
     recursion_limit: int = 100

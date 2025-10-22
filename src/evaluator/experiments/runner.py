@@ -14,10 +14,19 @@ from ..core.evaluator import ConfigurationEvaluator
 from ..core.models import EvaluationReport
 from ...generator.core.config import GeneratorConfig
 from ...utils.repository_utils import extract_repo_name
-from .config import ExperimentDefinition, ExperimentSuite, ModelSpec, load_experiment_suite
+from .config import ExperimentDefinition, ExperimentSuite, ModelSpec, PromptVariant, load_experiment_suite
 
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_token(value: Optional[str]) -> str:
+    """Sanitize a string for filesystem usage."""
+    if not value:
+        return "default"
+    sanitized = "".join(ch if ch.isalnum() or ch in ("-", "_") else "-" for ch in value)
+    sanitized = "-".join(filter(None, sanitized.split("-")))
+    return sanitized or "default"
 
 
 @dataclass
@@ -29,6 +38,9 @@ class _RunContext:
     repo_url: str
     repetition_index: int
     timestamp: datetime
+    prompt_variant: Optional[PromptVariant] = None
+    prompt_override: Optional[str] = None
+    prompt_source_path: Optional[str] = None
 
     @property
     def repetition_label(self) -> str:
@@ -42,11 +54,13 @@ class ExperimentRunner:
         self,
         suite: ExperimentSuite,
         output_dir: Optional[str] = None,
+        config_base: Optional[Path] = None,
     ):
         self.suite = suite
         base_output = output_dir or suite.output_dir or "./evaluation_reports"
         self.base_dir = Path(base_output) / "experiments"
         self.base_dir.mkdir(parents=True, exist_ok=True)
+        self.config_base = (config_base or Path(".")).resolve()
 
     def run(self) -> None:
         """Execute all experiments in the suite sequentially."""
@@ -60,36 +74,48 @@ class ExperimentRunner:
         logger.info("Starting experiment '%s' (%s)", experiment.name, experiment_dir)
 
         summary_rows: List[Dict[str, Any]] = []
+        prompt_variants: List[Optional[PromptVariant]] = [None] + list(experiment.prompts) if experiment.prompts else [None]
 
         for repo_url in experiment.repos:
             repo_name = extract_repo_name(repo_url)
 
             for model in experiment.models:
-                model_dir = experiment_dir / model.identifier / repo_name
-                model_dir.mkdir(parents=True, exist_ok=True)
+                for prompt_variant in prompt_variants:
+                    prompt_label = prompt_variant.identifier if prompt_variant else "default"
+                    prompt_dir = experiment_dir / model.identifier / _sanitize_token(prompt_label) / repo_name
+                    prompt_dir.mkdir(parents=True, exist_ok=True)
+                    prompt_override = None
+                    prompt_source_path = None
+                    if prompt_variant:
+                        prompt_override, prompt_source_path = prompt_variant.resolve(self.config_base)
 
-                for repetition in range(experiment.repetitions):
-                    run_context = _RunContext(
-                        experiment=experiment,
-                        model=model,
-                        repo_url=repo_url,
-                        repetition_index=repetition,
-                        timestamp=datetime.utcnow(),
-                    )
+                    for repetition in range(experiment.repetitions):
+                        run_context = _RunContext(
+                            experiment=experiment,
+                            model=model,
+                            repo_url=repo_url,
+                            repetition_index=repetition,
+                            timestamp=datetime.utcnow(),
+                            prompt_variant=prompt_variant,
+                            prompt_override=prompt_override,
+                            prompt_source_path=prompt_source_path,
+                        )
 
-                    report_path, report, summary_row = self._execute_run(
-                        context=run_context,
-                        output_dir=model_dir,
-                    )
-                    summary_rows.append(summary_row)
-                    logger.info(
-                        "Completed %s | repo=%s model=%s repetition=%s -> %s",
-                        experiment.name,
-                        repo_name,
-                        model.identifier,
-                        run_context.repetition_label,
-                        report_path,
-                    )
+                        report_path, report, summary_row = self._execute_run(
+                            context=run_context,
+                            output_dir=prompt_dir,
+                            experiment_dir=experiment_dir,
+                        )
+                        summary_rows.append(summary_row)
+                        logger.info(
+                            "Completed %s | repo=%s model=%s prompt=%s repetition=%s -> %s",
+                            experiment.name,
+                            repo_name,
+                            model.identifier,
+                            prompt_label,
+                            run_context.repetition_label,
+                            report_path,
+                        )
 
         self._write_summary_artifacts(experiment_dir, summary_rows)
         logger.info("Experiment '%s' finished. %d runs recorded.", experiment.name, len(summary_rows))
@@ -98,8 +124,9 @@ class ExperimentRunner:
         self,
         context: _RunContext,
         output_dir: Path,
+        experiment_dir: Path,
     ) -> tuple[str, EvaluationReport, Dict[str, Any]]:
-        generator_config = self._build_generator_config(context.experiment, context.model)
+        generator_config = self._build_generator_config(context)
         evaluator = ConfigurationEvaluator(generator_config=generator_config)
 
         report = evaluator.evaluate_repository(context.repo_url)
@@ -112,16 +139,33 @@ class ExperimentRunner:
             "seed": context.model.seed,
             **context.model.parameters,
         }
+        if context.prompt_variant:
+            report.prompt_id = context.prompt_variant.identifier
+            prompt_description = context.prompt_variant.description or context.prompt_variant.identifier
+        else:
+            report.prompt_id = "default"
+            prompt_description = "default-system-prompt"
+
+        report.prompt_override = context.prompt_override
+
         report.extra_metadata.update({
             "generator_overrides": context.experiment.generator_overrides,
             "run_overrides": context.experiment.run_overrides,
         })
+        report.extra_metadata.setdefault("prompt_description", prompt_description)
+        if context.prompt_override:
+            report.extra_metadata.setdefault("prompt_override", context.prompt_override)
+        if context.prompt_source_path:
+            report.extra_metadata.setdefault("prompt_source_path", context.prompt_source_path)
 
         report_path = evaluator.save_report(report, output_dir=str(output_dir))
-        summary_row = self._build_summary_row(report, context, report_path, output_dir.parent.parent)
+        summary_row = self._build_summary_row(report, context, report_path, experiment_dir)
         return report_path, report, summary_row
 
-    def _build_generator_config(self, experiment: ExperimentDefinition, model: ModelSpec) -> GeneratorConfig:
+    def _build_generator_config(self, context: _RunContext) -> GeneratorConfig:
+        experiment = context.experiment
+        model = context.model
+
         config_payload: Dict[str, Any] = dict(experiment.generator_overrides)
         config_payload["model_name"] = model.name
         config_payload["model_provider"] = model.provider
@@ -130,6 +174,12 @@ class ExperimentRunner:
             config_payload["temperature"] = model.temperature
         if model.seed is not None:
             config_payload["seed"] = model.seed
+
+        if context.prompt_override:
+            config_payload["system_prompt"] = context.prompt_override
+        config_payload["prompt_version"] = (
+            context.prompt_variant.identifier if context.prompt_variant else "default"
+        )
 
         # Allow arbitrary additional overrides from the model spec
         for key, value in model.parameters.items():
@@ -160,6 +210,9 @@ class ExperimentRunner:
             "model_label": context.model.label or context.model.identifier,
             "temperature": context.model.temperature,
             "seed": context.model.seed,
+            "prompt_id": report.prompt_id,
+            "prompt_description": report.extra_metadata.get("prompt_description"),
+            "prompt_source_path": report.extra_metadata.get("prompt_source_path"),
             "repetition": context.repetition_index,
             "status": report.status.value,
             "generation_success": bool(generation_result.success) if generation_result else False,
@@ -189,6 +242,9 @@ class ExperimentRunner:
             "model_label",
             "temperature",
             "seed",
+            "prompt_id",
+            "prompt_description",
+            "prompt_source_path",
             "repetition",
             "status",
             "generation_success",
@@ -216,8 +272,9 @@ class ExperimentRunner:
 
 def run_from_file(config_path: str | Path, output_dir: Optional[str] = None) -> None:
     """Convenience helper to run experiments directly from a config path."""
+    config_path = Path(config_path).resolve()
     suite = load_experiment_suite(config_path)
-    runner = ExperimentRunner(suite, output_dir=output_dir)
+    runner = ExperimentRunner(suite, output_dir=output_dir, config_base=config_path.parent)
     runner.run()
 
 

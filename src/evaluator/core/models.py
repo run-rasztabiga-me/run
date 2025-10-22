@@ -104,6 +104,8 @@ class EvaluationReport:
     model_provider: Optional[str] = None
     model_parameters: Dict[str, Any] = field(default_factory=dict)
     repetition_index: Optional[int] = None
+    prompt_id: Optional[str] = None
+    prompt_override: Optional[str] = None
     extra_metadata: Dict[str, Any] = field(default_factory=dict)
 
     @property

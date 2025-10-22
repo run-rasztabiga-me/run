@@ -63,6 +63,15 @@ class ConfigurationAgent:
 
     def _get_system_message(self) -> str:
         """Get the system message for the agent."""
+        if self.config.system_prompt:
+            try:
+                return self.config.system_prompt.format(
+                    default_replicas=self.config.default_replicas,
+                    domain_suffix=self.config.domain_suffix,
+                )
+            except KeyError:
+                return self.config.system_prompt
+
         return CONFIGURATION_AGENT_SYSTEM_PROMPT.format(
             default_replicas=self.config.default_replicas,
             domain_suffix=self.config.domain_suffix

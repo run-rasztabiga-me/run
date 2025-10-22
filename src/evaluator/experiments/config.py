@@ -61,6 +61,10 @@ class ExperimentDefinition(BaseModel):
         default_factory=dict,
         description="Additional metadata/flags stored with each run (reserved for future use)."
     )
+    prompts: List["PromptVariant"] = Field(
+        default_factory=list,
+        description="Optional prompt variants to evaluate within this experiment."
+    )
 
     @field_validator("name")
     @classmethod
@@ -143,5 +147,45 @@ def _sanitize_token(value: str) -> str:
     return sanitized or "value"
 
 
-__all__ = ["ModelSpec", "ExperimentDefinition", "ExperimentSuite", "load_experiment_suite"]
+class PromptVariant(BaseModel):
+    """Defines a system prompt variant for experimentation."""
 
+    id: str = Field(description="Unique identifier for this prompt variant.")
+    description: Optional[str] = Field(default=None, description="Optional description for the prompt intent.")
+    system_prompt: Optional[str] = Field(default=None, description="Inline system prompt override.")
+    system_prompt_path: Optional[str] = Field(default=None, description="Path to a file containing the system prompt.")
+
+    @field_validator("id")
+    @classmethod
+    def _validate_id(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Prompt variant id cannot be empty.")
+        return value.strip()
+
+    @model_validator(mode="after")
+    def _ensure_prompt_source(self) -> "PromptVariant":
+        if not any([self.system_prompt, self.system_prompt_path]):
+            raise ValueError(
+                "PromptVariant requires either 'system_prompt' or 'system_prompt_path'."
+            )
+        return self
+
+    def resolve(self, base_path: Path) -> tuple[str, Optional[str]]:
+        """Return tuple of (system_prompt_text, source_path)."""
+        if self.system_prompt:
+            return self.system_prompt, None
+
+        prompt_path = Path(self.system_prompt_path)
+        if not prompt_path.is_absolute():
+            prompt_path = (base_path / prompt_path).resolve()
+        return prompt_path.read_text(encoding="utf-8"), str(prompt_path)
+
+    @property
+    def identifier(self) -> str:
+        return self.id
+
+
+__all__ = ["ModelSpec", "PromptVariant", "ExperimentDefinition", "ExperimentSuite", "load_experiment_suite"]
+
+ExperimentDefinition.model_rebuild()
+ExperimentSuite.model_rebuild()
