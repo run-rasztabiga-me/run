@@ -91,9 +91,8 @@ def evaluate_single_repo(repo_url: str):
     logger = logging.getLogger(__name__)
 
     generator_config = GeneratorConfig(
-        model_name="gpt-5-mini",
-        # model_name="gpt-5",
         model_provider="openai",
+        model_name="gpt-5-mini",
         temperature=1.0,
         seed=42
     )

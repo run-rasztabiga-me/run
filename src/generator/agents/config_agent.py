@@ -47,8 +47,8 @@ class ConfigurationAgent:
             "temperature": self.config.temperature,
         }
 
-        # Add seed if configured (as explicit parameter)
-        if self.config.seed is not None:
+        # Add seed if configured (only for OpenAI models - Anthropic doesn't support it)
+        if self.config.seed is not None and self.config.model_provider == "openai":
             llm_kwargs["seed"] = self.config.seed
 
         llm = init_chat_model(**llm_kwargs)
@@ -94,18 +94,22 @@ class ConfigurationAgent:
         # Generate a unique run_id for LangSmith tracing
         run_id = str(uuid.uuid4())
 
-        # Run agent to generate files - response_format ensures structured output
-        result = self.agent.invoke(
-            {"messages": [{"role": "user", "content": repo_url}]},
-            {
-                "recursion_limit": self.config.recursion_limit,
-                "run_id": run_id,
-                "tags": [] # TODO?
-            }
-        )
+        try:
+            # Run agent to generate files - response_format ensures structured output
+            result = self.agent.invoke(
+                {"messages": [{"role": "user", "content": repo_url}]},
+                {
+                    "recursion_limit": self.config.recursion_limit,
+                    "run_id": run_id,
+                    "tags": [] # TODO?
+                }
+            )
 
-        # Extract structured response and return messages with run_id
-        return result['structured_response'], result['messages'], run_id
+            # Extract structured response and return messages with run_id
+            return result['structured_response'], result['messages'], run_id
+        except Exception as e:
+            self.logger.error(f"Failed to generate configurations: {str(e)}", exc_info=True)
+            raise
 
     def get_repository_manager(self) -> RepositoryManager:
         """Get the repository manager instance."""
