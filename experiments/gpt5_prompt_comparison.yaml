@@ -1,0 +1,19 @@
+experiments:
+  - name: gpt5_prompt_comparison
+    description: Compare baseline and enhanced FastAPI prompts on poc2 repository.
+    repos:
+      - https://github.com/run-rasztabiga-me/poc2-fastapi.git
+    models:
+      - provider: openai
+        name: gpt-5-nano
+        label: openai_gpt5_nano
+        temperature: 0.0
+        seed: 42
+    repetitions: 1 # TODO make it 3?
+    prompts:
+      - id: v1
+        description: Baseline FastAPI prompt guidance.
+        system_prompt_path: prompts/v1.prompt
+      - id: v2
+        description: Enhanced prompt with stricter non-root and observability instructions.
+        system_prompt_path: prompts/v2.prompt

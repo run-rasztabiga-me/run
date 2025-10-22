@@ -1,5 +1,5 @@
 experiments:
-  - name: gpt5_nano_fastapi_baseline
+  - name: gpt5_nano_poc1
     description: Baseline run for gpt-5-nano on poc1 FastAPI sample.
     repos:
       - https://github.com/run-rasztabiga-me/poc1-fastapi.git

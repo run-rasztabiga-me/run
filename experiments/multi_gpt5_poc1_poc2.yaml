@@ -1,5 +1,5 @@
 experiments:
-  - name: multi_model_fastapi_comparison
+  - name: multi_gpt5_poc1_poc2
     description: Compare three LLMs across two FastAPI sample repositories.
     repos:
       - https://github.com/run-rasztabiga-me/poc1-fastapi.git

@@ -37,3 +37,6 @@
 11. **Scoring Model Overhaul**
     - Replace the placeholder penalty-based scoring in `ConfigurationEvaluator` with a rubric that weights completeness, correctness, best practices, and runtime success explicitly.
     - Align the new scoring strategy with completeness/comparison validators and potential LangSmith evaluations so metrics remain comparable across experiments.
+12. **Experiment Dashboard/UI**
+    - Design a lightweight UI (web or TUI) to select experiment configs, kick off runs, and stream progress/status updates in real time.
+    - Surface experiment summaries (per repo/model/prompt) with filters and quick access to report artifacts for faster analysis.

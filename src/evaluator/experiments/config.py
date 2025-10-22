@@ -177,7 +177,11 @@ class PromptVariant(BaseModel):
 
         prompt_path = Path(self.system_prompt_path)
         if not prompt_path.is_absolute():
-            prompt_path = (base_path / prompt_path).resolve()
+            candidate = (base_path / prompt_path).resolve()
+            if candidate.exists():
+                prompt_path = candidate
+            else:
+                prompt_path = (Path.cwd() / self.system_prompt_path).resolve()
         return prompt_path.read_text(encoding="utf-8"), str(prompt_path)
 
     @property

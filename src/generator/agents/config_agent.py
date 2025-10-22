@@ -88,6 +88,8 @@ class ConfigurationAgent:
             Tuple of (structured output with generated files information, messages list, run_id)
         """
         self.logger.info(f"Starting configuration generation for: {repo_url}")
+        prompt_version = self.config.prompt_version or "default"
+        self.logger.info("Using prompt version: %s", prompt_version)
 
         # Generate a unique run_id for LangSmith tracing
         run_id = str(uuid.uuid4())

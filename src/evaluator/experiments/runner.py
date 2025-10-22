@@ -74,7 +74,9 @@ class ExperimentRunner:
         logger.info("Starting experiment '%s' (%s)", experiment.name, experiment_dir)
 
         summary_rows: List[Dict[str, Any]] = []
-        prompt_variants: List[Optional[PromptVariant]] = [None] + list(experiment.prompts) if experiment.prompts else [None]
+        prompt_variants: List[Optional[PromptVariant]] = (
+            list(experiment.prompts) if experiment.prompts else [None]
+        )
 
         for repo_url in experiment.repos:
             repo_name = extract_repo_name(repo_url)
@@ -99,6 +101,14 @@ class ExperimentRunner:
                             prompt_variant=prompt_variant,
                             prompt_override=prompt_override,
                             prompt_source_path=prompt_source_path,
+                        )
+
+                        logger.info(
+                            "Preparing run: repo=%s model=%s prompt=%s repetition=%s",
+                            repo_name,
+                            model.identifier,
+                            prompt_label,
+                            run_context.repetition_label,
                         )
 
                         report_path, report, summary_row = self._execute_run(
