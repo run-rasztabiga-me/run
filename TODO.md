@@ -14,6 +14,7 @@
 4. **Artifact Store for Generated Outputs**
    - Introduce an `ArtifactStore` that captures generated Dockerfiles/K8s manifests into run-scoped directories, tracks provenance, and exposes them for reports.
    - Update generator/validator collaboration to reference artifacts via the store instead of raw repo paths.
+   - **Save generated configurations on each run**: Persist the complete generated configuration (including all manifests, Dockerfiles, and intermediate outputs) for each experiment run to enable retrospective analysis, debugging, and comparison across runs without needing to regenerate.
 5. **Layered Configuration Models**
    - Split `GeneratorConfig` into `EnvConfig`, `ModelConfig`, and `RunConfig` so environment secrets, LLM parameters, and per-experiment toggles remain isolated.
    - Provide serialization/loading helpers to swap models or temperatures without mutating global state.
@@ -40,3 +41,6 @@
 12. **Experiment Dashboard/UI**
     - Design a lightweight UI (web or TUI) to select experiment configs, kick off runs, and stream progress/status updates in real time.
     - Surface experiment summaries (per repo/model/prompt) with filters and quick access to report artifacts for faster analysis.
+13. **Agent Tooling Review**
+    - Audit which tools the LLM agent should access by default and document the chosen set.
+    - Decide whether adding a dedicated search capability is worthwhile and if `tree` offers benefits beyond existing `ls` support.

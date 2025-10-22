@@ -28,6 +28,7 @@ class ExperimentRun:
     timestamp_dir: Path
     summary_csv: Path
     summary_json: Path
+    status_json: Optional[Path]
 
 
 def discover_experiments(base_dir: Path) -> Dict[str, List[ExperimentRun]]:
@@ -45,13 +46,15 @@ def discover_experiments(base_dir: Path) -> Dict[str, List[ExperimentRun]]:
                 continue
             summary_csv = timestamp_dir / "summary.csv"
             summary_json = timestamp_dir / "summary.json"
-            if summary_csv.exists():
+            status_json = timestamp_dir / "status.json"
+            if summary_csv.exists() or status_json.exists():
                 runs.append(
                     ExperimentRun(
                         experiment_name=experiment_root.name,
                         timestamp_dir=timestamp_dir,
                         summary_csv=summary_csv,
                         summary_json=summary_json if summary_json.exists() else None,
+                        status_json=status_json if status_json.exists() else None,
                     )
                 )
 
@@ -62,7 +65,19 @@ def discover_experiments(base_dir: Path) -> Dict[str, List[ExperimentRun]]:
 
 
 def load_summary(run: ExperimentRun) -> pd.DataFrame:
+    if not run.summary_csv.exists():
+        return pd.DataFrame()
     df = pd.read_csv(run.summary_csv)
+    for col in ["generation_success", "build_success", "runtime_success"]:
+        if col in df.columns:
+            df[col] = df[col].replace({
+                "True": True,
+                "False": False,
+                "true": True,
+                "false": False,
+                "None": None,
+                "": None,
+            })
     # Ensure consistent column order
     desired_cols = [
         "experiment",
@@ -72,6 +87,8 @@ def load_summary(run: ExperimentRun) -> pd.DataFrame:
         "prompt_id",
         "status",
         "generation_success",
+        "build_success",
+        "runtime_success",
         "generation_time",
         "overall_score",
         "dockerfile_score",
@@ -90,6 +107,12 @@ def load_summary_json(run: ExperimentRun) -> Optional[Dict]:
     if not run.summary_json or not run.summary_json.exists():
         return None
     return json.loads(run.summary_json.read_text(encoding="utf-8"))
+
+
+def load_status(run: ExperimentRun) -> Optional[Dict]:
+    if not run.status_json or not run.status_json.exists():
+        return None
+    return json.loads(run.status_json.read_text(encoding="utf-8"))
 
 
 def main() -> None:
@@ -136,36 +159,57 @@ def main() -> None:
     st.header(f"{selected_experiment} – {selected_label}")
     st.markdown(f"Reports directory: `{current_run.timestamp_dir}`")
 
+    status_payload = load_status(current_run)
+    if status_payload:
+        state = status_payload.get("state")
+        if state == "running":
+            st.info("Experiment is still running; results will update as new runs complete.")
+        elif state == "failed":
+            st.error(f"Experiment run failed: {status_payload.get('error', 'unknown error')}")
+
     with st.spinner("Loading summary..."):
         summary_df = load_summary(current_run)
     st.subheader("Per-run Summary")
-    st.dataframe(summary_df, width="stretch")
+    if summary_df.empty:
+        st.write("No completed runs recorded yet.")
+    else:
+        st.dataframe(summary_df, width="stretch")
 
-    if {"prompt_id", "overall_score"}.issubset(summary_df.columns):
+    if not summary_df.empty and {"prompt_id", "overall_score"}.issubset(summary_df.columns):
         st.subheader("Score Summary by Prompt")
-        agg = (
-            summary_df.groupby("prompt_id")
-            .agg(
-                runs=("prompt_id", "count"),
-                success_rate=("generation_success", "mean"),
-                avg_overall=("overall_score", "mean"),
-                avg_generation_time=("generation_time", "mean"),
-            )
-            .reset_index()
-        )
+        agg_dict = {
+            "runs": ("prompt_id", "count"),
+            "success_rate": ("generation_success", "mean"),
+            "avg_overall": ("overall_score", "mean"),
+            "avg_generation_time": ("generation_time", "mean"),
+        }
+        if "build_success" in summary_df.columns:
+            agg_dict["build_success_rate"] = ("build_success", "mean")
+        if "runtime_success" in summary_df.columns:
+            agg_dict["runtime_success_rate"] = ("runtime_success", "mean")
+
+        agg = summary_df.groupby("prompt_id").agg(**agg_dict).reset_index()
         agg["success_rate"] = (agg["success_rate"] * 100).round(1)
         agg["avg_overall"] = agg["avg_overall"].round(2)
         agg["avg_generation_time"] = agg["avg_generation_time"].round(2)
+        if "build_success_rate" in agg:
+            agg["build_success_rate"] = (agg["build_success_rate"] * 100).round(1)
+        if "runtime_success_rate" in agg:
+            agg["runtime_success_rate"] = (agg["runtime_success_rate"] * 100).round(1)
         st.dataframe(agg, width="stretch")
 
     st.subheader("Run Details")
-    selected_row = st.selectbox(
-        "Select a run to inspect",
-        summary_df.index,
-        format_func=lambda idx: f"{summary_df.loc[idx, 'repo_name']} | {summary_df.loc[idx, 'model_name']} | prompt={summary_df.loc[idx, 'prompt_id']} | repetition={summary_df.loc[idx, 'repetition']}",
-    )
-    row = summary_df.loc[selected_row]
-    st.json(row.to_dict())
+    if not summary_df.empty:
+        selected_row = st.selectbox(
+            "Select a run to inspect",
+            summary_df.index,
+            format_func=lambda idx: f"{summary_df.loc[idx, 'repo_name']} | {summary_df.loc[idx, 'model_name']} | prompt={summary_df.loc[idx, 'prompt_id']} | repetition={summary_df.loc[idx, 'repetition']}",
+        )
+        row = summary_df.loc[selected_row].copy()
+        for col in ["generation_success", "build_success", "runtime_success"]:
+            if col in row and pd.notna(row[col]):
+                row[col] = bool(row[col])
+        st.json(row.to_dict())
 
     summary_json = load_summary_json(current_run)
     if summary_json:

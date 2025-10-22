@@ -8,16 +8,16 @@ experiments:
       - provider: openai
         name: gpt-5-nano
         label: openai_gpt5_nano
-        temperature: 0.0
+        temperature: 1.0
         seed: 42
       - provider: openai
         name: gpt-5-mini
         label: openai_gpt5_mini
-        temperature: 0.0
+        temperature: 1.0
         seed: 42
       - provider: openai
         name: gpt-5
         label: openai_gpt5
-        temperature: 0.0
+        temperature: 1.0
         seed: 42
     repetitions: 1

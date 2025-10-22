@@ -734,6 +734,7 @@ class ConfigurationValidator:
                 'docker', 'buildx', 'build',
                 '--platform', 'linux/amd64',
                 '--no-cache',
+                '--pull',
                 '--load',  # Load into local docker instead of pushing
                 '--progress=plain',
                 '-t', image_name,

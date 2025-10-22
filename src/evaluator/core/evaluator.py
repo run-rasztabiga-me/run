@@ -53,6 +53,8 @@ class ConfigurationEvaluator:
             evaluation_id=evaluation_id,
             status=EvaluationStatus.IN_PROGRESS,
         )
+        report.build_success = None
+        report.runtime_success = None
 
         self.logger.info(f"Starting evaluation for {repo_url} (ID: {evaluation_id})")
 
@@ -65,6 +67,7 @@ class ConfigurationEvaluator:
             report.execution_metrics = execution_metrics
 
             if not generation_result.success:
+                report.build_success = False
                 report.mark_failed(f"Generation failed: {generation_result.error_message}")
                 return report
 
@@ -105,6 +108,9 @@ class ConfigurationEvaluator:
                     and i.severity == ValidationSeverity.ERROR
                 ]
                 has_build_errors = len(docker_build_issues) > 0
+                report.build_success = not has_build_errors
+            else:
+                report.build_success = None
 
             # Add note about deployment (only if no build errors)
             if generation_result.k8s_manifests and not has_build_errors:
@@ -129,12 +135,16 @@ class ConfigurationEvaluator:
                     warning_count = len([i for i in runtime_issues if i.severity.value == "warning"])
                     if error_count > 0:
                         report.add_note(f"Runtime validation: {error_count} errors, {warning_count} warnings")
+                        report.runtime_success = False
                     elif warning_count > 0:
                         report.add_note(f"Runtime validation: {warning_count} warnings (no errors)")
+                        report.runtime_success = True
                 else:
                     report.add_note(f"Runtime validation passed: endpoint is healthy")
+                    report.runtime_success = True
             elif has_build_errors:
                 report.add_note("Runtime validation skipped due to Docker build errors")
+                report.runtime_success = False
 
             # Step 4: Generate detailed report
             report.add_note("Generating evaluation report")
@@ -144,6 +154,8 @@ class ConfigurationEvaluator:
 
         except Exception as e:
             self.logger.error(f"Evaluation failed for {repo_url}: {str(e)}")
+            report.runtime_success = False
+            report.build_success = False if report.build_success is None else report.build_success
             report.mark_failed(str(e))
 
         return report
@@ -314,4 +326,3 @@ class ConfigurationEvaluator:
     def export_batch_results(self, reports: List[EvaluationReport], output_dir: str = "./evaluation_reports") -> Dict[str, str]:
         """Export batch evaluation results in multiple formats."""
         return self.reporter.export_batch_results(reports, output_dir)
-

@@ -122,6 +122,8 @@ class EvaluationReporter:
             "repetition_index": report.repetition_index,
             "prompt_id": report.prompt_id,
             "prompt_override": report.prompt_override,
+            "build_success": report.build_success,
+            "runtime_success": report.runtime_success,
             "extra_metadata": report.extra_metadata or None,
         }
 

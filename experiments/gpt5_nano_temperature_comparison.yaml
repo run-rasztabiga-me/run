@@ -1,0 +1,32 @@
+experiments:
+  - name: gpt5_nano_temperature_comparison
+    description: Compare different temperature settings for gpt-5-nano to analyze the impact on the generation.
+    repos:
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
+    models:
+      - provider: openai
+        name: gpt-5-nano
+        label: gpt5_nano_temp_0.0
+        temperature: 0.0
+        seed: 42
+      - provider: openai
+        name: gpt-5-nano
+        label: gpt5_nano_temp_0.5
+        temperature: 0.5
+        seed: 42
+      - provider: openai
+        name: gpt-5-nano
+        label: gpt5_nano_temp_1.0
+        temperature: 1.0
+        seed: 42
+      - provider: openai
+        name: gpt-5-nano
+        label: gpt5_nano_temp_1.5
+        temperature: 1.5
+        seed: 42
+      - provider: openai
+        name: gpt-5-nano
+        label: gpt5_nano_temp_2.0
+        temperature: 2.0
+        seed: 42
+    repetitions: 1

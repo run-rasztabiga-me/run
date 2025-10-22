@@ -106,6 +106,8 @@ class EvaluationReport:
     repetition_index: Optional[int] = None
     prompt_id: Optional[str] = None
     prompt_override: Optional[str] = None
+    build_success: Optional[bool] = None
+    runtime_success: Optional[bool] = None
     extra_metadata: Dict[str, Any] = field(default_factory=dict)
 
     @property

@@ -77,58 +77,101 @@ class ExperimentRunner:
         prompt_variants: List[Optional[PromptVariant]] = (
             list(experiment.prompts) if experiment.prompts else [None]
         )
+        status_file = experiment_dir / "status.json"
 
-        for repo_url in experiment.repos:
-            repo_name = extract_repo_name(repo_url)
+        self._write_status(
+            status_file,
+            {
+                "experiment": experiment.name,
+                "state": "running",
+                "started_at": datetime.utcnow().isoformat(),
+                "repo_count": len(experiment.repos),
+                "model_count": len(experiment.models),
+                "prompt_count": len(prompt_variants),
+                "repetitions": experiment.repetitions,
+            },
+        )
 
-            for model in experiment.models:
-                for prompt_variant in prompt_variants:
-                    prompt_label = prompt_variant.identifier if prompt_variant else "default"
-                    prompt_dir = experiment_dir / model.identifier / _sanitize_token(prompt_label) / repo_name
-                    prompt_dir.mkdir(parents=True, exist_ok=True)
-                    prompt_override = None
-                    prompt_source_path = None
-                    if prompt_variant:
-                        prompt_override, prompt_source_path = prompt_variant.resolve(self.config_base)
+        try:
+            for repo_url in experiment.repos:
+                repo_name = extract_repo_name(repo_url)
 
-                    for repetition in range(experiment.repetitions):
-                        run_context = _RunContext(
-                            experiment=experiment,
-                            model=model,
-                            repo_url=repo_url,
-                            repetition_index=repetition,
-                            timestamp=datetime.utcnow(),
-                            prompt_variant=prompt_variant,
-                            prompt_override=prompt_override,
-                            prompt_source_path=prompt_source_path,
+                for model in experiment.models:
+                    for prompt_variant in prompt_variants:
+                        prompt_label = prompt_variant.identifier if prompt_variant else "default"
+                        prompt_dir = (
+                            experiment_dir
+                            / model.identifier
+                            / _sanitize_token(prompt_label)
+                            / repo_name
                         )
+                        prompt_dir.mkdir(parents=True, exist_ok=True)
+                        prompt_override = None
+                        prompt_source_path = None
+                        if prompt_variant:
+                            prompt_override, prompt_source_path = prompt_variant.resolve(self.config_base)
 
-                        logger.info(
-                            "Preparing run: repo=%s model=%s prompt=%s repetition=%s",
-                            repo_name,
-                            model.identifier,
-                            prompt_label,
-                            run_context.repetition_label,
-                        )
+                        for repetition in range(experiment.repetitions):
+                            run_context = _RunContext(
+                                experiment=experiment,
+                                model=model,
+                                repo_url=repo_url,
+                                repetition_index=repetition,
+                                timestamp=datetime.utcnow(),
+                                prompt_variant=prompt_variant,
+                                prompt_override=prompt_override,
+                                prompt_source_path=prompt_source_path,
+                            )
 
-                        report_path, report, summary_row = self._execute_run(
-                            context=run_context,
-                            output_dir=prompt_dir,
-                            experiment_dir=experiment_dir,
-                        )
-                        summary_rows.append(summary_row)
-                        logger.info(
-                            "Completed %s | repo=%s model=%s prompt=%s repetition=%s -> %s",
-                            experiment.name,
-                            repo_name,
-                            model.identifier,
-                            prompt_label,
-                            run_context.repetition_label,
-                            report_path,
-                        )
+                            logger.info(
+                                "Preparing run: repo=%s model=%s prompt=%s repetition=%s",
+                                repo_name,
+                                model.identifier,
+                                prompt_label,
+                                run_context.repetition_label,
+                            )
 
-        self._write_summary_artifacts(experiment_dir, summary_rows)
-        logger.info("Experiment '%s' finished. %d runs recorded.", experiment.name, len(summary_rows))
+                            report_path, report, summary_row = self._execute_run(
+                                context=run_context,
+                                output_dir=prompt_dir,
+                                experiment_dir=experiment_dir,
+                            )
+                            summary_rows.append(summary_row)
+                            logger.info(
+                                "Completed %s | repo=%s model=%s prompt=%s repetition=%s -> %s",
+                                experiment.name,
+                                repo_name,
+                                model.identifier,
+                                prompt_label,
+                                run_context.repetition_label,
+                                report_path,
+                            )
+
+            summary_info = self._write_summary_artifacts(experiment_dir, summary_rows)
+            self._write_status(
+                status_file,
+                {
+                    "experiment": experiment.name,
+                    "state": "completed",
+                    "finished_at": datetime.utcnow().isoformat(),
+                    "runs_recorded": len(summary_rows),
+                    **(summary_info or {}),
+                },
+            )
+            logger.info("Experiment '%s' finished. %d runs recorded.", experiment.name, len(summary_rows))
+
+        except Exception as exc:  # noqa: BLE001
+            self._write_status(
+                status_file,
+                {
+                    "experiment": experiment.name,
+                    "state": "failed",
+                    "finished_at": datetime.utcnow().isoformat(),
+                    "runs_recorded": len(summary_rows),
+                    "error": str(exc),
+                },
+            )
+            raise
 
     def _execute_run(
         self,
@@ -223,6 +266,8 @@ class ExperimentRunner:
             "prompt_id": report.prompt_id,
             "prompt_description": report.extra_metadata.get("prompt_description"),
             "prompt_source_path": report.extra_metadata.get("prompt_source_path"),
+            "build_success": report.build_success,
+            "runtime_success": report.runtime_success,
             "repetition": context.repetition_index,
             "status": report.status.value,
             "generation_success": bool(generation_result.success) if generation_result else False,
@@ -235,9 +280,11 @@ class ExperimentRunner:
             "report_path": relative_path.as_posix(),
         }
 
-    def _write_summary_artifacts(self, experiment_dir: Path, rows: List[Dict[str, Any]]) -> None:
+    def _write_summary_artifacts(self, experiment_dir: Path, rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         if not rows:
-            return
+            return {
+                "summary_generated": False,
+            }
 
         summary_csv = experiment_dir / "summary.csv"
         summary_json = experiment_dir / "summary.json"
@@ -255,6 +302,8 @@ class ExperimentRunner:
             "prompt_id",
             "prompt_description",
             "prompt_source_path",
+            "build_success",
+            "runtime_success",
             "repetition",
             "status",
             "generation_success",
@@ -278,6 +327,15 @@ class ExperimentRunner:
             "runs": rows,
         }
         summary_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+        return {
+            "summary_generated": True,
+            "summary_csv": str(summary_csv),
+            "summary_json": str(summary_json),
+        }
+
+    def _write_status(self, status_path: Path, payload: Dict[str, Any]) -> None:
+        status_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def run_from_file(config_path: str | Path, output_dir: Optional[str] = None) -> None:
