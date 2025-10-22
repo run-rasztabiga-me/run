@@ -23,7 +23,7 @@ class ConfigurationValidator:
     10. Kubernetes manifest syntax validation
     11. Static analysis with Kube-linter
     12. Kubernetes manifest application in K8S cluster
-    13. Runtime validation - application availability (TODO)
+    13. Runtime validation - application availability
     """
 
     def __init__(self, repository_manager: RepositoryManager, config: GeneratorConfig = None):
