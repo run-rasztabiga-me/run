@@ -10,7 +10,8 @@
 - `pip install -r requirements.txt` installs dependencies; rerun after editing `requirements.txt`.
 - `python generator.py` runs the sample generation flow; adjust the `repo_url` constant or call `ConfigurationGenerator(...).generate(<url>)` from a REPL for ad-hoc targets.
 - `python evaluator.py https://github.com/org/repo.git` scores a single repository; omit the URL to run the curated list and refresh reports in `evaluation_reports/`.
-- `python run_experiments.py --config experiments/<file>.yaml` executes the experiment runner; summaries land under `evaluation_reports/experiments/<name>/<timestamp>/`.
+- `python run_experiments.py --config experiments/<file>.yaml` (or `scripts/run_experiment.sh experiments/<file>.yaml`) executes the experiment runner; summaries land under `evaluation_reports/experiments/<name>/<timestamp>/`.
+- `streamlit run ui/experiment_dashboard.py` (or `scripts/run_ui.sh`) launches the experiment dashboard (requires `pip install streamlit pandas` if not already available).
 - Include `prompts` blocks in experiment configs to compare prompt variants; point each entry to a prompt file (e.g., `system_prompt_path: prompts/fastapi_v1.prompt`) or supply inline text to override the agent’s system prompt per run.
 
 ## Coding Style & Naming Conventions

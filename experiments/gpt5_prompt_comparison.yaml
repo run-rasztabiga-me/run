@@ -9,7 +9,7 @@ experiments:
         label: openai_gpt5_nano
         temperature: 0.0
         seed: 42
-    repetitions: 1 # TODO make it 3?
+    repetitions: 2 # TODO make it 3?
     prompts:
       - id: v1
         description: Baseline FastAPI prompt guidance.
