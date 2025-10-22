@@ -1,8 +1,8 @@
 experiments:
-  - name: gpt5_mini_vs_haiku_poc3
-    description: Compare OpenAI GPT-5-mini with Anthropic Claude Haiku 4.5 on poc3 repository.
+  - name: gpt5_mini_vs_haiku_poc2
+    description: Compare OpenAI GPT-5-mini with Anthropic Claude Haiku 4.5 on poc2 repository.
     repos:
-      - https://github.com/run-rasztabiga-me/poc3-fastapi.git
+      - https://github.com/run-rasztabiga-me/poc2-fastapi.git
     models:
 #      - provider: openai
 #        name: gpt-5-mini

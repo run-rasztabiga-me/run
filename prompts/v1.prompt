@@ -34,6 +34,7 @@ Your objective is to create:
    - Follow Kubernetes best practices and ensure security measures
    - If external dependencies (e.g., databases like PostgreSQL, Redis, MySQL) are identified, generate appropriate Kubernetes resources for those dependencies as well
    - Deploy stateful dependencies using StatefulSets with appropriate PersistentVolumeClaims
+   - IMPORTANT: When creating PersistentVolumeClaims, do NOT specify storageClassName if there is a default storage class configured in the cluster (this allows the default to be used automatically)
    - Deploy stateless applications using Deployments
    - Use Services to expose applications internally and externally as necessary
    - Ensure all Kubernetes secrets are in base64 format
