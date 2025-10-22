@@ -338,8 +338,6 @@ def main() -> None:
                 if process:
                     # Wait a moment for the experiment to start and create status.json
                     time.sleep(1)
-                    st.sidebar.success(f"Started experiment: {selected_config}")
-                    st.sidebar.info("Check the 'Running Experiments' section below to monitor progress.")
                     st.rerun()
     else:
         st.sidebar.info(f"No experiment configs found in {EXPERIMENTS_CONFIG_DIR}")

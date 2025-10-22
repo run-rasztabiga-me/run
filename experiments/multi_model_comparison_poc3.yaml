@@ -1,8 +1,8 @@
 experiments:
   - name: multi_model_comparison_poc3
-    description: Compare OpenAI GPT-5-mini, Anthropic Claude Haiku 4.5, and Google Gemini 2.5 Flash on poc3 repository.
+    description: Compare OpenAI GPT-5-mini, Anthropic Claude Haiku 4.5, and Google Gemini 2.5 Flash on poc1 repository.
     repos:
-      - https://github.com/run-rasztabiga-me/poc3-fastapi.git
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
     models:
       - provider: openai
         name: gpt-5-mini

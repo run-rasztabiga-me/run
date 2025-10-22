@@ -1173,6 +1173,11 @@ class ConfigurationValidator:
                 ))
                 return issues, applied_resources
 
+            # Skip non-YAML files
+            if not manifest_full_path.suffix.lower() in ['.yaml', '.yml']:
+                self.logger.info(f"Skipping non-YAML file: {manifest_path}")
+                return issues, applied_resources
+
             # Patch image names to use full registry path
             patched_manifest_path = self._patch_image_names(manifest_full_path, repo_name, docker_images)
 
