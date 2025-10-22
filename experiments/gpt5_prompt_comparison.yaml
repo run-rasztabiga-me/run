@@ -1,8 +1,8 @@
 experiments:
   - name: gpt5_prompt_comparison
-    description: Compare baseline and enhanced FastAPI prompts on poc2 repository.
+    description: Compare baseline and enhanced FastAPI prompts on poc1 repository.
     repos:
-      - https://github.com/run-rasztabiga-me/poc2-fastapi.git
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
     models:
       - provider: openai
         name: gpt-5-nano
