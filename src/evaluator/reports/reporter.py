@@ -129,6 +129,14 @@ class EvaluationReporter:
 
     def _generation_result_to_dict(self, result) -> Dict[str, Any]:
         """Convert generation result to dictionary."""
+        workspace_dir = None
+        run_id = None
+        if getattr(result, "run_context", None):
+            try:
+                workspace_dir = str(result.run_context.workspace_dir.resolve())
+            except Exception:
+                workspace_dir = str(result.run_context.workspace_dir)
+            run_id = result.run_context.run_id
         return {
             "repo_url": result.repo_url,
             "repo_name": result.repo_name,
@@ -144,7 +152,9 @@ class EvaluationReporter:
             "k8s_manifests": result.k8s_manifests,
             "generation_time": result.generation_time,
             "error_message": result.error_message,
-            "timestamp": result.timestamp.isoformat()
+            "timestamp": result.timestamp.isoformat(),
+            "workspace_dir": workspace_dir,
+            "run_id": run_id,
         }
 
     def _execution_metrics_to_dict(self, metrics) -> Dict[str, Any]:

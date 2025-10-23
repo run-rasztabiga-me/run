@@ -272,6 +272,11 @@ class ExperimentRunner:
             report.extra_metadata.setdefault("prompt_override", context.prompt_override)
         if context.prompt_source_path:
             report.extra_metadata.setdefault("prompt_source_path", context.prompt_source_path)
+        generation_result = report.generation_result
+        if generation_result and getattr(generation_result, "run_context", None):
+            workspace_dir = generation_result.run_context.workspace_dir.resolve()
+            report.extra_metadata.setdefault("workspace_dir", str(workspace_dir))
+            report.extra_metadata.setdefault("run_id", generation_result.run_context.run_id)
 
         report_path = evaluator.save_report(report, output_dir=str(output_dir))
         summary_row = self._build_summary_row(report, context, report_path, experiment_dir)

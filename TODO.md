@@ -50,7 +50,7 @@
    - ✅ Surface experiment summaries (per repo/model/prompt) with filters and quick access to report artifacts for faster analysis.
    - ✅ Score summary per prompt now renders in the dashboard; consider adding complementary groupings (per model, per repo, etc.) for richer comparisons.
    - ✅ Display live progress in the dashboard, including completed vs. remaining runs for the active experiment and an estimated time to completion (minutes).
-   - **Follow-up work**: Visualize run completion trends, highlight failures inline, and add comparative views (model × prompt) with pinned baselines.
+   - **Follow-up work**: Visualize run completion trends, highlight failures inline, support comparative views (model × prompt) with pinned baselines, and layer in manifest/Dockerfile diffing for side-by-side artifact analysis.
 14. **Agent Tooling Review**
    - Audit which tools the LLM agent should access by default and document the chosen set.
    - Decide whether adding a dedicated search capability is worthwhile and if `tree` offers benefits beyond existing `ls` support.

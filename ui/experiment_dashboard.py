@@ -124,6 +124,79 @@ def load_status(run: ExperimentRun) -> Optional[Dict]:
     return json.loads(run.status_json.read_text(encoding="utf-8"))
 
 
+def resolve_workspace_dir(
+    repo_name: str,
+    run_id: Optional[str],
+    report_start_time: Optional[str],
+) -> Optional[Path]:
+    """Best-effort lookup of the run workspace under tmp/, favoring run_id if present."""
+    tmp_root = Path("tmp").resolve()
+    if not tmp_root.exists():
+        return None
+
+    if repo_name and run_id:
+        direct = (tmp_root / f"{repo_name}-{run_id}").resolve()
+        if direct.exists():
+            return direct
+
+    candidates = [
+        path for path in tmp_root.iterdir()
+        if path.is_dir() and path.name.startswith(f"{repo_name}-")
+    ]
+    if not candidates:
+        return None
+
+    report_dt: Optional[datetime] = None
+    if report_start_time:
+        try:
+            report_dt = datetime.fromisoformat(report_start_time)
+        except ValueError:
+            report_dt = None
+
+    if report_dt:
+        def score(path: Path) -> float:
+            try:
+                mtime = datetime.fromtimestamp(path.stat().st_mtime)
+            except (FileNotFoundError, OSError):
+                return float("inf")
+            return abs((mtime - report_dt).total_seconds())
+
+        candidates.sort(key=score)
+        return candidates[0]
+
+    # Fallback: most recently modified
+    def modified(path: Path) -> float:
+        try:
+            return path.stat().st_mtime
+        except (FileNotFoundError, OSError):
+            return 0.0
+
+    candidates.sort(key=modified, reverse=True)
+    return candidates[0]
+
+
+def resolve_manifest_path(manifest_entry: str, report_dir: Optional[Path], workspace_dir: Optional[Path]) -> Optional[Path]:
+    """Resolve manifest entry against known directories."""
+    manifest_path = Path(manifest_entry)
+    candidates = []
+    if manifest_path.is_absolute():
+        candidates.append(manifest_path)
+    if report_dir is not None:
+        candidates.append((report_dir / manifest_path).resolve())
+    if workspace_dir is not None:
+        candidates.append((workspace_dir / manifest_path).resolve())
+
+    checked = set()
+    for candidate in candidates:
+        candidate_str = str(candidate)
+        if candidate_str in checked:
+            continue
+        checked.add(candidate_str)
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def render_score_summary(
     df: pd.DataFrame,
     group_col: str,
@@ -480,7 +553,6 @@ def main() -> None:
     current_run = next(run for run in runs if run.timestamp_dir.name == selected_run_dir)
 
     st.header(f"{selected_experiment} – {selected_label}")
-    st.markdown(f"Reports directory: `{current_run.timestamp_dir}`")
 
     status_payload = load_status(current_run)
     if status_payload:
@@ -547,25 +619,213 @@ def main() -> None:
         for col in ["generation_success", "build_success", "runtime_success"]:
             if col in row and pd.notna(row[col]):
                 row[col] = bool(row[col])
-        st.json(row.to_dict())
         report_rel_path = row.get("report_path")
+        report_data: Optional[Dict] = None
+        report_bytes: Optional[bytes] = None
+        report_full_path: Optional[Path] = None
         if isinstance(report_rel_path, str):
-            report_full_path = current_run.timestamp_dir / report_rel_path
-            st.caption(f"Report path: `{report_full_path}`")
+            report_full_path = (current_run.timestamp_dir / report_rel_path).resolve()
             if report_full_path.exists():
                 try:
-                    report_bytes = report_full_path.read_bytes()
-                    st.download_button(
-                        "Download report JSON",
-                        data=report_bytes,
-                        file_name=report_full_path.name,
-                        mime="application/json",
-                        key=f"download_report_{selected_row}",
-                    )
+                    report_text = report_full_path.read_text(encoding="utf-8")
+                    report_bytes = report_text.encode("utf-8")
+                    report_data = json.loads(report_text)
                 except Exception as ex:
-                    st.warning(f"Unable to load report for download: {ex}")
+                    st.warning(f"Unable to parse report JSON: {ex}")
+                    try:
+                        report_bytes = report_full_path.read_bytes()
+                    except Exception:
+                        report_bytes = None
             else:
                 st.warning("Report file not found on disk. It may have been moved or deleted.")
+        if report_bytes and report_full_path:
+            st.download_button(
+                "Download report JSON",
+                data=report_bytes,
+                file_name=report_full_path.name,
+                mime="application/json",
+                key=f"download_report_{selected_row}",
+            )
+        if report_data:
+            summary_tab, metrics_tab, validation_tab, artifacts_tab, notes_tab = st.tabs(
+                ["Summary", "Metrics", "Validation", "Artifacts", "Notes"]
+            )
+            with summary_tab:
+                summary_fields = {
+                    "Status": report_data.get("status"),
+                    "Build success": report_data.get("build_success"),
+                    "Runtime success": report_data.get("runtime_success"),
+                    "Start time": report_data.get("start_time"),
+                    "End time": report_data.get("end_time"),
+                    "Total evaluation time": report_data.get("total_evaluation_time"),
+                    "Prompt ID": report_data.get("prompt_id"),
+                    "Model": report_data.get("model_name"),
+                    "Experiment": report_data.get("experiment_name"),
+                }
+                extra_metadata = report_data.get("extra_metadata") or {}
+                col_summary, col_extra = st.columns(2)
+                with col_summary:
+                    st.json({k: v for k, v in summary_fields.items() if v is not None})
+                with col_extra:
+                    if extra_metadata:
+                        st.json(extra_metadata)
+                    else:
+                        st.write("No extra metadata.")
+            with metrics_tab:
+                exec_metrics = report_data.get("execution_metrics") or {}
+                quality_metrics = report_data.get("quality_metrics") or {}
+                col_exec, col_quality = st.columns(2)
+                with col_exec:
+                    st.markdown("**Execution Metrics**")
+                    if exec_metrics:
+                        st.json(exec_metrics)
+                    else:
+                        st.write("No execution metrics recorded.")
+                with col_quality:
+                    st.markdown("**Quality Metrics**")
+                    if quality_metrics:
+                        st.json({k: v for k, v in quality_metrics.items() if k != "validation_issues"})
+                    else:
+                        st.write("No quality metrics recorded.")
+            with validation_tab:
+                quality_metrics = report_data.get("quality_metrics") or {}
+                validation_issues = quality_metrics.get("validation_issues") or []
+                st.json(validation_issues)
+            with artifacts_tab:
+                generation_result = report_data.get("generation_result") or {}
+                docker_images = generation_result.get("docker_images") or []
+                k8s_manifests = generation_result.get("k8s_manifests") or []
+                workspace_dir_raw = (
+                    generation_result.get("workspace_dir")
+                    or (report_data.get("extra_metadata") or {}).get("workspace_dir")
+                )
+                run_id_value = (
+                    generation_result.get("run_id")
+                    or (report_data.get("extra_metadata") or {}).get("run_id")
+                )
+                repo_name = str(row.get("repo_name", ""))
+                declared_workspace_missing: Optional[Path] = None
+                workspace_dir: Optional[Path] = None
+                if workspace_dir_raw:
+                    candidate = Path(workspace_dir_raw)
+                    try:
+                        candidate = candidate.resolve()
+                    except Exception:
+                        pass
+                    if candidate.exists():
+                        workspace_dir = candidate
+                    else:
+                        declared_workspace_missing = candidate
+                expected_workspace: Optional[Path] = None
+                if repo_name and run_id_value:
+                    expected_workspace = (Path("tmp") / f"{repo_name}-{run_id_value}").resolve()
+                if workspace_dir is None:
+                    workspace_dir = resolve_workspace_dir(
+                        repo_name=repo_name,
+                        run_id=run_id_value,
+                        report_start_time=report_data.get("start_time"),
+                    )
+                if workspace_dir:
+                    if expected_workspace and workspace_dir == expected_workspace:
+                        pass
+                    elif workspace_dir_raw:
+                        pass
+                else:
+                    if declared_workspace_missing:
+                        st.warning(
+                            f"Workspace directory `{declared_workspace_missing}` not found; "
+                            "generated artifacts may have been cleaned up."
+                        )
+                    elif expected_workspace:
+                        st.warning(
+                            f"Workspace directory `{expected_workspace}` not found; "
+                            "generated artifacts may have been cleaned up."
+                        )
+                col_docker, col_k8s = st.columns(2)
+                docker_options: List[Tuple[str, Dict[str, str]]] = []
+                if docker_images:
+                    for image_spec in docker_images:
+                        docker_path = image_spec.get("dockerfile_path")
+                        if docker_path:
+                            docker_options.append(
+                                (
+                                    str(docker_path),
+                                    {
+                                        "path": docker_path,
+                                        "context": image_spec.get("build_context"),
+                                        "image_tag": image_spec.get("image_tag"),
+                                    },
+                                )
+                            )
+                with col_docker:
+                    st.markdown("**Dockerfiles**")
+                    if docker_options:
+                        docker_labels = [opt[0] for opt in docker_options]
+                        selected_docker = st.selectbox(
+                            "Select Dockerfile",
+                            docker_labels,
+                            key=f"docker_select_{selected_row}",
+                        )
+                        docker_entry = next(
+                            (entry for label, entry in docker_options if label == selected_docker),
+                            None,
+                        )
+                        docker_path = docker_entry.get("path") if docker_entry else None
+                        manifest_parent = report_full_path.parent if report_full_path else None
+                        resolved_docker = resolve_manifest_path(
+                            docker_path or "",
+                            report_dir=manifest_parent,
+                            workspace_dir=workspace_dir,
+                        )
+                        if resolved_docker and resolved_docker.exists():
+                            caption_bits = [docker_path]
+                            if docker_entry.get("image_tag"):
+                                caption_bits.append(f"tag: {docker_entry['image_tag']}")
+                            if docker_entry.get("context"):
+                                caption_bits.append(f"context: {docker_entry['context']}")
+                            st.caption(" | ".join(filter(None, caption_bits)))
+                            try:
+                                docker_text = resolved_docker.read_text(encoding="utf-8")
+                                st.code(docker_text, language="dockerfile")
+                            except Exception as ex:
+                                st.warning(f"Unable to read Dockerfile: {ex}")
+                        else:
+                            st.warning("Dockerfile not found; check tmp/ for cleaned workspaces.")
+                    else:
+                        st.write("No Dockerfiles generated.")
+
+                k8s_options: List[str] = list(k8s_manifests or [])
+                with col_k8s:
+                    st.markdown("**Kubernetes Manifests**")
+                    if k8s_options:
+                        selected_manifest = st.selectbox(
+                            "Select K8s manifest",
+                            k8s_options,
+                            key=f"k8s_select_{selected_row}",
+                        )
+                        manifest_parent = report_full_path.parent if report_full_path else None
+                        manifest_path = resolve_manifest_path(
+                            selected_manifest or "",
+                            report_dir=manifest_parent,
+                            workspace_dir=workspace_dir,
+                        )
+                        if manifest_path and manifest_path.exists():
+                            st.caption(selected_manifest)
+                            try:
+                                manifest_text = manifest_path.read_text(encoding="utf-8")
+                                st.code(manifest_text, language="yaml")
+                            except Exception as ex:
+                                st.warning(f"Unable to read manifest: {ex}")
+                        else:
+                            st.warning(
+                                "Manifest file not found. Ensure the workspace directory "
+                                "is still available under `tmp/`."
+                            )
+                    else:
+                        st.write("No Kubernetes manifests generated.")
+            with notes_tab:
+                notes = report_data.get("notes") or []
+                st.json(notes)
 
     summary_json = load_summary_json(current_run)
     if summary_json:
