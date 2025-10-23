@@ -6,7 +6,7 @@ import csv
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -79,19 +79,32 @@ class ExperimentRunner:
             list(experiment.prompts) if experiment.prompts else [None]
         )
         status_file = experiment_dir / "status.json"
-
-        self._write_status(
-            status_file,
-            {
-                "experiment": experiment.name,
-                "state": "running",
-                "started_at": datetime.now(UTC).isoformat(),
-                "repo_count": len(experiment.repos),
-                "model_count": len(experiment.models),
-                "prompt_count": len(prompt_variants),
-                "repetitions": experiment.repetitions,
-            },
+        runs_total = (
+            len(experiment.repos)
+            * len(experiment.models)
+            * len(prompt_variants)
+            * experiment.repetitions
         )
+        status_payload: Dict[str, Any] = {
+            "experiment": experiment.name,
+            "state": "running",
+            "started_at": datetime.now(UTC).isoformat(),
+            "repo_count": len(experiment.repos),
+            "model_count": len(experiment.models),
+            "prompt_count": len(prompt_variants),
+            "repetitions": experiment.repetitions,
+            "runs_total": runs_total,
+            "runs_completed": 0,
+            "last_run_duration": None,
+            "avg_run_duration": None,
+            "eta_seconds": None,
+            "estimated_completion": None,
+            "updated_at": None,
+        }
+        self._write_status(status_file, status_payload)
+
+        runs_completed = 0
+        cumulative_duration = 0.0
 
         try:
             for repo_url in experiment.repos:
@@ -113,12 +126,13 @@ class ExperimentRunner:
                             prompt_override, prompt_source_path = prompt_variant.resolve(self.config_base)
 
                         for repetition in range(experiment.repetitions):
+                            run_started_at = datetime.now(UTC)
                             run_context = _RunContext(
                                 experiment=experiment,
                                 model=model,
                                 repo_url=repo_url,
                                 repetition_index=repetition,
-                                timestamp=datetime.now(UTC),
+                                timestamp=run_started_at,
                                 prompt_variant=prompt_variant,
                                 prompt_override=prompt_override,
                                 prompt_source_path=prompt_source_path,
@@ -138,6 +152,42 @@ class ExperimentRunner:
                                 experiment_dir=experiment_dir,
                             )
                             summary_rows.append(summary_row)
+                            run_finished_at = datetime.now(UTC)
+                            run_duration = max(
+                                (run_finished_at - run_started_at).total_seconds(), 0.0
+                            )
+                            runs_completed += 1
+                            cumulative_duration += run_duration
+                            avg_duration = (
+                                cumulative_duration / runs_completed
+                                if runs_completed
+                                else None
+                            )
+                            remaining_runs = max(runs_total - runs_completed, 0)
+                            eta_seconds = (
+                                avg_duration * remaining_runs
+                                if avg_duration is not None and remaining_runs
+                                else 0.0
+                            )
+                            status_payload.update(
+                                {
+                                    "runs_completed": runs_completed,
+                                    "last_run_duration": round(run_duration, 3),
+                                    "avg_run_duration": round(avg_duration, 3)
+                                    if avg_duration is not None
+                                    else None,
+                                    "eta_seconds": round(eta_seconds, 3)
+                                    if remaining_runs
+                                    else 0.0,
+                                    "estimated_completion": (
+                                        (run_finished_at + timedelta(seconds=eta_seconds)).isoformat()
+                                        if remaining_runs and eta_seconds
+                                        else run_finished_at.isoformat()
+                                    ),
+                                    "updated_at": run_finished_at.isoformat(),
+                                }
+                            )
+                            self._write_status(status_file, status_payload)
                             logger.info(
                                 "Completed %s | repo=%s model=%s prompt=%s repetition=%s -> %s",
                                 experiment.name,
@@ -149,29 +199,37 @@ class ExperimentRunner:
                             )
 
             summary_info = self._write_summary_artifacts(experiment_dir, summary_rows)
-            self._write_status(
-                status_file,
+            finished_at = datetime.now(UTC)
+            status_payload.update(
                 {
-                    "experiment": experiment.name,
                     "state": "completed",
-                    "finished_at": datetime.now(UTC).isoformat(),
+                    "finished_at": finished_at.isoformat(),
                     "runs_recorded": len(summary_rows),
-                    **(summary_info or {}),
-                },
+                    "eta_seconds": 0.0,
+                    "estimated_completion": finished_at.isoformat(),
+                    "updated_at": finished_at.isoformat(),
+                }
             )
+            if summary_info:
+                status_payload.update(summary_info)
+            self._write_status(status_file, status_payload)
             logger.info("Experiment '%s' finished. %d runs recorded.", experiment.name, len(summary_rows))
 
         except Exception as exc:  # noqa: BLE001
-            self._write_status(
-                status_file,
+            failed_at = datetime.now(UTC)
+            failure_payload = dict(status_payload)
+            failure_payload.update(
                 {
-                    "experiment": experiment.name,
                     "state": "failed",
-                    "finished_at": datetime.now(UTC).isoformat(),
+                    "finished_at": failed_at.isoformat(),
                     "runs_recorded": len(summary_rows),
+                    "eta_seconds": None,
+                    "estimated_completion": None,
+                    "updated_at": failed_at.isoformat(),
                     "error": str(exc),
-                },
+                }
             )
+            self._write_status(status_file, failure_payload)
             raise
         finally:
             if experiment.cleanup_after_run:

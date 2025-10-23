@@ -157,7 +157,6 @@ class EvaluationReporter:
             "input_tokens": metrics.input_tokens,
             "output_tokens": metrics.output_tokens,
             "error_count": metrics.error_count,
-            "retry_count": metrics.retry_count,
             "run_id": metrics.run_id,
             "docker_build_metrics": [
                 {

@@ -70,7 +70,6 @@ class ExecutionMetrics:
     input_tokens: Optional[int] = None
     output_tokens: Optional[int] = None
     error_count: int = 0
-    retry_count: int = 0
     # LangSmith trace identifier
     run_id: Optional[str] = None
     # Docker build metrics
