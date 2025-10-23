@@ -124,6 +124,58 @@ def load_status(run: ExperimentRun) -> Optional[Dict]:
     return json.loads(run.status_json.read_text(encoding="utf-8"))
 
 
+def render_score_summary(
+    df: pd.DataFrame,
+    group_col: str,
+    label: str,
+) -> bool:
+    """Render aggregated score summary grouped by the given column.
+
+    Returns True if a summary was rendered.
+    """
+    if df.empty or "overall_score" not in df.columns:
+        return False
+    if group_col not in df.columns:
+        return False
+
+    distinct_values = df[group_col].dropna().unique()
+    if len(distinct_values) <= 1:
+        return False
+
+    agg_dict: Dict[str, tuple] = {"runs": (group_col, "count")}
+
+    if "generation_success" in df.columns:
+        agg_dict["success_rate"] = ("generation_success", "mean")
+    if "overall_score" in df.columns:
+        agg_dict["avg_overall"] = ("overall_score", "mean")
+    if "generation_time" in df.columns:
+        agg_dict["avg_generation_time"] = ("generation_time", "mean")
+    if "build_success" in df.columns:
+        agg_dict["build_success_rate"] = ("build_success", "mean")
+    if "runtime_success" in df.columns:
+        agg_dict["runtime_success_rate"] = ("runtime_success", "mean")
+
+    if len(agg_dict) <= 1:
+        return False
+
+    grouped = df.groupby(group_col).agg(**agg_dict).reset_index()
+
+    if "success_rate" in grouped.columns:
+        grouped["success_rate"] = (grouped["success_rate"] * 100).round(1)
+    if "avg_overall" in grouped.columns:
+        grouped["avg_overall"] = grouped["avg_overall"].round(2)
+    if "avg_generation_time" in grouped.columns:
+        grouped["avg_generation_time"] = grouped["avg_generation_time"].round(2)
+    if "build_success_rate" in grouped.columns:
+        grouped["build_success_rate"] = (grouped["build_success_rate"] * 100).round(1)
+    if "runtime_success_rate" in grouped.columns:
+        grouped["runtime_success_rate"] = (grouped["runtime_success_rate"] * 100).round(1)
+
+    st.subheader(f"Score Summary by {label}")
+    st.dataframe(grouped, width="stretch")
+    return True
+
+
 def discover_experiment_configs() -> List[Path]:
     """Discover available experiment config files."""
     if not EXPERIMENTS_CONFIG_DIR.exists():
@@ -401,28 +453,14 @@ def main() -> None:
     else:
         st.dataframe(summary_df, width="stretch")
 
-    if not summary_df.empty and {"prompt_id", "overall_score"}.issubset(summary_df.columns):
-        st.subheader("Score Summary by Prompt")
-        agg_dict = {
-            "runs": ("prompt_id", "count"),
-            "success_rate": ("generation_success", "mean"),
-            "avg_overall": ("overall_score", "mean"),
-            "avg_generation_time": ("generation_time", "mean"),
-        }
-        if "build_success" in summary_df.columns:
-            agg_dict["build_success_rate"] = ("build_success", "mean")
-        if "runtime_success" in summary_df.columns:
-            agg_dict["runtime_success_rate"] = ("runtime_success", "mean")
-
-        agg = summary_df.groupby("prompt_id").agg(**agg_dict).reset_index()
-        agg["success_rate"] = (agg["success_rate"] * 100).round(1)
-        agg["avg_overall"] = agg["avg_overall"].round(2)
-        agg["avg_generation_time"] = agg["avg_generation_time"].round(2)
-        if "build_success_rate" in agg:
-            agg["build_success_rate"] = (agg["build_success_rate"] * 100).round(1)
-        if "runtime_success_rate" in agg:
-            agg["runtime_success_rate"] = (agg["runtime_success_rate"] * 100).round(1)
-        st.dataframe(agg, width="stretch")
+    if not summary_df.empty:
+        for column, label in [
+            ("prompt_id", "Prompt"),
+            ("model_name", "Model"),
+            ("repo_name", "Repository"),
+            ("temperature", "Temperature"),
+        ]:
+            render_score_summary(summary_df, column, label)
 
     st.subheader("Run Details")
     if not summary_df.empty:

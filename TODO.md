@@ -46,9 +46,13 @@
     - Align the new scoring strategy with completeness/comparison validators and potential LangSmith evaluations so metrics remain comparable across experiments.
     - **Consider LLM-as-a-Judge**: Explore using an LLM (e.g., GPT-4, Claude) as an additional validation step to assess generated configurations against criteria like best practices, security, maintainability, and architectural soundness. This could complement automated validators with qualitative assessments and provide richer feedback for model comparison.
 13. **Experiment Dashboard/UI**
-    - Design a lightweight UI (web or TUI) to select experiment configs, kick off runs, and stream progress/status updates in real time.
-    - Surface experiment summaries (per repo/model/prompt) with filters and quick access to report artifacts for faster analysis.
-    - Score summary per prompt now renders in the dashboard; consider adding complementary groupings (per model, per repo, etc.) for richer comparisons.
+   - Design a lightweight UI (web or TUI) to select experiment configs, kick off runs, and stream progress/status updates in real time.
+   - Surface experiment summaries (per repo/model/prompt) with filters and quick access to report artifacts for faster analysis.
+   - Score summary per prompt now renders in the dashboard; consider adding complementary groupings (per model, per repo, etc.) for richer comparisons.
+   - Display live progress in the dashboard, including completed vs. remaining runs for the active experiment and an estimated time to completion (minutes).
 14. **Agent Tooling Review**
-    - Audit which tools the LLM agent should access by default and document the chosen set.
-    - Decide whether adding a dedicated search capability is worthwhile and if `tree` offers benefits beyond existing `ls` support.
+   - Audit which tools the LLM agent should access by default and document the chosen set.
+   - Decide whether adding a dedicated search capability is worthwhile and if `tree` offers benefits beyond existing `ls` support.
+15. **Repository Dataset Builder**
+   - Create a module that discovers and curates a dataset of GitHub repositories suited for evaluator benchmarking.
+   - Support configurable filters (language, stars, topics) and persist metadata so experiments can sample consistent repo sets.
