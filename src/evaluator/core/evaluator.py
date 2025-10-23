@@ -335,7 +335,3 @@ class ConfigurationEvaluator:
     def save_report(self, report: EvaluationReport, output_dir: str = "./evaluation_reports") -> str:
         """Save evaluation report to file."""
         return self.reporter.save_report(report, output_dir)
-
-    def export_batch_results(self, reports: List[EvaluationReport], output_dir: str = "./evaluation_reports") -> Dict[str, str]:
-        """Export batch evaluation results in multiple formats."""
-        return self.reporter.export_batch_results(reports, output_dir)
