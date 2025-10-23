@@ -14,7 +14,7 @@ experiments:
         label: anthropic_haiku_4.5
         temperature: 1.0
         seed: 42
-      - provider: google
+      - provider: google_genai
         name: gemini-2.5-flash
         label: google_gemini_2.5_flash
         temperature: 1.0
