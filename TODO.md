@@ -11,9 +11,9 @@
    - Ensure workspace isolation between parallel runs to prevent interference.
    - Consider implementing run-specific prefixes/suffixes for namespaces, images, and other shared resources.
    - Initial focus should remain on single-threaded execution to ensure deterministic behavior and stability.
-3. **Repository Lifecycle Management**
-   - Refactor `RepositoryManager` into a context-managed `RepositoryWorkspace` that allocates unique workdirs per run, exposes typed file APIs, and guarantees cleanup.
-   - Remove mutable global state (`_tmp_dir`, `_repo_name`) and stringly-typed responses to support concurrent experiments safely.
+3. ✅ **Repository Lifecycle Management** – DONE
+   - ✅ Refactor `RepositoryManager` into a context-managed `RepositoryWorkspace` that allocates unique workdirs per run, exposes typed file APIs, and guarantees cleanup.
+   - ✅ Remove mutable global state (`_tmp_dir`, `_repo_name`) and stringly-typed responses to support concurrent experiments safely.
 4. **Validation Pipeline Modularization**
    - Decompose `ConfigurationValidator` into pluggable `ValidationStep`s (syntax, Hadolint, build, apply, runtime) coordinated by a pipeline runner.
    - Route external tool invocations through a command runner abstraction to capture timings, severities, and tool availability for reporting.
@@ -57,6 +57,5 @@
 15. **Repository Dataset Builder**
    - Create a module that discovers and curates a dataset of GitHub repositories suited for evaluator benchmarking.
    - Support configurable filters (language, stars, topics) and persist metadata so experiments can sample consistent repo sets.
-
 16. **Namespace Manifest Guardrails**
    - Update validation/generation flows to ignore or reject Kubernetes manifests that declare a `Namespace`, preventing illegal namespace creation in evaluated outputs.
