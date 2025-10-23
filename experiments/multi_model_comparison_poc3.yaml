@@ -20,3 +20,4 @@ experiments:
         temperature: 1.0
         seed: 42
     repetitions: 3
+    cleanup_after_run: true

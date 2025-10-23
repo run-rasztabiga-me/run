@@ -61,6 +61,10 @@ class ExperimentDefinition(BaseModel):
         default_factory=dict,
         description="Additional metadata/flags stored with each run (reserved for future use)."
     )
+    cleanup_after_run: bool = Field(
+        default=False,
+        description="When true, run the cluster cleanup routine after this experiment finishes."
+    )
     prompts: List["PromptVariant"] = Field(
         default_factory=list,
         description="Optional prompt variants to evaluate within this experiment."

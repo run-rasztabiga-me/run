@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 from ..core.evaluator import ConfigurationEvaluator
 from ..core.models import EvaluationReport
 from ...generator.core.config import GeneratorConfig
+from ...tools.cluster_cleanup import cleanup_cluster
 from ...utils.repository_utils import extract_repo_name
 from .config import ExperimentDefinition, ExperimentSuite, ModelSpec, PromptVariant, load_experiment_suite
 
@@ -172,6 +173,9 @@ class ExperimentRunner:
                 },
             )
             raise
+        finally:
+            if experiment.cleanup_after_run:
+                self._run_cleanup(experiment)
 
     def _execute_run(
         self,
@@ -239,6 +243,32 @@ class ExperimentRunner:
             config_payload[key] = value
 
         return GeneratorConfig(**config_payload)
+
+    def _run_cleanup(self, experiment: ExperimentDefinition) -> None:
+        logger.info("Running post-experiment cleanup for '%s'.", experiment.name)
+        config_payload: Dict[str, Any] = dict(experiment.generator_overrides)
+        try:
+            cleanup_config = GeneratorConfig(**config_payload)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "Falling back to default cleanup config; unable to apply generator overrides: %s",
+                exc,
+            )
+            cleanup_config = GeneratorConfig()
+
+        try:
+            hosts_cleaned = cleanup_cluster(generator_config=cleanup_config)
+        except RuntimeError as exc:
+            logger.warning("Cluster cleanup failed for experiment '%s': %s", experiment.name, exc)
+            return
+
+        if hosts_cleaned:
+            logger.info("Cluster cleanup completed successfully for '%s'.", experiment.name)
+        else:
+            logger.warning(
+                "Cluster cleanup completed for '%s' but /etc/hosts cleanup reported issues.",
+                experiment.name,
+            )
 
     def _build_summary_row(
         self,
