@@ -6,7 +6,7 @@ import csv
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -68,7 +68,7 @@ class ExperimentRunner:
             self._run_experiment(experiment)
 
     def _run_experiment(self, experiment: ExperimentDefinition) -> None:
-        experiment_timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        experiment_timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         experiment_dir = self.base_dir / experiment.safe_name / experiment_timestamp
         experiment_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Starting experiment '%s' (%s)", experiment.name, experiment_dir)
@@ -84,7 +84,7 @@ class ExperimentRunner:
             {
                 "experiment": experiment.name,
                 "state": "running",
-                "started_at": datetime.utcnow().isoformat(),
+                "started_at": datetime.now(UTC).isoformat(),
                 "repo_count": len(experiment.repos),
                 "model_count": len(experiment.models),
                 "prompt_count": len(prompt_variants),
@@ -117,7 +117,7 @@ class ExperimentRunner:
                                 model=model,
                                 repo_url=repo_url,
                                 repetition_index=repetition,
-                                timestamp=datetime.utcnow(),
+                                timestamp=datetime.now(UTC),
                                 prompt_variant=prompt_variant,
                                 prompt_override=prompt_override,
                                 prompt_source_path=prompt_source_path,
@@ -153,7 +153,7 @@ class ExperimentRunner:
                 {
                     "experiment": experiment.name,
                     "state": "completed",
-                    "finished_at": datetime.utcnow().isoformat(),
+                    "finished_at": datetime.now(UTC).isoformat(),
                     "runs_recorded": len(summary_rows),
                     **(summary_info or {}),
                 },
@@ -166,7 +166,7 @@ class ExperimentRunner:
                 {
                     "experiment": experiment.name,
                     "state": "failed",
-                    "finished_at": datetime.utcnow().isoformat(),
+                    "finished_at": datetime.now(UTC).isoformat(),
                     "runs_recorded": len(summary_rows),
                     "error": str(exc),
                 },
@@ -323,7 +323,7 @@ class ExperimentRunner:
                 writer.writerow(row)
 
         payload = {
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "runs": rows,
         }
         summary_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")

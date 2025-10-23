@@ -1,12 +1,12 @@
 import logging
 import uuid
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Optional
 from langgraph.prebuilt import create_react_agent
 from langchain.chat_models import init_chat_model
 from pydantic import BaseModel, Field
 
 from ..core.config import GeneratorConfig
-from ..core.repository import RepositoryManager
+from ..core.workspace import RepositoryWorkspace
 from ..tools.repository_tools import RepositoryTools
 from .prompts import CONFIGURATION_AGENT_SYSTEM_PROMPT
 from ...common.models import DockerImageInfo
@@ -27,17 +27,21 @@ class ConfigurationOutput(BaseModel):
 class ConfigurationAgent:
     """Agent for generating Docker and Kubernetes configurations."""
 
-    def __init__(self, config: GeneratorConfig = None):
+    def __init__(self, config: GeneratorConfig = None, workspace: RepositoryWorkspace = None):
         self.config = config or GeneratorConfig()
         self.logger = logging.getLogger(__name__)
-        self.repository_manager = RepositoryManager()
+        self.workspace = workspace
         self.agent = None
-        self._initialize_agent()
+        if workspace:
+            self._initialize_agent()
 
     def _initialize_agent(self) -> None:
         """Initialize the LangGraph agent with tools and prompt."""
+        if not self.workspace:
+            raise ValueError("Workspace must be set before initializing agent")
+
         # Create tools
-        repo_tools = RepositoryTools(self.repository_manager)
+        repo_tools = RepositoryTools(self.workspace)
         tools = repo_tools.create_tools()
 
         # Initialize LLM
@@ -77,12 +81,13 @@ class ConfigurationAgent:
             domain_suffix=self.config.domain_suffix
         )
 
-    def generate_configurations(self, repo_url: str) -> Tuple[ConfigurationOutput, List, str]:
+    def generate_configurations(self, repo_url: str, run_id: Optional[str] = None) -> Tuple[ConfigurationOutput, List, str]:
         """
         Generate configurations for a given repository URL.
 
         Args:
             repo_url: URL of the repository to process
+            run_id: Optional run ID to use (if not provided, generates a new one)
 
         Returns:
             Tuple of (structured output with generated files information, messages list, run_id)
@@ -91,8 +96,9 @@ class ConfigurationAgent:
         prompt_version = self.config.prompt_version or "default"
         self.logger.info("Using prompt version: %s", prompt_version)
 
-        # Generate a unique run_id for LangSmith tracing
-        run_id = str(uuid.uuid4())
+        # Use provided run_id or generate a new one for LangSmith tracing
+        if run_id is None:
+            run_id = str(uuid.uuid4())
 
         try:
             # Run agent to generate files - response_format ensures structured output
@@ -111,11 +117,17 @@ class ConfigurationAgent:
             self.logger.error(f"Failed to generate configurations: {str(e)}", exc_info=True)
             raise
 
-    def get_repository_manager(self) -> RepositoryManager:
-        """Get the repository manager instance."""
-        return self.repository_manager
+    def get_workspace(self) -> RepositoryWorkspace:
+        """Get the workspace instance."""
+        return self.workspace
+
+    def set_workspace(self, workspace: RepositoryWorkspace) -> None:
+        """Set workspace and initialize agent."""
+        self.workspace = workspace
+        self._initialize_agent()
 
     def update_config(self, new_config: GeneratorConfig) -> None:
         """Update configuration and reinitialize agent."""
         self.config = new_config
-        self._initialize_agent()
+        if self.workspace:
+            self._initialize_agent()

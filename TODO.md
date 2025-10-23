@@ -48,6 +48,7 @@
 13. **Experiment Dashboard/UI**
     - Design a lightweight UI (web or TUI) to select experiment configs, kick off runs, and stream progress/status updates in real time.
     - Surface experiment summaries (per repo/model/prompt) with filters and quick access to report artifacts for faster analysis.
+    - Score summary per prompt now renders in the dashboard; consider adding complementary groupings (per model, per repo, etc.) for richer comparisons.
 14. **Agent Tooling Review**
     - Audit which tools the LLM agent should access by default and document the chosen set.
     - Decide whether adding a dedicated search capability is worthwhile and if `tree` offers benefits beyond existing `ls` support.

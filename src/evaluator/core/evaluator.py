@@ -27,12 +27,9 @@ class ConfigurationEvaluator:
 
         # Initialize components
         self.generator = ConfigurationGenerator(self.generator_config)
-        self.validator = ConfigurationValidator(
-            self.generator.get_repository_manager(),
-            self.generator_config
-        )
         self.reporter = EvaluationReporter()
         self.generator_integration = GeneratorIntegration(self.generator)
+        # Validator will be created per evaluation with workspace and run_context
 
     def evaluate_repository(self, repo_url: str) -> EvaluationReport:
         """
@@ -61,7 +58,7 @@ class ConfigurationEvaluator:
         try:
             # Step 1: Generate configurations with metrics collection
             report.add_note("Starting configuration generation")
-            generation_result, execution_metrics = self._generate_with_metrics(repo_url)
+            generation_result, execution_metrics, workspace = self._generate_with_metrics(repo_url)
 
             report.generation_result = generation_result
             report.execution_metrics = execution_metrics
@@ -71,12 +68,18 @@ class ConfigurationEvaluator:
                 report.mark_failed(f"Generation failed: {generation_result.error_message}")
                 return report
 
+            # Check that we have run_context from generation
+            if not generation_result.run_context:
+                report.build_success = False
+                report.mark_failed("Generation result missing run_context")
+                return report
+
             # Add note about generated files
             report.add_note(f"Generated {len(generation_result.docker_images)} Dockerfiles and {len(generation_result.k8s_manifests)} K8s manifests")
 
             # Step 2: Validate and assess quality
             report.add_note("Starting quality assessment")
-            quality_metrics, build_metrics = self._assess_quality(generation_result)
+            quality_metrics, build_metrics = self._assess_quality(generation_result, workspace)
             report.quality_metrics = quality_metrics
 
             # Add build metrics to execution metrics
@@ -114,15 +117,20 @@ class ConfigurationEvaluator:
 
             # Add note about deployment (only if no build errors)
             if generation_result.k8s_manifests and not has_build_errors:
-                namespace = generation_result.repo_name.lower().replace('_', '-')
+                namespace = generation_result.run_context.k8s_namespace
                 report.add_note(f"Deployed to namespace: {namespace}")
 
             # Step 3: Runtime validation - test endpoint health
             # Skip if there were Docker build errors
             if generation_result.k8s_manifests and generation_result.test_endpoint and not has_build_errors:
                 report.add_note(f"Testing endpoint: {generation_result.test_endpoint}")
-                namespace = generation_result.repo_name.lower().replace('_', '-')
-                runtime_issues = self.validator.validate_runtime_availability(
+
+                # Create validator for runtime checks
+                from ..validators.config_validator import ConfigurationValidator
+
+                validator = ConfigurationValidator(workspace, generation_result.run_context, self.generator_config)
+                namespace = generation_result.run_context.k8s_namespace
+                runtime_issues = validator.validate_runtime_availability(
                     generation_result.k8s_manifests,
                     namespace,
                     generation_result.test_endpoint
@@ -194,12 +202,12 @@ class ConfigurationEvaluator:
         self.logger.info(f"Batch evaluation completed. {len(reports)} reports generated")
         return reports
 
-    def _generate_with_metrics(self, repo_url: str) -> tuple[GenerationResult, ExecutionMetrics]:
+    def _generate_with_metrics(self, repo_url: str) -> tuple[GenerationResult, ExecutionMetrics, 'RepositoryWorkspace']:
         """Generate configurations while collecting execution metrics."""
         try:
             # Use the generator integration to handle the generation process
-            generation_result, execution_metrics = self.generator_integration.generate_with_monitoring(repo_url)
-            return generation_result, execution_metrics
+            generation_result, execution_metrics, workspace = self.generator_integration.generate_with_monitoring(repo_url)
+            return generation_result, execution_metrics, workspace
 
         except Exception as e:
             execution_metrics = ExecutionMetrics()
@@ -214,24 +222,29 @@ class ConfigurationEvaluator:
                 generation_time=0
             )
 
-            return generation_result, execution_metrics
+            return generation_result, execution_metrics, None
 
-    def _assess_quality(self, generation_result: GenerationResult) -> Tuple[QualityMetrics, List]:
+    def _assess_quality(self, generation_result: GenerationResult, workspace: 'RepositoryWorkspace') -> Tuple[QualityMetrics, List]:
         """Assess the quality of generated configurations."""
         quality_metrics = QualityMetrics()
         build_metrics = []
 
         # TODO opracować algorytm na liczenie score'u
 
+        # Create validator with workspace and run_context from generation result
+        from ..validators.config_validator import ConfigurationValidator
+
+        validator = ConfigurationValidator(workspace, generation_result.run_context, self.generator_config)
+
         try:
             # Validate and build Docker images if they exist
             if generation_result.docker_images:
                 # First validate Dockerfiles syntax and best practices
-                dockerfile_issues = self.validator.validate_dockerfiles(generation_result.dockerfiles)
+                dockerfile_issues = validator.validate_dockerfiles(generation_result.dockerfiles)
                 quality_metrics.validation_issues.extend(dockerfile_issues)
 
                 # Then try to build the images (if syntax validation passed)
-                build_issues, build_metrics = self.validator.build_docker_images(
+                build_issues, build_metrics = validator.build_docker_images(
                     generation_result.docker_images,
                     generation_result.repo_name
                 )
@@ -256,11 +269,11 @@ class ConfigurationEvaluator:
             # Validate Kubernetes manifests if they exist
             if generation_result.k8s_manifests:
                 # Syntax validation with kubectl dry-run and static analysis
-                k8s_issues = self.validator.validate_k8s_manifests(generation_result.k8s_manifests)
+                k8s_issues = validator.validate_k8s_manifests(generation_result.k8s_manifests)
                 quality_metrics.validation_issues.extend(k8s_issues)
 
                 # Apply to cluster and verify deployment
-                apply_issues = self.validator.apply_k8s_manifests(
+                apply_issues = validator.apply_k8s_manifests(
                     generation_result.k8s_manifests,
                     generation_result.repo_name,
                     generation_result.docker_images

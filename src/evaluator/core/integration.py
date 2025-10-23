@@ -19,7 +19,7 @@ class GeneratorIntegration:
         self.metrics_collector = LangSmithMetricsCollector()
 
 
-    def generate_with_monitoring(self, repo_url: str) -> tuple[GenerationResult, ExecutionMetrics]:
+    def generate_with_monitoring(self, repo_url: str) -> tuple[GenerationResult, ExecutionMetrics, 'RepositoryWorkspace']:
         """
         Generate configurations with full monitoring and structured result capture.
 
@@ -27,7 +27,7 @@ class GeneratorIntegration:
             repo_url: Repository URL to process
 
         Returns:
-            Tuple of generation result and execution metrics
+            Tuple of generation result, execution metrics, and workspace
         """
         repo_name = extract_repo_name(repo_url)
         start_time = time.time()
@@ -35,7 +35,7 @@ class GeneratorIntegration:
         try:
             # Call the actual generator
             self.logger.info(f"Starting real generation for {repo_url}")
-            config_output, messages, run_id = self.generator.generate(repo_url)
+            config_output, messages, run_id, run_context, workspace = self.generator.generate(repo_url)
 
             # Create basic execution metrics
             generation_time = time.time() - start_time
@@ -68,11 +68,13 @@ class GeneratorIntegration:
                 docker_images=config_output.docker_images,
                 k8s_manifests=config_output.kubernetes_files,
                 test_endpoint=config_output.test_endpoint,
-                generation_time=generation_time
+                generation_time=generation_time,
+                run_context=run_context
             )
 
             self.logger.info(f"Generated {len(config_output.docker_images)} Dockerfiles and {len(config_output.kubernetes_files)} K8s manifests")
 
+            return generation_result, execution_metrics, workspace
 
         except Exception as e:
             generation_time = time.time() - start_time
@@ -88,4 +90,4 @@ class GeneratorIntegration:
                 generation_time=time.time() - start_time
             )
 
-        return generation_result, execution_metrics
+            return generation_result, execution_metrics, None

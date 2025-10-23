@@ -33,6 +33,7 @@ class GenerationResult:
     generation_time: Optional[float] = None
     error_message: Optional[str] = None
     timestamp: datetime = field(default_factory=datetime.now)
+    run_context: Optional['RunContext'] = None  # Run context with workspace info
 
     @property
     def dockerfiles(self) -> List[str]:
