@@ -59,3 +59,6 @@
    - Support configurable filters (language, stars, topics) and persist metadata so experiments can sample consistent repo sets.
 16. **Namespace Manifest Guardrails**
    - Update validation/generation flows to ignore or reject Kubernetes manifests that declare a `Namespace`, preventing illegal namespace creation in evaluated outputs.
+17. **Masters Thesis Experiment Prep**
+   - Draft the experiment design for the thesis, selecting representative repos, model variants, and prompt baselines.
+   - Write and vet the key hypotheses that the thesis experiments must validate.

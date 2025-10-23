@@ -371,7 +371,7 @@ def stop_experiment(exp_info: Dict) -> bool:
             if status_file and status_file.exists():
                 status = json.loads(status_file.read_text(encoding="utf-8"))
                 status["state"] = "stopped"
-                status["stopped_at"] = datetime.utcnow().isoformat()
+                status["stopped_at"] = datetime.now(timezone.utc).isoformat()
                 status_file.write_text(json.dumps(status, indent=2), encoding="utf-8")
 
             # Remove PID file
