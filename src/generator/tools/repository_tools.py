@@ -1,5 +1,7 @@
 import base64
+import json
 import logging
+import os
 import re
 import fnmatch
 from pathlib import Path
@@ -150,7 +152,7 @@ class RepositoryTools:
 
         @tool("search_files", args_schema=ToolSchemas.SearchFilesInput)
         def search_files(pattern: str, file_pattern: str = None, case_sensitive: bool = False) -> str:
-            """Search for a text pattern across files in the repository. Returns file paths and matching lines."""
+            """Search for a text pattern across files in the repository. Returns file paths and matching lines with context."""
             logger.info(f"🔧 Tool called: search_files(pattern={pattern}, file_pattern={file_pattern}, case_sensitive={case_sensitive})")
 
             if not workspace._is_cloned:
@@ -165,46 +167,71 @@ class RepositoryTools:
                     return f"Error: Invalid regex pattern: {e}"
 
                 matches = []
+                total_matches = 0
                 search_path = workspace.workspace_path
 
-                # Walk through repository
-                for root, dirs, files in search_path.walk():
+                # Walk through repository using os.walk for compatibility
+                for root, dirs, files in os.walk(search_path):
+                    root_path = Path(root)
+
                     # Filter files by pattern if specified
                     if file_pattern:
+                        # Extract just the filename part from patterns like **/*.py
+                        if '/' in file_pattern:
+                            file_pattern = file_pattern.split('/')[-1]
                         files = [f for f in files if fnmatch.fnmatch(f, file_pattern)]
 
                     for file in files:
-                        file_path = root / file
+                        file_path = root_path / file
 
                         # Skip binary files and very large files
                         try:
                             if file_path.stat().st_size > 1_000_000:  # Skip files > 1MB
                                 continue
 
-                            relative_path = file_path.relative_to(workspace.workspace_path)
+                            relative_path = str(file_path.relative_to(workspace.workspace_path))
 
+                            # Read all lines first to enable context extraction
                             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                                for line_num, line in enumerate(f, 1):
-                                    if compiled_pattern.search(line):
-                                        matches.append(f"{relative_path}:{line_num}: {line.rstrip()}")
+                                lines = f.readlines()
 
-                                        # Limit matches per file
-                                        if len([m for m in matches if m.startswith(str(relative_path))]) >= 10:
-                                            break
+                            # Search for matches and capture context
+                            file_match_count = 0
+                            for line_num, line in enumerate(lines, 1):
+                                if compiled_pattern.search(line):
+                                    # Get context lines (1 before, 1 after)
+                                    context_before = lines[line_num - 2].rstrip() if line_num > 1 else None
+                                    context_after = lines[line_num].rstrip() if line_num < len(lines) else None
+
+                                    # Format with context
+                                    match_text = f"{relative_path}:{line_num}: {line.rstrip()}"
+                                    if context_before is not None:
+                                        match_text = f"{relative_path}:{line_num - 1}- {context_before}\n" + match_text
+                                    if context_after is not None:
+                                        match_text += f"\n{relative_path}:{line_num + 1}+ {context_after}"
+
+                                    matches.append(match_text)
+                                    total_matches += 1
+                                    file_match_count += 1
+
+                                    # Limit matches per file
+                                    if file_match_count >= 10:
+                                        break
+
                         except (OSError, UnicodeDecodeError):
                             continue
 
                     # Limit total matches
-                    if len(matches) >= 100:
+                    if total_matches >= 100:
                         break
 
                 if not matches:
                     return f"No matches found for pattern: {pattern}"
 
-                result = f"Found {len(matches)} match(es) for pattern '{pattern}':\n\n"
-                result += "\n".join(matches)
+                result = f"Found {total_matches} match(es) for pattern '{pattern}':\n\n"
+                result += "\n\n".join(matches)
 
-                if len(matches) >= 100:
+                if total_matches >= 100:
                     result += "\n\n(Showing first 100 matches, there may be more)"
 
                 return result
