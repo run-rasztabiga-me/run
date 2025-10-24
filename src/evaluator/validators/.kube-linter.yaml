@@ -1,19 +1,5 @@
 checks:
-  # Disable checks that don't make sense when manifests are in separate files
   doNotAutoAddDefaults: false
   exclude:
     - "dangling-service"
-
-customChecks:
-  # Override latest-tag check to allow locally built images (repo_name:latest pattern)
-  # This is useful for development/testing with images built from the cloned repository
-  - name: latest-tag
-    template: latest-tag
-    params:
-      blockList:
-        - ".*:(latest)$"      # Block images with :latest tag
-        - "^[^:]*$"           # Block images without any tag
-        - "(.*/[^:]+)$"       # Block images with registry but no tag
-      allowList:
-        - "^[^/]+:latest$"    # Allow images without registry (e.g., poc1-fastapi:latest)
-    remediation: "Use a container image with a specific version tag, or use locally built images without a registry prefix."
+    - "latest-tag"

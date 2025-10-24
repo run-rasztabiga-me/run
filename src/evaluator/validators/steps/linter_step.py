@@ -8,21 +8,38 @@ from ..pipeline import ValidationContext, ValidationState, ValidationStepResult
 from ...core.models import ValidationIssue, ValidationSeverity
 
 
-class LinterValidationStep:
-    """Run Hadolint and kube-linter against generated artifacts."""
+class DockerfileLinterValidationStep:
+    """Run Hadolint against generated Dockerfiles."""
 
-    name = "linters"
+    name = "docker_linters"
 
     def run(self, state: ValidationState, context: ValidationContext) -> ValidationStepResult:
-        issues: List[ValidationIssue] = []
+        if not state.dockerfiles:
+            return ValidationStepResult()
 
+        issues: List[ValidationIssue] = []
         for dockerfile_path in state.dockerfiles:
             issues.extend(_run_hadolint(context, dockerfile_path))
 
+        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
+
+
+class KubernetesLinterValidationStep:
+    """Run kube-linter against generated manifests."""
+
+    name = "k8s_linters"
+
+    def run(self, state: ValidationState, context: ValidationContext) -> ValidationStepResult:
+        if not state.manifests:
+            return ValidationStepResult()
+
+        issues: List[ValidationIssue] = []
         for manifest_path in state.manifests:
             issues.extend(_run_kube_linter(context, manifest_path))
 
-        return ValidationStepResult(issues=issues)
+        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
 
 
 def _run_hadolint(context: ValidationContext, dockerfile_path: str) -> List[ValidationIssue]:
@@ -114,7 +131,7 @@ def _run_kube_linter(context: ValidationContext, manifest_path: str) -> List[Val
     issues: List[ValidationIssue] = []
     manifest_full_path = context.workspace.get_full_path(manifest_path)
 
-    config_path = Path(__file__).parent / ".kube-linter.yaml"
+    config_path = Path(__file__).resolve().parent.parent / ".kube-linter.yaml"
     cmd = ["kube-linter", "lint", "--format", "json"]
     if config_path.exists():
         cmd.extend(["--config", str(config_path)])

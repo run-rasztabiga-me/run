@@ -65,12 +65,14 @@ class ConfigurationEvaluator:
 
             if not generation_result.success:
                 report.build_success = False
+                report.runtime_success = False
                 report.mark_failed(f"Generation failed: {generation_result.error_message}")
                 return report
 
             # Check that we have run_context from generation
             if not generation_result.run_context:
                 report.build_success = False
+                report.runtime_success = False
                 report.mark_failed("Generation result missing run_context")
                 return report
 
@@ -134,6 +136,9 @@ class ConfigurationEvaluator:
                 report.runtime_success = assessment.runtime_success
             elif assessment.build_failed:
                 report.add_note("Runtime validation skipped due to Docker build errors")
+                report.runtime_success = False
+            else:
+                # Runtime validation was not executed (no test endpoint or no k8s manifests)
                 report.runtime_success = False
 
             # Step 4: Generate detailed report

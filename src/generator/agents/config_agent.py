@@ -1,5 +1,6 @@
 import logging
 import uuid
+from pathlib import Path
 from typing import List, Tuple, Any, Optional
 from langgraph.prebuilt import create_react_agent
 from langchain.chat_models import init_chat_model
@@ -8,7 +9,6 @@ from pydantic import BaseModel, Field
 from ..core.config import GeneratorConfig
 from ..core.workspace import RepositoryWorkspace
 from ..tools.repository_tools import RepositoryTools
-from .prompts import CONFIGURATION_AGENT_SYSTEM_PROMPT
 from ...common.models import DockerImageInfo
 
 
@@ -76,10 +76,22 @@ class ConfigurationAgent:
             except KeyError:
                 return self.config.system_prompt
 
-        return CONFIGURATION_AGENT_SYSTEM_PROMPT.format(
-            default_replicas=self.config.default_replicas,
-            domain_suffix=self.config.domain_suffix
-        )
+        # Load from prompts/default.prompt
+        default_prompt_path = Path("prompts/default.prompt")
+        if not default_prompt_path.exists():
+            raise FileNotFoundError(
+                f"Default prompt file not found at {default_prompt_path}. "
+                "Please create prompts/default.prompt or provide system_prompt in config."
+            )
+
+        prompt_text = default_prompt_path.read_text(encoding="utf-8")
+        try:
+            return prompt_text.format(
+                default_replicas=self.config.default_replicas,
+                domain_suffix=self.config.domain_suffix,
+            )
+        except KeyError:
+            return prompt_text
 
     def generate_configurations(self, repo_url: str, run_id: Optional[str] = None) -> Tuple[ConfigurationOutput, List, str]:
         """

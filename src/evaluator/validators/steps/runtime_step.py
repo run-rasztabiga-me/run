@@ -19,14 +19,14 @@ class RuntimeValidationStep:
 
     def run(self, state: ValidationState, context: ValidationContext) -> ValidationStepResult:
         if not state.test_endpoint:
-            return ValidationStepResult()
+            # No test endpoint means we can't validate runtime, so it's a failure
+            return ValidationStepResult(runtime_success=False)
 
         namespace = context.run_context.k8s_namespace
         issues = _perform_runtime_validation(context, namespace, state.test_endpoint)
         has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
-        runtime_success = None if not issues else not has_errors
-        if not issues:
-            runtime_success = True
+        # Runtime succeeds if there are no errors (warnings are acceptable)
+        runtime_success = not has_errors
 
         return ValidationStepResult(
             issues=issues,

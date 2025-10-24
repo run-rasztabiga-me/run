@@ -6,21 +6,38 @@ from ..pipeline import ValidationContext, ValidationState, ValidationStepResult
 from ...core.models import ValidationIssue, ValidationSeverity
 
 
-class SyntaxValidationStep:
-    """Validate Dockerfile and manifest syntax."""
+class DockerfileSyntaxValidationStep:
+    """Validate Dockerfile syntax using `docker build --check`."""
 
-    name = "syntax"
+    name = "docker_syntax"
 
     def run(self, state: ValidationState, context: ValidationContext) -> ValidationStepResult:
-        issues: List[ValidationIssue] = []
+        if not state.dockerfiles:
+            return ValidationStepResult()
 
+        issues: List[ValidationIssue] = []
         for dockerfile_path in state.dockerfiles:
             issues.extend(_validate_dockerfile_syntax(context, dockerfile_path))
 
+        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
+
+
+class KubernetesSyntaxValidationStep:
+    """Validate Kubernetes manifest syntax via `kubectl --dry-run`."""
+
+    name = "k8s_syntax"
+
+    def run(self, state: ValidationState, context: ValidationContext) -> ValidationStepResult:
+        if not state.manifests:
+            return ValidationStepResult()
+
+        issues: List[ValidationIssue] = []
         for manifest_path in state.manifests:
             issues.extend(_validate_manifest_syntax(context, manifest_path))
 
-        return ValidationStepResult(issues=issues)
+        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
 
 
 def _validate_dockerfile_syntax(context: ValidationContext, dockerfile_path: str) -> List[ValidationIssue]:

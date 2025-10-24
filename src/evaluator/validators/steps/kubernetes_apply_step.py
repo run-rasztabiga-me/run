@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import yaml
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 from ..pipeline import ValidationContext, ValidationState, ValidationStepResult
 from ...core.models import ValidationIssue, ValidationSeverity
@@ -17,6 +17,10 @@ class KubernetesApplyStep:
     def run(self, state: ValidationState, context: ValidationContext) -> ValidationStepResult:
         issues: List[ValidationIssue] = []
         namespace = context.run_context.k8s_namespace
+        if not state.manifests:
+            context.logger.info("No manifests provided; skipping Kubernetes apply step.")
+            return ValidationStepResult()
+
         context.logger.info("Using run-scoped namespace: %s", namespace)
 
         try:
@@ -27,6 +31,10 @@ class KubernetesApplyStep:
             if any(issue.severity == ValidationSeverity.ERROR for issue in create_issues):
                 return ValidationStepResult(issues=issues, continue_pipeline=False)
 
+            llm_image_tags = _collect_llm_image_tags(state.docker_images)
+            if llm_image_tags:
+                context.logger.info("LLM-generated image tags to patch: %s", llm_image_tags)
+
             applied_resources: List[Dict[str, str]] = []
             for manifest_path in state.manifests:
                 apply_issues, resources = _apply_manifest(
@@ -34,7 +42,7 @@ class KubernetesApplyStep:
                     manifest_path=manifest_path,
                     namespace=namespace,
                     repo_name=state.repo_name,
-                    docker_images=list(state.docker_images),
+                    llm_image_tags=llm_image_tags,
                 )
                 issues.extend(apply_issues)
                 applied_resources.extend(resources)
@@ -53,7 +61,8 @@ class KubernetesApplyStep:
                 )
             )
 
-        return ValidationStepResult(issues=issues)
+        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
 
 
 def _delete_namespace(context: ValidationContext, namespace: str) -> None:
@@ -132,7 +141,7 @@ def _apply_manifest(
     manifest_path: str,
     namespace: str,
     repo_name: str,
-    docker_images: Sequence[DockerImageInfo],
+    llm_image_tags: Set[str],
 ) -> Tuple[List[ValidationIssue], List[Dict[str, str]]]:
     issues: List[ValidationIssue] = []
     applied_resources: List[Dict[str, str]] = []
@@ -161,7 +170,7 @@ def _apply_manifest(
             context=context,
             manifest_path=manifest_full_path,
             repo_name=repo_name,
-            docker_images=docker_images,
+            llm_image_tags=llm_image_tags,
         )
 
         context.logger.info("Applying manifest %s to namespace %s", manifest_path, namespace)
@@ -227,6 +236,14 @@ def _apply_manifest(
                 context.logger.warning("Failed to cleanup patched manifest %s: %s", patched_manifest_path, exc)
 
     return issues, applied_resources
+
+
+def _collect_llm_image_tags(docker_images: Sequence[DockerImageInfo]) -> Set[str]:
+    tags: Set[str] = set()
+    for image in docker_images:
+        image_tag = image.image_tag.split(":", 1)[0]
+        tags.add(image_tag)
+    return tags
 
 
 def _wait_for_resources_ready(
@@ -304,15 +321,25 @@ def _wait_for_resources_ready(
                         rule_id="K8S_READY_TIMEOUT",
                     )
                 )
+                context.logger.warning(
+                    "%s/%s did not become ready within %ss (timeout)", kind, name, timeout
+                )
             elif (wait_result.return_code or 0) != 0:
                 issues.append(
                     ValidationIssue(
                         file_path=name,
                         line_number=None,
                         severity=ValidationSeverity.ERROR,
-                        message=f"{kind} {name} not ready within {timeout}s: {wait_result.stderr.strip()}",
+                        message=f"{kind} {name} not ready within {timeout}s: {(wait_result.stderr or '').strip()}",
                         rule_id="K8S_RESOURCE_NOT_READY",
                     )
+                )
+                context.logger.warning(
+                    "%s/%s failed readiness check within %ss: %s",
+                    kind,
+                    name,
+                    timeout,
+                    (wait_result.stderr or "").strip(),
                 )
             else:
                 context.logger.info("%s/%s is ready", kind, name)
@@ -327,6 +354,7 @@ def _wait_for_resources_ready(
                     rule_id="K8S_READY_CHECK_ERROR",
                 )
             )
+            context.logger.error("Failed to check readiness for %s/%s: %s", kind, name, exc)
 
     return issues
 
@@ -336,13 +364,10 @@ def _patch_image_names(
     context: ValidationContext,
     manifest_path: Path,
     repo_name: str,
-    docker_images: Sequence[DockerImageInfo],
+    llm_image_tags: Set[str],
 ) -> Path:
-    llm_image_tags = set()
-    for img in docker_images:
-        tag = img.image_tag.split(":", 1)[0]
-        llm_image_tags.add(tag)
-    context.logger.info("LLM-generated image tags to patch: %s", llm_image_tags)
+    if not llm_image_tags:
+        return manifest_path
 
     try:
         with open(manifest_path, "r") as handle:

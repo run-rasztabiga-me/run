@@ -15,7 +15,14 @@ from ..core.models import EvaluationReport
 from ...generator.core.config import GeneratorConfig
 from ...tools.cluster_cleanup import cleanup_cluster
 from ...utils.repository_utils import extract_repo_name
-from .config import ExperimentDefinition, ExperimentSuite, ModelSpec, PromptVariant, load_experiment_suite
+from .config import (
+    CleanupMode,
+    ExperimentDefinition,
+    ExperimentSuite,
+    ModelSpec,
+    PromptVariant,
+    load_experiment_suite,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -198,6 +205,13 @@ class ExperimentRunner:
                                 report_path,
                             )
 
+                            if experiment.cleanup == CleanupMode.PER_RUN:
+                                self._run_cleanup(
+                                    experiment=experiment,
+                                    scope=CleanupMode.PER_RUN,
+                                    run_context=run_context,
+                                )
+
             summary_info = self._write_summary_artifacts(experiment_dir, summary_rows)
             finished_at = datetime.now(UTC)
             status_payload.update(
@@ -232,8 +246,8 @@ class ExperimentRunner:
             self._write_status(status_file, failure_payload)
             raise
         finally:
-            if experiment.cleanup_after_run:
-                self._run_cleanup(experiment)
+            if experiment.cleanup == CleanupMode.PER_EXPERIMENT:
+                self._run_cleanup(experiment, scope=CleanupMode.PER_EXPERIMENT)
 
     def _execute_run(
         self,
@@ -307,8 +321,23 @@ class ExperimentRunner:
 
         return GeneratorConfig(**config_payload)
 
-    def _run_cleanup(self, experiment: ExperimentDefinition) -> None:
-        logger.info("Running post-experiment cleanup for '%s'.", experiment.name)
+    def _run_cleanup(
+        self,
+        experiment: ExperimentDefinition,
+        scope: CleanupMode,
+        run_context: Optional[_RunContext] = None,
+    ) -> None:
+        if scope == CleanupMode.PER_RUN and run_context:
+            logger.info(
+                "Running cleanup after run: experiment=%s repo=%s model=%s prompt=%s repetition=%s",
+                experiment.name,
+                extract_repo_name(run_context.repo_url),
+                run_context.model.identifier,
+                run_context.prompt_variant.identifier if run_context.prompt_variant else "default",
+                run_context.repetition_label,
+            )
+        else:
+            logger.info("Running post-experiment cleanup for '%s'.", experiment.name)
         config_payload: Dict[str, Any] = dict(experiment.generator_overrides)
         try:
             cleanup_config = GeneratorConfig(**config_payload)

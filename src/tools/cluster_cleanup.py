@@ -140,15 +140,6 @@ def cleanup_hosts_file(
         return True
 
     repo_root = Path(__file__).resolve().parents[2]
-    backup_dir = repo_root / "tmp"
-    backup_dir.mkdir(parents=True, exist_ok=True)
-    backup_path = backup_dir / "hosts.cleanup.backup"
-
-    try:
-        backup_path.write_text(original_content)
-        logger.info("Created /etc/hosts backup at %s", backup_path)
-    except OSError as exc:
-        logger.warning("Failed to create backup file at %s: %s", backup_path, exc)
 
     new_content = "\n".join(retained_lines)
     if retained_lines:

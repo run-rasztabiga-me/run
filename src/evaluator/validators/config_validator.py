@@ -1,19 +1,20 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional, Sequence, Tuple
+from typing import Optional, Sequence
 
-from ..core.models import DockerBuildMetrics, ValidationIssue
+from ..core.models import GenerationResult, ValidationIssue
 from .pipeline import ValidationContext, ValidationPipeline, ValidationPipelineResult, ValidationState, ValidationStep
 from .steps import (
     DockerBuildStep,
+    DockerfileLinterValidationStep,
+    DockerfileSyntaxValidationStep,
     KubernetesApplyStep,
-    LinterValidationStep,
+    KubernetesLinterValidationStep,
+    KubernetesSyntaxValidationStep,
     RuntimeValidationStep,
-    SyntaxValidationStep,
 )
 from ...common.command_runner import CommandRunner
-from ...common.models import DockerImageInfo
 from ...generator.core.config import GeneratorConfig
 from ...generator.core.workspace import RepositoryWorkspace
 from ...generator.core.workspace_models import RunContext
@@ -42,85 +43,44 @@ class ConfigurationValidator:
         pipeline = ValidationPipeline(steps)
         return pipeline.run(state, self._create_context())
 
-    def validate_dockerfiles(self, dockerfile_paths: List[str]) -> List[ValidationIssue]:
-        if not dockerfile_paths:
-            return []
-
-        state = ValidationState(
-            repo_name=self.run_context.repo_name,
-            dockerfiles=tuple(dockerfile_paths),
-        )
-        result = self._run_steps(
-            steps=[SyntaxValidationStep(), LinterValidationStep()],
-            state=state,
-        )
-        return result.issues
-
-    def validate_k8s_manifests(self, manifest_paths: List[str]) -> List[ValidationIssue]:
-        if not manifest_paths:
-            return []
-
-        state = ValidationState(
-            repo_name=self.run_context.repo_name,
-            manifests=tuple(manifest_paths),
-        )
-        result = self._run_steps(
-            steps=[SyntaxValidationStep(), LinterValidationStep()],
-            state=state,
-        )
-        return result.issues
-
-    def build_docker_images(self, docker_images: List[DockerImageInfo], repo_name: str) -> Tuple[List[ValidationIssue], List[DockerBuildMetrics]]:
-        if not docker_images:
-            return [], []
-
-        state = ValidationState(
-            repo_name=repo_name,
-            docker_images=tuple(docker_images),
-        )
-        result = self._run_steps(
-            steps=[DockerBuildStep()],
-            state=state,
-        )
-        return result.issues, result.build_metrics
-
-    def apply_k8s_manifests(
+    def run_steps(
         self,
-        manifest_paths: List[str],
-        repo_name: str,
-        docker_images: Optional[List[DockerImageInfo]] = None,
-    ) -> List[ValidationIssue]:
-        docker_images = docker_images or []
-        if not manifest_paths:
-            return []
-
-        state = ValidationState(
-            repo_name=repo_name,
-            manifests=tuple(manifest_paths),
-            docker_images=tuple(docker_images),
-        )
-        result = self._run_steps(
-            steps=[KubernetesApplyStep()],
-            state=state,
-        )
-        return result.issues
-
-    def validate_runtime_availability(
-        self,
-        manifest_paths: List[str],
-        namespace: str,
-        test_endpoint: str,
-    ) -> List[ValidationIssue]:
-        if not manifest_paths:
-            return []
-
+        generation_result: GenerationResult,
+        test_endpoint: Optional[str] = None,
+    ) -> ValidationPipelineResult:
         state = ValidationState(
             repo_name=self.run_context.repo_name,
-            manifests=tuple(manifest_paths),
+            dockerfiles=tuple(generation_result.dockerfiles),
+            manifests=tuple(generation_result.k8s_manifests),
+            docker_images=tuple(generation_result.docker_images),
             test_endpoint=test_endpoint,
         )
-        result = self._run_steps(
-            steps=[RuntimeValidationStep()],
-            state=state,
-        )
-        return result.issues
+
+        steps: list[ValidationStep] = []
+
+        if generation_result.dockerfiles:
+            steps.extend(
+                [
+                    DockerfileSyntaxValidationStep(),
+                    DockerfileLinterValidationStep(),
+                ]
+            )
+
+        if generation_result.docker_images:
+            steps.append(DockerBuildStep())
+
+        if generation_result.k8s_manifests:
+            steps.extend(
+                [
+                    KubernetesSyntaxValidationStep(),
+                    KubernetesLinterValidationStep(),
+                    KubernetesApplyStep(),
+                ]
+            )
+            if test_endpoint:
+                steps.append(RuntimeValidationStep())
+
+        if not steps:
+            self.logger.debug("No validation steps scheduled for repository %s", self.run_context.repo_name)
+
+        return self._run_steps(steps=steps, state=state)

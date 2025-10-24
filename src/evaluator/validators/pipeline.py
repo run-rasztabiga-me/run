@@ -65,6 +65,8 @@ class ValidationPipelineResult:
     build_metrics: List[DockerBuildMetrics]
     runtime_success: Optional[bool]
     step_metadata: Dict[str, Dict[str, object]]
+    step_issues: Dict[str, List[ValidationIssue]]
+    step_build_metrics: Dict[str, List[DockerBuildMetrics]]
 
 
 class ValidationPipeline:
@@ -74,11 +76,17 @@ class ValidationPipeline:
         self.steps = list(steps)
 
     def run(self, state: ValidationState, context: ValidationContext) -> ValidationPipelineResult:
+        step_issues: Dict[str, List[ValidationIssue]] = {}
+        step_build_metrics: Dict[str, List[DockerBuildMetrics]] = {}
+
         for step in self.steps:
             context.logger.debug("Running validation step: %s", step.name)
             result = step.run(state, context)
             state.issues.extend(result.issues)
             state.build_metrics.extend(result.build_metrics)
+            step_issues[step.name] = list(result.issues)
+            if result.build_metrics:
+                step_build_metrics[step.name] = list(result.build_metrics)
             if result.runtime_success is not None:
                 state.runtime_success = result.runtime_success
             if result.metadata is not None:
@@ -93,6 +101,8 @@ class ValidationPipeline:
             build_metrics=list(state.build_metrics),
             runtime_success=state.runtime_success,
             step_metadata=state.step_metadata,
+            step_issues=step_issues,
+            step_build_metrics=step_build_metrics,
         )
 
 

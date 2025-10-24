@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import AliasChoices, BaseModel, Field, field_validator, model_validator
 
 
 class ModelSpec(BaseModel):
@@ -45,6 +46,14 @@ class ModelSpec(BaseModel):
         return _sanitize_token(raw)
 
 
+class CleanupMode(str, Enum):
+    """Cleanup scope options for experiment execution."""
+
+    NEVER = "never"
+    PER_RUN = "per_run"
+    PER_EXPERIMENT = "per_experiment"
+
+
 class ExperimentDefinition(BaseModel):
     """Single experiment definition covering multiple repos and models."""
 
@@ -61,9 +70,13 @@ class ExperimentDefinition(BaseModel):
         default_factory=dict,
         description="Additional metadata/flags stored with each run (reserved for future use)."
     )
-    cleanup_after_run: bool = Field(
-        default=False,
-        description="When true, run the cluster cleanup routine after this experiment finishes."
+    cleanup: CleanupMode = Field(
+        default=CleanupMode.PER_EXPERIMENT,
+        validation_alias=AliasChoices("cleanup", "cleanup_after_run"),
+        description=(
+            "Controls when the cluster cleanup routine runs: "
+            "'never', 'per_run', or 'per_experiment'."
+        ),
     )
     prompts: List["PromptVariant"] = Field(
         default_factory=list,
@@ -90,6 +103,24 @@ class ExperimentDefinition(BaseModel):
         if not models:
             raise ValueError("Experiment must include at least one model definition.")
         return models
+
+    @field_validator("cleanup", mode="before")
+    @classmethod
+    def _coerce_cleanup(cls, value: Any) -> CleanupMode:
+        """Validate cleanup mode configuration."""
+        if isinstance(value, CleanupMode):
+            return value
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            try:
+                return CleanupMode(normalized)
+            except ValueError as exc:  # noqa: BLE001
+                raise ValueError(
+                    "cleanup must be one of: 'never', 'per_run', 'per_experiment'."
+                ) from exc
+        raise ValueError(
+            "cleanup must be one of: 'never', 'per_run', 'per_experiment'."
+        )
 
     @field_validator("repetitions")
     @classmethod
@@ -193,7 +224,14 @@ class PromptVariant(BaseModel):
         return self.id
 
 
-__all__ = ["ModelSpec", "PromptVariant", "ExperimentDefinition", "ExperimentSuite", "load_experiment_suite"]
+__all__ = [
+    "ModelSpec",
+    "PromptVariant",
+    "CleanupMode",
+    "ExperimentDefinition",
+    "ExperimentSuite",
+    "load_experiment_suite",
+]
 
 ExperimentDefinition.model_rebuild()
 ExperimentSuite.model_rebuild()

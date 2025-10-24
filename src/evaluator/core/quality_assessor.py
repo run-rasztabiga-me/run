@@ -34,53 +34,38 @@ class QualityAssessor:
         generation_result: GenerationResult,
         test_endpoint: Optional[str] = None,
     ) -> QualityAssessmentResult:
+        pipeline_result = self.validator.run_steps(
+            generation_result=generation_result,
+            test_endpoint=test_endpoint,
+        )
+
         quality_metrics = QualityMetrics()
-        build_metrics: List[DockerBuildMetrics] = []
-        build_failed = False
-        runtime_issues: Optional[List[ValidationIssue]] = None
-        runtime_success: Optional[bool] = None
+        quality_metrics.validation_issues.extend(pipeline_result.issues)
 
-        if generation_result.docker_images:
-            dockerfile_issues = self.validator.validate_dockerfiles(generation_result.dockerfiles)
-            quality_metrics.validation_issues.extend(dockerfile_issues)
+        build_metrics: List[DockerBuildMetrics] = list(pipeline_result.build_metrics)
+        step_issues = pipeline_result.step_issues
 
-            build_issues, build_metrics = self.validator.build_docker_images(
-                generation_result.docker_images,
-                generation_result.repo_name,
-            )
-            quality_metrics.validation_issues.extend(build_issues)
+        docker_issue_steps = ("docker_syntax", "docker_linters", "docker_build")
+        docker_issues: List[ValidationIssue] = []
+        for step in docker_issue_steps:
+            docker_issues.extend(step_issues.get(step, []))
 
-            all_docker_issues = dockerfile_issues + build_issues
-            quality_metrics.dockerfile_score = self._calculate_dockerfile_score(all_docker_issues)
+        if generation_result.docker_images and any(step in step_issues for step in docker_issue_steps):
+            quality_metrics.dockerfile_score = self._calculate_dockerfile_score(docker_issues)
 
-            build_failed = any(issue.severity == ValidationSeverity.ERROR for issue in build_issues)
+        build_failed = any(issue.severity == ValidationSeverity.ERROR for issue in step_issues.get("docker_build", []))
 
-        if generation_result.k8s_manifests and not build_failed:
-            k8s_issues = self.validator.validate_k8s_manifests(generation_result.k8s_manifests)
-            quality_metrics.validation_issues.extend(k8s_issues)
+        k8s_issue_steps = ("k8s_syntax", "k8s_linters", "kubernetes_apply")
+        k8s_issues: List[ValidationIssue] = []
+        for step in k8s_issue_steps:
+            k8s_issues.extend(step_issues.get(step, []))
 
-            apply_issues = self.validator.apply_k8s_manifests(
-                generation_result.k8s_manifests,
-                generation_result.repo_name,
-                generation_result.docker_images,
-            )
-            quality_metrics.validation_issues.extend(apply_issues)
+        ran_k8s_pipeline = any(step in step_issues for step in k8s_issue_steps)
+        if generation_result.k8s_manifests and not build_failed and ran_k8s_pipeline:
+            quality_metrics.k8s_manifests_score = self._calculate_k8s_score(k8s_issues)
 
-            all_k8s_issues = k8s_issues + apply_issues
-            quality_metrics.k8s_manifests_score = self._calculate_k8s_score(all_k8s_issues)
-
-            if test_endpoint:
-                runtime_result = self.validator.validate_runtime_availability(
-                    generation_result.k8s_manifests,
-                    generation_result.run_context.k8s_namespace,
-                    test_endpoint,
-                )
-                runtime_issues = runtime_result
-                quality_metrics.validation_issues.extend(runtime_result)
-                if runtime_result:
-                    runtime_success = not any(i.severity == ValidationSeverity.ERROR for i in runtime_result)
-                else:
-                    runtime_success = True
+        runtime_issues = step_issues.get("runtime")
+        runtime_success = pipeline_result.runtime_success
 
         quality_metrics.overall_score = self._calculate_overall_score(quality_metrics)
         return QualityAssessmentResult(
