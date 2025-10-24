@@ -14,9 +14,9 @@
 3. ✅ **Repository Lifecycle Management** – DONE
    - ✅ Refactor `RepositoryManager` into a context-managed `RepositoryWorkspace` that allocates unique workdirs per run, exposes typed file APIs, and guarantees cleanup.
    - ✅ Remove mutable global state (`_tmp_dir`, `_repo_name`) and stringly-typed responses to support concurrent experiments safely.
-4. **Validation Pipeline Modularization**
-   - Decompose `ConfigurationValidator` into pluggable `ValidationStep`s (syntax, Hadolint, build, apply, runtime) coordinated by a pipeline runner.
-   - Route external tool invocations through a command runner abstraction to capture timings, severities, and tool availability for reporting.
+4. ✅ **Validation Pipeline Modularization** – DONE
+   - ✅ Decompose `ConfigurationValidator` into pluggable `ValidationStep`s (syntax, Hadolint, build, apply, runtime) coordinated by a pipeline runner.
+   - ✅ Route external tool invocations through a command runner abstraction to capture timings, severities, and tool availability for reporting.
 5. **Artifact Store for Generated Outputs**
    - Introduce an `ArtifactStore` that captures generated Dockerfiles/K8s manifests into run-scoped directories, tracks provenance, and exposes them for reports.
    - Update generator/validator collaboration to reference artifacts via the store instead of raw repo paths.

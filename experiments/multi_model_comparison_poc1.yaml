@@ -1,0 +1,23 @@
+experiments:
+  - name: multi_model_comparison_poc1
+    description: Compare OpenAI GPT-5-mini, Anthropic Claude Haiku 4.5, and Google Gemini 2.5 Flash on poc1 repository.
+    repos:
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
+    models:
+      - provider: openai
+        name: gpt-5-mini
+        label: openai_gpt5_mini
+        temperature: 1.0
+        seed: 42
+      - provider: anthropic
+        name: claude-haiku-4-5-20251001
+        label: anthropic_haiku_4.5
+        temperature: 1.0
+        seed: 42
+      - provider: google_genai
+        name: gemini-2.5-flash
+        label: google_gemini_2.5_flash
+        temperature: 1.0
+        seed: 42
+    repetitions: 3
+    cleanup: per_run
