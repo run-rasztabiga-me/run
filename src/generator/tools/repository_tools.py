@@ -1,4 +1,8 @@
+import base64
 import logging
+import re
+import fnmatch
+from pathlib import Path
 from langchain_core.tools import tool
 from ..core.workspace import RepositoryWorkspace
 from ..core.config import ToolSchemas
@@ -19,6 +23,9 @@ class RepositoryTools:
             self.create_get_file_content_tool(),
             self.create_write_file_tool(),
             self.create_list_directory_tool(),
+            self.create_search_files_tool(),
+            self.create_base64_encode_tool(),
+            self.create_base64_decode_tool(),
         ]
 
     def create_clone_repo_tool(self):
@@ -135,3 +142,109 @@ class RepositoryTools:
             return output
 
         return list_directory
+
+    def create_search_files_tool(self):
+        """Create search files tool."""
+        workspace = self.workspace
+        logger = self.logger
+
+        @tool("search_files", args_schema=ToolSchemas.SearchFilesInput)
+        def search_files(pattern: str, file_pattern: str = None, case_sensitive: bool = False) -> str:
+            """Search for a text pattern across files in the repository. Returns file paths and matching lines."""
+            logger.info(f"🔧 Tool called: search_files(pattern={pattern}, file_pattern={file_pattern}, case_sensitive={case_sensitive})")
+
+            if not workspace._is_cloned:
+                return "Error: No repository has been cloned yet. Please clone a repository first."
+
+            try:
+                # Compile regex pattern
+                regex_flags = 0 if case_sensitive else re.IGNORECASE
+                try:
+                    compiled_pattern = re.compile(pattern, regex_flags)
+                except re.error as e:
+                    return f"Error: Invalid regex pattern: {e}"
+
+                matches = []
+                search_path = workspace.workspace_path
+
+                # Walk through repository
+                for root, dirs, files in search_path.walk():
+                    # Filter files by pattern if specified
+                    if file_pattern:
+                        files = [f for f in files if fnmatch.fnmatch(f, file_pattern)]
+
+                    for file in files:
+                        file_path = root / file
+
+                        # Skip binary files and very large files
+                        try:
+                            if file_path.stat().st_size > 1_000_000:  # Skip files > 1MB
+                                continue
+
+                            relative_path = file_path.relative_to(workspace.workspace_path)
+
+                            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                                for line_num, line in enumerate(f, 1):
+                                    if compiled_pattern.search(line):
+                                        matches.append(f"{relative_path}:{line_num}: {line.rstrip()}")
+
+                                        # Limit matches per file
+                                        if len([m for m in matches if m.startswith(str(relative_path))]) >= 10:
+                                            break
+                        except (OSError, UnicodeDecodeError):
+                            continue
+
+                    # Limit total matches
+                    if len(matches) >= 100:
+                        break
+
+                if not matches:
+                    return f"No matches found for pattern: {pattern}"
+
+                result = f"Found {len(matches)} match(es) for pattern '{pattern}':\n\n"
+                result += "\n".join(matches)
+
+                if len(matches) >= 100:
+                    result += "\n\n(Showing first 100 matches, there may be more)"
+
+                return result
+
+            except Exception as e:
+                logger.error(f"Search failed: {e}")
+                return f"Error during search: {e}"
+
+        return search_files
+
+    def create_base64_encode_tool(self):
+        """Create base64 encode tool."""
+        logger = self.logger
+
+        @tool("base64_encode", args_schema=ToolSchemas.Base64EncodeInput)
+        def base64_encode(content: str) -> str:
+            """Encode plain text content to base64. Useful for Kubernetes Secrets and other base64-encoded data."""
+            logger.info(f"🔧 Tool called: base64_encode(content_length={len(content)})")
+            try:
+                encoded = base64.b64encode(content.encode('utf-8')).decode('ascii')
+                return encoded
+            except Exception as e:
+                logger.error(f"Base64 encoding failed: {e}")
+                return f"Error: Failed to encode content: {e}"
+
+        return base64_encode
+
+    def create_base64_decode_tool(self):
+        """Create base64 decode tool."""
+        logger = self.logger
+
+        @tool("base64_decode", args_schema=ToolSchemas.Base64DecodeInput)
+        def base64_decode(encoded: str) -> str:
+            """Decode base64-encoded string to plain text. Useful for reading Kubernetes Secrets and other base64-encoded data."""
+            logger.info(f"🔧 Tool called: base64_decode(encoded_length={len(encoded)})")
+            try:
+                decoded = base64.b64decode(encoded).decode('utf-8')
+                return decoded
+            except Exception as e:
+                logger.error(f"Base64 decoding failed: {e}")
+                return f"Error: Failed to decode content: {e}"
+
+        return base64_decode

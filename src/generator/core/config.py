@@ -84,3 +84,14 @@ class ToolSchemas:
 
     class ListDirectoryInput(BaseModel):
         dir_path: str = Field(description="Path to the directory relative to the repository root")
+
+    class SearchFilesInput(BaseModel):
+        pattern: str = Field(description="Text pattern or regex to search for in file contents")
+        file_pattern: Optional[str] = Field(default=None, description="Optional glob pattern to filter files (e.g., '*.py', '*.yaml')")
+        case_sensitive: bool = Field(default=False, description="Whether the search should be case-sensitive")
+
+    class Base64EncodeInput(BaseModel):
+        content: str = Field(description="Plain text content to encode to base64")
+
+    class Base64DecodeInput(BaseModel):
+        encoded: str = Field(description="Base64-encoded string to decode to plain text")
