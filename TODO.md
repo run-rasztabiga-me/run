@@ -51,9 +51,9 @@
    - ✅ Score summary per prompt now renders in the dashboard; consider adding complementary groupings (per model, per repo, etc.) for richer comparisons.
    - ✅ Display live progress in the dashboard, including completed vs. remaining runs for the active experiment and an estimated time to completion (minutes).
    - **Follow-up work**: Visualize run completion trends, highlight failures inline, support comparative views (model × prompt) with pinned baselines, and layer in manifest/Dockerfile diffing for side-by-side artifact analysis.
-14. **Agent Tooling Review**
-   - Audit which tools the LLM agent should access by default (include base64 encode/decode capability) and document the chosen set.
-   - Evaluate gaps like repository search, tree listings, and data transformations; deprecate redundant tools to keep the surface area lean.
+14. ✅ **Agent Tooling Review** – DONE
+   - ✅ Audit which tools the LLM agent should access by default (include base64 encode/decode capability) and document the chosen set.
+   - ✅ Evaluate gaps like repository search, tree listings, and data transformations; deprecate redundant tools to keep the surface area lean.
 15. **Repository Dataset Builder**
    - Create a module that discovers and curates a dataset of GitHub repositories suited for evaluator benchmarking.
    - Support configurable filters (language, stars, topics) and persist metadata so experiments can sample consistent repo sets.
