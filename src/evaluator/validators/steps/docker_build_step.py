@@ -149,10 +149,63 @@ def _build_and_push_image(
 
     context.logger.info("✓ Build completed successfully for image: %s", image_name)
 
+    # Push with retry logic for network failures
     context.logger.info("Pushing image to registry: %s", image_name)
-    push_result = context.command_runner.run(["docker", "push", image_name], timeout=300)
+    max_push_retries = 3
+    push_result = None
+    push_success = False
 
-    total_build_time = build_result.duration + (push_result.duration if push_result.return_code == 0 else 0.0)
+    for attempt in range(max_push_retries):
+        if attempt > 0:
+            context.logger.info("Retrying docker push (attempt %d/%d)...", attempt + 1, max_push_retries)
+            time.sleep(2 ** attempt)  # Exponential backoff: 2s, 4s, 8s
+
+        push_result = context.command_runner.run(["docker", "push", image_name], timeout=300)
+
+        if push_result.timed_out:
+            context.logger.warning("Docker push timed out on attempt %d/%d", attempt + 1, max_push_retries)
+            continue
+
+        if not push_result.tool_available:
+            # Tool not available is not a retry-able error
+            break
+
+        if (push_result.return_code or 0) == 0:
+            push_success = True
+            break
+
+        # Check if error is retry-able (network/timeout issues)
+        error_msg = push_result.stderr.strip() or push_result.stdout.strip() or ""
+        is_retryable = any(keyword in error_msg.lower() for keyword in [
+            "timeout", "i/o timeout", "connection", "network", "temporary failure", "proxyconnect"
+        ])
+
+        if is_retryable:
+            context.logger.warning(
+                "Docker push failed with retryable error on attempt %d/%d: %s",
+                attempt + 1,
+                max_push_retries,
+                error_msg[:200]  # Log first 200 chars
+            )
+        else:
+            # Non-retryable error, break immediately
+            context.logger.error("Docker push failed with non-retryable error: %s", error_msg[:200])
+            break
+
+    total_build_time = build_result.duration + (push_result.duration if push_result and push_result.return_code == 0 else 0.0)
+
+    # Check final result after all retries
+    if not push_result:
+        issues.append(
+            ValidationIssue(
+                file_path=dockerfile_path,
+                line_number=None,
+                severity=ValidationSeverity.ERROR,
+                message="Docker push failed: no result after retries",
+                rule_id="DOCKER_PUSH_FAILED",
+            )
+        )
+        return issues, None
 
     if push_result.timed_out:
         issues.append(
@@ -160,7 +213,7 @@ def _build_and_push_image(
                 file_path=dockerfile_path,
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
-                message="Docker push timed out",
+                message=f"Docker push timed out after {max_push_retries} attempts",
                 rule_id="DOCKER_PUSH_TIMEOUT",
             )
         )
@@ -178,14 +231,14 @@ def _build_and_push_image(
         )
         return issues, None
 
-    if (push_result.return_code or 0) != 0:
+    if not push_success:
         error_msg = push_result.stderr.strip() or push_result.stdout.strip() or "Unknown docker push error"
         issues.append(
             ValidationIssue(
                 file_path=dockerfile_path,
                 line_number=None,
                 severity=ValidationSeverity.ERROR,
-                message=f"Docker push failed: {error_msg}",
+                message=f"Docker push failed after {max_push_retries} attempts: {error_msg}",
                 rule_id="DOCKER_PUSH_FAILED",
             )
         )

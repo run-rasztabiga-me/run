@@ -95,3 +95,14 @@ class ToolSchemas:
 
     class Base64DecodeInput(BaseModel):
         encoded: str = Field(description="Base64-encoded string to decode to plain text")
+
+    class FindFilesInput(BaseModel):
+        pattern: str = Field(description="Filename pattern to search for (supports glob patterns like '*.py', 'Dockerfile*', 'package.json')")
+        max_results: int = Field(default=50, description="Maximum number of results to return")
+
+    class PatchFileInput(BaseModel):
+        file_path: str = Field(description="Path to the file to patch, relative to the repository root")
+        patch: str = Field(description="Unified diff patch to apply (standard diff format with @@ line numbers)")
+
+    class ThinkInput(BaseModel):
+        thoughts: str = Field(description="Your internal thoughts, observations, analysis, or planning notes about the repository and task at hand")

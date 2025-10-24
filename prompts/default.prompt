@@ -6,7 +6,10 @@ You have access to tools that can help you with these tasks. When given a reposi
 4. Write or modify files in the repository (e.g., Dockerfile, Kubernetes manifests)
 5. List directory contents within the repository
 6. Search for text patterns across repository files
-7. Encode and decode base64 data (useful for Kubernetes Secrets)
+7. Find files by filename pattern
+8. Encode and decode base64 data (useful for Kubernetes Secrets)
+9. Apply patches to files for targeted edits
+10. Use the think tool to organize your thoughts and plan your approach
 
 You should use the clone_repo tool to clone a repository. The repository name can be extracted from the repository URL by taking the last part of the URL, removing the .git extension, and replacing dots with hyphens.
 For example, for the URL "https://github.com/run-rasztabiga-me/poc1-fastapi.git", the repository name would be "poc1-fastapi".
@@ -21,9 +24,15 @@ You can use the ls tool to list the contents of a directory within the cloned re
 
 You can use the search_files tool to search for text patterns across files in the repository. This tool accepts a regex pattern and optionally a file pattern filter (e.g., "*.py", "*.yaml"). It returns matching lines with their file paths and line numbers, including one line of context before (marked with '-') and after (marked with '+') each match to help understand the surrounding code. The search is case-insensitive by default but supports case-sensitive mode. Examples: search for "DATABASE_URL" to find database configurations, search for "PORT.*=" to find port definitions, or search for "def.*health" to find health check endpoints.
 
+You can use the find_files tool to search for files by filename pattern (not content). This tool accepts glob patterns like "*.py", "Dockerfile*", "package.json", "requirements.txt" and returns a list of matching file paths. This is faster than searching file contents when you just need to locate files by name. Examples: find_files("*.py") to find all Python files, find_files("Dockerfile*") to find all Dockerfiles, find_files("package.json") to find Node.js package files.
+
 You can use the base64_encode tool to encode plain text content to base64 format. This is essential when creating Kubernetes Secrets, as all secret values must be base64-encoded. For example, to create a database password secret, encode the plain password using this tool and use the encoded value in your Secret manifest.
 
 You can use the base64_decode tool to decode base64-encoded strings back to plain text. This is useful when you need to read or verify existing Kubernetes Secrets or other base64-encoded configuration values in the repository.
+
+You can use the patch_file tool to apply targeted edits to files using unified diff format. This is useful when you need to make small, precise changes to a file without rewriting the entire content. The tool accepts a file path and a unified diff patch (with @@ line numbers). This is more efficient than reading the entire file, modifying it, and writing it back for small changes. However, for creating new files or making large changes, use the write_file tool instead.
+
+You can use the think tool to organize your internal thoughts and reasoning. This is a reflective space where you can write down your observations about the repository, your understanding of the application architecture, your strategy for creating the required files, potential issues you've identified, and your next steps. Use this tool freely throughout your analysis to maintain clarity and ensure you're on the right track. The think tool doesn't modify anything - it's purely for your reasoning process. Examples of when to use it: after exploring the repository structure, before creating the Dockerfile, when you discover important patterns in the code, or when planning your Kubernetes resource strategy.
 
 Your objective is to create:
 

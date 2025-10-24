@@ -26,8 +26,11 @@ class RepositoryTools:
             self.create_write_file_tool(),
             self.create_list_directory_tool(),
             self.create_search_files_tool(),
+            self.create_find_files_tool(),
             self.create_base64_encode_tool(),
             self.create_base64_decode_tool(),
+            self.create_patch_file_tool(),
+            self.create_think_tool(),
         ]
 
     def create_clone_repo_tool(self):
@@ -275,3 +278,186 @@ class RepositoryTools:
                 return f"Error: Failed to decode content: {e}"
 
         return base64_decode
+
+    def create_find_files_tool(self):
+        """Create find files tool."""
+        workspace = self.workspace
+        logger = self.logger
+
+        @tool("find_files", args_schema=ToolSchemas.FindFilesInput)
+        def find_files(pattern: str, max_results: int = 50) -> str:
+            """Find files by filename pattern. Supports glob patterns like '*.py', 'Dockerfile*', 'package.json'."""
+            logger.info(f"🔧 Tool called: find_files(pattern={pattern}, max_results={max_results})")
+
+            if not workspace._is_cloned:
+                return "Error: No repository has been cloned yet. Please clone a repository first."
+
+            try:
+                matches = []
+                search_path = workspace.workspace_path
+
+                # Walk through repository
+                for root, dirs, files in os.walk(search_path):
+                    # Skip hidden directories
+                    dirs[:] = [d for d in dirs if not d.startswith('.')]
+
+                    root_path = Path(root)
+                    for file in files:
+                        # Match against filename pattern
+                        if fnmatch.fnmatch(file, pattern):
+                            file_path = root_path / file
+                            relative_path = str(file_path.relative_to(search_path))
+                            matches.append(relative_path)
+
+                            # Limit results
+                            if len(matches) >= max_results:
+                                break
+
+                    if len(matches) >= max_results:
+                        break
+
+                if not matches:
+                    return f"No files found matching pattern: {pattern}"
+
+                result = f"Found {len(matches)} file(s) matching pattern '{pattern}':\n\n"
+                result += "\n".join(matches)
+
+                if len(matches) >= max_results:
+                    result += f"\n\n(Showing first {max_results} results, there may be more)"
+
+                return result
+
+            except Exception as e:
+                logger.error(f"Find files failed: {e}")
+                return f"Error during file search: {e}"
+
+        return find_files
+
+    def create_patch_file_tool(self):
+        """Create patch file tool."""
+        workspace = self.workspace
+        logger = self.logger
+
+        @tool("patch_file", args_schema=ToolSchemas.PatchFileInput)
+        def patch_file(file_path: str, patch: str) -> str:
+            """Apply a unified diff patch to a file. Useful for making targeted edits without rewriting entire files."""
+            # Remove leading slash if present
+            if file_path.startswith('/'):
+                file_path = file_path.lstrip('/')
+
+            logger.info(f"🔧 Tool called: patch_file(file_path={file_path}, patch_length={len(patch)})")
+
+            if not workspace._is_cloned:
+                return "Error: No repository has been cloned yet. Please clone a repository first."
+
+            try:
+                # Read the original file
+                read_result = workspace.read_file(file_path)
+                if not read_result.success:
+                    return f"Error: {read_result.error}"
+
+                original_lines = read_result.content.splitlines(keepends=True)
+
+                # Parse the patch
+                patch_lines = patch.splitlines(keepends=True)
+
+                # Simple patch application (supports unified diff format)
+                # Find @@ hunk headers and apply changes
+                result_lines = original_lines.copy()
+                i = 0
+
+                while i < len(patch_lines):
+                    line = patch_lines[i]
+
+                    # Look for hunk header: @@ -start,count +start,count @@
+                    if line.startswith('@@'):
+                        import re
+                        match = re.match(r'@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@', line)
+                        if not match:
+                            return f"Error: Invalid patch format at line {i+1}"
+
+                        old_start = int(match.group(1)) - 1  # Convert to 0-indexed
+                        new_start = int(match.group(3)) - 1  # Convert to 0-indexed
+
+                        i += 1
+
+                        # Collect changes from this hunk
+                        old_lines_to_remove = []
+                        new_lines_to_add = []
+                        context_lines = []
+
+                        while i < len(patch_lines) and not patch_lines[i].startswith('@@'):
+                            pline = patch_lines[i]
+
+                            if pline.startswith('-'):
+                                old_lines_to_remove.append(pline[1:])
+                            elif pline.startswith('+'):
+                                new_lines_to_add.append(pline[1:])
+                            elif pline.startswith(' '):
+                                # Context line - track for verification
+                                context_lines.append(pline[1:])
+
+                            i += 1
+
+                        # Apply the hunk: remove old lines and insert new ones
+                        if old_lines_to_remove:
+                            # Find and remove the old lines
+                            for old_line in old_lines_to_remove:
+                                if old_start < len(result_lines) and result_lines[old_start] == old_line:
+                                    result_lines.pop(old_start)
+                                else:
+                                    # Try to find nearby
+                                    found = False
+                                    for offset in range(-2, 3):
+                                        idx = old_start + offset
+                                        if 0 <= idx < len(result_lines) and result_lines[idx] == old_line:
+                                            result_lines.pop(idx)
+                                            found = True
+                                            break
+                                    if not found:
+                                        return f"Error: Could not find line to remove at position {old_start+1}"
+
+                        # Insert new lines
+                        for j, new_line in enumerate(new_lines_to_add):
+                            result_lines.insert(new_start + j, new_line)
+                    else:
+                        i += 1
+
+                # Write the patched content back
+                patched_content = ''.join(result_lines)
+                write_result = workspace.write_file(file_path, patched_content)
+
+                if write_result.success:
+                    return f"Successfully patched file: {file_path}"
+                else:
+                    return f"Error writing patched file: {write_result.error}"
+
+            except Exception as e:
+                logger.error(f"Patch application failed: {e}")
+                return f"Error applying patch: {e}"
+
+        return patch_file
+
+    def create_think_tool(self):
+        """Create think/reflection tool."""
+        logger = self.logger
+
+        @tool("think", args_schema=ToolSchemas.ThinkInput)
+        def think(thoughts: str) -> str:
+            """
+            A space for reflection and planning. Use this to organize your thoughts about:
+            - What you've learned from exploring the repository
+            - Key observations about the application architecture
+            - Your strategy for creating the Dockerfile and Kubernetes manifests
+            - Potential issues or edge cases you've identified
+            - Next steps in your analysis
+
+            This tool doesn't modify anything - it's purely for your internal reasoning process.
+            """
+            logger.info(f"🧠 Agent reflection ({len(thoughts)} chars)")
+            logger.debug(f"Thinking: {thoughts[:200]}...")  # Log first 200 chars at debug level
+
+            # Return a simple acknowledgment
+            return "Thoughts recorded. Continue with your analysis and file generation."
+
+        return think
