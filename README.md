@@ -1,6 +1,6 @@
-# Runtime Configuration Evaluation Platform
+# LLM-Driven Runtime Configuration Platform
 
-Automation toolkit for generating, validating, and analysing container/Kubernetes configurations across Git repositories. The stack combines LangChain-based agents, Docker/K8s validation, experiment orchestration, and reporting utilities to support research and future PaaS-style deployments.
+Automation toolkit powered by an LLM agent for generating, validating, and analysing container/Kubernetes configurations across Git repositories. The stack couples agentic generation with Docker/K8s validation, experiment orchestration, and reporting utilities to support research and future PaaS-style deployments.
 
 ## Repository Layout
 
