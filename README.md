@@ -35,6 +35,7 @@ Automation toolkit powered by an LLM agent for generating, validating, and analy
    - For evaluation/runtime checks, make sure `kubectl` is pointed at the target cluster and set `REGISTRY_URL` plus `K8S_CLUSTER_IP`.
    - To enable LangSmith tracing, provide `LANGSMITH_TRACING`, `LANGSMITH_ENDPOINT`, `LANGSMITH_API_KEY`, and `LANGSMITH_PROJECT`.
    - Ensure Docker (with buildx) and `kubectl` are available locally.
+   - Additional provider credentials for upcoming models are outlined in `docs/llm_support.md`.
 3. **Optional extras:**
    - Install Streamlit and pandas if you plan to use the experiment dashboard:
      ```bash

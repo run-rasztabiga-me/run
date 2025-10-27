@@ -1,0 +1,73 @@
+experiments:
+  - name: multi_model_full_suite_poc1
+    description: Run poc1-fastapi against the expanded provider set (OpenAI, Anthropic, DeepSeek, Qwen, Zhipu, Mistral, Meta) to benchmark new models.
+    repos:
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
+    models:
+#      - provider: openai
+#        name: gpt-5
+#        label: openai_gpt5
+#        temperature: 1.0
+#        seed: 42
+#      - provider: openai
+#        name: gpt-5-mini
+#        label: openai_gpt5_mini
+#        temperature: 1.0
+#        seed: 42
+#      - provider: openai
+#        name: o3
+#        label: openai_o3
+#        temperature: 1.0
+#        seed: 42
+#      - provider: anthropic
+#        name: claude-sonnet-4-5
+#        label: anthropic_sonnet_4_5
+#        temperature: 1.0
+#      - provider: anthropic
+#        name: claude-haiku-4-5
+#        label: anthropic_haiku_4_5
+#        temperature: 1.0
+#      - provider: anthropic
+#        name: claude-opus-4-1
+#        label: anthropic_opus_4_1
+#        temperature: 1.0
+      - provider: google_genai
+        name: gemini-2.5-pro
+        label: google_gemini_2.5_pro
+        temperature: 1.0
+        seed: 42
+      - provider: google_genai
+        name: gemini-2.5-flash
+        label: google_gemini_2.5_flash
+        temperature: 1.0
+        seed: 42
+#      - provider: qwen
+#        name: qwen-3
+#        label: qwen_3
+#        temperature: 1.0
+#      - provider: deepseek
+#        name: deepseek-r1
+#        label: deepseek_r1
+#        temperature: 1.0
+#      - provider: deepseek
+#        name: deepseek-v3.2
+#        label: deepseek_v3_2
+#        temperature: 1.0
+#      - provider: zhipuai
+#        name: glm-4.6
+#        label: glm_4_6
+#        temperature: 1.0
+#      - provider: mistralai
+#        name: mistral-medium
+#        label: mistral_medium
+#        temperature: 1.0
+#      - provider: meta
+#        name: llama-4-maverick
+#        label: llama4_maverick
+#        temperature: 1.0
+#      - provider: meta
+#        name: llama-4-scout
+#        label: llama4_scout
+#        temperature: 1.0
+    repetitions: 1
+    cleanup: per_run

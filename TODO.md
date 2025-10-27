@@ -71,3 +71,8 @@
    - ✅ Decouple Docker builds so `DockerImageBuilder` accepts plain `DockerImageInfo` inputs, relies on `CommandRunner`, and returns structured metrics for downstream schedulers.
    - ✅ Extract Kubernetes orchestration helpers (namespace lifecycle, manifest patching, ingress discovery) and expose them via `KubernetesDeployer`/`IngressRuntimeChecker`.
    - **Follow-up work**: Add targeted unit tests for the new runtime helpers and surface a thin facade that the future PaaS API can import without touching evaluator internals.
+20. **LLM Provider Expansion**
+   - Install/upgrade LangChain provider packages for DeepSeek, Qwen/DashScope, Zhipu (GLM), Mistral, and Meta Llama 4 once official SDKs ship; track minimum versions for OpenAI/Anthropic releases exposing GPT-5 and Claude 4.5 families.
+   - Extend environment scaffolding (`.env.template`, onboarding docs) with provider-specific API keys and optional base URLs.
+   - Add smoke tests or mocked invocations verifying `init_chat_model` resolves for each new model identifier.
+   - Run and baseline `experiments/multi_model_full_suite_poc1.yaml` after integrations land to monitor quality/regressions.
