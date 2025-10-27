@@ -2,8 +2,9 @@
 ## Project Structure & Module Organization
 - `src/generator/` holds config agents; keep orchestration in `core/` and reusable helpers under `tools/`.
 - `src/evaluator/` owns scoring (`core/` for flows, `validators/` for policy, `reports/` for outputs) and now `experiments/` for suite configs and the runner; plan cross-cutting changes from here.
+- `src/runtime/` provides the shared Docker/Kubernetes runtime helpers; keep evaluator and future PaaS integrations consuming these instead of re-implementing orchestration logic.
 - Shared utilities live in `src/common/` and `src/utils/`; keep them dependency-light. Runtime artefacts go to `evaluation_reports/` and `tmp/` and should stay untracked.
-- Entry scripts (`generator.py`, `evaluator.py`, `run_experiments.py`, `kind.sh`, `prepare-worker.sh`) should remain thin wrappers around module logic.
+- Entry scripts (`generator.py`, `evaluator.py`, `run_experiments.py`, `scripts/run_experiment.sh`, `scripts/run_ui.sh`, `scripts/cleanup.sh`) should remain thin wrappers around module logic.
 
 ## Build, Test, and Development Commands
 - `python -m venv .venv && source .venv/bin/activate` sets up a Python 3.11+ virtualenv.
@@ -12,6 +13,7 @@
 - `python evaluator.py https://github.com/org/repo.git` scores a single repository; omit the URL to run the curated list and refresh reports in `evaluation_reports/`.
 - `python run_experiments.py --config experiments/<file>.yaml` (or `scripts/run_experiment.sh experiments/<file>.yaml`) executes the experiment runner; summaries land under `evaluation_reports/experiments/<name>/<timestamp>/`.
 - `streamlit run ui/experiment_dashboard.py` (or `scripts/run_ui.sh`) launches the experiment dashboard (requires `pip install streamlit pandas` if not already available).
+- `scripts/cleanup.sh` invokes the namespace/hosts cleanup helper; use it after evaluator or experiment runs that touch the cluster.
 - Include `prompts` blocks in experiment configs to compare prompt variants; point each entry to a prompt file (e.g., `system_prompt_path: prompts/fastapi_v1.prompt`) or supply inline text to override the agent’s system prompt per run.
 
 ## Coding Style & Naming Conventions
@@ -32,6 +34,6 @@
 - PRs should include an overview, screenshots or report excerpts when outputs change, and call out required secrets or config updates.
 
 ## Security & Configuration Tips
-- Load secrets via `.env`; `ConfigurationGenerator` reads `REGISTRY_URL`, `K8S_CLUSTER_IP`, and LLM keys through `dotenv`. Never commit the file.
+- Copy `.env.template` to `.env` and fill in only the keys you need; never commit either file. Generation requires an LLM API key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GOOGLE_API_KEY`). Runtime validation additionally expects `REGISTRY_URL` and `K8S_CLUSTER_IP` plus a working local `kubectl` context. Set LangSmith tracing variables (`LANGSMITH_TRACING`, `LANGSMITH_ENDPOINT`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`) when you want trace collection.
 - Clear `tmp/` after runs (`rm -rf tmp/*`) to avoid leaking cloned repos or manifests, and document any Kubernetes domain or namespace overrides.
 - Treat `evaluation_reports/experiments` outputs as ephemeral research artefacts; keep only curated summaries in version control if they inform documentation.

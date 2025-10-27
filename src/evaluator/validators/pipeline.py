@@ -5,7 +5,8 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Protocol, Sequence
 
 from ...common.command_runner import CommandRunner
-from ..core.models import DockerBuildMetrics, ValidationIssue
+from ...common.models import DockerBuildMetrics
+from ..core.models import ValidationIssue
 from ...generator.core.config import GeneratorConfig
 from ...generator.core.workspace import RepositoryWorkspace
 from ...generator.core.workspace_models import RunContext

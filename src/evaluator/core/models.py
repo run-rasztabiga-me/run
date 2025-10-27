@@ -3,7 +3,7 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 
-from ...common.models import DockerImageInfo
+from ...common.models import DockerImageInfo, DockerBuildMetrics
 
 
 class EvaluationStatus(Enum):
@@ -49,15 +49,6 @@ class ValidationIssue:
     severity: ValidationSeverity
     message: str
     rule_id: Optional[str] = None
-
-
-@dataclass
-class DockerBuildMetrics:
-    """Metrics collected during Docker image build."""
-    image_tag: str
-    build_time: float  # seconds
-    image_size_mb: float  # megabytes
-    layers_count: int  # number of layers
 
 
 @dataclass

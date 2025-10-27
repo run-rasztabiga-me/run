@@ -66,3 +66,8 @@
    - Build a thesis-friendly dashboard that visualizes experiment outcomes with comparative charts (per model, repo, prompt).
    - Automate data analysis over summary CSV/JSON outputs to surface trends, statistical aggregates, and notable regressions.
    - Prepare reusable plots (time series, distribution, score heatmaps) for inclusion in the thesis and future presentations.
+19. ✅ **Runtime Toolkit Extraction** – DONE
+   - ✅ Package the deployment-critical pieces originally baked into evaluator steps into a reusable toolkit under `src/runtime/`, while keeping linting/validation concerns separate.
+   - ✅ Decouple Docker builds so `DockerImageBuilder` accepts plain `DockerImageInfo` inputs, relies on `CommandRunner`, and returns structured metrics for downstream schedulers.
+   - ✅ Extract Kubernetes orchestration helpers (namespace lifecycle, manifest patching, ingress discovery) and expose them via `KubernetesDeployer`/`IngressRuntimeChecker`.
+   - **Follow-up work**: Add targeted unit tests for the new runtime helpers and surface a thin facade that the future PaaS API can import without touching evaluator internals.

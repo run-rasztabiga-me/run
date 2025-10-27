@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ...common.models import DockerBuildMetrics
 from .models import (
-    DockerBuildMetrics,
     GenerationResult,
     QualityMetrics,
     ValidationIssue,
