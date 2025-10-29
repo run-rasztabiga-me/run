@@ -42,21 +42,13 @@ experiments:
 #        temperature: 1.0
 #        seed: 42
 #      - provider: deepseek
-#        name: deepseek-r1
-#        label: deepseek_r1
-#        temperature: 1.0
-#      - provider: deepseek
-#        name: deepseek-v3.2
+#        name: deepseek-chat
 #        label: deepseek_v3_2
 #        temperature: 1.0
-#      - provider: zhipuai
-#        name: glm-4.6
-#        label: glm_4_6
-#        temperature: 1.0
-#      - provider: mistralai
-#        name: mistral-medium
-#        label: mistral_medium
-#        temperature: 1.0
+      - provider: mistralai
+        name: mistral-medium
+        label: mistral_medium
+        temperature: 1.0
 #      - provider: meta
 #        name: llama-4-maverick
 #        label: llama4_maverick
