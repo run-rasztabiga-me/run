@@ -2,7 +2,7 @@ import logging
 import uuid
 from pathlib import Path
 from typing import List, Tuple, Any, Optional
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from pydantic import BaseModel, Field
 
@@ -58,10 +58,10 @@ class ConfigurationAgent:
         llm = init_chat_model(**llm_kwargs)
 
         # Create agent with structured output
-        self.agent = create_react_agent(
+        self.agent = create_agent(
             model=llm,
             tools=tools,
-            prompt=self._get_system_message(),
+            system_prompt=self._get_system_message(),
             response_format=ConfigurationOutput
         )
 

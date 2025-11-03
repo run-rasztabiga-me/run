@@ -24,7 +24,7 @@ class GeneratorConfig(BaseModel):
     prompt_version: Optional[str] = Field(default=None, description="Identifier for the prompt variant used.")
 
     # Agent settings
-    recursion_limit: int = 100
+    recursion_limit: int = 150
 
     # Directory settings
     tmp_dir_base: str = "./tmp"
