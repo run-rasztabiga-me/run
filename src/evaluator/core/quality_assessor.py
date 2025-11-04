@@ -45,6 +45,7 @@ class QualityAssessor:
 
         build_metrics: List[DockerBuildMetrics] = list(pipeline_result.build_metrics)
         step_issues = pipeline_result.step_issues
+        step_metadata = pipeline_result.step_metadata
         runtime_success = pipeline_result.runtime_success
 
         # Use new scoring model to calculate comprehensive scores
@@ -65,6 +66,13 @@ class QualityAssessor:
 
         # Store detailed scoring breakdown in quality metrics
         quality_metrics.scoring_breakdown = aggregated_score.to_dict()
+        llm_results = {
+            step_name: metadata
+            for step_name, metadata in step_metadata.items()
+            if step_name in {"docker_llm_judge", "k8s_llm_judge"}
+        }
+        if llm_results:
+            quality_metrics.llm_judge_results.update(llm_results)
 
         build_failed = any(issue.severity == ValidationSeverity.ERROR for issue in step_issues.get("docker_build", []))
         runtime_issues = step_issues.get("runtime")
@@ -76,4 +84,3 @@ class QualityAssessor:
             runtime_issues=runtime_issues,
             runtime_success=runtime_success,
         )
-

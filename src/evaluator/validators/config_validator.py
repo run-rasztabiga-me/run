@@ -7,9 +7,11 @@ from ..core.models import GenerationResult, ValidationIssue
 from .pipeline import ValidationContext, ValidationPipeline, ValidationPipelineResult, ValidationState, ValidationStep
 from .steps import (
     DockerBuildStep,
+    DockerLLMJudgeStep,
     DockerfileLinterValidationStep,
     DockerfileSyntaxValidationStep,
     KubernetesApplyStep,
+    KubernetesLLMJudgeStep,
     KubernetesLinterValidationStep,
     KubernetesSyntaxValidationStep,
     RuntimeValidationStep,
@@ -65,6 +67,8 @@ class ConfigurationValidator:
                     DockerfileLinterValidationStep(),
                 ]
             )
+            if self.config.enable_llm_judge:
+                steps.append(DockerLLMJudgeStep())
 
         if generation_result.docker_images:
             steps.append(DockerBuildStep())
@@ -74,9 +78,11 @@ class ConfigurationValidator:
                 [
                     KubernetesSyntaxValidationStep(),
                     KubernetesLinterValidationStep(),
-                    KubernetesApplyStep(),
                 ]
             )
+            if self.config.enable_llm_judge:
+                steps.append(KubernetesLLMJudgeStep())
+            steps.append(KubernetesApplyStep())
             if test_endpoint:
                 steps.append(RuntimeValidationStep())
 

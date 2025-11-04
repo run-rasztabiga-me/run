@@ -375,6 +375,17 @@ class ExperimentRunner:
         generation_result = report.generation_result
         quality_metrics = report.quality_metrics
 
+        extra_metadata = report.extra_metadata or {}
+        docker_llm_score = None
+        k8s_llm_score = None
+        if quality_metrics and quality_metrics.llm_judge_results:
+            docker_llm_score = (
+                quality_metrics.llm_judge_results.get("docker_llm_judge", {}).get("score")
+            )
+            k8s_llm_score = (
+                quality_metrics.llm_judge_results.get("k8s_llm_judge", {}).get("score")
+            )
+
         return {
             "experiment": context.experiment.name,
             "timestamp": context.timestamp.isoformat(),
@@ -386,8 +397,8 @@ class ExperimentRunner:
             "temperature": context.model.temperature,
             "seed": context.model.seed,
             "prompt_id": report.prompt_id,
-            "prompt_description": report.extra_metadata.get("prompt_description"),
-            "prompt_source_path": report.extra_metadata.get("prompt_source_path"),
+            "prompt_description": extra_metadata.get("prompt_description"),
+            "prompt_source_path": extra_metadata.get("prompt_source_path"),
             "build_success": report.build_success,
             "runtime_success": report.runtime_success,
             "repetition": context.repetition_index,
@@ -397,6 +408,8 @@ class ExperimentRunner:
             "overall_score": quality_metrics.overall_score if quality_metrics else None,
             "dockerfile_score": quality_metrics.dockerfile_score if quality_metrics else None,
             "k8s_score": quality_metrics.k8s_manifests_score if quality_metrics else None,
+            "docker_llm_score": docker_llm_score,
+            "k8s_llm_score": k8s_llm_score,
             "tool_calls": exec_metrics.tool_calls_count if exec_metrics else None,
             "tokens_used": exec_metrics.tokens_used if exec_metrics else None,
             "report_path": relative_path.as_posix(),
@@ -433,6 +446,8 @@ class ExperimentRunner:
             "overall_score",
             "dockerfile_score",
             "k8s_score",
+            "docker_llm_score",
+            "k8s_llm_score",
             "tool_calls",
             "tokens_used",
             "report_path",

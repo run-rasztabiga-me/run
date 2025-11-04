@@ -146,7 +146,7 @@ class ScoringConfig:
     # Severity penalties per issue (how much each issue type reduces the score)
     SEVERITY_PENALTIES = {
         ValidationSeverity.ERROR: 15.0,    # Errors are critical
-        ValidationSeverity.WARNING: 5.0,   # Warnings are moderate
+        ValidationSeverity.WARNING: 10.0,   # Warnings carry meaningful risk
         ValidationSeverity.INFO: 1.0,      # Info issues are minor
     }
 

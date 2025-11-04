@@ -75,6 +75,7 @@ class QualityMetrics:
     overall_score: Optional[float] = None
     validation_issues: List[ValidationIssue] = field(default_factory=list)
     scoring_breakdown: Optional[Dict[str, Any]] = None  # Detailed phase-by-phase scoring
+    llm_judge_results: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

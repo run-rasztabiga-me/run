@@ -51,10 +51,10 @@
 12. **LangSmith Evaluations Integration**
     - Investigate integrating LangSmith evaluation runs to score generated artifacts with automated rubric/checklist evaluators and capture qualitative feedback alongside existing metrics.
     - Teach the experiment runner to optionally trigger LangSmith evaluations per run and persist the resulting scores in experiment summaries for cross-model analysis.
-13. **Scoring Model Overhaul**
-    - Replace the placeholder penalty-based scoring in `ConfigurationEvaluator` with a rubric that weights completeness, correctness, best practices, and runtime success explicitly.
-    - Align the new scoring strategy with completeness/comparison validators and potential LangSmith evaluations so metrics remain comparable across experiments.
-    - **Consider LLM-as-a-Judge**: Explore using an LLM (e.g., GPT-4, Claude) as an additional validation step to assess generated configurations against criteria like best practices, security, maintainability, and architectural soundness. This could complement automated validators with qualitative assessments and provide richer feedback for model comparison.
+13. **Scoring Model Overhaul** – IN PROGRESS
+    - ✅ Replace the placeholder penalty-based scoring in `ConfigurationEvaluator` with a rubric that weights completeness, correctness, best practices, and runtime success explicitly.
+    - Retune the rubric to increase Kubernetes warning penalties and keep the weighting aligned with completeness/comparison validators plus upcoming LangSmith evaluation exports.
+    - Prototype lightweight LLM-as-judge steps (Dockerfile and Kubernetes-specific) to score qualitative factors like best practices, security, maintainability, and architecture, and feed those signals into the overall evaluation.
 14. ✅ **Experiment Dashboard/UI** – DONE
     - ✅ Design a lightweight UI (web or TUI) to select experiment configs, kick off runs, and stream progress/status updates in real time.
     - ✅ Surface experiment summaries (per repo/model/prompt) with filters and quick access to report artifacts for faster analysis.
@@ -88,3 +88,8 @@
    - ✅ **Smart Model Name Formatting**: Automatically formats model names as `provider/model-name` for OpenRouter (e.g., `meta-llama/llama-4-scout`) based on provider and name fields in experiment configs.
    - ✅ **Updated Experiment Configs**: Corrected provider naming in `experiments/multi_model_full_suite_poc1.yaml` (e.g., `meta-llama` instead of `meta`) to align with OpenRouter's model naming conventions.
    - **Follow-up work**: Run baseline experiments across diverse OpenRouter models (GPT-5, Claude 4.5, DeepSeek R1, Llama 4, Qwen 3, GLM 4.6, etc.) to establish quality benchmarks and monitor cross-provider performance characteristics.
+22. **PaaS Deployment Platform**
+   - Build a PaaS layer that stitches together `ConfigurationGenerator`, evaluator runtime helpers, and deployment orchestrators to take any repo, generate manifests, and expose a public app URL.
+   - Reuse `src/runtime/` modules for Docker image builds, registry pushes, namespace lifecycle, and ingress discovery instead of reimplementing infrastructure plumbing.
+   - Close the feedback loop by letting the agent trigger image builds, apply manifests, watch rollout status, and stream container logs or events back to the requester.
+   - Provide an API/CLI surface plus policy guards (resource/time limits, rollback hooks) so automated retries and diagnostics stay safe across user submissions.

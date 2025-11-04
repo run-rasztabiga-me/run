@@ -1,8 +1,7 @@
 import logging
-import os
 import uuid
 from pathlib import Path
-from typing import List, Tuple, Any, Optional, Dict
+from typing import List, Tuple, Optional
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from pydantic import BaseModel, Field
@@ -11,6 +10,7 @@ from ..core.config import GeneratorConfig
 from ..core.workspace import RepositoryWorkspace
 from ..tools.repository_tools import RepositoryTools
 from ...common.models import DockerImageInfo
+from ..utils.llm import build_llm_kwargs
 
 
 class ConfigurationOutput(BaseModel):
@@ -36,65 +36,6 @@ class ConfigurationAgent:
         if workspace:
             self._initialize_agent()
 
-    # LangChain's init_chat_model known providers
-    KNOWN_PROVIDERS = {
-        "openai", "anthropic", "azure_openai", "google_genai", "google_vertexai",
-        "bedrock", "bedrock_converse", "cohere", "fireworks", "together",
-        "mistralai", "huggingface", "groq", "deepseek"
-    }
-
-    def _prepare_llm_kwargs(self) -> Dict[str, Any]:
-        """
-        Prepare LLM kwargs for init_chat_model, automatically routing unknown providers through OpenRouter.
-
-        If the provider is not in the known providers list, it will be routed through OpenRouter
-        using the OpenAI-compatible API with a custom base URL.
-
-        Model name format: provider="meta-llama", name="llama-4-scout" -> "meta-llama/llama-4-scout"
-        """
-        provider = self.config.model_provider
-        model_name = self.config.model_name
-
-        # Check if provider is unknown and should be routed through OpenRouter
-        if provider not in self.KNOWN_PROVIDERS:
-            self.logger.info(
-                f"Provider '{provider}' not in known providers list. Routing through OpenRouter."
-            )
-
-            # Format model name as provider/model for OpenRouter
-            openrouter_model = f"{provider}/{model_name}"
-
-            # Get OpenRouter API key from environment variable
-            api_key = os.environ.get("OPENROUTER_API_KEY")
-            if not api_key:
-                raise ValueError(
-                    f"Unknown provider '{provider}' requires OpenRouter. "
-                    "Please set OPENROUTER_API_KEY environment variable."
-                )
-
-            llm_kwargs = {
-                "model": openrouter_model,
-                "model_provider": "openai",  # Use OpenAI provider for OpenRouter
-                "temperature": self.config.temperature,
-                "base_url": "https://openrouter.ai/api/v1",
-                "api_key": api_key,
-            }
-
-            self.logger.info(f"Using OpenRouter with model: {openrouter_model}")
-        else:
-            # Use provider as-is for known providers
-            llm_kwargs = {
-                "model": model_name,
-                "model_provider": provider,
-                "temperature": self.config.temperature,
-            }
-
-            # Add seed if configured (only for OpenAI models - Anthropic doesn't support it)
-            if self.config.seed is not None and provider == "openai":
-                llm_kwargs["seed"] = self.config.seed
-
-        return llm_kwargs
-
     def _initialize_agent(self) -> None:
         """Initialize the LangGraph agent with tools and prompt."""
         if not self.workspace:
@@ -105,7 +46,7 @@ class ConfigurationAgent:
         tools = repo_tools.create_tools()
 
         # Initialize LLM
-        llm_kwargs = self._prepare_llm_kwargs()
+        llm_kwargs = build_llm_kwargs(self.config, logger=self.logger)
         llm = init_chat_model(**llm_kwargs)
 
         # Create agent with structured output

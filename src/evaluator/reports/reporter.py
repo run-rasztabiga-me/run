@@ -58,6 +58,8 @@ class EvaluationReporter:
 
     def _report_to_dict(self, report: EvaluationReport) -> Dict[str, Any]:
         """Convert evaluation report to dictionary for serialization."""
+        extra_metadata = report.extra_metadata or {}
+
         return {
             "repo_url": report.repo_url,
             "repo_name": report.repo_name,
@@ -79,7 +81,7 @@ class EvaluationReporter:
             "prompt_override": report.prompt_override,
             "build_success": report.build_success,
             "runtime_success": report.runtime_success,
-            "extra_metadata": report.extra_metadata or None,
+            "extra_metadata": extra_metadata or None,
         }
 
     def _generation_result_to_dict(self, result) -> Dict[str, Any]:
@@ -156,6 +158,9 @@ class EvaluationReporter:
         if hasattr(metrics, 'scoring_breakdown') and metrics.scoring_breakdown:
             result["scoring_breakdown"] = metrics.scoring_breakdown
 
+        if getattr(metrics, "llm_judge_results", None):
+            result["llm_judge_results"] = metrics.llm_judge_results
+
         return result
 
     def _sanitize_token(self, value: str) -> str:
@@ -163,4 +168,3 @@ class EvaluationReporter:
         sanitized = "".join(ch if ch.isalnum() or ch in ("-", "_") else "-" for ch in (value or ""))
         sanitized = "-".join(filter(None, sanitized.split("-")))
         return sanitized or "value"
-
