@@ -41,19 +41,28 @@ experiments:
 #        label: google_gemini_2.5_flash
 #        temperature: 1.0
 #        seed: 42
+#      - provider: qwen
+#        name: qwen3-235b-a22b-2507
+#        label: Qwen 3
+#        temperature: 1.0
+# TODO add deepseek r1 from openrouter
 #      - provider: deepseek
 #        name: deepseek-chat
 #        label: deepseek_v3_2
 #        temperature: 1.0
-      - provider: mistralai
-        name: mistral-medium
-        label: mistral_medium
-        temperature: 1.0
-#      - provider: meta
+#      - provider: z-ai
+#        name: glm-4.6
+#        label: GLM 4.6
+#        temperature: 1.0
+#      - provider: mistralai
+#        name: mistral-medium
+#        label: mistral_medium
+#        temperature: 1.0
+#      - provider: meta-llama
 #        name: llama-4-maverick
 #        label: llama4_maverick
 #        temperature: 1.0
-#      - provider: meta
+#      - provider: meta-llama
 #        name: llama-4-scout
 #        label: llama4_scout
 #        temperature: 1.0

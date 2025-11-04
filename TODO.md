@@ -71,8 +71,10 @@
    - ✅ Decouple Docker builds so `DockerImageBuilder` accepts plain `DockerImageInfo` inputs, relies on `CommandRunner`, and returns structured metrics for downstream schedulers.
    - ✅ Extract Kubernetes orchestration helpers (namespace lifecycle, manifest patching, ingress discovery) and expose them via `KubernetesDeployer`/`IngressRuntimeChecker`.
    - **Follow-up work**: Add targeted unit tests for the new runtime helpers and surface a thin facade that the future PaaS API can import without touching evaluator internals.
-20. **LLM Provider Expansion**
-   - Install/upgrade LangChain provider packages for DeepSeek, Qwen/DashScope, Zhipu (GLM), Mistral, and Meta Llama 4 once official SDKs ship; track minimum versions for OpenAI/Anthropic releases exposing GPT-5 and Claude 4.5 families.
-   - Extend environment scaffolding (`.env.template`, onboarding docs) with provider-specific API keys and optional base URLs.
-   - Add smoke tests or mocked invocations verifying `init_chat_model` resolves for each new model identifier.
-   - Run and baseline `experiments/multi_model_full_suite_poc1.yaml` after integrations land to monitor quality/regressions.
+20. ✅ **LLM Provider Expansion** – DONE
+   - ✅ **Automatic OpenRouter Integration**: Implemented intelligent provider detection that automatically routes unknown providers through OpenRouter's OpenAI-compatible API, eliminating the need to install/upgrade individual LangChain provider packages for each new model.
+   - ✅ **Universal Model Access**: System now supports any model available on OpenRouter (DeepSeek, Qwen, Zhipu/GLM, Mistral, Meta Llama 4, and future models) without code changes—just specify provider and model name in experiment YAML.
+   - ✅ **Simplified Configuration**: Environment setup requires only `OPENROUTER_API_KEY` environment variable for all non-native providers, following LangChain's standard API key management pattern (like `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`).
+   - ✅ **Smart Model Name Formatting**: Automatically formats model names as `provider/model-name` for OpenRouter (e.g., `meta-llama/llama-4-scout`) based on provider and name fields in experiment configs.
+   - ✅ **Updated Experiment Configs**: Corrected provider naming in `experiments/multi_model_full_suite_poc1.yaml` (e.g., `meta-llama` instead of `meta`) to align with OpenRouter's model naming conventions.
+   - **Follow-up work**: Run baseline experiments across diverse OpenRouter models (GPT-5, Claude 4.5, DeepSeek R1, Llama 4, Qwen 3, GLM 4.6, etc.) to establish quality benchmarks and monitor cross-provider performance characteristics.
