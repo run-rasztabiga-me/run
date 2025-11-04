@@ -136,7 +136,7 @@ class EvaluationReporter:
 
     def _quality_metrics_to_dict(self, metrics) -> Dict[str, Any]:
         """Convert quality metrics to dictionary."""
-        return {
+        result = {
             "dockerfile_score": metrics.dockerfile_score,
             "k8s_manifests_score": metrics.k8s_manifests_score,
             "overall_score": metrics.overall_score,
@@ -151,6 +151,12 @@ class EvaluationReporter:
                 for issue in metrics.validation_issues
             ]
         }
+
+        # Add detailed scoring breakdown if available
+        if hasattr(metrics, 'scoring_breakdown') and metrics.scoring_breakdown:
+            result["scoring_breakdown"] = metrics.scoring_breakdown
+
+        return result
 
     def _sanitize_token(self, value: str) -> str:
         """Sanitize text for filesystem usage."""

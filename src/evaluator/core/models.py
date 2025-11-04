@@ -74,6 +74,7 @@ class QualityMetrics:
     k8s_manifests_score: Optional[float] = None
     overall_score: Optional[float] = None
     validation_issues: List[ValidationIssue] = field(default_factory=list)
+    scoring_breakdown: Optional[Dict[str, Any]] = None  # Detailed phase-by-phase scoring
 
 
 @dataclass

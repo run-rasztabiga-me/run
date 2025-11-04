@@ -68,6 +68,23 @@ Automation toolkit powered by an LLM agent for generating, validating, and analy
   ```
   Summaries land in `evaluation_reports/experiments/<name>/<timestamp>/` and include prompt metadata, scores, and runtime metrics.
 
+### Build Repository Datasets
+
+- Discover GitHub repositories that match your filters and persist them for reuse:
+  ```bash
+  python dataset_builder.py discover --name python-webapps --language Python --topic webapp --min-stars 200 --limit 100
+  ```
+  Set `GITHUB_TOKEN` (or `GH_TOKEN`) to increase rate limits when crawling. Datasets are written to `evaluation_reports/datasets/<name>.json` unless an explicit `--output` path is supplied.
+- Convert a saved dataset into an experiment configuration:
+  ```bash
+  python dataset_builder.py to-experiment --dataset evaluation_reports/datasets/python-webapps.json \
+    --output experiments/python-webapps.yaml \
+    --name python-webapps \
+    --models path/to/models.yaml \
+    --top-n 25
+  ```
+  The YAML emitted by this command can be executed with `python run_experiments.py --config ...` or the corresponding shell script.
+
 ### Explore Results
 
 - Launch the Streamlit dashboard for high-level comparisons:

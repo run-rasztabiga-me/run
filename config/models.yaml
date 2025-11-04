@@ -1,0 +1,6 @@
+models:
+  - provider: google_genai
+    name: gemini-2.5-flash
+    label: google_gemini_2.5_flash
+    temperature: 1.0
+    seed: 42

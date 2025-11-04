@@ -19,5 +19,5 @@ experiments:
         label: google_gemini_2.5_flash
         temperature: 1.0
         seed: 42
-    repetitions: 3
+    repetitions: 1
     cleanup: per_run

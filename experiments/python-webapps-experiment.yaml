@@ -1,0 +1,23 @@
+experiments:
+- name: python-webapps-evaluation
+  description: Evaluate models on Python web application repositories
+  repos:
+  - https://github.com/Furkan-Gulsen/Blur-Detection-Web-App.git
+  - https://github.com/alfred82santa/whalesong.git
+  - https://github.com/k1m0ch1/covid-19-api.git
+  - https://github.com/amineHY/WebApp-Computer-Vision-streamlit.git
+  - https://github.com/v-iashin/WebsiteYOLO.git
+  - https://github.com/kaushikjadhav01/Cancer-Donation-Portal-Python-Flask-App.git
+  - https://github.com/Kensuke-Mitsuzawa/DocumentFeatureSelection.git
+  - https://github.com/sungchun12/iot-python-webapp.git
+  - https://github.com/atyrode/gitemplate.git
+  - https://github.com/MINIOpenSource/CIMS-backend.git
+  models:
+  - provider: google_genai
+    name: gemini-2.5-flash
+    temperature: 1.0
+    seed: 42
+    parameters: {}
+    label: google_gemini_2.5_flash
+  repetitions: 1
+  cleanup: per_run
