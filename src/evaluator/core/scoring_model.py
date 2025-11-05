@@ -147,7 +147,7 @@ class ScoringConfig:
     SEVERITY_PENALTIES = {
         ValidationSeverity.ERROR: 15.0,    # Errors are critical
         ValidationSeverity.WARNING: 10.0,   # Warnings carry meaningful risk
-        ValidationSeverity.INFO: 1.0,      # Info issues are minor
+        ValidationSeverity.INFO: 0.0,      # Info issues do not affect score (informational only)
     }
 
     # Phase importance weights (how much each phase contributes to component score)

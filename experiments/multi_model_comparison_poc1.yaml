@@ -19,9 +19,9 @@ experiments:
         label: google_gemini_2.5_flash
         temperature: 1.0
         seed: 42
-    repetitions: 1
+    repetitions: 2
     cleanup: per_run
     generator_overrides:
-      enable_llm_judge: true
-      llm_judge_model_name: gpt-5-mini
-      llm_judge_model_provider: openai
+#      enable_llm_judge: true
+#      llm_judge_model_name: gpt-5-mini
+#      llm_judge_model_provider: openai

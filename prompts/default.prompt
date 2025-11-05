@@ -51,6 +51,7 @@ Your objective is to create:
    - Set replicas default to {default_replicas} unless otherwise stated
    - For ingress host, use "<repository-name>.{domain_suffix}" (e.g., repository "app1" → domain "app1.{domain_suffix}")
    - Follow Kubernetes best practices and ensure security measures
+   - Explicitly guard against containers missing read-only root filesystems or runAsNonRoot settings by adding the appropriate securityContext configuration (set runAsNonRoot: true, specify a non-root UID when possible, and enable readOnlyRootFilesystem unless the workload truly requires writes)
    - If external dependencies (e.g., databases like PostgreSQL, Redis, MySQL) are identified, generate appropriate Kubernetes resources for those dependencies as well
    - Deploy stateful dependencies using StatefulSets with appropriate PersistentVolumeClaims
    - IMPORTANT: When creating PersistentVolumeClaims, do NOT specify storageClassName if there is a default storage class configured in the cluster (this allows the default to be used automatically)

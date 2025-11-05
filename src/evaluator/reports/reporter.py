@@ -151,7 +151,15 @@ class EvaluationReporter:
                     "rule_id": issue.rule_id
                 }
                 for issue in metrics.validation_issues
-            ]
+            ],
+            # H3 hypothesis verification metrics
+            "error_count": metrics.error_count,
+            "warning_count": metrics.warning_count,
+            "info_count": metrics.info_count,
+            "has_errors": metrics.has_errors,
+            "is_clean": metrics.is_clean,
+            "dockerfile_syntax_valid": metrics.dockerfile_syntax_valid,
+            "k8s_syntax_valid": metrics.k8s_syntax_valid,
         }
 
         # Add detailed scoring breakdown if available

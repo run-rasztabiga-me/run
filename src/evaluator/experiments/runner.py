@@ -412,6 +412,14 @@ class ExperimentRunner:
             "k8s_llm_score": k8s_llm_score,
             "tool_calls": exec_metrics.tool_calls_count if exec_metrics else None,
             "tokens_used": exec_metrics.tokens_used if exec_metrics else None,
+            # H3 hypothesis verification metrics
+            "error_count": quality_metrics.error_count if quality_metrics else None,
+            "warning_count": quality_metrics.warning_count if quality_metrics else None,
+            "info_count": quality_metrics.info_count if quality_metrics else None,
+            "has_errors": quality_metrics.has_errors if quality_metrics else None,
+            "is_clean": quality_metrics.is_clean if quality_metrics else None,
+            "dockerfile_syntax_valid": quality_metrics.dockerfile_syntax_valid if quality_metrics else None,
+            "k8s_syntax_valid": quality_metrics.k8s_syntax_valid if quality_metrics else None,
             "report_path": relative_path.as_posix(),
         }
 
@@ -450,6 +458,14 @@ class ExperimentRunner:
             "k8s_llm_score",
             "tool_calls",
             "tokens_used",
+            # H3 hypothesis verification metrics
+            "error_count",
+            "warning_count",
+            "info_count",
+            "has_errors",
+            "is_clean",
+            "dockerfile_syntax_valid",
+            "k8s_syntax_valid",
             "report_path",
         ]
 

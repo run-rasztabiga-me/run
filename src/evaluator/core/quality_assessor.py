@@ -74,6 +74,16 @@ class QualityAssessor:
         if llm_results:
             quality_metrics.llm_judge_results.update(llm_results)
 
+        # Aggregate severity counts for H3 hypothesis verification
+        all_issues = pipeline_result.issues
+        quality_metrics.error_count = sum(1 for issue in all_issues if issue.severity == ValidationSeverity.ERROR)
+        quality_metrics.warning_count = sum(1 for issue in all_issues if issue.severity == ValidationSeverity.WARNING)
+        quality_metrics.info_count = sum(1 for issue in all_issues if issue.severity == ValidationSeverity.INFO)
+
+        # Check syntax validation results
+        quality_metrics.dockerfile_syntax_valid = self._check_dockerfile_syntax(step_issues)
+        quality_metrics.k8s_syntax_valid = self._check_k8s_syntax(step_issues)
+
         build_failed = any(issue.severity == ValidationSeverity.ERROR for issue in step_issues.get("docker_build", []))
         runtime_issues = step_issues.get("runtime")
 
@@ -84,3 +94,23 @@ class QualityAssessor:
             runtime_issues=runtime_issues,
             runtime_success=runtime_success,
         )
+
+    def _check_dockerfile_syntax(self, step_issues: dict) -> Optional[bool]:
+        """Check if Dockerfile syntax validation passed (no errors in syntax step)."""
+        syntax_issues = step_issues.get("dockerfile_syntax", [])
+        if not syntax_issues:
+            # No syntax step was run or no issues found
+            return None if "dockerfile_syntax" not in step_issues else True
+        # Check if there are any ERROR-level syntax issues
+        has_syntax_errors = any(issue.severity == ValidationSeverity.ERROR for issue in syntax_issues)
+        return not has_syntax_errors
+
+    def _check_k8s_syntax(self, step_issues: dict) -> Optional[bool]:
+        """Check if Kubernetes manifest syntax validation passed (no errors in syntax step)."""
+        syntax_issues = step_issues.get("k8s_syntax", [])
+        if not syntax_issues:
+            # No syntax step was run or no issues found
+            return None if "k8s_syntax" not in step_issues else True
+        # Check if there are any ERROR-level syntax issues
+        has_syntax_errors = any(issue.severity == ValidationSeverity.ERROR for issue in syntax_issues)
+        return not has_syntax_errors

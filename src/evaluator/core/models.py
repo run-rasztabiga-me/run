@@ -77,6 +77,23 @@ class QualityMetrics:
     scoring_breakdown: Optional[Dict[str, Any]] = None  # Detailed phase-by-phase scoring
     llm_judge_results: Dict[str, Any] = field(default_factory=dict)
 
+    # Aggregated validation metrics for H3 hypothesis verification
+    error_count: int = 0
+    warning_count: int = 0
+    info_count: int = 0
+    dockerfile_syntax_valid: Optional[bool] = None
+    k8s_syntax_valid: Optional[bool] = None
+
+    @property
+    def has_errors(self) -> bool:
+        """Whether configuration has any validation errors."""
+        return self.error_count > 0
+
+    @property
+    def is_clean(self) -> bool:
+        """Whether configuration is clean (no errors or warnings)."""
+        return self.error_count == 0 and self.warning_count == 0
+
 
 @dataclass
 class EvaluationReport:
