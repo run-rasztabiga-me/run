@@ -12,6 +12,14 @@ from typing import Dict, List, Optional, Tuple
 from ..core.models import EvaluationReport, GenerationResult
 
 
+def _sanitize_token(value: Optional[str]) -> str:
+    if not value:
+        return "default"
+    sanitized = "".join(ch if ch.isalnum() or ch in ("-", "_") else "-" for ch in value)
+    sanitized = "-".join(filter(None, sanitized.split("-")))
+    return sanitized or "value"
+
+
 @dataclass(frozen=True)
 class _GroupKey:
     experiment: str
@@ -148,7 +156,16 @@ class RunRepeatabilityAnalyzer:
             if len(records) < 2:
                 continue
             info: _GroupInfo = data["info"]
-            pair_entries = self._build_pair_entries(records, relative_base)
+            diff_dir = (
+                None
+                if relative_base is None
+                else relative_base
+                / "repeatability_diffs"
+                / _sanitize_token(key.model_identifier)
+                / _sanitize_token(key.prompt_label)
+                / _sanitize_token(info.repo_name)
+            )
+            pair_entries = self._build_pair_entries(records, relative_base, diff_dir)
             diff_values = [entry["diff_ratio"] for entry in pair_entries]
             tool_counts = [record.tool_steps for record in records if record.tool_steps is not None]
 
@@ -189,13 +206,27 @@ class RunRepeatabilityAnalyzer:
         self,
         records: List[_RunRecord],
         relative_base: Optional[Path],
+        diff_dir: Optional[Path],
     ) -> List[Dict[str, object]]:
         entries: List[Dict[str, object]] = []
         for i in range(len(records)):
             for j in range(i + 1, len(records)):
                 first = records[i]
                 second = records[j]
-                diff_ratio = self._calculate_diff_ratio(first.snapshot_text, second.snapshot_text)
+                diff_ratio, unified_text = self._calculate_diff_ratio(
+                    first.snapshot_text,
+                    second.snapshot_text,
+                    first_label=first.run_id or first.repetition_label or f"run{i+1}",
+                    second_label=second.run_id or second.repetition_label or f"run{j+1}",
+                )
+                diff_path = None
+                if unified_text and diff_dir:
+                    diff_dir.mkdir(parents=True, exist_ok=True)
+                    safe_first = _sanitize_token(first.run_id or first.repetition_label or f"run{i+1}")
+                    safe_second = _sanitize_token(second.run_id or second.repetition_label or f"run{j+1}")
+                    diff_file = diff_dir / f"{safe_first}_vs_{safe_second}.diff"
+                    diff_file.write_text(unified_text, encoding="utf-8")
+                    diff_path = self._relativize(diff_file, relative_base)
                 entries.append(
                     {
                         "run_ids": [first.run_id, second.run_id],
@@ -205,6 +236,7 @@ class RunRepeatabilityAnalyzer:
                             self._relativize(first.report_path, relative_base),
                             self._relativize(second.report_path, relative_base),
                         ],
+                        "diff_path": diff_path,
                     }
                 )
         return entries
@@ -257,14 +289,28 @@ class RunRepeatabilityAnalyzer:
         serialized_text = "\n".join(serialized_lines)
         return _Snapshot(text=serialized_text, file_labels=serialized_labels)
 
-    @staticmethod
-    def _calculate_diff_ratio(first: str, second: str) -> float:
+    def _calculate_diff_ratio(
+        self,
+        first: str,
+        second: str,
+        first_label: Optional[str] = None,
+        second_label: Optional[str] = None,
+    ) -> tuple[float, str]:
         first_lines = first.splitlines()
         second_lines = second.splitlines()
-        diff = difflib.ndiff(first_lines, second_lines)
-        changed_lines = sum(1 for line in diff if line.startswith("+ ") or line.startswith("- "))
+        diff_list = list(difflib.ndiff(first_lines, second_lines))
+        changed_lines = sum(1 for line in diff_list if line.startswith("+ ") or line.startswith("- "))
         avg_length = max((len(first_lines) + len(second_lines)) / 2.0, 1.0)
-        return changed_lines / avg_length
+        unified = "\n".join(
+            difflib.unified_diff(
+                first_lines,
+                second_lines,
+                fromfile=first_label or "runA",
+                tofile=second_label or "runB",
+                lineterm="",
+            )
+        )
+        return changed_lines / avg_length, unified
 
     @staticmethod
     def _relativize(path_str: Optional[str], base_dir: Optional[Path]) -> Optional[str]:

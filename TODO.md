@@ -71,6 +71,8 @@
 17. **Repository Dataset Builder**
     - Create a module that discovers and curates a dataset of GitHub repositories suited for evaluator benchmarking.
     - Support configurable filters (language, stars, topics) and persist metadata so experiments can sample consistent repo sets.
+    - Provide higher-level queries (e.g., most recent Dockerized web apps in a specific language, samples containing IaC assets) to feed experiments with targeted cohorts.
+    - Enable content-aware filtering (e.g., “repo contains any Dockerfile/Kubernetes manifest anywhere in tree”) rather than relying solely on metadata/tags.
 18. **Namespace Manifest Guardrails**
     - Update validation/generation flows to ignore or reject Kubernetes manifests that declare a `Namespace`, preventing illegal namespace creation in evaluated outputs.
 19. **Masters Thesis Experiment Prep**
