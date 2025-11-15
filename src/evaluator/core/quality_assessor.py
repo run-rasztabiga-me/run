@@ -97,11 +97,15 @@ class QualityAssessor:
 
     def _check_dockerfile_syntax(self, step_issues: dict) -> Optional[bool]:
         """Check if Dockerfile syntax validation passed (no errors in syntax step)."""
-        syntax_issues = step_issues.get("dockerfile_syntax", [])
+        syntax_issues = step_issues.get("docker_syntax")
+        if syntax_issues is None:
+            # Syntax validation step never ran
+            return None
+
         if not syntax_issues:
-            # No syntax step was run or no issues found
-            return None if "dockerfile_syntax" not in step_issues else True
-        # Check if there are any ERROR-level syntax issues
+            # Step ran and produced no issues
+            return True
+
         has_syntax_errors = any(issue.severity == ValidationSeverity.ERROR for issue in syntax_issues)
         return not has_syntax_errors
 

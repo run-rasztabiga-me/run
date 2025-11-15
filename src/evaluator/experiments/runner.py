@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from ..core.evaluator import ConfigurationEvaluator
 from ..core.models import EvaluationReport
+from ..metrics.repeatability import RunRepeatabilityAnalyzer
 from ...generator.core.config import GeneratorConfig
 from ...tools.cluster_cleanup import cleanup_cluster
 from ...utils.repository_utils import extract_repo_name
@@ -110,6 +111,7 @@ class ExperimentRunner:
         }
         self._write_status(status_file, status_payload)
 
+        repeatability_analyzer = RunRepeatabilityAnalyzer()
         runs_completed = 0
         cumulative_duration = 0.0
 
@@ -159,6 +161,19 @@ class ExperimentRunner:
                                 experiment_dir=experiment_dir,
                             )
                             summary_rows.append(summary_row)
+                            repeatability_analyzer.record_run(
+                                experiment_name=experiment.name,
+                                repo_url=run_context.repo_url,
+                                repo_name=report.repo_name or repo_name,
+                                model_identifier=model.identifier,
+                                model_name=model.name,
+                                model_provider=model.provider,
+                                model_label=model.label or model.identifier,
+                                prompt_label=prompt_label,
+                                prompt_description=(report.extra_metadata or {}).get("prompt_description"),
+                                report=report,
+                                report_path=report_path,
+                            )
                             run_finished_at = datetime.now(UTC)
                             run_duration = max(
                                 (run_finished_at - run_started_at).total_seconds(), 0.0
@@ -213,6 +228,12 @@ class ExperimentRunner:
                                 )
 
             summary_info = self._write_summary_artifacts(experiment_dir, summary_rows)
+            repeatability_info = repeatability_analyzer.finalize(
+                experiment_dir / "repeatability.json",
+                relative_base=experiment_dir,
+            )
+            if repeatability_info:
+                summary_info.update(repeatability_info)
             finished_at = datetime.now(UTC)
             status_payload.update(
                 {
@@ -376,6 +397,8 @@ class ExperimentRunner:
         quality_metrics = report.quality_metrics
 
         extra_metadata = report.extra_metadata or {}
+        run_id = extra_metadata.get("run_id")
+        workspace_dir = extra_metadata.get("workspace_dir")
         docker_llm_score = None
         k8s_llm_score = None
         if quality_metrics and quality_metrics.llm_judge_results:
@@ -420,6 +443,8 @@ class ExperimentRunner:
             "is_clean": quality_metrics.is_clean if quality_metrics else None,
             "dockerfile_syntax_valid": quality_metrics.dockerfile_syntax_valid if quality_metrics else None,
             "k8s_syntax_valid": quality_metrics.k8s_syntax_valid if quality_metrics else None,
+            "run_id": run_id,
+            "workspace_dir": workspace_dir,
             "report_path": relative_path.as_posix(),
         }
 
@@ -466,6 +491,8 @@ class ExperimentRunner:
             "is_clean",
             "dockerfile_syntax_valid",
             "k8s_syntax_valid",
+            "run_id",
+            "workspace_dir",
             "report_path",
         ]
 

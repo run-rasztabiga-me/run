@@ -1,0 +1,13 @@
+experiments:
+  - name: poc1_repeatability
+    description: Test poc1-fastapi for repeatability.
+    repos:
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
+    models:
+      - provider: openai
+        name: gpt-5-mini
+        label: openai_gpt5_mini
+        temperature: 1.0
+        seed: 42
+    repetitions: 3
+    cleanup: per_experiment
