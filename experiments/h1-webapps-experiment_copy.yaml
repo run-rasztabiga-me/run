@@ -10,12 +10,22 @@ experiments:
   - https://github.com/technicalguru/php-webapp.git
   - https://github.com/jan-bobrowski/lsfont.git
   - https://github.com/nishant0820/Ved-Stationary-Ecommerce-WebApp.git
+  - https://github.com/lunarcloud/sta-play-webapp.git
+  - https://github.com/googleinterns/Pictophone.git
+  - https://github.com/SoLiDinity/airwatch.git
+  - https://github.com/squivix/dzelda-backend.git
+  - https://github.com/the-hideout/tarkov-data-manager.git
+  - https://github.com/minhd-vu/assassins.git
   models:
   - provider: openai
     name: gpt-5-mini
     temperature: 1.0
     seed: 42
-    parameters: {}
     label: openai_gpt5_mini
+  - provider: google_genai
+    name: gemini-2.5-flash
+    temperature: 1.0
+    seed: 42
+    label: google_gemini_2.5_flash
   repetitions: 1
-  cleanup: per_experiment
+  cleanup: per_run

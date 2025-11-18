@@ -4,8 +4,8 @@ models:
     label: google_gemini_2.5_flash
     temperature: 1.0
     seed: 42
-#  - provider: openai
-#    name: gpt-5-mini
-#    label: openai_gpt5_mini
-#    temperature: 1.0
-#    seed: 42
+  - provider: openai
+    name: gpt-5-mini
+    label: openai_gpt5_mini
+    temperature: 1.0
+    seed: 42

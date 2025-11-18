@@ -2,15 +2,16 @@ experiments:
 - name: h1-webapps-evaluation
   description: H1 validation on real-world Dockerized web apps
   repos:
-  - https://github.com/medecins-du-monde/monitool.git
-  - https://github.com/capralifecycle/webapp-deploy-lambda.git
-  - https://github.com/mooss/noisy.git
-  - https://github.com/SoLiDinity/airwatch.git
-  - https://github.com/opentargets/ot-ui-apps.git
-  - https://github.com/IamLRBA/Banner-Designer-WebApp.git
-  - https://github.com/technicalguru/php-webapp.git
-  - https://github.com/jan-bobrowski/lsfont.git
+  - https://github.com/minhd-vu/assassins.git
+  - https://github.com/cgize/DiceOpt_kcd2.git
+  - https://github.com/twyr/twyr-webapp-server.git
   - https://github.com/nishant0820/Ved-Stationary-Ecommerce-WebApp.git
+  - https://github.com/warmachine028/euphoria.git
+  - https://github.com/agentvoiceresponse/avr-app.git
+  - https://github.com/SchoolTimer/ParklandSchoolTimer.git
+  - https://github.com/capralifecycle/webapp-deploy-lambda.git
+  - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
+  - https://github.com/SoLiDinity/airwatch.git
   models:
   - provider: google_genai
     name: gemini-2.5-flash
@@ -18,5 +19,11 @@ experiments:
     seed: 42
     parameters: {}
     label: google_gemini_2.5_flash
+  - provider: openai
+    name: gpt-5-mini
+    temperature: 1.0
+    seed: 42
+    parameters: {}
+    label: openai_gpt5_mini
   repetitions: 2
   cleanup: per_run
