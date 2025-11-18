@@ -49,7 +49,8 @@ class RepositoryWorkspace:
             ".git", ".github", ".gitignore", ".gitmodules", ".gitattributes",
             ".gitlab-ci.yml", ".travis.yml", "LICENSE", "README.md", "CHANGELOG.md",
             "__pycache__", ".pytest_cache", ".coverage", "htmlcov", ".idea",
-            ".vscode", "docker-compose.yml", "Dockerfile"
+            ".vscode", "docker-compose.yml", "docker-compose.prod.yml", "docker-compose.override.yml",
+            "Dockerfile"
         }
         self._workspace_path: Optional[Path] = None
         self._is_cloned = False
@@ -368,9 +369,9 @@ class RepositoryWorkspace:
             yield root, dirs, files_with_sizes
 
     def _tree_to_str(
-        self,
-        tree_gen: Generator[Tuple[str, List[str], List[Tuple[str, int]]], None, None],
-        trim_dir: str = None
+            self,
+            tree_gen: Generator[Tuple[str, List[str], List[Tuple[str, int]]], None, None],
+            trim_dir: str = None
     ) -> str:
         """Convert tree generator to string representation."""
         tree_str = ""

@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import random
+from fnmatch import fnmatch
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -58,10 +59,21 @@ class RepositoryFilters(BaseModel):
         default=False,
         description="Include archived repositories when set to True.",
     )
+    required_files: List[str] = Field(
+        default_factory=list,
+        description="File glob patterns that must exist somewhere in the repository tree.",
+    )
 
     @field_validator("languages", "topics", mode="before")
     @classmethod
     def _normalize_collection(cls, value: Iterable[str] | None) -> List[str]:
+        if value is None:
+            return []
+        return [item.strip() for item in value if item and item.strip()]
+    
+    @field_validator("required_files", mode="before")
+    @classmethod
+    def _normalize_required_files(cls, value: Iterable[str] | None) -> List[str]:
         if value is None:
             return []
         return [item.strip() for item in value if item and item.strip()]
@@ -388,6 +400,7 @@ class RepositoryDatasetBuilder:
         self.include_topics = include_topics
         self.dataset_dir = Path(default_dataset_dir)
         self.session = requests.Session()
+        self._tree_cache: Dict[str, List[str]] = {}
         resolved_token = token or self._resolve_token()
         headers = {
             "Accept": "application/vnd.github+json",
@@ -417,29 +430,65 @@ class RepositoryDatasetBuilder:
         order: str = "desc",
         selection_seed: Optional[int] = None,
         note: Optional[str] = None,
+        shuffle: bool = False,
+        fetch_multiple: int = 1,
     ) -> RepositoryDataset:
-        """Discover repositories via the GitHub Search API."""
+        """Discover repositories via the GitHub Search API.
+
+        Args:
+            name: Dataset name
+            filters: Repository filters to apply
+            limit: Number of repositories to return
+            sort: GitHub sort field
+            order: Sort order (asc/desc)
+            selection_seed: Seed for reproducible sampling/shuffling
+            note: Optional metadata note
+            shuffle: Whether to shuffle results (using selection_seed)
+            fetch_multiple: Fetch this many times the limit, then randomly sample
+                          (useful for getting diverse results). Must be >= 1.
+        """
         if limit < 1:
             raise ValueError("limit must be >= 1.")
+        if fetch_multiple < 1:
+            raise ValueError("fetch_multiple must be >= 1.")
 
+        fetch_limit = limit * fetch_multiple
         search_query = filters.build_search_query()
         logger.info(
-            "Searching GitHub repositories with query=%r sort=%s order=%s limit=%d",
+            "Searching GitHub repositories with query=%r sort=%s order=%s limit=%d (fetching %d)",
             search_query,
             sort,
             order,
             limit,
+            fetch_limit,
         )
         result = self._search_repositories(
             query=search_query,
             sort=sort,
             order=order,
-            limit=limit,
+            limit=fetch_limit,
         )
 
         repositories: List[RepositoryRecord] = result.items
         if self.include_topics:
             repositories = self._enrich_topics(repositories)
+        if filters.required_files:
+            repositories = self._filter_by_required_files(repositories, filters.required_files)
+
+        # Apply shuffling or random sampling if requested
+        if shuffle or fetch_multiple > 1:
+            seed = selection_seed if selection_seed is not None else int(datetime.now(timezone.utc).timestamp())
+            rng = random.Random(seed)
+
+            if fetch_multiple > 1 and len(repositories) > limit:
+                # Randomly sample from the larger set
+                repositories = rng.sample(repositories, min(limit, len(repositories)))
+                logger.info("Randomly sampled %d repositories from %d candidates (seed=%d)",
+                           len(repositories), len(result.items), seed)
+            elif shuffle:
+                # Just shuffle the results
+                rng.shuffle(repositories)
+                logger.info("Shuffled %d repositories (seed=%d)", len(repositories), seed)
 
         metadata = DatasetMetadata(
             name=name,
@@ -473,6 +522,8 @@ class RepositoryDatasetBuilder:
         output_path: Optional[str | Path] = None,
         selection_seed: Optional[int] = None,
         note: Optional[str] = None,
+        shuffle: bool = False,
+        fetch_multiple: int = 1,
     ) -> RepositoryDataset:
         """Discover repositories and persist the dataset to disk."""
         dataset = self.discover(
@@ -483,6 +534,8 @@ class RepositoryDatasetBuilder:
             order=order,
             selection_seed=selection_seed,
             note=note,
+            shuffle=shuffle,
+            fetch_multiple=fetch_multiple,
         )
         target = Path(output_path) if output_path else self.dataset_dir / f"{name}.json"
         dataset.save_json(target)
@@ -557,6 +610,70 @@ class RepositoryDatasetBuilder:
                 break
 
         return GitHubSearchResult(items=items, total_count=total_count)
+
+    def _filter_by_required_files(
+        self,
+        repositories: List[RepositoryRecord],
+        patterns: Sequence[str],
+    ) -> List[RepositoryRecord]:
+        """Filter repositories by verifying required files exist in their tree."""
+        normalized_patterns = [pattern.lower() for pattern in patterns if pattern]
+        if not normalized_patterns:
+            return repositories
+
+        matched: List[RepositoryRecord] = []
+        for record in repositories:
+            paths = self._fetch_repository_tree_paths(record)
+            if not paths:
+                logger.debug("Skipping %s; unable to fetch repository tree.", record.full_name)
+                continue
+            if self._paths_match_required_files(paths, normalized_patterns):
+                matched.append(record)
+        logger.info(
+            "Repository file filtering (%s) reduced set from %d to %d.",
+            ", ".join(patterns),
+            len(repositories),
+            len(matched),
+        )
+        return matched
+
+    def _fetch_repository_tree_paths(self, record: RepositoryRecord) -> Optional[List[str]]:
+        """Fetch the recursive tree listing for a repository's default branch."""
+        if not record.full_name:
+            return None
+        branch = record.default_branch or "main"
+        cache_key = f"{record.full_name}@{branch}"
+        if cache_key in self._tree_cache:
+            return self._tree_cache[cache_key]
+
+        url = f"{self.base_url}/repos/{record.full_name}/git/trees/{branch}"
+        params = {"recursive": "1"}
+        response = self.session.get(url, params=params, timeout=self.request_timeout)
+        if response.status_code != 200:
+            logger.warning(
+                "Failed to fetch tree for %s (branch %s): %s",
+                record.full_name,
+                branch,
+                response.text,
+            )
+            return None
+        payload = response.json()
+        tree = payload.get("tree", [])
+        paths = [entry.get("path") for entry in tree if entry.get("path")]
+        self._tree_cache[cache_key] = paths
+        return paths
+
+    @staticmethod
+    def _paths_match_required_files(paths: Sequence[str], patterns: Sequence[str]) -> bool:
+        """Return True if all required file patterns match at least one path."""
+        if not patterns:
+            return True
+        lowered_paths = [path.lower() for path in paths]
+        for pattern in patterns:
+            target = pattern.lower()
+            if not any(fnmatch(path, target) for path in lowered_paths):
+                return False
+        return True
 
     def _enrich_topics(self, repositories: List[RepositoryRecord]) -> List[RepositoryRecord]:
         """Fetch topics for repositories missing that information."""

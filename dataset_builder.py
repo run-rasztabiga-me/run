@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import yaml
+from dotenv import load_dotenv
 
 from src.evaluator.experiments.dataset_builder import (
     RepositoryDataset,
@@ -19,6 +20,8 @@ from src.evaluator.experiments.dataset_builder import (
     load_model_specs,
     load_prompts,
 )
+
+load_dotenv()
 
 
 def configure_logging(verbose: bool) -> None:
@@ -78,6 +81,13 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         help="GitHub topic filter (repeatable).",
     )
+    discover.add_argument(
+        "--required-file",
+        action="append",
+        dest="required_files",
+        default=[],
+        help="Require repositories to contain at least one file matching this glob (repeatable).",
+    )
     discover.add_argument("--min-stars", type=int, help="Minimum star count.")
     discover.add_argument("--max-stars", type=int, help="Maximum star count.")
     discover.add_argument(
@@ -102,6 +112,17 @@ def build_parser() -> argparse.ArgumentParser:
         "--selection-seed",
         type=int,
         help="Persist a custom selection seed for downstream sampling (defaults to timestamp if omitted).",
+    )
+    discover.add_argument(
+        "--shuffle",
+        action="store_true",
+        help="Shuffle the results using the selection seed for randomness.",
+    )
+    discover.add_argument(
+        "--fetch-multiple",
+        type=int,
+        default=1,
+        help="Fetch this many times the limit, then randomly sample (for diverse results). Default: 1.",
     )
 
     to_experiment = subparsers.add_parser(
@@ -156,6 +177,7 @@ def handle_discover(args: argparse.Namespace) -> int:
         max_stars=args.max_stars,
         include_forks=args.include_forks,
         include_archived=args.include_archived,
+        required_files=args.required_files,
     )
     builder = RepositoryDatasetBuilder()
 
@@ -168,6 +190,8 @@ def handle_discover(args: argparse.Namespace) -> int:
         output_path=args.output or default_dataset_path(args.name),
         selection_seed=args.selection_seed,
         note=args.note,
+        shuffle=args.shuffle,
+        fetch_multiple=args.fetch_multiple,
     )
 
     logging.info(

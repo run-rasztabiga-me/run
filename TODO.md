@@ -11,10 +11,10 @@
    - Ensure workspace isolation between parallel runs to prevent interference.
    - Consider implementing run-specific prefixes/suffixes for namespaces, images, and other shared resources.
    - Initial focus should remain on single-threaded execution to ensure deterministic behavior and stability.
-3. ⚙️ **Repeatability Metrics & Stability Analysis** – IN PROGRESS
-   - Integrate run-to-run diff ratio calculations (current `repeatability.json`) with experiment summaries and dashboards.
-   - Analyze LangSmith/tool-call variability to explain why agent plans diverge between runs.
-   - Calibrate thresholds/visualizations (e.g., >0.2 diff ratio) so they map cleanly onto H4 findings.
+3. ✅ **Repeatability Metrics & Stability Analysis** – DONE
+   - ✅ Integrated run-to-run diff ratio calculations (`repeatability.json`) with experiment summaries and diff artifacts.
+   - ✅ Added saved unified diffs per run pair for forensic analysis in GUI diff viewers.
+   - **Follow-up work**: Hook metrics into dashboards and long-term visualization, but core measurement pipeline is complete.
 4. ✅ **Repository Lifecycle Management** – DONE
    - ✅ Refactor `RepositoryManager` into a context-managed `RepositoryWorkspace` that allocates unique workdirs per run, exposes typed file APIs, and guarantees cleanup.
    - ✅ Remove mutable global state (`_tmp_dir`, `_repo_name`) and stringly-typed responses to support concurrent experiments safely.

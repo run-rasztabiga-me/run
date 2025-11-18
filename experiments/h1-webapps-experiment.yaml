@@ -1,0 +1,22 @@
+experiments:
+- name: h1-webapps-evaluation
+  description: H1 validation on real-world Dockerized web apps
+  repos:
+  - https://github.com/medecins-du-monde/monitool.git
+  - https://github.com/capralifecycle/webapp-deploy-lambda.git
+  - https://github.com/mooss/noisy.git
+  - https://github.com/SoLiDinity/airwatch.git
+  - https://github.com/opentargets/ot-ui-apps.git
+  - https://github.com/IamLRBA/Banner-Designer-WebApp.git
+  - https://github.com/technicalguru/php-webapp.git
+  - https://github.com/jan-bobrowski/lsfont.git
+  - https://github.com/nishant0820/Ved-Stationary-Ecommerce-WebApp.git
+  models:
+  - provider: google_genai
+    name: gemini-2.5-flash
+    temperature: 1.0
+    seed: 42
+    parameters: {}
+    label: google_gemini_2.5_flash
+  repetitions: 2
+  cleanup: per_run

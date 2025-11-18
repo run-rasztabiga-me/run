@@ -1,0 +1,21 @@
+experiments:
+- name: h1-webapps-evaluation_copy
+  description: H1 validation on real-world web apps (that work)
+  repos:
+  - https://github.com/sankeer28/Math-PDF-Generator-Web.git
+  - https://github.com/patrick204nqh/simple-webapp.git
+  - https://github.com/carrotflakes/fitbit-sleep-vis.git
+  - https://github.com/capralifecycle/webapp-deploy-lambda.git
+  - https://github.com/IamLRBA/Banner-Designer-WebApp.git
+  - https://github.com/technicalguru/php-webapp.git
+  - https://github.com/jan-bobrowski/lsfont.git
+  - https://github.com/nishant0820/Ved-Stationary-Ecommerce-WebApp.git
+  models:
+  - provider: openai
+    name: gpt-5-mini
+    temperature: 1.0
+    seed: 42
+    parameters: {}
+    label: openai_gpt5_mini
+  repetitions: 1
+  cleanup: per_experiment

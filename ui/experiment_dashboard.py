@@ -18,7 +18,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
@@ -238,7 +238,7 @@ def render_score_summary(
     agg_dict: Dict[str, tuple] = {"runs": (group_col, "count")}
 
     if "generation_success" in df.columns:
-        agg_dict["success_rate"] = ("generation_success", "mean")
+        agg_dict["generation_success_rate"] = ("generation_success", "mean")
     if "overall_score" in df.columns:
         agg_dict["avg_overall"] = ("overall_score", "mean")
     if "generation_time" in df.columns:
@@ -253,9 +253,9 @@ def render_score_summary(
 
     grouped = df.groupby(group_col).agg(**agg_dict).reset_index()
 
-    if "success_rate" in grouped.columns:
-        grouped["success_rate"] = pd.to_numeric(grouped["success_rate"], errors="coerce")
-        grouped["success_rate"] = (grouped["success_rate"] * 100).round(1)
+    if "generation_success_rate" in grouped.columns:
+        grouped["generation_success_rate"] = pd.to_numeric(grouped["generation_success_rate"], errors="coerce")
+        grouped["generation_success_rate"] = (grouped["generation_success_rate"] * 100).round(1)
     if "avg_overall" in grouped.columns:
         grouped["avg_overall"] = pd.to_numeric(grouped["avg_overall"], errors="coerce").round(2)
     if "avg_generation_time" in grouped.columns:

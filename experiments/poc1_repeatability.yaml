@@ -7,7 +7,7 @@ experiments:
       - provider: openai
         name: gpt-5-mini
         label: openai_gpt5_mini
-        temperature: 1.0
+        temperature: 0.0
         seed: 42
     repetitions: 3
     cleanup: per_experiment

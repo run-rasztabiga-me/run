@@ -18,8 +18,8 @@ class GeneratorConfig(BaseModel):
     # LLM settings
     model_name: str = Field(default="gpt-5-nano")
     model_provider: str = Field(default="openai")
-    temperature: float = Field(default=1.0)
-    seed: Optional[int] = Field(default=42)
+    temperature: float = Field(default=None)
+    seed: Optional[int] = Field(default=None)
     system_prompt: Optional[str] = Field(default=None, description="Override system prompt for configuration agent.")
     prompt_version: Optional[str] = Field(default=None, description="Identifier for the prompt variant used.")
 
