@@ -15,6 +15,12 @@ python dataset_builder.py discover \
   --language Python \
   --language JavaScript \
   --language TypeScript \
+  --language Java \
+  --language Kotlin \
+  --language "C#" \
+  --language Go \
+  --language PHP \
+  --language Ruby \
   --topic webapp \
   --min-stars 0 \
   --max-stars 10 \
