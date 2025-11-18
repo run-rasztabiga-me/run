@@ -2,16 +2,13 @@ experiments:
 - name: h1-webapps-evaluation
   description: H1 validation on real-world Dockerized web apps
   repos:
-  - https://github.com/the-hideout/tarkov-data-manager.git
-  - https://github.com/carrotflakes/fitbit-sleep-vis.git
+  - https://github.com/ome/omero-weberror.git
+  - https://github.com/VishnuAmit/LapProFix.git
+  - https://github.com/medecins-du-monde/monitool.git
+  - https://github.com/twyr/twyr-webapp-server.git
   - https://github.com/destructo570/deplace-maison-ecommerce-webapp.git
-  - https://github.com/crhntr/go-htmx-examples.git
-  - https://github.com/cgize/DiceOpt_kcd2.git
-  - https://github.com/warmachine028/euphoria.git
-  - https://github.com/strifel/mampf.link.git
-  - https://github.com/ome/omero-signup.git
   - https://github.com/xixu-me/DeepLX-App.git
-  - https://github.com/nishant0820/Ved-Stationary-Ecommerce-WebApp.git
+  - https://github.com/premium-minds/pm-webapp-utils.git
   models:
   - provider: google_genai
     name: gemini-2.5-flash
@@ -25,5 +22,5 @@ experiments:
     seed: 42
     parameters: {}
     label: openai_gpt5_mini
-  repetitions: 2
+  repetitions: 1
   cleanup: per_run

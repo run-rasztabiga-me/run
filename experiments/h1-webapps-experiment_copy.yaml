@@ -21,6 +21,9 @@ experiments:
   - https://github.com/agentvoiceresponse/avr-app.git
   - https://github.com/SchoolTimer/ParklandSchoolTimer.git
   - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
+  - https://github.com/ome/omero-virtual-microscope.git
+  - https://github.com/tschoffelen/csv-hero.git
+  - https://github.com/Payroll-Engine/PayrollEngine.WebApp.git
   models:
   - provider: openai
     name: gpt-5-mini

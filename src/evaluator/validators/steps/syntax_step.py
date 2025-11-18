@@ -126,6 +126,11 @@ def _validate_manifest_syntax(context: ValidationContext, manifest_path: str) ->
     issues: List[ValidationIssue] = []
     manifest_full_path = context.workspace.get_full_path(manifest_path)
 
+    # Skip non-YAML files
+    if manifest_full_path.suffix.lower() not in [".yaml", ".yml"]:
+        context.logger.debug("Skipping non-YAML file: %s", manifest_path)
+        return issues
+
     result = context.command_runner.run(
         ["kubectl", "apply", "--dry-run=server", "-f", str(manifest_full_path)],
         timeout=30,

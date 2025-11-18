@@ -196,6 +196,31 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def docker_system_prune(dry_run: bool = False) -> None:
+    """
+    Execute docker system prune to remove all unused Docker resources.
+
+    Args:
+        dry_run: When True, only log the intended action.
+    """
+    if dry_run:
+        logger.info("[dry-run] Would run: docker system prune -a --volumes -f")
+        return
+
+    docker_bin = shutil.which("docker")
+    if docker_bin is None:
+        logger.warning("docker binary not found in PATH; skipping Docker cleanup.")
+        return
+
+    logger.info("Running Docker system prune to remove unused resources...")
+    try:
+        run_command([docker_bin, "system", "prune", "-a", "--volumes", "-f"])
+        logger.info("Docker system prune completed successfully.")
+    except subprocess.CalledProcessError as exc:
+        stderr = exc.stderr.strip() if exc.stderr else "unknown error"
+        logger.warning("Docker system prune failed: %s", stderr)
+
+
 def cleanup_cluster(
     *,
     kubectl_bin: str = "kubectl",
@@ -234,6 +259,8 @@ def cleanup_cluster(
         domain_suffix=config.domain_suffix,
         dry_run=dry_run,
     )
+
+    docker_system_prune(dry_run=dry_run)
 
     return hosts_cleaned
 

@@ -131,6 +131,11 @@ def _run_kube_linter(context: ValidationContext, manifest_path: str) -> List[Val
     issues: List[ValidationIssue] = []
     manifest_full_path = context.workspace.get_full_path(manifest_path)
 
+    # Skip non-YAML files
+    if manifest_full_path.suffix.lower() not in [".yaml", ".yml"]:
+        context.logger.debug("Skipping non-YAML file: %s", manifest_path)
+        return issues
+
     config_path = Path(__file__).resolve().parent.parent / ".kube-linter.yaml"
     cmd = ["kube-linter", "lint", "--format", "json"]
     if config_path.exists():
