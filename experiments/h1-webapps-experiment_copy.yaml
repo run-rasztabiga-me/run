@@ -16,6 +16,11 @@ experiments:
   - https://github.com/squivix/dzelda-backend.git
   - https://github.com/the-hideout/tarkov-data-manager.git
   - https://github.com/minhd-vu/assassins.git
+  - https://github.com/cgize/DiceOpt_kcd2.git
+  - https://github.com/warmachine028/euphoria.git
+  - https://github.com/agentvoiceresponse/avr-app.git
+  - https://github.com/SchoolTimer/ParklandSchoolTimer.git
+  - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
   models:
   - provider: openai
     name: gpt-5-mini
