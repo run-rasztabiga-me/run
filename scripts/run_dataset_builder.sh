@@ -28,7 +28,7 @@ python dataset_builder.py discover \
   --sort pushed \
   --order desc \
   --note "H1 dataset: recent web applications for functional validation" \
-  --fetch-multiple 4 \
+  --fetch-multiple 5 \
   --shuffle
 
 ## Convert dataset into an experiment definition focused on H1 validation
