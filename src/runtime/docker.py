@@ -87,8 +87,6 @@ class DockerImageBuilder:
             "build",
             "--platform",
             "linux/amd64",
-            "--no-cache",
-            "--pull",
             "--load",
             "--progress=plain",
             "-t",
