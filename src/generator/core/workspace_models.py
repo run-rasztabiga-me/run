@@ -43,9 +43,21 @@ class RunContext:
 
         PARALLEL SAFETY: Prevents namespace collisions in K8s cluster
         Example: my-app-550e8400-e29b-41d4-a716-446655440000
+
+        Kubernetes namespaces must be no more than 63 characters.
+        If the full name exceeds this limit, the repo name will be truncated.
         """
         sanitized = self.repo_name.lower().replace('_', '-').replace('.', '-')
-        return f"{sanitized}-{self.run_id}"
+        namespace = f"{sanitized}-{self.run_id}"
+
+        # Kubernetes namespace names must be <= 63 characters
+        if len(namespace) > 63:
+            # run_id is 36 chars (UUID), so we need 1 char for hyphen = 37 chars reserved
+            max_repo_name_len = 63 - len(self.run_id) - 1
+            sanitized = sanitized[:max_repo_name_len]
+            namespace = f"{sanitized}-{self.run_id}"
+
+        return namespace
 
     def get_image_tag(self, image_name: str) -> str:
         """

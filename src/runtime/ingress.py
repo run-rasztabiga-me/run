@@ -47,7 +47,7 @@ class IngressRuntimeChecker:
                 RuntimeIssue(
                     code="NO_INGRESS_URL",
                     message="No ingress URL found in cluster, skipping runtime health check",
-                    severity="warning",
+                    severity="error",
                     subject=namespace,
                 )
             )
