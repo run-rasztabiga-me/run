@@ -70,7 +70,11 @@ DOCKERFILE BEST PRACTICES (MUST FOLLOW):
    - For compiled languages (Go, Rust, Java): separate build and runtime stages
    - For frontend SPAs (React, Vue, Angular, Next.js): build stage + nginx serving stage
    - For Node.js with build steps: builder stage + production stage with only node_modules and built assets
-   - Example pattern:
+   - For nginx serving, you have two options:
+     * Option A (simpler): nginx:alpine on port 80, runs as root
+     * Option B (more secure): nginxinc/nginx-unprivileged:alpine on port 8080, runs as non-root
+     Both are acceptable - choose based on your security requirements
+   - Example pattern (Option A - nginx with root):
      ```dockerfile
      FROM node:20.10.0 AS builder
      WORKDIR /app
@@ -81,6 +85,7 @@ DOCKERFILE BEST PRACTICES (MUST FOLLOW):
 
      FROM nginx:1.25.3-alpine
      COPY --from=builder /app/dist /usr/share/nginx/html
+     EXPOSE 80
      ```
 
 3. **Layer Optimization and Caching**:
@@ -93,18 +98,25 @@ DOCKERFILE BEST PRACTICES (MUST FOLLOW):
    - Include: node_modules, .git, .env, .env.*, *.log, .DS_Store, __pycache__, *.pyc, .pytest_cache, dist, build, coverage
    - This reduces build context size and prevents copying unnecessary files
 
-5. **Security - Non-Root User**:
-   - ALWAYS run containers as non-root user
-   - For Node.js: use existing 'node' user (USER node)
-   - For Python: create user (RUN adduser -D appuser && USER appuser)
-   - For Go/static: use scratch or distroless with USER nobody
-   - Set user AFTER installing packages but BEFORE copying application code (when possible)
+5. **Security - Non-Root User** (RECOMMENDED, not required):
+   - PREFER running containers as non-root user when possible, but root is acceptable if the application requires it
+   - Common scenarios where root may be needed:
+     * Application binds to privileged ports (<1024) like 80 or 443
+     * Application writes to system directories (/var, /etc, /usr)
+     * Application needs to install packages or modify system configuration at runtime
+     * Legacy applications not designed for non-root execution
+   - If running as non-root is feasible:
+     * For Node.js: use existing 'node' user (USER node)
+     * For Python: create user (RUN adduser -D appuser && USER appuser)
+     * For Go/static: use scratch or distroless with USER nobody
+     * For nginx: either use nginx:alpine as root (simpler) or nginxinc/nginx-unprivileged (non-root, port 8080)
+   - If the application requires root, omit the USER directive and let it run as root (default)
 
 6. **Port Configuration**:
-   - Use non-privileged ports (>1024): 8000, 8080, 3000, etc.
-   - NEVER bind to ports <1024 when running as non-root
+   - If running as non-root: use non-privileged ports (>1024) like 8000, 8080, 3000, etc.
+   - If running as root: you can use any port including privileged ports (80, 443)
    - EXPOSE the port for documentation
-   - External port mapping (80, 443) is handled by Kubernetes Service/Ingress, not Dockerfile
+   - Note: External port mapping (80, 443) can be handled by Kubernetes Service/Ingress, but direct port 80/443 binding is also acceptable
 
 7. **Build Context Awareness**:
    - IMPORTANT: For multi-service repositories, write COPY instructions as if the build context is the service directory itself
@@ -130,12 +142,19 @@ COMMON DOCKER PITFALLS TO AVOID:
    - Alpine compatibility: Some packages (like Python libraries with C extensions) may have issues on Alpine. Use -slim variants instead if you encounter build errors.
 
 3. **Security Context Mismatches**:
-   - runAsNonRoot compatibility: If Kubernetes manifests will set securityContext.runAsNonRoot: true, ensure the Dockerfile uses a non-root USER directive (e.g., USER node, USER 1000). Otherwise, container will fail with "container has runAsNonRoot and image will run as root".
+   - runAsNonRoot compatibility: If you set securityContext.runAsNonRoot: true in Kubernetes manifests, ensure the Dockerfile uses a non-root USER directive (e.g., USER node, USER 1000). Otherwise, container will fail with "container has runAsNonRoot and image will run as root".
+   - If in doubt about permissions, OMIT runAsNonRoot and runAsUser to allow root execution and ensure functionality first.
 
 4. **File System Access Issues**:
    - Read-only filesystem: If Kubernetes manifests enable readOnlyRootFilesystem: true, applications that write to filesystem (nginx cache, temp files, logs) will fail with "mkdir() failed (30: Read-only file system)". See Kubernetes section for solution.
 
 5. **Frontend/SPA Specific**:
+   - Nginx image selection: Choose between two options:
+     * nginx:alpine (port 80, runs as root, simpler) - omit runAsNonRoot/runAsUser in K8s
+     * nginxinc/nginx-unprivileged:alpine (port 8080, non-root, more secure) - use runAsNonRoot: true in K8s
+     Both are valid choices - pick based on your needs
+   - Port configuration: Match Dockerfile EXPOSE with K8s containerPort (80 for nginx:alpine, 8080 for nginx-unprivileged)
+   - Security context alignment: If using nginx:alpine, omit runAsNonRoot and runAsUser. If using nginx-unprivileged, set runAsNonRoot: true and runAsUser: 101
    - Missing nginx configuration: When serving SPAs with nginx, create nginx.conf to handle client-side routing (try_files $uri /index.html)
    - Build output location: Verify where npm run build outputs files (dist/, build/, out/) and copy from correct location
 
@@ -153,15 +172,39 @@ GENERAL REQUIREMENTS:
 - DO NOT create or include a namespace in the manifests (namespace is managed externally)
 - Follow Kubernetes best practices and ensure security measures
 
-SECURITY CONTEXT (CRITICAL):
+SECURITY CONTEXT (RECOMMENDED):
 
-1. **Default Security Stance**:
-   - ALWAYS set runAsNonRoot: true (at container level or pod level)
-   - Specify runAsUser: 1000 (or appropriate non-root UID matching Dockerfile USER)
-   - Set allowPrivilegeEscalation: false
-   - Drop all capabilities: drop: ["ALL"]
+IMPORTANT: Functionality over security - if the application requires root to work, allow it to run as root.
 
-2. **Read-Only Root Filesystem** (USE SPARINGLY):
+1. **Security Configuration Approach**:
+   - PREFER non-root execution when the application supports it, but root is acceptable if needed
+   - Analyze the application to determine if it requires root privileges
+   - If uncertain, START WITHOUT strict security constraints (no runAsNonRoot, no runAsUser) to ensure functionality
+   - You can add security restrictions later once the application is confirmed working
+
+2. **When to use non-root security context**:
+   - Application uses non-privileged ports (>1024)
+   - Application doesn't write to system directories
+   - Dockerfile includes USER directive with non-root user
+   - Using images designed for non-root (e.g., nginxinc/nginx-unprivileged)
+
+   In these cases, set:
+   - runAsNonRoot: true
+   - runAsUser: <UID> (matching Dockerfile USER)
+   - allowPrivilegeEscalation: false
+   - capabilities: drop: ["ALL"]
+
+3. **When to allow root**:
+   - Application binds to privileged ports (80, 443)
+   - Application writes to /var, /etc, /usr or other system paths
+   - Using official images that require root (nginx:alpine, many databases)
+   - Application performs system-level operations
+
+   In these cases, OMIT runAsNonRoot and runAsUser entirely, but you can still set:
+   - allowPrivilegeEscalation: false (recommended)
+   - capabilities: drop: ["ALL"] (optional, may break some applications)
+
+4. **Read-Only Root Filesystem** (USE SPARINGLY):
    - DO NOT enable readOnlyRootFilesystem by default
    - Only enable for truly stateless applications that:
      * Don't write logs to disk (use stdout/stderr only)
@@ -185,10 +228,11 @@ SECURITY CONTEXT (CRITICAL):
          emptyDir: {{}}
        ```
 
-3. **Security Context Location**:
+5. **Security Context Location**:
    - Use spec.template.spec.containers[].securityContext for container-level settings (readOnlyRootFilesystem, allowPrivilegeEscalation, capabilities)
    - Use spec.template.spec.securityContext for pod-level settings (runAsUser, runAsNonRoot, fsGroup)
    - IMPORTANT: Placing readOnlyRootFilesystem in pod-level securityContext will cause "strict decoding error: unknown field" - it must be at container level
+   - If omitting security context for root execution, you can omit the entire securityContext block or just omit runAsNonRoot/runAsUser fields
 
 RESOURCE MANAGEMENT:
 
@@ -210,6 +254,7 @@ RESOURCE MANAGEMENT:
   Frontend/nginx (static serving):
     requests: {{ cpu: "50m", memory: "64Mi" }}
     limits: {{ cpu: "200m", memory: "128Mi" }}
+    Note: Use containerPort 80 for nginx:alpine or 8080 for nginxinc/nginx-unprivileged
 
 HEALTH CHECKS (PROBES):
 
@@ -264,9 +309,10 @@ COMMON KUBERNETES PITFALLS:
 
 - Service port mapping: Service 'port' is external, 'targetPort' must match container port
 - Missing health check endpoints: Verify /health or other probe paths actually exist in code
-- Overly strict security: Don't enable readOnlyRootFilesystem unless you've verified the app can handle it
+- Overly strict security: Don't enable readOnlyRootFilesystem or runAsNonRoot unless you've verified the app can handle it. When in doubt, prioritize functionality.
 - Resource limits too low: Container OOMKilled errors indicate memory limits are too restrictive
 - subPath for PVCs: Always use subPath for database data directories to avoid permission issues
+- Permission errors: If you see "Operation not permitted" or "Permission denied" errors, the application likely needs root. Remove runAsNonRoot and runAsUser from securityContext.
 
 ================================================================================
 OUTPUT FORMAT
