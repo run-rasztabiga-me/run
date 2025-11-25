@@ -180,9 +180,9 @@ SECURITY CONTEXT (CRITICAL):
          mountPath: /var/cache/nginx
        volumes:
        - name: tmp
-         emptyDir: {}
+         emptyDir: {{}}
        - name: cache
-         emptyDir: {}
+         emptyDir: {{}}
        ```
 
 3. **Security Context Location**:
@@ -196,20 +196,20 @@ RESOURCE MANAGEMENT:
 - Use these as starting points and adjust based on application analysis:
 
   Small apps (simple APIs, Node.js, Python Flask/FastAPI):
-    requests: { cpu: "100m", memory: "128Mi" }
-    limits: { cpu: "500m", memory: "512Mi" }
+    requests: {{ cpu: "100m", memory: "128Mi" }}
+    limits: {{ cpu: "500m", memory: "512Mi" }}
 
   Medium apps (complex APIs, Node.js with heavy processing):
-    requests: { cpu: "250m", memory: "256Mi" }
-    limits: { cpu: "1000m", memory: "1Gi" }
+    requests: {{ cpu: "250m", memory: "256Mi" }}
+    limits: {{ cpu: "1000m", memory: "1Gi" }}
 
   Databases (PostgreSQL, MySQL, Redis):
-    requests: { cpu: "250m", memory: "512Mi" }
-    limits: { cpu: "1000m", memory: "2Gi" }
+    requests: {{ cpu: "250m", memory: "512Mi" }}
+    limits: {{ cpu: "1000m", memory: "2Gi" }}
 
   Frontend/nginx (static serving):
-    requests: { cpu: "50m", memory: "64Mi" }
-    limits: { cpu: "200m", memory: "128Mi" }
+    requests: {{ cpu: "50m", memory: "64Mi" }}
+    limits: {{ cpu: "200m", memory: "128Mi" }}
 
 HEALTH CHECKS (PROBES):
 

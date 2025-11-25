@@ -41,10 +41,15 @@ experiments:
 #    temperature: 1.0
 #    seed: 42
 #    label: openai_gpt5_mini
+#  - provider: google_genai
+#    name: gemini-2.5-flash
+#    temperature: 1.0
+#    seed: 42
+#    label: google_gemini_2.5_flash
   - provider: google_genai
-    name: gemini-2.5-flash
+    name: gemini-2.5-pro
     temperature: 1.0
     seed: 42
-    label: google_gemini_2.5_flash
+    label: google_gemini_2.pro
   repetitions: 1
   cleanup: never
