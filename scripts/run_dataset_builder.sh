@@ -24,7 +24,7 @@ python dataset_builder.py discover \
   --topic webapp \
   --min-stars 0 \
   --max-stars 10 \
-  --limit 10 \
+  --limit 20 \
   --sort pushed \
   --order desc \
   --note "H1 dataset: recent web applications for functional validation" \
@@ -39,5 +39,5 @@ python dataset_builder.py to-experiment \
   --description "H1 validation on real-world Dockerized web apps" \
   --models "${MODELS_FILE}" \
   --top-n 20 \
-  --repetitions 2 \
+  --repetitions 1 \
   --cleanup per_run

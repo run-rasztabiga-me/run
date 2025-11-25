@@ -35,6 +35,7 @@ experiments:
   - https://github.com/Anar-Mamedov/Vehicle-Fleet-Management-Application-ATS-PRO.git
   - https://github.com/colamonico-chiarulli/smartbreak.git
   - https://github.com/citiususc/semantic-emofinder.git
+  - https://github.com/sawankumarparida/Auction-House.git
   models:
 #  - provider: openai
 #    name: gpt-5-mini
@@ -46,10 +47,10 @@ experiments:
 #    temperature: 1.0
 #    seed: 42
 #    label: google_gemini_2.5_flash
-  - provider: google_genai
-    name: gemini-2.5-pro
-    temperature: 1.0
-    seed: 42
-    label: google_gemini_2.pro
+#  - provider: google_genai
+#    name: gemini-2.5-pro
+#    temperature: 1.0
+#    seed: 42
+#    label: google_gemini_2.pro
   repetitions: 1
   cleanup: never
