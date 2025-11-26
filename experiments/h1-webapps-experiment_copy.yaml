@@ -36,6 +36,10 @@ experiments:
   - https://github.com/colamonico-chiarulli/smartbreak.git
   - https://github.com/citiususc/semantic-emofinder.git
   - https://github.com/sawankumarparida/Auction-House.git
+  - https://github.com/qqiao/webapp.git
+  - https://github.com/rafuwu/mtg-scryfall-randomizer.git
+  - https://github.com/hsalvesen/vesen.git
+  - https://github.com/vaadin/base-starter-flow-osgi.git
   models:
 #  - provider: openai
 #    name: gpt-5-mini
@@ -47,10 +51,10 @@ experiments:
 #    temperature: 1.0
 #    seed: 42
 #    label: google_gemini_2.5_flash
-#  - provider: google_genai
-#    name: gemini-2.5-pro
-#    temperature: 1.0
-#    seed: 42
-#    label: google_gemini_2.pro
+  - provider: google_genai
+    name: gemini-2.5-pro
+    temperature: 1.0
+    seed: 42
+    label: google_gemini_2.pro
   repetitions: 1
   cleanup: never

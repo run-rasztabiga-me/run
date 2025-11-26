@@ -3,12 +3,7 @@ experiments:
   description: H1 validation on real-world Dockerized web apps
   repos:
   - https://github.com/tomcz/golang-webapp.git
-  - https://github.com/vaadin/base-starter-flow-osgi.git
-  - https://github.com/mil1dude/source-code.git
-  - https://github.com/hsalvesen/vesen.git
   - https://github.com/echo-noise/carro-limpo.git
-  - https://github.com/rafuwu/mtg-scryfall-randomizer.git
-  - https://github.com/qqiao/webapp.git
   models:
   - provider: google_genai
     name: gemini-2.5-flash
