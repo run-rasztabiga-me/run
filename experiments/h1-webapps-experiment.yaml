@@ -2,8 +2,7 @@ experiments:
 - name: h1-webapps-evaluation
   description: H1 validation on real-world Dockerized web apps
   repos:
-  - https://github.com/tomcz/golang-webapp.git
-  - https://github.com/echo-noise/carro-limpo.git
+  - https://github.com/Open-Dev-Society/booktrace.git
   models:
   - provider: google_genai
     name: gemini-2.5-flash
@@ -18,4 +17,4 @@ experiments:
     parameters: {}
     label: openai_gpt5_mini
   repetitions: 1
-  cleanup: per_run
+  cleanup: never

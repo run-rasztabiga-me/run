@@ -40,6 +40,18 @@ experiments:
   - https://github.com/rafuwu/mtg-scryfall-randomizer.git
   - https://github.com/hsalvesen/vesen.git
   - https://github.com/vaadin/base-starter-flow-osgi.git
+  - https://github.com/AdaptChat/webclient.git
+  - https://github.com/prathmesh-ka-github/Chessable.git
+  - https://github.com/opengeos/solara-template.git
+  - https://github.com/ces-unsw-edu-au/fireveg-webapp.git
+  - https://github.com/MindlessTruffle/Class-Order-Checker.git
+  - https://github.com/seanpm2001/LifeMill_WebApp.git
+  - https://github.com/DevCom-IITB/instiapp-angular.git
+  - https://github.com/NL-BioImaging/OMERO.forms.git
+  - https://github.com/schorschii/WebVault-Pro.git
+  - https://github.com/isixe/AdSenseDetective.git
+  - https://github.com/robweber/mario-kart-tournament.git
+  -
   models:
 #  - provider: openai
 #    name: gpt-5-mini
