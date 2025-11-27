@@ -51,7 +51,8 @@ experiments:
   - https://github.com/schorschii/WebVault-Pro.git
   - https://github.com/isixe/AdSenseDetective.git
   - https://github.com/robweber/mario-kart-tournament.git
-  -
+  - https://github.com/echo-noise/carro-limpo.git
+  - https://github.com/janaSunrise/Anime-face-generation-DCGAN-webapp.git
   models:
 #  - provider: openai
 #    name: gpt-5-mini
