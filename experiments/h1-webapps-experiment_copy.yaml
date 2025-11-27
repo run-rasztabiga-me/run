@@ -53,6 +53,18 @@ experiments:
   - https://github.com/robweber/mario-kart-tournament.git
   - https://github.com/echo-noise/carro-limpo.git
   - https://github.com/janaSunrise/Anime-face-generation-DCGAN-webapp.git
+  - https://github.com/opentargets/ot-ui-apps.git
+  - https://github.com/BK-SCOSS/scoss_webapp.git
+  - https://github.com/tomcz/golang-webapp.git
+  - https://github.com/destructo570/deplace-maison-ecommerce-webapp.git
+  - https://github.com/york9675/Tempo-Sync.git
+  - https://github.com/Graymattermetrics/cogspeed.git
+  - https://github.com/fiste788/fantamanajer.git
+  - https://github.com/bhavish00007/Attendence-Calculator.git
+  - https://github.com/remram44/twitch-vod-sync.git
+  - https://github.com/immersed-web/inclubit-2.git
+  - https://github.com/wacky-tracky/wacky-tracky-client-html5.git
+  -
   models:
 #  - provider: openai
 #    name: gpt-5-mini

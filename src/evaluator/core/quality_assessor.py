@@ -64,6 +64,9 @@ class QualityAssessor:
         if aggregated_score.k8s_component:
             quality_metrics.k8s_manifests_score = aggregated_score.k8s_component.weighted_score
 
+        if aggregated_score.runtime_score:
+            quality_metrics.runtime_score = aggregated_score.runtime_score.final_score
+
         # Store detailed scoring breakdown in quality metrics
         quality_metrics.scoring_breakdown = aggregated_score.to_dict()
         llm_results = {

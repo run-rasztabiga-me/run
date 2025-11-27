@@ -122,6 +122,7 @@ def load_summary(run: ExperimentRun) -> pd.DataFrame:
         "overall_score",
         "dockerfile_score",
         "k8s_score",
+        "runtime_score",
         "tool_calls",
         "tokens_used",
         "repetition",

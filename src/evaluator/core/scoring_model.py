@@ -159,9 +159,9 @@ class ScoringConfig:
         ValidationPhase.DOCKER_LINTERS: 0.20,   # Linter best practices
 
         # Kubernetes phases
-        ValidationPhase.K8S_SYNTAX: 0.35,       # Syntax must be correct
+        ValidationPhase.K8S_SYNTAX: 0.40,       # Syntax must be correct
         ValidationPhase.KUBERNETES_APPLY: 0.40, # Deployment must succeed
-        ValidationPhase.K8S_LINTERS: 0.25,      # Linter best practices
+        ValidationPhase.K8S_LINTERS: 0.20,      # Linter best practices
     }
 
     # Component weights for overall score
@@ -216,6 +216,21 @@ class IssueAggregationModel:
         docker_phases = self._calculate_docker_scores(step_issues)
         k8s_phases = self._calculate_k8s_scores(step_issues)
         runtime_phase = self._calculate_runtime_score(step_issues, runtime_success)
+
+        # If Docker build failed (has errors), set all Docker phase scores to 0
+        docker_build_failed = self._has_errors_in_step(step_issues, "docker_build")
+        if docker_build_failed and docker_phases:
+            for phase in docker_phases:
+                phase.final_score = 0.0
+
+        # If Kubernetes apply failed (has errors), set all K8s phase scores and runtime to 0
+        k8s_apply_failed = self._has_errors_in_step(step_issues, "kubernetes_apply")
+        if k8s_apply_failed:
+            if k8s_phases:
+                for phase in k8s_phases:
+                    phase.final_score = 0.0
+            if runtime_phase:
+                runtime_phase.final_score = 0.0
 
         # Aggregate into component scores
         docker_component = self._aggregate_component_score("Docker", docker_phases, is_docker=True)
@@ -399,30 +414,37 @@ class IssueAggregationModel:
         runtime_phase: Optional[PhaseScore],
     ) -> float:
         """
-        Calculate overall score from component scores using weighted average.
+        Calculate overall score from component scores using fixed weights.
 
-        Only components that were actually executed contribute to the score.
-        Weights are normalized based on which components ran.
+        Components that were not executed are treated as 0.
+        Weights are NOT normalized - if a component didn't run, it counts as 0.
         """
-        components = []
+        # Get scores, use 0 if component didn't run
+        docker_score = docker_component.weighted_score if docker_component else 0.0
+        k8s_score = k8s_component.weighted_score if k8s_component else 0.0
+        runtime_score = runtime_phase.final_score if runtime_phase else 0.0
 
-        if docker_component:
-            components.append(("docker", docker_component.weighted_score))
-
-        if k8s_component:
-            components.append(("kubernetes", k8s_component.weighted_score))
-
-        if runtime_phase:
-            components.append(("runtime", runtime_phase.final_score))
-
-        if not components:
-            return 0.0
-
-        # Calculate weighted score, normalizing weights
-        total_weight = sum(self.config.COMPONENT_WEIGHTS[name] for name, _ in components)
-        weighted_sum = sum(
-            score * self.config.COMPONENT_WEIGHTS[name]
-            for name, score in components
+        # Calculate weighted score without normalization
+        return (
+            docker_score * self.config.COMPONENT_WEIGHTS["docker"] +
+            k8s_score * self.config.COMPONENT_WEIGHTS["kubernetes"] +
+            runtime_score * self.config.COMPONENT_WEIGHTS["runtime"]
         )
 
-        return weighted_sum / total_weight if total_weight > 0 else 0.0
+    def _has_errors_in_step(
+        self,
+        step_issues: Dict[str, List[ValidationIssue]],
+        step_name: str,
+    ) -> bool:
+        """
+        Check if a specific step has any ERROR severity issues.
+
+        Args:
+            step_issues: Dictionary mapping step names to their validation issues
+            step_name: Name of the step to check
+
+        Returns:
+            True if the step has any ERROR severity issues, False otherwise
+        """
+        issues = step_issues.get(step_name, [])
+        return any(issue.severity == ValidationSeverity.ERROR for issue in issues)
