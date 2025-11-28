@@ -64,7 +64,9 @@ experiments:
   - https://github.com/remram44/twitch-vod-sync.git
   - https://github.com/immersed-web/inclubit-2.git
   - https://github.com/wacky-tracky/wacky-tracky-client-html5.git
-  -
+  - https://github.com/TechQuery/GitHub.git
+  - https://github.com/ome/omero-signup.git
+  - https://github.com/kurealnum/non-profit-link.git
   models:
 #  - provider: openai
 #    name: gpt-5-mini

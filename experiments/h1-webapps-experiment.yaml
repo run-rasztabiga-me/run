@@ -2,10 +2,15 @@ experiments:
 - name: h1-webapps-evaluation
   description: H1 validation on real-world Dockerized web apps
   repos:
-  - https://github.com/mooss/noisy.git
-  - https://github.com/ZowWeb/car-parking-webapp.git
-  - https://github.com/sudippokhrel/OCTS-Frontend.git
-  - https://github.com/Open-Dev-Society/booktrace.git
+  - https://github.com/riparias/gbif-alert.git
+  - https://github.com/eboukamza/image-only.git
+  - https://github.com/open-cogsci/sigmund-ai.git
+  - https://github.com/ome/omero-parade.git
+  - https://github.com/barsnes-group/peptide-shaker-online.git
+  - https://github.com/DOREMUS-ANR/overture.git
+  - https://github.com/VishnuAmit/LapProFix.git
+  - https://github.com/djeada/Proste-Projekty.git
+  - https://github.com/Tony-ArtZ/git-peek.git
   models:
   - provider: google_genai
     name: gemini-2.5-flash
@@ -19,5 +24,5 @@ experiments:
     seed: 42
     parameters: {}
     label: openai_gpt5_mini
-  repetitions: 1
+  repetitions: 2
   cleanup: per_run
