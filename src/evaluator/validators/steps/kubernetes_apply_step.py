@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List
 
 from ..pipeline import ValidationContext, ValidationState, ValidationStepResult
-from ...core.models import ValidationIssue, ValidationSeverity
+from ...core.models import ValidationIssue, ValidationSeverity, has_error_issues
 from ..utils import runtime_issues_to_validation
 from src.runtime import AppliedResource, KubernetesDeployer
 
@@ -33,7 +33,7 @@ class KubernetesApplyStep:
             prep_result = deployer.prepare_namespace(namespace)
             issues.extend(runtime_issues_to_validation(prep_result.issues, default_subject=namespace))
 
-            if any(issue.severity == ValidationSeverity.ERROR for issue in issues):
+            if has_error_issues(issues):
                 return ValidationStepResult(issues=issues, continue_pipeline=False)
 
             llm_image_tags = KubernetesDeployer.collect_llm_image_tags(state.docker_images)
@@ -74,5 +74,4 @@ class KubernetesApplyStep:
                 )
             )
 
-        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
-        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_error_issues(issues))

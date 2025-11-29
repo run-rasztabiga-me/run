@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List
 
 from ..pipeline import ValidationContext, ValidationState, ValidationStepResult
-from ...core.models import ValidationIssue, ValidationSeverity
+from ...core.models import ValidationIssue, ValidationSeverity, has_error_issues
 
 
 class DockerfileSyntaxValidationStep:
@@ -19,8 +19,7 @@ class DockerfileSyntaxValidationStep:
         for dockerfile_path in state.dockerfiles:
             issues.extend(_validate_dockerfile_syntax(context, dockerfile_path))
 
-        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
-        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_error_issues(issues))
 
 
 class KubernetesSyntaxValidationStep:
@@ -36,8 +35,7 @@ class KubernetesSyntaxValidationStep:
         for manifest_path in state.manifests:
             issues.extend(_validate_manifest_syntax(context, manifest_path))
 
-        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
-        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_error_issues(issues))
 
 
 def _validate_dockerfile_syntax(context: ValidationContext, dockerfile_path: str) -> List[ValidationIssue]:

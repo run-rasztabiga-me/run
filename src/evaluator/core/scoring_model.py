@@ -446,5 +446,6 @@ class IssueAggregationModel:
         Returns:
             True if the step has any ERROR severity issues, False otherwise
         """
+        from .models import has_error_issues
         issues = step_issues.get(step_name, [])
-        return any(issue.severity == ValidationSeverity.ERROR for issue in issues)
+        return has_error_issues(issues)

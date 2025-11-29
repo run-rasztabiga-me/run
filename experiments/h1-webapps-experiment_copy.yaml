@@ -71,6 +71,11 @@ experiments:
   - https://github.com/barsnes-group/peptide-shaker-online.git
   - https://github.com/VishnuAmit/LapProFix.git
   - https://github.com/djeada/Proste-Projekty.git
+  - https://github.com/takamin/gdrive-fs.git
+  - https://github.com/mooss/noisy.git
+  - https://github.com/riparias/gbif-alert.git
+  - https://github.com/AppLoidx/helios-server.git
+  - https://github.com/ernestpasnik/cs2d-serverlist.git
   models:
 #  - provider: openai
 #    name: gpt-5-mini

@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List
 
 from ..pipeline import ValidationContext, ValidationState, ValidationStepResult
-from ...core.models import ValidationIssue, ValidationSeverity
+from ...core.models import ValidationIssue, ValidationSeverity, has_error_issues
 
 
 class DockerfileLinterValidationStep:
@@ -21,8 +21,7 @@ class DockerfileLinterValidationStep:
         for dockerfile_path in state.dockerfiles:
             issues.extend(_run_hadolint(context, dockerfile_path))
 
-        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
-        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_error_issues(issues))
 
 
 class KubernetesLinterValidationStep:
@@ -38,8 +37,7 @@ class KubernetesLinterValidationStep:
         for manifest_path in state.manifests:
             issues.extend(_run_kube_linter(context, manifest_path))
 
-        has_errors = any(issue.severity == ValidationSeverity.ERROR for issue in issues)
-        return ValidationStepResult(issues=issues, continue_pipeline=not has_errors)
+        return ValidationStepResult(issues=issues, continue_pipeline=not has_error_issues(issues))
 
 
 def _run_hadolint(context: ValidationContext, dockerfile_path: str) -> List[ValidationIssue]:

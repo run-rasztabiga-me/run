@@ -9,6 +9,7 @@ from .models import (
     QualityMetrics,
     ValidationIssue,
     ValidationSeverity,
+    has_error_issues,
 )
 from ..validators.config_validator import ConfigurationValidator
 from .scoring_model import IssueAggregationModel
@@ -79,15 +80,19 @@ class QualityAssessor:
 
         # Aggregate severity counts for H3 hypothesis verification
         all_issues = pipeline_result.issues
-        quality_metrics.error_count = sum(1 for issue in all_issues if issue.severity == ValidationSeverity.ERROR)
-        quality_metrics.warning_count = sum(1 for issue in all_issues if issue.severity == ValidationSeverity.WARNING)
+        quality_metrics.error_count = sum(1 for issue in all_issues if issue.is_error())
+        quality_metrics.warning_count = sum(1 for issue in all_issues if issue.is_warning())
         quality_metrics.info_count = sum(1 for issue in all_issues if issue.severity == ValidationSeverity.INFO)
 
         # Check syntax validation results
         quality_metrics.dockerfile_syntax_valid = self._check_dockerfile_syntax(step_issues)
         quality_metrics.k8s_syntax_valid = self._check_k8s_syntax(step_issues)
 
-        build_failed = any(issue.severity == ValidationSeverity.ERROR for issue in step_issues.get("docker_build", []))
+        # Check for errors in both syntax validation and build steps
+        # If syntax validation fails, the build step won't run, but we should still mark build as failed
+        docker_syntax_errors = has_error_issues(step_issues.get("docker_syntax", []))
+        docker_build_errors = has_error_issues(step_issues.get("docker_build", []))
+        build_failed = docker_syntax_errors or docker_build_errors
         runtime_issues = step_issues.get("runtime")
 
         return QualityAssessmentResult(
@@ -109,8 +114,7 @@ class QualityAssessor:
             # Step ran and produced no issues
             return True
 
-        has_syntax_errors = any(issue.severity == ValidationSeverity.ERROR for issue in syntax_issues)
-        return not has_syntax_errors
+        return not has_error_issues(syntax_issues)
 
     def _check_k8s_syntax(self, step_issues: dict) -> Optional[bool]:
         """Check if Kubernetes manifest syntax validation passed (no errors in syntax step)."""
@@ -119,5 +123,4 @@ class QualityAssessor:
             # No syntax step was run or no issues found
             return None if "k8s_syntax" not in step_issues else True
         # Check if there are any ERROR-level syntax issues
-        has_syntax_errors = any(issue.severity == ValidationSeverity.ERROR for issue in syntax_issues)
-        return not has_syntax_errors
+        return not has_error_issues(syntax_issues)

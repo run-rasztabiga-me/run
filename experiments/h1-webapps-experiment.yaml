@@ -2,11 +2,8 @@ experiments:
 - name: h1-webapps-evaluation
   description: H1 validation on real-world Dockerized web apps
   repos:
-  - https://github.com/riparias/gbif-alert.git
-  - https://github.com/eboukamza/image-only.git
-  - https://github.com/open-cogsci/sigmund-ai.git
-  - https://github.com/DOREMUS-ANR/overture.git
-  - https://github.com/Tony-ArtZ/git-peek.git
+  - https://github.com/AppLoidx/helios-server.git
+  - https://github.com/ernestpasnik/cs2d-serverlist.git
   models:
   - provider: google_genai
     name: gemini-2.5-flash
@@ -21,4 +18,4 @@ experiments:
     parameters: {}
     label: openai_gpt5_mini
   repetitions: 2
-  cleanup: per_run
+  cleanup: never

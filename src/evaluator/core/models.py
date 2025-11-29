@@ -50,6 +50,29 @@ class ValidationIssue:
     message: str
     rule_id: Optional[str] = None
 
+    def is_error(self) -> bool:
+        """Return True when the issue is considered an error."""
+        return self.severity == ValidationSeverity.ERROR
+
+    def is_warning(self) -> bool:
+        """Return True when the issue is considered a warning."""
+        return self.severity == ValidationSeverity.WARNING
+
+
+def has_error_issues(issues: List[ValidationIssue]) -> bool:
+    """Check if a list of validation issues contains any errors."""
+    return any(issue.is_error() for issue in issues)
+
+
+def count_errors(issues: List[ValidationIssue]) -> int:
+    """Count the number of error-level issues."""
+    return sum(1 for issue in issues if issue.is_error())
+
+
+def count_warnings(issues: List[ValidationIssue]) -> int:
+    """Count the number of warning-level issues."""
+    return sum(1 for issue in issues if issue.is_warning())
+
 
 @dataclass
 class ExecutionMetrics:
