@@ -134,6 +134,7 @@ COMMON DOCKER PITFALLS TO AVOID:
 1. **Dependency Management Issues**:
    - npm ci --omit=dev: Before using this command, verify that ALL runtime dependencies are in "dependencies" (not "devDependencies") in package.json. If a required module is only in devDependencies, the container will fail at runtime.
    - package-lock.json: Only copy package-lock.json if it actually exists in the repository. Check for its presence before adding COPY instructions.
+   - npm ci vs npm install: NEVER use 'npm ci' if package-lock.json does not exist in the repository. Use 'npm install' instead when there's no package-lock.json file.
    - Python: Use pip install --no-cache-dir to reduce image size
    - Go: Ensure go.mod and go.sum exist before COPY
 

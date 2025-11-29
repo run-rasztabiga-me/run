@@ -5,11 +5,7 @@ experiments:
   - https://github.com/riparias/gbif-alert.git
   - https://github.com/eboukamza/image-only.git
   - https://github.com/open-cogsci/sigmund-ai.git
-  - https://github.com/ome/omero-parade.git
-  - https://github.com/barsnes-group/peptide-shaker-online.git
   - https://github.com/DOREMUS-ANR/overture.git
-  - https://github.com/VishnuAmit/LapProFix.git
-  - https://github.com/djeada/Proste-Projekty.git
   - https://github.com/Tony-ArtZ/git-peek.git
   models:
   - provider: google_genai

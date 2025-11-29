@@ -40,7 +40,7 @@ class RepositoryTools:
 
         @tool("clone_repo", args_schema=ToolSchemas.CloneRepoInput)
         def clone_repo(repo_url: str) -> str:
-            """Clone repository and recursively remove confusing files."""
+            """Clone a Git repository from the given URL and clean up unnecessary files (node_modules, .git, build artifacts, etc.)."""
             logger.info(f"🔧 Tool called: clone_repo(repo_url={repo_url})")
             result = workspace.clone_repository(repo_url, cleanup=True)
 
@@ -58,7 +58,7 @@ class RepositoryTools:
 
         @tool("prepare_repo_tree", args_schema=ToolSchemas.PrepareRepoTreeInput)
         def prepare_repo_tree() -> str:
-            """Prepare repository tree structure as a string."""
+            """Get an overview of the repository structure as a tree. Use this to understand the project layout and identify important files."""
             logger.info(f"🔧 Tool called: prepare_repo_tree()")
             result = workspace.prepare_repo_tree()
 
@@ -97,7 +97,7 @@ class RepositoryTools:
 
         @tool("write_file", args_schema=ToolSchemas.WriteFileInput)
         def write_file(file_path: str, content: str) -> str:
-            """Write content to a file in the repository."""
+            """Create a new file or modify an existing file in the repository. Use this to generate Dockerfiles, Kubernetes manifests, and other configuration files."""
             # Remove leading slash if present to avoid path resolution issues
             if file_path.startswith('/'):
                 file_path = file_path.lstrip('/')
@@ -118,7 +118,7 @@ class RepositoryTools:
 
         @tool("ls", args_schema=ToolSchemas.ListDirectoryInput)
         def list_directory(dir_path: str) -> str:
-            """List files in a directory within the repository."""
+            """List all files and directories in the specified directory path. Shows directory names and file names with sizes. Use '.' or empty string for repository root."""
             logger.info(f"🔧 Tool called: ls(dir_path={dir_path})")
             result = workspace.list_directory(dir_path)
 
