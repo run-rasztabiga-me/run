@@ -3,7 +3,8 @@ import uuid
 from typing import List, Optional, Dict, Any
 
 from .models import (
-    EvaluationReport, EvaluationStatus, GenerationResult, ExecutionMetrics, QualityMetrics, ValidationSeverity
+    EvaluationReport, EvaluationStatus, GenerationResult, ExecutionMetrics, QualityMetrics, ValidationSeverity,
+    count_errors, count_warnings,
 )
 from ..reports.reporter import EvaluationReporter
 from ...generator.core.generator import ConfigurationGenerator
@@ -96,8 +97,8 @@ class ConfigurationEvaluator:
 
             # Add note about validation results
             if assessment.metrics.validation_issues:
-                error_count = len([i for i in assessment.metrics.validation_issues if i.severity.value == "error"])
-                warning_count = len([i for i in assessment.metrics.validation_issues if i.severity.value == "warning"])
+                error_count = count_errors(assessment.metrics.validation_issues)
+                warning_count = count_warnings(assessment.metrics.validation_issues)
                 if generation_result.docker_images:
                     report.add_note(f"Dockerfile validation: {error_count} errors, {warning_count} warnings")
                 if generation_result.k8s_manifests:
@@ -105,8 +106,8 @@ class ConfigurationEvaluator:
                         i for i in assessment.metrics.validation_issues
                         if 'k8s' in i.file_path.lower() or 'kubectl' in i.rule_id.lower() or 'kube' in i.rule_id.lower()
                     ]
-                    k8s_errors = len([i for i in k8s_issues if i.severity.value == "error"])
-                    k8s_warnings = len([i for i in k8s_issues if i.severity.value == "warning"])
+                    k8s_errors = count_errors(k8s_issues)
+                    k8s_warnings = count_warnings(k8s_issues)
                     report.add_note(f"K8s validation: {k8s_errors} errors, {k8s_warnings} warnings")
 
             # Check if there were Docker build errors
@@ -124,8 +125,8 @@ class ConfigurationEvaluator:
                     report.add_note(f"Testing endpoint: {generation_result.test_endpoint}")
 
                 if assessment.runtime_issues:
-                    error_count = len([i for i in assessment.runtime_issues if i.severity.value == "error"])
-                    warning_count = len([i for i in assessment.runtime_issues if i.severity.value == "warning"])
+                    error_count = count_errors(assessment.runtime_issues)
+                    warning_count = count_warnings(assessment.runtime_issues)
                     if error_count > 0:
                         report.add_note(f"Runtime validation: {error_count} errors, {warning_count} warnings")
                     elif warning_count > 0:

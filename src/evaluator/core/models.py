@@ -58,6 +58,10 @@ class ValidationIssue:
         """Return True when the issue is considered a warning."""
         return self.severity == ValidationSeverity.WARNING
 
+    def is_info(self) -> bool:
+        """Return True when the issue is informational."""
+        return self.severity == ValidationSeverity.INFO
+
 
 def has_error_issues(issues: List[ValidationIssue]) -> bool:
     """Check if a list of validation issues contains any errors."""
@@ -72,6 +76,11 @@ def count_errors(issues: List[ValidationIssue]) -> int:
 def count_warnings(issues: List[ValidationIssue]) -> int:
     """Count the number of warning-level issues."""
     return sum(1 for issue in issues if issue.is_warning())
+
+
+def count_info(issues: List[ValidationIssue]) -> int:
+    """Count the number of info-level issues."""
+    return sum(1 for issue in issues if issue.is_info())
 
 
 @dataclass

@@ -218,13 +218,13 @@ class IssueAggregationModel:
         runtime_phase = self._calculate_runtime_score(step_issues, runtime_success)
 
         # If Docker build failed (has errors), set all Docker phase scores to 0
-        docker_build_failed = self._has_errors_in_step(step_issues, "docker_build")
+        docker_build_failed = self._has_errors_in_step(step_issues, ValidationPhase.DOCKER_BUILD.value)
         if docker_build_failed and docker_phases:
             for phase in docker_phases:
                 phase.final_score = 0.0
 
         # If Kubernetes apply failed (has errors), set all K8s phase scores and runtime to 0
-        k8s_apply_failed = self._has_errors_in_step(step_issues, "kubernetes_apply")
+        k8s_apply_failed = self._has_errors_in_step(step_issues, ValidationPhase.KUBERNETES_APPLY.value)
         if k8s_apply_failed:
             if k8s_phases:
                 for phase in k8s_phases:
@@ -279,11 +279,11 @@ class IssueAggregationModel:
 
         # Count issues by severity
         for issue in issues:
-            if issue.severity == ValidationSeverity.ERROR:
+            if issue.is_error():
                 score.error_count += 1
-            elif issue.severity == ValidationSeverity.WARNING:
+            elif issue.is_warning():
                 score.warning_count += 1
-            elif issue.severity == ValidationSeverity.INFO:
+            elif issue.is_info():
                 score.info_count += 1
 
         # Calculate penalties
@@ -308,9 +308,9 @@ class IssueAggregationModel:
         phases = []
 
         phase_mapping = {
-            "docker_syntax": ValidationPhase.DOCKER_SYNTAX,
-            "docker_linters": ValidationPhase.DOCKER_LINTERS,
-            "docker_build": ValidationPhase.DOCKER_BUILD,
+            ValidationPhase.DOCKER_SYNTAX.value: ValidationPhase.DOCKER_SYNTAX,
+            ValidationPhase.DOCKER_LINTERS.value: ValidationPhase.DOCKER_LINTERS,
+            ValidationPhase.DOCKER_BUILD.value: ValidationPhase.DOCKER_BUILD,
         }
 
         for step_name, phase_enum in phase_mapping.items():
@@ -328,9 +328,9 @@ class IssueAggregationModel:
         phases = []
 
         phase_mapping = {
-            "k8s_syntax": ValidationPhase.K8S_SYNTAX,
-            "k8s_linters": ValidationPhase.K8S_LINTERS,
-            "kubernetes_apply": ValidationPhase.KUBERNETES_APPLY,
+            ValidationPhase.K8S_SYNTAX.value: ValidationPhase.K8S_SYNTAX,
+            ValidationPhase.K8S_LINTERS.value: ValidationPhase.K8S_LINTERS,
+            ValidationPhase.KUBERNETES_APPLY.value: ValidationPhase.KUBERNETES_APPLY,
         }
 
         for step_name, phase_enum in phase_mapping.items():
@@ -349,16 +349,16 @@ class IssueAggregationModel:
         if runtime_success is None:
             return None
 
-        issues = step_issues.get("runtime", [])
+        issues = step_issues.get(ValidationPhase.RUNTIME.value, [])
         score = PhaseScore(phase=ValidationPhase.RUNTIME, issues=issues)
 
         # Count issues
         for issue in issues:
-            if issue.severity == ValidationSeverity.ERROR:
+            if issue.is_error():
                 score.error_count += 1
-            elif issue.severity == ValidationSeverity.WARNING:
+            elif issue.is_warning():
                 score.warning_count += 1
-            elif issue.severity == ValidationSeverity.INFO:
+            elif issue.is_info():
                 score.info_count += 1
 
         # Runtime is binary but warnings reduce score

@@ -10,9 +10,12 @@ from .models import (
     ValidationIssue,
     ValidationSeverity,
     has_error_issues,
+    count_errors,
+    count_warnings,
+    count_info,
 )
 from ..validators.config_validator import ConfigurationValidator
-from .scoring_model import IssueAggregationModel
+from .scoring_model import IssueAggregationModel, ValidationPhase
 
 
 @dataclass
@@ -80,9 +83,9 @@ class QualityAssessor:
 
         # Aggregate severity counts for H3 hypothesis verification
         all_issues = pipeline_result.issues
-        quality_metrics.error_count = sum(1 for issue in all_issues if issue.is_error())
-        quality_metrics.warning_count = sum(1 for issue in all_issues if issue.is_warning())
-        quality_metrics.info_count = sum(1 for issue in all_issues if issue.severity == ValidationSeverity.INFO)
+        quality_metrics.error_count = count_errors(all_issues)
+        quality_metrics.warning_count = count_warnings(all_issues)
+        quality_metrics.info_count = count_info(all_issues)
 
         # Check syntax validation results
         quality_metrics.dockerfile_syntax_valid = self._check_dockerfile_syntax(step_issues)
@@ -90,10 +93,10 @@ class QualityAssessor:
 
         # Check for errors in both syntax validation and build steps
         # If syntax validation fails, the build step won't run, but we should still mark build as failed
-        docker_syntax_errors = has_error_issues(step_issues.get("docker_syntax", []))
-        docker_build_errors = has_error_issues(step_issues.get("docker_build", []))
+        docker_syntax_errors = has_error_issues(step_issues.get(ValidationPhase.DOCKER_SYNTAX.value, []))
+        docker_build_errors = has_error_issues(step_issues.get(ValidationPhase.DOCKER_BUILD.value, []))
         build_failed = docker_syntax_errors or docker_build_errors
-        runtime_issues = step_issues.get("runtime")
+        runtime_issues = step_issues.get(ValidationPhase.RUNTIME.value)
 
         return QualityAssessmentResult(
             metrics=quality_metrics,
@@ -105,7 +108,7 @@ class QualityAssessor:
 
     def _check_dockerfile_syntax(self, step_issues: dict) -> Optional[bool]:
         """Check if Dockerfile syntax validation passed (no errors in syntax step)."""
-        syntax_issues = step_issues.get("docker_syntax")
+        syntax_issues = step_issues.get(ValidationPhase.DOCKER_SYNTAX.value)
         if syntax_issues is None:
             # Syntax validation step never ran
             return None
@@ -118,9 +121,10 @@ class QualityAssessor:
 
     def _check_k8s_syntax(self, step_issues: dict) -> Optional[bool]:
         """Check if Kubernetes manifest syntax validation passed (no errors in syntax step)."""
-        syntax_issues = step_issues.get("k8s_syntax", [])
+        k8s_syntax_key = ValidationPhase.K8S_SYNTAX.value
+        syntax_issues = step_issues.get(k8s_syntax_key, [])
         if not syntax_issues:
             # No syntax step was run or no issues found
-            return None if "k8s_syntax" not in step_issues else True
+            return None if k8s_syntax_key not in step_issues else True
         # Check if there are any ERROR-level syntax issues
         return not has_error_issues(syntax_issues)
