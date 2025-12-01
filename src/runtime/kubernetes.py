@@ -396,13 +396,37 @@ class KubernetesDeployer:
                     if "/" in image_tag:
                         image_tag = image_tag.split("/")[-1]
 
-                    if image_tag not in llm_image_tags:
+                    # Try exact match first
+                    matched_tag = None
+                    if image_tag in llm_image_tags:
+                        matched_tag = image_tag
+                    else:
+                        # Exact match failed, try fuzzy matching
+                        self.logger.warning(
+                            "No exact match for image tag '%s', attempting fuzzy match against LLM tags: %s",
+                            image_tag,
+                            llm_image_tags,
+                        )
+                        for llm_tag in llm_image_tags:
+                            if llm_tag in image_tag or image_tag in llm_tag:
+                                matched_tag = llm_tag
+                                self.logger.info(
+                                    "Fuzzy match found: '%s' matched with LLM tag '%s'",
+                                    image_tag,
+                                    llm_tag,
+                                )
+                                break
+
+                    if matched_tag is None:
                         self.logger.info(
                             "Skipping official/external image: %s (tag '%s' not in LLM image tags)",
                             image,
                             image_tag,
                         )
                         continue
+
+                    # Use the matched LLM tag for building the full image name
+                    image_tag = matched_tag
 
                     full_image = self.config.get_full_image_name(
                         repo_name,
