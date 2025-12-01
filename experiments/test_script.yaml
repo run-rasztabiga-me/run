@@ -1,0 +1,13 @@
+experiments:
+  - name: test_script
+    description: Test experiment runner
+    repos:
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
+    models:
+      - provider: google_genai
+        name: gemini-2.5-flash
+        temperature: 1.0
+        seed: 42
+        label: google_gemini_2.5_flash
+    repetitions: 1
+    cleanup: per_run

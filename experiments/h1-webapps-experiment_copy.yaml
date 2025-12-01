@@ -74,6 +74,9 @@ experiments:
   - https://github.com/takamin/gdrive-fs.git
   - https://github.com/mooss/noisy.git
   - https://github.com/riparias/gbif-alert.git
+  - https://github.com/9582anupam/scheme-seva.git
+  - https://github.com/yasir13001/QuizAI.git
+  -
   models:
 #  - provider: openai
 #    name: gpt-5-mini

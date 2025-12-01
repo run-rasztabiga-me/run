@@ -3,8 +3,6 @@ experiments:
   description: H1 validation on real-world Dockerized web apps
   repos:
   - https://github.com/ZowWeb/car-parking-webapp.git
-  - https://github.com/9582anupam/scheme-seva.git
-  - https://github.com/yasir13001/QuizAI.git
   - https://github.com/byu-cpe/Maeser.git
   models:
   - provider: google_genai
