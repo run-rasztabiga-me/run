@@ -7,91 +7,102 @@ experiments:
   - https://github.com/carrotflakes/fitbit-sleep-vis.git
   - https://github.com/capralifecycle/webapp-deploy-lambda.git
   - https://github.com/IamLRBA/Banner-Designer-WebApp.git
-  - https://github.com/technicalguru/php-webapp.git
-  - https://github.com/jan-bobrowski/lsfont.git
-  - https://github.com/nishant0820/Ved-Stationary-Ecommerce-WebApp.git
-  - https://github.com/lunarcloud/sta-play-webapp.git
-  - https://github.com/googleinterns/Pictophone.git
-  - https://github.com/SoLiDinity/airwatch.git
-  - https://github.com/squivix/dzelda-backend.git
-  - https://github.com/the-hideout/tarkov-data-manager.git
-  - https://github.com/minhd-vu/assassins.git
-  - https://github.com/cgize/DiceOpt_kcd2.git
-  - https://github.com/warmachine028/euphoria.git
-  - https://github.com/agentvoiceresponse/avr-app.git
-  - https://github.com/SchoolTimer/ParklandSchoolTimer.git
-  - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
-  - https://github.com/ome/omero-virtual-microscope.git
-  - https://github.com/tschoffelen/csv-hero.git
-  - https://github.com/Payroll-Engine/PayrollEngine.WebApp.git
-  - https://github.com/medecins-du-monde/monitool.git
-  - https://github.com/premium-minds/pm-webapp-utils.git
-  - https://github.com/strifel/mampf.link.git
-  - https://github.com/isixe/MetaThief.git
-  - https://github.com/vaadin/archetypes.git
-  - https://github.com/EmergencyForge/intraRP.git
-  - https://github.com/ome/omero-weberror.git
-  - https://github.com/xixu-me/DeepLX-App.git
-  - https://github.com/Anar-Mamedov/Vehicle-Fleet-Management-Application-ATS-PRO.git
-  - https://github.com/colamonico-chiarulli/smartbreak.git
-  - https://github.com/citiususc/semantic-emofinder.git
-  - https://github.com/sawankumarparida/Auction-House.git
-  - https://github.com/qqiao/webapp.git
-  - https://github.com/rafuwu/mtg-scryfall-randomizer.git
-  - https://github.com/hsalvesen/vesen.git
-  - https://github.com/vaadin/base-starter-flow-osgi.git
-  - https://github.com/AdaptChat/webclient.git
-  - https://github.com/prathmesh-ka-github/Chessable.git
-  - https://github.com/opengeos/solara-template.git
-  - https://github.com/ces-unsw-edu-au/fireveg-webapp.git
-  - https://github.com/MindlessTruffle/Class-Order-Checker.git
-  - https://github.com/seanpm2001/LifeMill_WebApp.git
-  - https://github.com/DevCom-IITB/instiapp-angular.git
-  - https://github.com/NL-BioImaging/OMERO.forms.git
-  - https://github.com/schorschii/WebVault-Pro.git
-  - https://github.com/isixe/AdSenseDetective.git
-  - https://github.com/robweber/mario-kart-tournament.git
-  - https://github.com/echo-noise/carro-limpo.git
-  - https://github.com/janaSunrise/Anime-face-generation-DCGAN-webapp.git
-  - https://github.com/opentargets/ot-ui-apps.git
-  - https://github.com/BK-SCOSS/scoss_webapp.git
-  - https://github.com/tomcz/golang-webapp.git
-  - https://github.com/destructo570/deplace-maison-ecommerce-webapp.git
-  - https://github.com/york9675/Tempo-Sync.git
-  - https://github.com/Graymattermetrics/cogspeed.git
-  - https://github.com/fiste788/fantamanajer.git
-  - https://github.com/bhavish00007/Attendence-Calculator.git
-  - https://github.com/remram44/twitch-vod-sync.git
-  - https://github.com/immersed-web/inclubit-2.git
-  - https://github.com/wacky-tracky/wacky-tracky-client-html5.git
-  - https://github.com/TechQuery/GitHub.git
-  - https://github.com/ome/omero-signup.git
-  - https://github.com/kurealnum/non-profit-link.git
-  - https://github.com/ome/omero-parade.git
-  - https://github.com/barsnes-group/peptide-shaker-online.git
-  - https://github.com/VishnuAmit/LapProFix.git
-  - https://github.com/djeada/Proste-Projekty.git
-  - https://github.com/takamin/gdrive-fs.git
-  - https://github.com/mooss/noisy.git
-  - https://github.com/riparias/gbif-alert.git
-  - https://github.com/9582anupam/scheme-seva.git
-  - https://github.com/yasir13001/QuizAI.git
-  -
+#  - https://github.com/technicalguru/php-webapp.git
+#  - https://github.com/jan-bobrowski/lsfont.git
+#  - https://github.com/nishant0820/Ved-Stationary-Ecommerce-WebApp.git
+#  - https://github.com/lunarcloud/sta-play-webapp.git
+#  - https://github.com/googleinterns/Pictophone.git
+#  - https://github.com/SoLiDinity/airwatch.git
+#  - https://github.com/squivix/dzelda-backend.git
+#  - https://github.com/the-hideout/tarkov-data-manager.git
+#  - https://github.com/minhd-vu/assassins.git
+#  - https://github.com/cgize/DiceOpt_kcd2.git
+#  - https://github.com/warmachine028/euphoria.git
+#  - https://github.com/agentvoiceresponse/avr-app.git
+#  - https://github.com/SchoolTimer/ParklandSchoolTimer.git
+#  - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
+#  - https://github.com/ome/omero-virtual-microscope.git
+#  - https://github.com/tschoffelen/csv-hero.git
+#  - https://github.com/Payroll-Engine/PayrollEngine.WebApp.git
+#  - https://github.com/medecins-du-monde/monitool.git
+#  - https://github.com/premium-minds/pm-webapp-utils.git
+#  - https://github.com/strifel/mampf.link.git
+#  - https://github.com/isixe/MetaThief.git
+#  - https://github.com/vaadin/archetypes.git
+#  - https://github.com/EmergencyForge/intraRP.git
+#  - https://github.com/ome/omero-weberror.git
+#  - https://github.com/xixu-me/DeepLX-App.git
+#  - https://github.com/Anar-Mamedov/Vehicle-Fleet-Management-Application-ATS-PRO.git
+#  - https://github.com/colamonico-chiarulli/smartbreak.git
+#  - https://github.com/citiususc/semantic-emofinder.git
+#  - https://github.com/sawankumarparida/Auction-House.git
+#  - https://github.com/qqiao/webapp.git
+#  - https://github.com/rafuwu/mtg-scryfall-randomizer.git
+#  - https://github.com/hsalvesen/vesen.git
+#  - https://github.com/vaadin/base-starter-flow-osgi.git
+#  - https://github.com/AdaptChat/webclient.git
+#  - https://github.com/prathmesh-ka-github/Chessable.git
+#  - https://github.com/opengeos/solara-template.git
+#  - https://github.com/ces-unsw-edu-au/fireveg-webapp.git
+#  - https://github.com/MindlessTruffle/Class-Order-Checker.git
+#  - https://github.com/seanpm2001/LifeMill_WebApp.git
+#  - https://github.com/DevCom-IITB/instiapp-angular.git
+#  - https://github.com/NL-BioImaging/OMERO.forms.git
+#  - https://github.com/schorschii/WebVault-Pro.git
+#  - https://github.com/isixe/AdSenseDetective.git
+#  - https://github.com/robweber/mario-kart-tournament.git
+#  - https://github.com/echo-noise/carro-limpo.git
+#  - https://github.com/janaSunrise/Anime-face-generation-DCGAN-webapp.git
+#  - https://github.com/opentargets/ot-ui-apps.git
+#  - https://github.com/BK-SCOSS/scoss_webapp.git
+#  - https://github.com/tomcz/golang-webapp.git
+#  - https://github.com/destructo570/deplace-maison-ecommerce-webapp.git
+#  - https://github.com/york9675/Tempo-Sync.git
+#  - https://github.com/Graymattermetrics/cogspeed.git
+#  - https://github.com/fiste788/fantamanajer.git
+#  - https://github.com/bhavish00007/Attendence-Calculator.git
+#  - https://github.com/remram44/twitch-vod-sync.git
+#  - https://github.com/immersed-web/inclubit-2.git
+#  - https://github.com/wacky-tracky/wacky-tracky-client-html5.git
+#  - https://github.com/TechQuery/GitHub.git
+#  - https://github.com/ome/omero-signup.git
+#  - https://github.com/kurealnum/non-profit-link.git
+#  - https://github.com/ome/omero-parade.git
+#  - https://github.com/barsnes-group/peptide-shaker-online.git
+#  - https://github.com/VishnuAmit/LapProFix.git
+#  - https://github.com/djeada/Proste-Projekty.git
+#  - https://github.com/takamin/gdrive-fs.git
+#  - https://github.com/mooss/noisy.git
+#  - https://github.com/riparias/gbif-alert.git
+#  - https://github.com/9582anupam/scheme-seva.git
+#  - https://github.com/yasir13001/QuizAI.git
   models:
-#  - provider: openai
-#    name: gpt-5-mini
+#  - provider: anthropic
+#    name: claude-haiku-4-5-20251001
 #    temperature: 1.0
 #    seed: 42
-#    label: openai_gpt5_mini
-  - provider: google_genai
-    name: gemini-2.5-flash
+#    label: anthropic_haiku_4.5
+  - provider: openai
+    name: gpt-5-mini
     temperature: 1.0
     seed: 42
-    label: google_gemini_2.5_flash
+    label: openai_gpt5_mini
+#  - provider: google_genai
+#    name: gemini-2.5-flash
+#    temperature: 1.0
+#    seed: 42
+#    label: google_gemini_2.5_flash
 #  - provider: google_genai
 #    name: gemini-2.5-pro
 #    temperature: 1.0
 #    seed: 42
 #    label: google_gemini_2.pro
   repetitions: 1
+  prompts:
+    - id: basic
+      description: Basic prompt
+      system_prompt_path: prompts/basic.prompt
+    - id: default
+      description: Default prompt
+      system_prompt_path: prompts/default.prompt
   cleanup: never

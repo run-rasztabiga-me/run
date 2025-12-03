@@ -19,5 +19,15 @@ experiments:
         label: google_gemini_2.5_flash
         temperature: 1.0
         seed: 42
-    repetitions: 3
-    cleanup: per_run
+      - provider: x-ai
+        name: grok-4.1-fast:free
+        label: x-ai_grok-4.1-fast
+        temperature: 1.0
+        seed: 42
+      - provider: deepseek
+        name: deepseek-chat
+        label: deepseek_v3_2
+        temperature: 1.0
+        seed: 42
+    repetitions: 2
+    cleanup: never
