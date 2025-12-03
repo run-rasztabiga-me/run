@@ -4,6 +4,7 @@ experiments:
     repos:
       - https://github.com/run-rasztabiga-me/poc2-fastapi.git
     models:
+      # PROPRIETARY
       - provider: openai
         name: gpt-5-mini
         label: openai_gpt5_mini
@@ -20,13 +21,24 @@ experiments:
         temperature: 1.0
         seed: 42
       - provider: x-ai
-        name: grok-4.1-fast:free
+        name: grok-4.1-fast
         label: x-ai_grok-4.1-fast
         temperature: 1.0
         seed: 42
+      # OPEN SOURCE
       - provider: deepseek
         name: deepseek-chat
         label: deepseek_v3_2
+        temperature: 1.0
+        seed: 42
+      - provider: z-ai
+        name: glm-4.6
+        label: z-ai_glm-4.6
+        temperature: 1.0
+        seed: 42
+      - provider: qwen
+        name: qwen3-next-80b-a3b-thinking
+        label: qwen3-next-80b-a3b-thinking
         temperature: 1.0
         seed: 42
     repetitions: 2
