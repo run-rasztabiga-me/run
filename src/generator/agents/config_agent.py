@@ -111,7 +111,6 @@ class ConfigurationAgent:
                 {
                     "recursion_limit": self.config.recursion_limit,
                     "run_id": run_id,
-                    "tags": [] # TODO?
                 }
             )
 

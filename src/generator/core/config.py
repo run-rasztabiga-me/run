@@ -30,7 +30,7 @@ class GeneratorConfig(BaseModel):
     llm_judge_temperature: float = Field(default=0.0, description="Sampling temperature for LLM-as-a-judge calls (defaults to 0.0 for determinism).")
 
     # Agent settings
-    recursion_limit: int = 150
+    recursion_limit: int = 200
 
     # Directory settings
     tmp_dir_base: str = "./tmp"

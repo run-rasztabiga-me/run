@@ -43,7 +43,3 @@ experiments:
         seed: 42
     repetitions: 1
     cleanup: never
-#    generator_overrides:
-#      enable_llm_judge: true
-#      llm_judge_model_name: gpt-5-mini
-#      llm_judge_model_provider: openai

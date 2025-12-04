@@ -395,6 +395,8 @@ class ExperimentRunner:
         exec_metrics = report.execution_metrics
         generation_result = report.generation_result
         quality_metrics = report.quality_metrics
+        generation_success = bool(generation_result.success) if generation_result else False
+        overall_score = 0 if not generation_success else (quality_metrics.overall_score if quality_metrics else None)
 
         extra_metadata = report.extra_metadata or {}
         run_id = extra_metadata.get("run_id")
@@ -426,9 +428,9 @@ class ExperimentRunner:
             "runtime_success": report.runtime_success,
             "repetition": context.repetition_index,
             "status": report.status.value,
-            "generation_success": bool(generation_result.success) if generation_result else False,
+            "generation_success": generation_success,
             "generation_time": generation_result.generation_time if generation_result else None,
-            "overall_score": quality_metrics.overall_score if quality_metrics else None,
+            "overall_score": overall_score,
             "dockerfile_score": quality_metrics.dockerfile_score if quality_metrics else None,
             "k8s_score": quality_metrics.k8s_manifests_score if quality_metrics else None,
             "runtime_score": quality_metrics.runtime_score if quality_metrics else None,
