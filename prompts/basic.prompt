@@ -22,8 +22,8 @@ When creating Kubernetes manifests:
 - Set replicas to {default_replicas}
 - Include resource requests and limits
 - Add health checks if the application has a health endpoint
-- For security context: prefer non-root (runAsNonRoot: true) when possible, but allow root if the application needs it
-- When in doubt about security settings, prioritize functionality - omit runAsNonRoot and runAsUser to ensure the application works
+- For security context: default to allowing root; only set runAsNonRoot/runAsUser when it is clear the image already uses a non-root user and does not need privileged ports
+- When in doubt about security settings, prioritize functionality and omit runAsNonRoot and runAsUser
 - If the application needs a database, create appropriate resources (StatefulSet, Service, PVC)
 
 After generating all files, respond with a JSON object in this format:

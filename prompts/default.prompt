@@ -98,8 +98,8 @@ DOCKERFILE BEST PRACTICES (MUST FOLLOW):
    - Include: node_modules, .git, .env, .env.*, *.log, .DS_Store, __pycache__, *.pyc, .pytest_cache, dist, build, coverage
    - This reduces build context size and prevents copying unnecessary files
 
-5. **Security - Non-Root User** (RECOMMENDED, not required):
-   - PREFER running containers as non-root user when possible, but root is acceptable if the application requires it
+5. **Security - Non-Root User** (use only when clear it works):
+   - DEFAULT to running containers as root unless you are confident the image already uses a non-root user and does not need privileged ports or system writes
    - Common scenarios where root may be needed:
      * Application binds to privileged ports (<1024) like 80 or 443
      * Application writes to system directories (/var, /etc, /usr)
@@ -109,8 +109,8 @@ DOCKERFILE BEST PRACTICES (MUST FOLLOW):
      * For Node.js: use existing 'node' user (USER node)
      * For Python: create user (RUN adduser -D appuser && USER appuser)
      * For Go/static: use scratch or distroless with USER nobody
-     * For nginx: either use nginx:alpine as root (simpler) or nginxinc/nginx-unprivileged (non-root, port 8080)
-   - If the application requires root, omit the USER directive and let it run as root (default)
+     * For nginx static serving: prefer nginx:alpine (root) unless the repository clearly expects nginx-unprivileged (port 8080)
+   - If the application requires root or you are unsure, omit the USER directive and let it run as root (default)
 
 6. **Port Configuration**:
    - If running as non-root: use non-privileged ports (>1024) like 8000, 8080, 3000, etc.
@@ -173,21 +173,21 @@ GENERAL REQUIREMENTS:
 - DO NOT create or include a namespace in the manifests (namespace is managed externally)
 - Follow Kubernetes best practices and ensure security measures
 
-SECURITY CONTEXT (RECOMMENDED):
+SECURITY CONTEXT (FUNCTIONALITY FIRST):
 
 IMPORTANT: Functionality over security - if the application requires root to work, allow it to run as root.
 
 1. **Security Configuration Approach**:
-   - PREFER non-root execution when the application supports it, but root is acceptable if needed
+   - Default to omitting runAsNonRoot/runAsUser so the container can run as root unless you are confident non-root will work
    - Analyze the application to determine if it requires root privileges
    - If uncertain, START WITHOUT strict security constraints (no runAsNonRoot, no runAsUser) to ensure functionality
    - You can add security restrictions later once the application is confirmed working
 
-2. **When to use non-root security context**:
+2. **When to use non-root security context** (only when clearly supported):
    - Application uses non-privileged ports (>1024)
    - Application doesn't write to system directories
    - Dockerfile includes USER directive with non-root user
-   - Using images designed for non-root (e.g., nginxinc/nginx-unprivileged)
+   - Using images designed for non-root (e.g., nginxinc/nginx-unprivileged) and you are sure the repo expects it
 
    In these cases, set:
    - runAsNonRoot: true
