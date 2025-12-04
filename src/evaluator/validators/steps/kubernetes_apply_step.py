@@ -54,14 +54,7 @@ class KubernetesApplyStep:
                 )
                 applied_resources.extend(apply_result.resources)
 
-            if applied_resources:
-                readiness_issues = deployer.wait_for_resources_ready(
-                    namespace=namespace,
-                    resources=applied_resources,
-                )
-                issues.extend(
-                    runtime_issues_to_validation(readiness_issues, default_subject=namespace)
-                )
+            state.applied_resources = applied_resources
 
         except Exception as exc:  # pragma: no cover - defensive
             issues.append(

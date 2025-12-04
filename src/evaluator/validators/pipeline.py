@@ -36,6 +36,7 @@ class ValidationState:
     build_metrics: List[DockerBuildMetrics] = field(default_factory=list)
     runtime_success: Optional[bool] = None
     step_metadata: Dict[str, Dict[str, object]] = field(default_factory=dict)
+    applied_resources: List["AppliedResource"] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -109,3 +110,4 @@ class ValidationPipeline:
 
 # Circular import guard - typing only
 from ...common.models import DockerImageInfo  # noqa: E402  # isort:skip
+from ...runtime import AppliedResource  # noqa: E402  # isort:skip
