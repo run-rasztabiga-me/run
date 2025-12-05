@@ -36,7 +36,7 @@ KUBERNETES GUIDELINES
 
 General:
 - Generate Deployment for stateless services; StatefulSet + PVC for stateful components only when clearly required. Do not invent databases/secrets unless the app needs them.
-- Match containerPort to Dockerfile EXPOSE. Service targetPort must match containerPort. Default replicas: {default_replicas}.
+- Match containerPort to Dockerfile EXPOSE. Service targetPort must match containerPort.
 - Ingress: include only when external HTTP access makes sense. Host should be "<repository-name>.{domain_suffix}" (repo name from URL, dots replaced with hyphens). Omit/skip if not HTTP-facing or unclear.
 - Do not create Namespace objects. Keep manifests minimal and functional.
 

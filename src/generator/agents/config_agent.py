@@ -62,7 +62,6 @@ class ConfigurationAgent:
         if self.config.system_prompt:
             try:
                 return self.config.system_prompt.format(
-                    default_replicas=self.config.default_replicas,
                     domain_suffix=self.config.domain_suffix,
                 )
             except KeyError:
@@ -79,7 +78,6 @@ class ConfigurationAgent:
         prompt_text = default_prompt_path.read_text(encoding="utf-8")
         try:
             return prompt_text.format(
-                default_replicas=self.config.default_replicas,
                 domain_suffix=self.config.domain_suffix,
             )
         except KeyError:

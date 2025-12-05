@@ -1,0 +1,24 @@
+experiments:
+  - name: multi_prompt
+    description: XXX
+    repos:
+      - https://github.com/sankeer28/Math-PDF-Generator-Web.git
+      - https://github.com/patrick204nqh/simple-webapp.git
+      - https://github.com/carrotflakes/fitbit-sleep-vis.git
+    models:
+      # PROPRIETARY
+      - provider: openai
+        name: gpt-5-mini
+        label: openai_gpt5_mini
+    repetitions: 1
+    prompts:
+      - id: basic
+        description: Basic prompt
+        system_prompt_path: prompts/basic.prompt
+      - id: default
+        description: Default prompt
+        system_prompt_path: prompts/default.prompt
+      - id: v2
+        description: V2 prompt.
+        system_prompt_path: prompts/v2.prompt
+    cleanup: never

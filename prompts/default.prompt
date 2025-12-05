@@ -168,7 +168,6 @@ GENERAL REQUIREMENTS:
 - Match exposed ports precisely as specified in the Dockerfile
 - Keep Service targetPorts aligned with the non-privileged containerPort (e.g., 8000)
 - If you need to expose port 80 externally, map it via Service 'port' field, not by changing the container port
-- Set replicas default to {default_replicas} unless otherwise stated
 - For ingress host, use "<repository-name>.{domain_suffix}" (e.g., repository "app1" → domain "app1.{domain_suffix}")
 - DO NOT create or include a namespace in the manifests (namespace is managed externally)
 - Follow Kubernetes best practices and ensure security measures
