@@ -590,6 +590,13 @@ def main() -> None:
             st.info("Experiment is still running; results will update as new runs complete.")
         elif state == "failed":
             st.error(f"Experiment run failed: {status_payload.get('error', 'unknown error')}")
+        elif state == "stopped":
+            runs_completed = status_payload.get("runs_completed", 0)
+            runs_total = status_payload.get("runs_total", 0)
+            st.warning(
+                f"⚠️ Experiment was stopped manually. Showing partial results: "
+                f"{runs_completed}/{runs_total} runs completed."
+            )
 
     with st.spinner("Loading summary..."):
         summary_df = load_summary(current_run)

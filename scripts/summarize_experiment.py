@@ -85,6 +85,7 @@ def compute_stats(base: pathlib.Path) -> Dict:
     prompt_counts: Dict[str, int] = {}
     prompt_success: Dict[str, int] = {}
     per_repo_counts: Dict[str, Dict[str, int]] = {}
+    per_model_counts: Dict[str, Dict[str, int]] = {}
 
     total_runs = 0
     total_success = 0
@@ -93,8 +94,11 @@ def compute_stats(base: pathlib.Path) -> Dict:
         total_runs += 1
         repo = run.get("repo_name")
         prompt = run.get("prompt_id") or "unknown"
+        model = run.get("model_name") or "unknown"
         per_repo_counts.setdefault(repo, {"success": 0, "total": 0})
         per_repo_counts[repo]["total"] += 1
+        per_model_counts.setdefault(model, {"success": 0, "total": 0})
+        per_model_counts[model]["total"] += 1
         prompt_counts[prompt] = prompt_counts.get(prompt, 0) + 1
 
         build = stage_value(run, "build")
@@ -112,6 +116,7 @@ def compute_stats(base: pathlib.Path) -> Dict:
         if final_success:
             total_success += 1
             per_repo_counts[repo]["success"] += 1
+            per_model_counts[model]["success"] += 1
             prompt_success[prompt] = prompt_success.get(prompt, 0) + 1
 
     return {
@@ -122,6 +127,7 @@ def compute_stats(base: pathlib.Path) -> Dict:
         "prompt_counts": prompt_counts,
         "prompt_success": prompt_success,
         "per_repo_counts": per_repo_counts,
+        "per_model_counts": per_model_counts,
     }
 
 
@@ -185,6 +191,7 @@ def main() -> int:
             "overall": overall,
             "stages": {},
             "prompts": {},
+            "per_model": {},
             "per_repo": {},
         }
         for stage in ("build", "apply", "runtime"):
@@ -198,6 +205,10 @@ def main() -> int:
             out["prompts"][prompt] = rate_and_ci(succ, total, args.alpha)
             out["prompts"][prompt]["count"] = total
             out["prompts"][prompt]["successes"] = succ
+        for model, cnt in stats["per_model_counts"].items():
+            out["per_model"][model] = rate_and_ci(cnt["success"], cnt["total"], args.alpha)
+            out["per_model"][model]["count"] = cnt["total"]
+            out["per_model"][model]["successes"] = cnt["success"]
         for repo, cnt in stats["per_repo_counts"].items():
             out["per_repo"][repo] = rate_and_ci(cnt["success"], cnt["total"], args.alpha)
             out["per_repo"][repo]["count"] = cnt["total"]
@@ -228,6 +239,17 @@ def main() -> int:
         succ = stats["prompt_success"].get(prompt, 0)
         ci = rate_and_ci(succ, tot, args.alpha)
         line = f"  {prompt}: {succ}/{tot} = {format_pct(ci['rate'])}"
+        if ci["ci"]:
+            low, high = ci["ci"]
+            line += f" (CI: {format_pct(low)}–{format_pct(high)}, {ci['method']})"
+        print(line)
+
+    print("\nPer model:")
+    for model, cnt in stats["per_model_counts"].items():
+        succ = cnt["success"]
+        tot = cnt["total"]
+        ci = rate_and_ci(succ, tot, args.alpha)
+        line = f"  {model}: {succ}/{tot} = {format_pct(ci['rate'])}"
         if ci["ci"]:
             low, high = ci["ci"]
             line += f" (CI: {format_pct(low)}–{format_pct(high)}, {ci['method']})"

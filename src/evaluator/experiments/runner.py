@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import logging
+import signal
 from dataclasses import dataclass
 from datetime import datetime, UTC, timedelta
 from pathlib import Path
@@ -81,6 +82,14 @@ class ExperimentRunner:
         experiment_dir = self.base_dir / experiment.safe_name / experiment_timestamp
         experiment_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Starting experiment '%s' (%s)", experiment.name, experiment_dir)
+
+        # Set up signal handler to gracefully handle SIGTERM (from UI stop button)
+        def signal_handler(signum, frame):
+            logger.warning("Received signal %s, stopping experiment gracefully...", signum)
+            raise KeyboardInterrupt("Experiment stopped by signal")
+
+        original_sigterm_handler = signal.signal(signal.SIGTERM, signal_handler)
+        original_sigint_handler = signal.signal(signal.SIGINT, signal_handler)
 
         summary_rows: List[Dict[str, Any]] = []
         prompt_variants: List[Optional[PromptVariant]] = (
@@ -250,8 +259,44 @@ class ExperimentRunner:
             self._write_status(status_file, status_payload)
             logger.info("Experiment '%s' finished. %d runs recorded.", experiment.name, len(summary_rows))
 
+        except KeyboardInterrupt:
+            # Handle manual interruption (e.g., from UI stop button)
+            stopped_at = datetime.now(UTC)
+            # Write partial results before exiting
+            if summary_rows:
+                summary_info = self._write_summary_artifacts(experiment_dir, summary_rows)
+            else:
+                summary_info = {}
+
+            stopped_payload = dict(status_payload)
+            stopped_payload.update(
+                {
+                    "state": "stopped",
+                    "stopped_at": stopped_at.isoformat(),
+                    "finished_at": stopped_at.isoformat(),
+                    "runs_recorded": len(summary_rows),
+                    "eta_seconds": None,
+                    "estimated_completion": None,
+                    "updated_at": stopped_at.isoformat(),
+                }
+            )
+            if summary_info:
+                stopped_payload.update(summary_info)
+            self._write_status(status_file, stopped_payload)
+            logger.info(
+                "Experiment '%s' stopped manually. %d partial runs saved.",
+                experiment.name,
+                len(summary_rows),
+            )
+            raise
         except Exception as exc:  # noqa: BLE001
             failed_at = datetime.now(UTC)
+            # Write partial results even on failure
+            if summary_rows:
+                summary_info = self._write_summary_artifacts(experiment_dir, summary_rows)
+            else:
+                summary_info = {}
+
             failure_payload = dict(status_payload)
             failure_payload.update(
                 {
@@ -264,9 +309,15 @@ class ExperimentRunner:
                     "error": str(exc),
                 }
             )
+            if summary_info:
+                failure_payload.update(summary_info)
             self._write_status(status_file, failure_payload)
             raise
         finally:
+            # Restore original signal handlers
+            signal.signal(signal.SIGTERM, original_sigterm_handler)
+            signal.signal(signal.SIGINT, original_sigint_handler)
+
             if experiment.cleanup == CleanupMode.PER_EXPERIMENT:
                 self._run_cleanup(experiment, scope=CleanupMode.PER_EXPERIMENT)
 
