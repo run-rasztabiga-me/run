@@ -13,40 +13,40 @@ experiments:
 #      - https://github.com/the-hideout/tarkov-data-manager.git # OK
 #      - https://github.com/cgize/DiceOpt_kcd2.git # OK
       - https://github.com/warmachine028/euphoria
-      - https://github.com/agentvoiceresponse/avr-app.git
+#      - https://github.com/agentvoiceresponse/avr-app.git # OK
 #      - https://github.com/SchoolTimer/ParklandSchoolTimer.git # OK
 #      - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git # OK
       - https://github.com/tschoffelen/csv-hero
       - https://github.com/Payroll-Engine/PayrollEngine.WebApp
       - https://github.com/strifel/mampf.link.git
-      - https://github.com/isixe/MetaThief
-      - https://github.com/xixu-me/DeepLX-App
+#      - https://github.com/isixe/MetaThief # OK
+#      - https://github.com/xixu-me/DeepLX-App # OK
       - https://github.com/Anar-Mamedov/Vehicle-Fleet-Management-Application-ATS-PRO
-      - https://github.com/citiususc/semantic-emofinder/tree/main
-      - https://github.com/rafuwu/mtg-scryfall-randomizer
-      - https://github.com/hsalvesen/vesen
-      - https://github.com/AdaptChat/webclient.git # OK
-      - https://github.com/prathmesh-ka-github/Chessable
+      - https://github.com/citiususc/semantic-emofinder
+#      - https://github.com/rafuwu/mtg-scryfall-randomizer # OK
+#      - https://github.com/hsalvesen/vesen # OK
+#      - https://github.com/AdaptChat/webclient.git # OK
+#      - https://github.com/prathmesh-ka-github/Chessable # OK
       - https://github.com/ces-unsw-edu-au/fireveg-webapp.git
-      - https://github.com/MindlessTruffle/Class-Order-Checker
+#      - https://github.com/MindlessTruffle/Class-Order-Checker # OK
       - https://github.com/schorschii/WebVault-Pro
       - https://github.com/isixe/AdSenseDetective.git
       - https://github.com/robweber/mario-kart-tournament
       - https://github.com/BK-SCOSS/scoss_webapp
-      - https://github.com/york9675/Tempo-Sync
-      - https://github.com/bhavish00007/Attendence-Calculator
+#      - https://github.com/york9675/Tempo-Sync # OK
+#      - https://github.com/bhavish00007/Attendence-Calculator # OK
 #      - https://github.com/9582anupam/scheme-seva.git # OK
       - https://github.com/yasir13001/QuizAI.git
     models:
-#      - provider: google_genai
-#        name: gemini-2.5-flash
-#        label: google_gemini_2.5_flash
+      - provider: google_genai
+        name: gemini-2.5-flash
+        label: google_gemini_2.5_flash
       - provider: openai
         name: gpt-5-mini
         label: openai_gpt5_mini
-      - provider: deepseek
-        name: deepseek-chat
-        label: deepseek_v3_2
+#      - provider: deepseek
+#        name: deepseek-chat
+#        label: deepseek_v3_2
     prompts:
       - id: basic
         description: Basic prompt
