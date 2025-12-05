@@ -71,11 +71,30 @@ def stage_value(run: Dict, stage: str) -> Optional[bool]:
     if stage == "runtime":
         return bool(run.get("runtime_success"))
     if stage == "apply":
+        # Check if kubernetes manifests were generated
+        gen_result = run.get("generation_result") or {}
+        k8s_manifests = gen_result.get("k8s_manifests") or []
+        if not k8s_manifests:
+            return None  # No K8s manifests, so apply doesn't apply
+
+        # If manifests exist, check if they were successfully validated/applied
         qb = ((run.get("quality_metrics") or {}).get("scoring_breakdown") or {})
-        ka = (qb.get("kubernetes") or {}).get("phases", {}).get("kubernetes_apply") or {}
-        if not ka:
-            return None
-        return ka.get("errors", 1) == 0
+        k8s_breakdown = qb.get("kubernetes") or {}
+
+        # Check kubernetes_apply phase first (if it exists)
+        phases = k8s_breakdown.get("phases") or {}
+        ka = phases.get("kubernetes_apply")
+        if ka:
+            return ka.get("errors", 1) == 0
+
+        # Fallback: check k8s_syntax validation
+        k8s_syntax = phases.get("k8s_syntax")
+        if k8s_syntax:
+            return k8s_syntax.get("errors", 1) == 0
+
+        # If we have manifests but no phase data, check overall k8s errors
+        k8s_errors = k8s_breakdown.get("total_errors", 1)
+        return k8s_errors == 0
     return None
 
 
