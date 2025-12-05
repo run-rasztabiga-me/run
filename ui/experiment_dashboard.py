@@ -594,6 +594,72 @@ def main() -> None:
     with st.spinner("Loading summary..."):
         summary_df = load_summary(current_run)
     filtered_df = summary_df
+    # Overall summary across all runs
+    if not summary_df.empty:
+        st.subheader("Overall Summary")
+
+        total_runs = len(summary_df)
+
+        # Calculate metrics
+        metrics = {}
+        metrics["Total Runs"] = total_runs
+
+        if "overall_score" in summary_df.columns:
+            avg_overall = pd.to_numeric(summary_df["overall_score"], errors="coerce").mean()
+            if not pd.isna(avg_overall):
+                metrics["Avg Overall Score"] = f"{avg_overall:.2f}"
+
+        if "generation_success" in summary_df.columns:
+            gen_success_rate = pd.to_numeric(summary_df["generation_success"], errors="coerce").mean()
+            if not pd.isna(gen_success_rate):
+                metrics["Generation Success Rate"] = f"{gen_success_rate * 100:.1f}%"
+
+        if "build_success" in summary_df.columns:
+            build_success_rate = pd.to_numeric(summary_df["build_success"], errors="coerce").mean()
+            if not pd.isna(build_success_rate):
+                metrics["Build Success Rate"] = f"{build_success_rate * 100:.1f}%"
+
+        if "runtime_success" in summary_df.columns:
+            runtime_success_rate = pd.to_numeric(summary_df["runtime_success"], errors="coerce").mean()
+            if not pd.isna(runtime_success_rate):
+                metrics["Runtime Success Rate"] = f"{runtime_success_rate * 100:.1f}%"
+
+        if "generation_time" in summary_df.columns:
+            avg_gen_time = pd.to_numeric(summary_df["generation_time"], errors="coerce").mean()
+            if not pd.isna(avg_gen_time):
+                metrics["Avg Generation Time"] = f"{avg_gen_time:.2f}s"
+
+        if "dockerfile_score" in summary_df.columns:
+            avg_dockerfile = pd.to_numeric(summary_df["dockerfile_score"], errors="coerce").mean()
+            if not pd.isna(avg_dockerfile):
+                metrics["Avg Dockerfile Score"] = f"{avg_dockerfile:.2f}"
+
+        if "k8s_score" in summary_df.columns:
+            avg_k8s = pd.to_numeric(summary_df["k8s_score"], errors="coerce").mean()
+            if not pd.isna(avg_k8s):
+                metrics["Avg K8s Score"] = f"{avg_k8s:.2f}"
+
+        if "runtime_score" in summary_df.columns:
+            avg_runtime = pd.to_numeric(summary_df["runtime_score"], errors="coerce").mean()
+            if not pd.isna(avg_runtime):
+                metrics["Avg Runtime Score"] = f"{avg_runtime:.2f}"
+
+        if "tool_calls" in summary_df.columns:
+            avg_tool_calls = pd.to_numeric(summary_df["tool_calls"], errors="coerce").mean()
+            if not pd.isna(avg_tool_calls):
+                metrics["Avg Tool Calls"] = f"{avg_tool_calls:.1f}"
+
+        if "tokens_used" in summary_df.columns:
+            avg_tokens = pd.to_numeric(summary_df["tokens_used"], errors="coerce").mean()
+            if not pd.isna(avg_tokens):
+                metrics["Avg Tokens Used"] = f"{avg_tokens:.0f}"
+
+        # Display metrics in a table
+        metrics_df = pd.DataFrame([metrics])
+        st.dataframe(metrics_df, use_container_width=True, hide_index=True)
+
+        st.divider()
+
     st.subheader("Per-run Summary")
     if summary_df.empty:
         st.write("No completed runs recorded yet.")

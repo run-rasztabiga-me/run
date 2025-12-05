@@ -1,0 +1,28 @@
+experiments:
+  - name: poc
+    description: Compare on all four FastAPI sample repositories.
+    repos:
+      - https://github.com/run-rasztabiga-me/poc1-fastapi.git
+      - https://github.com/run-rasztabiga-me/poc2-fastapi.git
+      - https://github.com/run-rasztabiga-me/poc3-fastapi.git
+      - https://github.com/run-rasztabiga-me/poc4-fastapi.git
+    models:
+      - provider: openai
+        name: gpt-5-mini
+        label: openai_gpt5_mini
+      - provider: google_genai
+        name: gemini-2.5-flash
+        label: google_gemini_2.5_flash
+        temperature: 1.0
+    prompts:
+      - id: basic
+        description: Basic prompt
+        system_prompt_path: prompts/basic.prompt
+      - id: default
+        description: Default prompt
+        system_prompt_path: prompts/default.prompt
+      - id: v2
+        description: V2 prompt
+        system_prompt_path: prompts/v2.prompt
+    repetitions: 2
+    cleanup: never
