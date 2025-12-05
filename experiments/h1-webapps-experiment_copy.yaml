@@ -15,7 +15,6 @@ experiments:
       #        - https://github.com/SoLiDinity/airwatch.git
       #        - https://github.com/squivix/dzelda-backend.git
       #        - https://github.com/the-hideout/tarkov-data-manager.git
-      #        - https://github.com/minhd-vu/assassins.git
       #        - https://github.com/cgize/DiceOpt_kcd2.git
       #        - https://github.com/warmachine028/euphoria.git
       - https://github.com/agentvoiceresponse/avr-app.git
