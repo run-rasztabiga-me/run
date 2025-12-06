@@ -2,36 +2,36 @@ experiments:
   - name: h1
     description: H1
     repos:
-      - https://github.com/sankeer28/Math-PDF-Generator-Web.git
-      - https://github.com/patrick204nqh/simple-webapp.git
+      - https://github.com/sankeer28/Math-PDF-Generator-Web.git # 6/6 = 100.0%
+      - https://github.com/patrick204nqh/simple-webapp.git # 3/6 = 50.0%
       - https://github.com/IamLRBA/Banner-Designer-WebApp.git
       - https://github.com/technicalguru/php-webapp.git
       - https://github.com/jan-bobrowski/lsfont.git
-      - https://github.com/SoLiDinity/airwatch.git
-      - https://github.com/the-hideout/tarkov-data-manager.git
-      - https://github.com/cgize/DiceOpt_kcd2.git
-      - https://github.com/agentvoiceresponse/avr-app.git
-      - https://github.com/SchoolTimer/ParklandSchoolTimer.git
-      - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
-      - https://github.com/tschoffelen/csv-hero
-      - https://github.com/isixe/MetaThief
-      - https://github.com/xixu-me/DeepLX-App
-      - https://github.com/rafuwu/mtg-scryfall-randomizer
-      - https://github.com/hsalvesen/vesen
-      - https://github.com/AdaptChat/webclient.git
-      - https://github.com/prathmesh-ka-github/Chessable
-      - https://github.com/MindlessTruffle/Class-Order-Checker
-      - https://github.com/isixe/AdSenseDetective.git
-      - https://github.com/robweber/mario-kart-tournament
-      - https://github.com/york9675/Tempo-Sync
-      - https://github.com/bhavish00007/Attendence-Calculator
-      - https://github.com/9582anupam/scheme-seva.git
-      - https://github.com/efsavage/hello-world-war
-      - https://github.com/FullStackWithLawrence/openai-hello-world
-      - https://github.com/angelvicenteg/ToDo-List
-      - https://github.com/springframeworkguru/spring-7-webapp
-      - https://github.com/mmumshad/simple-webapp-flask
-      - https://github.com/aburimaguro/todo-app-react-flask-mongo
+#      - https://github.com/SoLiDinity/airwatch.git
+#      - https://github.com/the-hideout/tarkov-data-manager.git
+#      - https://github.com/cgize/DiceOpt_kcd2.git
+#      - https://github.com/agentvoiceresponse/avr-app.git
+#      - https://github.com/SchoolTimer/ParklandSchoolTimer.git
+#      - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
+#      - https://github.com/tschoffelen/csv-hero
+#      - https://github.com/isixe/MetaThief
+#      - https://github.com/xixu-me/DeepLX-App
+#      - https://github.com/rafuwu/mtg-scryfall-randomizer
+#      - https://github.com/hsalvesen/vesen
+#      - https://github.com/AdaptChat/webclient.git
+#      - https://github.com/prathmesh-ka-github/Chessable
+#      - https://github.com/MindlessTruffle/Class-Order-Checker
+#      - https://github.com/isixe/AdSenseDetective.git
+#      - https://github.com/robweber/mario-kart-tournament
+#      - https://github.com/york9675/Tempo-Sync
+#      - https://github.com/bhavish00007/Attendence-Calculator
+#      - https://github.com/9582anupam/scheme-seva.git
+#      - https://github.com/efsavage/hello-world-war
+#      - https://github.com/FullStackWithLawrence/openai-hello-world
+#      - https://github.com/angelvicenteg/ToDo-List
+#      - https://github.com/springframeworkguru/spring-7-webapp
+#      - https://github.com/mmumshad/simple-webapp-flask
+#      - https://github.com/aburimaguro/todo-app-react-flask-mongo
     models:
       - provider: google_genai
         name: gemini-2.5-flash

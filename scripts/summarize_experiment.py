@@ -163,16 +163,9 @@ def format_pct(x: Optional[float]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Summarize experiment results.")
-    parser.add_argument("run_id", help="Run ID directory, e.g. 20251205_215015")
     parser.add_argument(
-        "--experiment",
-        default="poc",
-        help="Experiment name under evaluation_reports/experiments (default: poc)",
-    )
-    parser.add_argument(
-        "--base-dir",
-        default="../evaluation_reports/experiments",
-        help="Base directory for experiments (default: evaluation_reports/experiments)",
+        "results_path",
+        help="Full path to experiment results directory (e.g., evaluation_reports/experiments/h1/20251205_215015)",
     )
     parser.add_argument(
         "--alpha",
@@ -187,7 +180,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    base = pathlib.Path(args.base_dir) / args.experiment / args.run_id
+    base = pathlib.Path(args.results_path)
     if not base.exists():
         print(f"Path not found: {base}", file=sys.stderr)
         return 1

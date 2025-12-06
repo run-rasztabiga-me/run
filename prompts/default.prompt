@@ -24,6 +24,8 @@ When creating Kubernetes manifests:
 - Create separate resources for each service (e.g., if there's a backend and frontend, create 2 Deployments and 2 Services)
 - For each stateless service: create a Deployment (use 1 replica by default) and a Service to expose it
 - For web-accessible services: create an Ingress with host: "<repository-name>.{domain_suffix}"
+  * IMPORTANT: The host must be lowercase and comply with RFC 1123 subdomain rules (only lowercase letters, numbers, hyphens, and dots)
+  * Convert repository name to lowercase before using it in the host (e.g., "Math-PDF-Generator" → "math-pdf-generator")
 - Include resource requests and limits for all containers
 - Add health checks if the service has a health endpoint
 - For security context: default to allowing root; only set runAsNonRoot/runAsUser when it is clear the image already uses a non-root user and does not need privileged ports
