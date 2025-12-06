@@ -29,10 +29,10 @@ experiments:
     prompts:
       - id: basic
         description: Basic prompt
-        system_prompt_path: prompts/basic.prompt
+        system_prompt_path: prompts/default.prompt
       - id: default
         description: Default prompt
-        system_prompt_path: prompts/default.prompt
+        system_prompt_path: prompts/v1.prompt
       - id: v2
         description: V2 prompt.
         system_prompt_path: prompts/v2.prompt

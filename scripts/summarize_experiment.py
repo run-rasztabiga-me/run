@@ -7,28 +7,14 @@ evaluation_reports/experiments/<experiment_name>/<run_id>/**/*.json
 """
 import argparse
 import json
-import math
 import pathlib
 import sys
 from typing import Dict, Iterable, Optional, Tuple
 
 
-def wilson_interval(successes: int, total: int, alpha: float = 0.05) -> Tuple[float, float, str]:
-    if total == 0:
-        return 0.0, 0.0, "wilson"
-    z = 1.96
-    phat = successes / total
-    denom = 1 + z * z / total
-    center = (phat + z * z / (2 * total)) / denom
-    radius = z * math.sqrt((phat * (1 - phat) / total) + (z * z / (4 * total * total))) / denom
-    return max(0.0, center - radius), min(1.0, center + radius), "wilson"
-
-
 def clopper_pearson(successes: int, total: int, alpha: float = 0.05) -> Tuple[float, float, str]:
     if total == 0:
         return 0.0, 0.0, "clopper_pearson"
-    if not _scipy_available():
-        return wilson_interval(successes, total, alpha)
     from scipy.stats import beta
 
     lower = beta.ppf(alpha / 2, successes, total - successes + 1)
@@ -38,16 +24,6 @@ def clopper_pearson(successes: int, total: int, alpha: float = 0.05) -> Tuple[fl
     if successes == total:
         upper = 1.0
     return lower, upper, "clopper_pearson"
-
-
-def _scipy_available() -> bool:
-    try:
-        import importlib
-
-        importlib.import_module("scipy")
-        return True
-    except Exception:
-        return False
 
 
 def load_runs(base: pathlib.Path) -> Iterable[Dict]:
@@ -101,6 +77,9 @@ def stage_value(run: Dict, stage: str) -> Optional[bool]:
 def compute_stats(base: pathlib.Path) -> Dict:
     stage_counts = {"build": 0, "apply": 0, "runtime": 0}
     stage_success = {"build": 0, "apply": 0, "runtime": 0}
+    # Conditional counts: given previous stage succeeded
+    stage_conditional_counts = {"apply": 0, "runtime": 0}  # apply | build, runtime | apply
+    stage_conditional_success = {"apply": 0, "runtime": 0}
     prompt_counts: Dict[str, int] = {}
     prompt_success: Dict[str, int] = {}
     per_repo_counts: Dict[str, Dict[str, int]] = {}
@@ -131,6 +110,18 @@ def compute_stats(base: pathlib.Path) -> Dict:
             if val:
                 stage_success[key] += 1
 
+        # Conditional statistics: apply given build succeeded
+        if build is True and apply_ok is not None:
+            stage_conditional_counts["apply"] += 1
+            if apply_ok:
+                stage_conditional_success["apply"] += 1
+
+        # Conditional statistics: runtime given apply succeeded
+        if apply_ok is True and runtime is not None:
+            stage_conditional_counts["runtime"] += 1
+            if runtime:
+                stage_conditional_success["runtime"] += 1
+
         final_success = bool(build) and bool(runtime) and (apply_ok is True)
         if final_success:
             total_success += 1
@@ -143,6 +134,8 @@ def compute_stats(base: pathlib.Path) -> Dict:
         "total_success": total_success,
         "stage_counts": stage_counts,
         "stage_success": stage_success,
+        "stage_conditional_counts": stage_conditional_counts,
+        "stage_conditional_success": stage_conditional_success,
         "prompt_counts": prompt_counts,
         "prompt_success": prompt_success,
         "per_repo_counts": per_repo_counts,
@@ -214,11 +207,19 @@ def main() -> int:
             "per_repo": {},
         }
         for stage in ("build", "apply", "runtime"):
-            out["stages"][stage] = rate_and_ci(
+            stage_data = rate_and_ci(
                 stats["stage_success"].get(stage, 0),
                 stats["stage_counts"].get(stage, 0),
                 args.alpha,
             )
+            # Add conditional stats for stages that depend on previous stage
+            if stage in stats["stage_conditional_counts"]:
+                stage_data["conditional"] = rate_and_ci(
+                    stats["stage_conditional_success"].get(stage, 0),
+                    stats["stage_conditional_counts"].get(stage, 0),
+                    args.alpha,
+                )
+            out["stages"][stage] = stage_data
         for prompt, total in stats["prompt_counts"].items():
             succ = stats["prompt_success"].get(prompt, 0)
             out["prompts"][prompt] = rate_and_ci(succ, total, args.alpha)
@@ -239,7 +240,7 @@ def main() -> int:
     print(f"Runs: {stats['total_success']}/{stats['total_runs']} = {format_pct(overall['rate'])}")
     if overall["ci"]:
         low, high = overall["ci"]
-        print(f"  {int((1-args.alpha)*100)}% CI ({overall['method']}): {format_pct(low)}–{format_pct(high)}")
+        print(f"  {int((1-args.alpha)*100)}% CI: {format_pct(low)}–{format_pct(high)}")
 
     print("\nStages:")
     for stage in ("build", "apply", "runtime"):
@@ -249,7 +250,20 @@ def main() -> int:
         print(f"  {stage}: {succ}/{tot} = {format_pct(stage_ci['rate'])}", end="")
         if stage_ci["ci"]:
             low, high = stage_ci["ci"]
-            print(f" (CI: {format_pct(low)}–{format_pct(high)}, {stage_ci['method']})")
+            print(f" (CI: {format_pct(low)}–{format_pct(high)})", end="")
+
+        # Show conditional rate for stages that depend on previous stage
+        if stage in stats["stage_conditional_counts"]:
+            cond_succ = stats["stage_conditional_success"].get(stage, 0)
+            cond_tot = stats["stage_conditional_counts"].get(stage, 0)
+            cond_ci = rate_and_ci(cond_succ, cond_tot, args.alpha)
+            prev_stage = "build" if stage == "apply" else "apply"
+            print(f"\n    └─ given {prev_stage} OK: {cond_succ}/{cond_tot} = {format_pct(cond_ci['rate'])}", end="")
+            if cond_ci["ci"]:
+                low, high = cond_ci["ci"]
+                print(f" (CI: {format_pct(low)}–{format_pct(high)})")
+            else:
+                print()
         else:
             print()
 
@@ -260,7 +274,7 @@ def main() -> int:
         line = f"  {prompt}: {succ}/{tot} = {format_pct(ci['rate'])}"
         if ci["ci"]:
             low, high = ci["ci"]
-            line += f" (CI: {format_pct(low)}–{format_pct(high)}, {ci['method']})"
+            line += f" (CI: {format_pct(low)}–{format_pct(high)})"
         print(line)
 
     print("\nPer model:")
@@ -271,7 +285,7 @@ def main() -> int:
         line = f"  {model}: {succ}/{tot} = {format_pct(ci['rate'])}"
         if ci["ci"]:
             low, high = ci["ci"]
-            line += f" (CI: {format_pct(low)}–{format_pct(high)}, {ci['method']})"
+            line += f" (CI: {format_pct(low)}–{format_pct(high)})"
         print(line)
 
     print("\nPer repo:")
@@ -282,11 +296,8 @@ def main() -> int:
         line = f"  {repo}: {succ}/{tot} = {format_pct(ci['rate'])}"
         if ci["ci"]:
             low, high = ci["ci"]
-            line += f" (CI: {format_pct(low)}–{format_pct(high)}, {ci['method']})"
+            line += f" (CI: {format_pct(low)}–{format_pct(high)})"
         print(line)
-
-    if not _scipy_available():
-        print("\nNote: scipy not available, Wilson intervals used as fallback.")
     return 0
 
 

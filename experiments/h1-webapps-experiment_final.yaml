@@ -37,6 +37,6 @@ experiments:
     prompts:
       - id: basic
         description: Basic prompt
-        system_prompt_path: prompts/basic.prompt
+        system_prompt_path: prompts/default.prompt
     repetitions: 1
     cleanup: never

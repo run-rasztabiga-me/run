@@ -11,19 +11,19 @@ experiments:
       - provider: openai
         name: gpt-5-mini
         label: openai_gpt5_mini
-      - provider: google_genai
-        name: gemini-2.5-flash
-        label: google_gemini_2.5_flash
-        temperature: 1.0
+#      - provider: google_genai
+#        name: gemini-2.5-flash
+#        label: google_gemini_2.5_flash
+#        temperature: 1.0
     prompts:
       - id: basic
         description: Basic prompt
-        system_prompt_path: prompts/basic.prompt
+        system_prompt_path: prompts/default.prompt
       - id: default
         description: Default prompt
-        system_prompt_path: prompts/default.prompt
+        system_prompt_path: prompts/v1.prompt
       - id: v2
         description: V2 prompt
         system_prompt_path: prompts/v2.prompt
-    repetitions: 2
+    repetitions: 1
     cleanup: per_run

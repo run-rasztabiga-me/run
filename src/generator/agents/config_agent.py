@@ -67,12 +67,12 @@ class ConfigurationAgent:
             except KeyError:
                 return self.config.system_prompt
 
-        # Load from prompts/default.prompt
-        default_prompt_path = Path("prompts/default.prompt")
+        # Load from prompts/v1.prompt
+        default_prompt_path = Path("prompts/v1.prompt")
         if not default_prompt_path.exists():
             raise FileNotFoundError(
                 f"Default prompt file not found at {default_prompt_path}. "
-                "Please create prompts/default.prompt or provide system_prompt in config."
+                "Please create prompts/v1.prompt or provide system_prompt in config."
             )
 
         prompt_text = default_prompt_path.read_text(encoding="utf-8")
