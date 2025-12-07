@@ -198,13 +198,14 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
 
 def docker_system_prune(dry_run: bool = False) -> None:
     """
-    Execute docker system prune to remove all unused Docker resources.
+    Execute docker system prune to remove unused Docker resources.
+    Preserves base images to avoid DockerHub pull rate limits.
 
     Args:
         dry_run: When True, only log the intended action.
     """
     if dry_run:
-        logger.info("[dry-run] Would run: docker system prune -a --volumes -f")
+        logger.info("[dry-run] Would run: docker system prune -f")
         return
 
     docker_bin = shutil.which("docker")
@@ -212,9 +213,9 @@ def docker_system_prune(dry_run: bool = False) -> None:
         logger.warning("docker binary not found in PATH; skipping Docker cleanup.")
         return
 
-    logger.info("Running Docker system prune to remove unused resources...")
+    logger.info("Running Docker system prune to remove unused resources (preserving base images)...")
     try:
-        run_command([docker_bin, "system", "prune", "-a", "--volumes", "-f"])
+        run_command([docker_bin, "system", "prune", "-f"])
         logger.info("Docker system prune completed successfully.")
     except subprocess.CalledProcessError as exc:
         stderr = exc.stderr.strip() if exc.stderr else "unknown error"

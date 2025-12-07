@@ -1,4 +1,5 @@
 import logging
+import time
 import uuid
 from pathlib import Path
 from typing import List, Tuple, Optional
@@ -102,21 +103,45 @@ class ConfigurationAgent:
         if run_id is None:
             run_id = str(uuid.uuid4())
 
-        try:
-            # Run agent to generate files - response_format ensures structured output
-            result = self.agent.invoke(
-                {"messages": [{"role": "user", "content": repo_url}]},
-                {
-                    "recursion_limit": self.config.recursion_limit,
-                    "run_id": run_id,
-                }
-            )
+        # Retry configuration
+        max_retries = 5
+        base_delay = 30.0  # Start with 30 seconds
 
-            # Extract structured response and return messages with run_id
-            return result['structured_response'], result['messages'], run_id
-        except Exception as e:
-            self.logger.error(f"Failed to generate configurations: {str(e)}", exc_info=True)
-            raise
+        for attempt in range(max_retries):
+            try:
+                # Run agent to generate files - response_format ensures structured output
+                result = self.agent.invoke(
+                    {"messages": [{"role": "user", "content": repo_url}]},
+                    {
+                        "recursion_limit": self.config.recursion_limit,
+                        "run_id": run_id,
+                    }
+                )
+
+                # Extract structured response and return messages with run_id
+                return result['structured_response'], result['messages'], run_id
+
+            except Exception as e:
+                # Check if it's a rate limit error
+                is_rate_limit = (
+                    "RateLimitError" in str(type(e).__name__) or
+                    "rate_limit" in str(e).lower() or
+                    "429" in str(e)
+                )
+
+                if is_rate_limit and attempt < max_retries - 1:
+                    # Calculate exponential backoff with jitter
+                    delay = base_delay * (2 ** attempt)
+                    self.logger.warning(
+                        f"Rate limit hit (attempt {attempt + 1}/{max_retries}). "
+                        f"Retrying in {delay:.1f} seconds... Error: {str(e)}"
+                    )
+                    time.sleep(delay)
+                    continue
+                else:
+                    # Not a rate limit error or max retries reached
+                    self.logger.error(f"Failed to generate configurations: {str(e)}", exc_info=True)
+                    raise
 
     def get_workspace(self) -> RepositoryWorkspace:
         """Get the workspace instance."""

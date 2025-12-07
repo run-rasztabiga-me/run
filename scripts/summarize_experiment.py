@@ -27,6 +27,7 @@ def clopper_pearson(successes: int, total: int, alpha: float = 0.05) -> Tuple[fl
 
 
 def load_runs(base: pathlib.Path) -> Iterable[Dict]:
+    runs = []
     for path in base.rglob("*.json"):
         if path.name == "status.json":
             continue
@@ -38,7 +39,13 @@ def load_runs(base: pathlib.Path) -> Iterable[Dict]:
             continue
         if not data.get("repo_name"):
             continue
-        yield data
+        runs.append(data)
+
+    # Sort by start_time (oldest first)
+    runs.sort(key=lambda r: r.get("start_time", ""))
+
+    for run in runs:
+        yield run
 
 
 def stage_value(run: Dict, stage: str) -> Optional[bool]:
