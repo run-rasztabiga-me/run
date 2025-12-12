@@ -1,0 +1,181 @@
+{
+  "repo_url": "https://github.com/SchoolTimer/ParklandSchoolTimer.git",
+  "repo_name": "parklandschooltimer",
+  "evaluation_id": "01385ae1-9022-49e4-ba10-0f607970a468",
+  "status": "completed",
+  "start_time": "2025-12-12T20:20:05.436676",
+  "end_time": "2025-12-12T20:22:29.566084",
+  "total_evaluation_time": 144.129408,
+  "generation_result": {
+    "repo_url": "https://github.com/SchoolTimer/ParklandSchoolTimer.git",
+    "repo_name": "parklandschooltimer",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "parklandschooltimer",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 119.32280921936035,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:22:12.332824",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/parklandschooltimer-904cdab8-e757-4d36-bd69-3610802a1c67",
+    "run_id": "904cdab8-e757-4d36-bd69-3610802a1c67"
+  },
+  "execution_metrics": {
+    "total_time": 119.32280921936035,
+    "tool_calls_count": 25,
+    "tool_calls_breakdown": {
+      "think": 5,
+      "ls": 4,
+      "write_file": 4,
+      "get_file_content": 4,
+      "find_files": 5,
+      "search_files": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 375837,
+    "input_tokens": 373385,
+    "output_tokens": 2452,
+    "error_count": 0,
+    "run_id": "904cdab8-e757-4d36-bd69-3610802a1c67",
+    "docker_build_metrics": [
+      {
+        "image_tag": "parklandschooltimer",
+        "build_time": 0.8810513019561768,
+        "image_size_mb": 25.32,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"parklandschooltimer\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"parklandschooltimer\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:20:05.436710: Starting configuration generation",
+    "2025-12-12T20:22:12.332886: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T20:22:12.332891: Starting quality assessment",
+    "2025-12-12T20:22:29.565990: Built 1 Docker images (total: 25.3 MB, avg time: 0.9s)",
+    "2025-12-12T20:22:29.566025: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T20:22:29.566045: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T20:22:29.566056: Deployed to namespace: parklandschooltimer-904cdab8-e757-4d36-bd69-3610802a1c67",
+    "2025-12-12T20:22:29.566062: Testing endpoint: /",
+    "2025-12-12T20:22:29.566071: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T20:22:29.566077: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/parklandschooltimer-904cdab8-e757-4d36-bd69-3610802a1c67",
+    "run_id": "904cdab8-e757-4d36-bd69-3610802a1c67"
+  }
+}

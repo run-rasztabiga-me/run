@@ -1,0 +1,202 @@
+{
+  "repo_url": "https://github.com/AdaptChat/webclient.git",
+  "repo_name": "webclient",
+  "evaluation_id": "00092200-5e4e-493e-be99-bf8a895fbce4",
+  "status": "completed",
+  "start_time": "2025-12-12T21:50:13.710587",
+  "end_time": "2025-12-12T21:56:59.204159",
+  "total_evaluation_time": 405.493572,
+  "generation_result": {
+    "repo_url": "https://github.com/AdaptChat/webclient.git",
+    "repo_name": "webclient",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "webclient:latest",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/README.txt"
+    ],
+    "generation_time": 138.76626014709473,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:52:40.779330",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-3d6f0fcd-7f98-4164-a001-785ec0ed9ffa",
+    "run_id": "3d6f0fcd-7f98-4164-a001-785ec0ed9ffa"
+  },
+  "execution_metrics": {
+    "total_time": 138.76626014709473,
+    "tool_calls_count": 34,
+    "tool_calls_breakdown": {
+      "search_files": 9,
+      "get_file_content": 7,
+      "find_files": 8,
+      "ls": 1,
+      "write_file": 7,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 495009,
+    "input_tokens": 488466,
+    "output_tokens": 6543,
+    "error_count": 0,
+    "run_id": "3d6f0fcd-7f98-4164-a001-785ec0ed9ffa",
+    "docker_build_metrics": [
+      {
+        "image_tag": "webclient:latest",
+        "build_time": 135.29756259918213,
+        "image_size_mb": 23.18,
+        "layers_count": 11
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 73.4,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 16,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 16,
+        "severity": "info",
+        "message": "Expressions don't expand in single quotes, use double quotes for that.",
+        "rule_id": "SC2016"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webclient\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webclient\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "adapt-webclient",
+        "line_number": null,
+        "severity": "error",
+        "message": "Deployment adapt-webclient not ready within 120s: error: timed out waiting for the condition on deployments/adapt-webclient",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 2,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 73.4,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 2,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 2,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 2
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:50:13.711345: Starting configuration generation",
+    "2025-12-12T21:52:40.779427: Generated 1 Dockerfiles and 4 K8s manifests",
+    "2025-12-12T21:52:40.779431: Starting quality assessment",
+    "2025-12-12T21:56:59.204023: Built 1 Docker images (total: 23.2 MB, avg time: 135.3s)",
+    "2025-12-12T21:56:59.204075: Dockerfile validation: 1 errors, 2 warnings",
+    "2025-12-12T21:56:59.204089: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T21:56:59.204116: Deployed to namespace: webclient-3d6f0fcd-7f98-4164-a001-785ec0ed9ffa",
+    "2025-12-12T21:56:59.204129: Testing endpoint: /",
+    "2025-12-12T21:56:59.204134: Runtime validation: 1 errors, 0 warnings",
+    "2025-12-12T21:56:59.204142: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-3d6f0fcd-7f98-4164-a001-785ec0ed9ffa",
+    "run_id": "3d6f0fcd-7f98-4164-a001-785ec0ed9ffa"
+  }
+}

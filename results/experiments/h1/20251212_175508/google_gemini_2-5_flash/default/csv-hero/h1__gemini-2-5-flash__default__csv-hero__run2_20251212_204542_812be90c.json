@@ -1,0 +1,135 @@
+{
+  "repo_url": "https://github.com/tschoffelen/csv-hero",
+  "repo_name": "csv-hero",
+  "evaluation_id": "812be90c-ac24-4988-a4e9-b86b170d7400",
+  "status": "completed",
+  "start_time": "2025-12-12T20:45:11.312004",
+  "end_time": "2025-12-12T20:45:42.145426",
+  "total_evaluation_time": 30.833422,
+  "generation_result": {
+    "repo_url": "https://github.com/tschoffelen/csv-hero",
+    "repo_name": "csv-hero",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "csv-hero",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 17.59481692314148,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:45:36.210226",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/csv-hero-81dddc47-f83b-4f01-8a46-201017a8b923",
+    "run_id": "81dddc47-f83b-4f01-8a46-201017a8b923"
+  },
+  "execution_metrics": {
+    "total_time": 17.59481692314148,
+    "tool_calls_count": 8,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "get_file_content": 2,
+      "ls": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 33355,
+    "input_tokens": 31203,
+    "output_tokens": 2152,
+    "error_count": 0,
+    "run_id": "81dddc47-f83b-4f01-8a46-201017a8b923",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 19,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 422B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.8s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 364.31kB 0.0s done\n#4 DONE 0.0s\n\n#5 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#5 resolve docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2 done\n#5 sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 0B / 446B 0.2s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 0B / 42.78MB 0.2s\n#5 sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 0B / 1.26MB 0.2s\n#5 sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 446B / 446B 0.3s done\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 3.15MB / 42.78MB 0.6s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 14.68MB / 42.78MB 0.8s\n#5 sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 1.26MB / 1.26MB 0.6s done\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 27.26MB / 42.78MB 0.9s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 39.85MB / 42.78MB 1.1s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 42.78MB / 42.78MB 1.1s done\n#5 extracting sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645\n#5 extracting sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 0.4s done\n#5 DONE 1.5s\n\n#5 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#5 extracting sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 0.0s done\n#5 extracting sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 done\n#5 DONE 1.6s\n\n#6 [builder 2/6] WORKDIR /app\n#6 DONE 0.1s\n\n#7 [builder 3/6] COPY package*.json ./\n#7 DONE 0.0s\n\n#8 [builder 4/6] RUN npm install\n#8 1.358 npm error code ERESOLVE\n#8 1.358 npm error ERESOLVE unable to resolve dependency tree\n#8 1.358 npm error\n#8 1.358 npm error While resolving: csv-hero@1.0.0\n#8 1.358 npm error Found: react@19.2.3\n#8 1.358 npm error node_modules/react\n#8 1.358 npm error   react@\"^19.1.0\" from the root project\n#8 1.358 npm error\n#8 1.358 npm error Could not resolve dependency:\n#8 1.358 npm error peer react@\"^16 || ^17 || ^18\" from @headlessui/react@1.7.19\n#8 1.358 npm error node_modules/@headlessui/react\n#8 1.358 npm error   @headlessui/react@\"^1.7.19\" from the root project\n#8 1.358 npm error\n#8 1.358 npm error Fix the upstream dependency conflict, or retry\n#8 1.358 npm error this command with --force or --legacy-peer-deps\n#8 1.358 npm error to accept an incorrect (and potentially broken) dependency resolution.\n#8 1.358 npm error\n#8 1.358 npm error\n#8 1.358 npm error For a full report see:\n#8 1.358 npm error /root/.npm/_logs/2025-12-12T19_45_41_103Z-eresolve-report.txt\n#8 1.361 npm notice\n#8 1.361 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#8 1.361 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#8 1.361 npm notice To update run: npm install -g npm@11.7.0\n#8 1.361 npm notice\n#8 1.361 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-12T19_45_41_103Z-debug-0.log\n#8 ERROR: process \"/bin/sh -c npm install\" did not complete successfully: exit code: 1\n\n#9 [stage-1 3/4] RUN npm install -g http-server\n#9 CANCELED\n------\n > [builder 4/6] RUN npm install:\n1.358 npm error\n1.358 npm error\n1.358 npm error For a full report see:\n1.358 npm error /root/.npm/_logs/2025-12-12T19_45_41_103Z-eresolve-report.txt\n1.361 npm notice\n1.361 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n1.361 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n1.361 npm notice To update run: npm install -g npm@11.7.0\n1.361 npm notice\n1.361 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-12T19_45_41_103Z-debug-0.log\n------\nDockerfile:8\n--------------------\n   6 |     \n   7 |     COPY package*.json ./\n   8 | >>> RUN npm install\n   9 |     \n  10 |     COPY . .\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm install\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/sgr2pszjzt9kq1fdq0wacgs46",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:45:11.312488: Starting configuration generation",
+    "2025-12-12T20:45:36.210344: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T20:45:36.210351: Starting quality assessment",
+    "2025-12-12T20:45:42.145375: Dockerfile validation: 1 errors, 1 warnings",
+    "2025-12-12T20:45:42.145405: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T20:45:42.145411: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T20:45:42.145421: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/csv-hero-81dddc47-f83b-4f01-8a46-201017a8b923",
+    "run_id": "81dddc47-f83b-4f01-8a46-201017a8b923"
+  }
+}

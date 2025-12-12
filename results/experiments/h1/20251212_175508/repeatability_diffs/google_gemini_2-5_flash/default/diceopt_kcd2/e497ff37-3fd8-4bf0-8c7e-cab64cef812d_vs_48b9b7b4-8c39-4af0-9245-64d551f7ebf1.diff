@@ -1,0 +1,90 @@
+--- e497ff37-3fd8-4bf0-8c7e-cab64cef812d
++++ 48b9b7b4-8c39-4af0-9245-64d551f7ebf1
+@@ -2,26 +2,27 @@
+ FROM nginx:alpine
+ COPY . /usr/share/nginx/html
+ EXPOSE 80
+-@@FILE:K8s::k8s/deployment.yaml
++CMD ["nginx", "-g", "daemon off;"]
++@@FILE:K8s::k8s/diceopt-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: diceopt-kcd2-deployment
++  name: diceopt
+   labels:
+-    app: diceopt-kcd2
++    app: diceopt
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: diceopt-kcd2
++      app: diceopt
+   template:
+     metadata:
+       labels:
+-        app: diceopt-kcd2
++        app: diceopt
+     spec:
+       containers:
+-      - name: diceopt-kcd2
+-        image: diceopt-kcd2
++      - name: diceopt
++        image: diceopt
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 80
+@@ -32,11 +33,23 @@
+           limits:
+             memory: "128Mi"
+             cpu: "100m"
+-@@FILE:K8s::k8s/ingress.yaml
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 10
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 15
++          periodSeconds: 20
++@@FILE:K8s::k8s/diceopt-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: diceopt-kcd2-ingress
++  name: diceopt-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+ spec:
+@@ -48,20 +61,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: diceopt-kcd2-service
++            name: diceopt-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/service.yaml
++@@FILE:K8s::k8s/diceopt-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: diceopt-kcd2-service
++  name: diceopt-service
+   labels:
+-    app: diceopt-kcd2
++    app: diceopt
+ spec:
+   selector:
+-    app: diceopt-kcd2
++    app: diceopt
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 80
++  type: ClusterIP

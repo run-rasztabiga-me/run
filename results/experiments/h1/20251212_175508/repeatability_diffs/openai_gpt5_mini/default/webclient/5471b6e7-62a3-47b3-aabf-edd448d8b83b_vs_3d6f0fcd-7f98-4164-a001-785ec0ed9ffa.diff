@@ -1,0 +1,250 @@
+--- 5471b6e7-62a3-47b3-aabf-edd448d8b83b
++++ 3d6f0fcd-7f98-4164-a001-785ec0ed9ffa
+@@ -1,97 +1,70 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Multi-stage build: build with Node, serve with nginx
++# Multi-stage build: build with Node.js, serve with nginx
+ FROM node:18-alpine AS build
++WORKDIR /app
++# copy package manifest for caching
++COPY package.json ./
++# copy rest of the sources
++COPY . .
++# install dependencies and build
++RUN npm install --legacy-peer-deps && npm run build
+ 
+-WORKDIR /app
+-
+-# Install dependencies
+-COPY package.json ./
+-RUN npm install
+-
+-# Copy source and build
+-COPY . .
+-RUN npm run build
+-
+-# Production image
+-FROM nginx:alpine
+-
+-# Basic nginx config to support SPA routing
+-COPY nginx.conf /etc/nginx/conf.d/default.conf
+-
+-# Copy static files
++# Production image: nginx serving the built static files
++FROM nginx:stable-alpine
+ COPY --from=build /app/dist /usr/share/nginx/html
++# Simple nginx config to support SPA routing (try_files)
++RUN rm /etc/nginx/conf.d/default.conf
++RUN printf '%s\n' \
++    'server {\n' \
++    '  listen 80;\n' \
++    '  server_name _;\n' \
++    '  root /usr/share/nginx/html;\n' \
++    '  index index.html;\n' \
++    '  location / {\n' \
++    '    try_files $uri $uri/ /index.html;\n' \
++    '  }\n' \
++    '  location /assets/ {\n' \
++    '    expires 30d;\n' \
++    '  }\n' \
++    '}' > /etc/nginx/conf.d/webclient.conf
+ 
+ EXPOSE 80
+-
+-CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::Dockerfile
+-# Multi-stage build: build with Node, serve with nginx
+-FROM node:18-alpine AS build
+-
+-WORKDIR /app
+-
+-# Install dependencies
+-COPY package.json ./
+-RUN npm install
+-
+-# Copy source and build
+-COPY . .
+-RUN npm run build
+-
+-# Production image
+-FROM nginx:alpine
+-
+-# Basic nginx config to support SPA routing
+-COPY nginx.conf /etc/nginx/conf.d/default.conf
+-
+-# Copy static files
+-COPY --from=build /app/dist /usr/share/nginx/html
+-
+-EXPOSE 80
+-
+ CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/README.txt
+-This folder contains Kubernetes manifests generated for the AdaptChat webclient single-service frontend.
++Kubernetes manifests for Adapt Chat webclient
+ 
+-Manifests:
+-- webclient-deployment.yaml    Deployment for Docker image 'adaptchat-webclient' (containerPort 80)
+-- webclient-service.yaml       ClusterIP Service exposing port 80
+-- ingress.yaml                 Ingress with host: webclient.rasztabiga.me
++Apply with:
++  kubectl apply -f k8s/
+ 
+-Notes:
+-- Build the Docker image using the repository root as context: docker build -t adaptchat-webclient .
+-- The app is a static SPA built with Vite. The Dockerfile builds the site and serves via nginx.
+-- No backend or database is required by this repository; the frontend calls the external API at https://api.adapt.chat as configured in src/api/Api.ts
++Ingress host: adaptchat-webclient.rasztabiga.me
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: adaptchat-webclient
+-  labels:
+-    app: adaptchat-webclient
++  name: adapt-webclient
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: adaptchat-webclient
++      app: adapt-webclient
+   template:
+     metadata:
+       labels:
+-        app: adaptchat-webclient
++        app: adapt-webclient
+     spec:
+       containers:
+         - name: webclient
+-          image: adaptchat-webclient
++          image: webclient:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 80
+           resources:
+             requests:
++              cpu: "100m"
+               memory: "128Mi"
+-              cpu: "100m"
+             limits:
++              cpu: "500m"
+               memory: "256Mi"
+-              cpu: "500m"
+           livenessProbe:
+             httpGet:
+               path: /
+@@ -110,108 +83,29 @@
+ metadata:
+   name: webclient-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: webclient.rasztabiga.me
+       http:
+         paths:
+-          - path: /
+-            pathType: Prefix
++          - path: /(.*)
++            pathType: ImplementationSpecific
+             backend:
+               service:
+-                name: webclient
++                name: adapt-webclient
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/manifest-list.txt
+-k8s/webclient-deployment.yaml
+-k8s/webclient-service.yaml
+-k8s/ingress.yaml
+-Dockerfile
+-nginx.conf
+-k8s/deployment.yaml
+-k8s/service.yaml
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: webclient
++  name: adapt-webclient
+ spec:
+   selector:
+-    app: webclient
++    app: adapt-webclient
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 80
+   type: ClusterIP
+-@@FILE:K8s::k8s/webclient-deployment.yaml
+-apiVersion: apps/v1
+-kind: Deployment
+-metadata:
+-  name: adaptchat-webclient
+-  labels:
+-    app: adaptchat-webclient
+-spec:
+-  replicas: 1
+-  selector:
+-    matchLabels:
+-      app: adaptchat-webclient
+-  template:
+-    metadata:
+-      labels:
+-        app: adaptchat-webclient
+-    spec:
+-      containers:
+-        - name: webclient
+-          image: adaptchat-webclient
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 80
+-          resources:
+-            requests:
+-              memory: "128Mi"
+-              cpu: "100m"
+-            limits:
+-              memory: "256Mi"
+-              cpu: "500m"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/webclient-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: adaptchat-webclient
+-spec:
+-  selector:
+-    app: adaptchat-webclient
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 80
+-  type: ClusterIP
+-@@FILE:K8s::nginx.conf
+-server {
+-  listen 80;
+-  server_name _;
+-
+-  root /usr/share/nginx/html;
+-  index index.html;
+-
+-  location / {
+-    try_files $uri $uri/ /index.html;
+-  }
+-
+-  location /api/ {
+-    proxy_pass http://backend:3000/; # placeholder if there's a backend
+-  }
+-}

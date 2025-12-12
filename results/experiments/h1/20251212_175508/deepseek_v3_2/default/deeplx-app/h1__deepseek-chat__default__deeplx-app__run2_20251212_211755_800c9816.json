@@ -1,0 +1,180 @@
+{
+  "repo_url": "https://github.com/xixu-me/DeepLX-App",
+  "repo_name": "deeplx-app",
+  "evaluation_id": "800c9816-93aa-406c-bd9a-71d2b4ceecd9",
+  "status": "completed",
+  "start_time": "2025-12-12T21:15:44.656011",
+  "end_time": "2025-12-12T21:17:55.749103",
+  "total_evaluation_time": 131.093092,
+  "generation_result": {
+    "repo_url": "https://github.com/xixu-me/DeepLX-App",
+    "repo_name": "deeplx-app",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "deeplx-app",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 100.22692704200745,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:17:33.742678",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/deeplx-app-41854d23-724d-4200-a50b-a3e2c381fff0",
+    "run_id": "41854d23-724d-4200-a50b-a3e2c381fff0"
+  },
+  "execution_metrics": {
+    "total_time": 100.22692704200745,
+    "tool_calls_count": 18,
+    "tool_calls_breakdown": {
+      "think": 5,
+      "ls": 2,
+      "write_file": 4,
+      "search_files": 2,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 257875,
+    "input_tokens": 255612,
+    "output_tokens": 2263,
+    "error_count": 0,
+    "run_id": "41854d23-724d-4200-a50b-a3e2c381fff0",
+    "docker_build_metrics": [
+      {
+        "image_tag": "deeplx-app",
+        "build_time": 0.9612231254577637,
+        "image_size_mb": 21.99,
+        "layers_count": 11
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"deeplx-app\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"deeplx-app\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:15:44.656041: Starting configuration generation",
+    "2025-12-12T21:17:33.742760: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T21:17:33.742766: Starting quality assessment",
+    "2025-12-12T21:17:55.748995: Built 1 Docker images (total: 22.0 MB, avg time: 1.0s)",
+    "2025-12-12T21:17:55.749024: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T21:17:55.749035: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T21:17:55.749069: Deployed to namespace: deeplx-app-41854d23-724d-4200-a50b-a3e2c381fff0",
+    "2025-12-12T21:17:55.749076: Testing endpoint: /",
+    "2025-12-12T21:17:55.749083: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T21:17:55.749092: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/deeplx-app-41854d23-724d-4200-a50b-a3e2c381fff0",
+    "run_id": "41854d23-724d-4200-a50b-a3e2c381fff0"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "repo_url": "https://github.com/patrick204nqh/simple-webapp.git",
+  "repo_name": "simple-webapp",
+  "evaluation_id": "59a7051d-f349-4610-a489-1a3b3bdf0bdb",
+  "status": "completed",
+  "start_time": "2025-12-12T19:03:17.420781",
+  "end_time": "2025-12-12T19:04:00.729644",
+  "total_evaluation_time": 43.308863,
+  "generation_result": {
+    "repo_url": "https://github.com/patrick204nqh/simple-webapp.git",
+    "repo_name": "simple-webapp",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "simple-webapp",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/simple-webapp-configmap.yaml",
+      "k8s/postgres-secret.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/redis-statefulset.yaml",
+      "k8s/redis-service.yaml",
+      "k8s/simple-webapp-deployment.yaml",
+      "k8s/simple-webapp-service.yaml",
+      "k8s/simple-webapp-ingress.yaml"
+    ],
+    "generation_time": 27.554649114608765,
+    "error_message": null,
+    "timestamp": "2025-12-12T19:03:54.666638",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/simple-webapp-4eacbdd5-a035-4180-bb47-1cc98006aec9",
+    "run_id": "4eacbdd5-a035-4180-bb47-1cc98006aec9"
+  },
+  "execution_metrics": {
+    "total_time": 27.554649114608765,
+    "tool_calls_count": 18,
+    "tool_calls_breakdown": {
+      "write_file": 11,
+      "base64_encode": 1,
+      "get_file_content": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 69728,
+    "input_tokens": 65637,
+    "output_tokens": 4091,
+    "error_count": 0,
+    "run_id": "4eacbdd5-a035-4180-bb47-1cc98006aec9",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 7,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 738B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/python:3.10-slim-buster\n#2 DONE 0.7s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 164.53kB done\n#4 DONE 0.0s\n\n#5 [1/9] FROM docker.io/library/python:3.10-slim-buster@sha256:37aa274c2d001f09b14828450d903c55f821c90f225fdfdd80c5180fcca77b3f\n#5 resolve docker.io/library/python:3.10-slim-buster@sha256:37aa274c2d001f09b14828450d903c55f821c90f225fdfdd80c5180fcca77b3f done\n#5 sha256:b2697057e25fe078e5f17bdb522b6a913fc3ce2a041d34d2e4771e0f3ddd3c3f 0B / 242B 0.2s\n#5 sha256:6e7d39ff15355e0249529c91607c3e93f107c500b603a0ad75e90c85e4cf43b6 0B / 3.37MB 0.3s\n#5 sha256:6903bcecb9721c4ee87e4188b263a0a392a16b2e2813c7a0ed0f9c4416194734 0B / 11.50MB 0.2s\n#5 sha256:8b91b88d557765cd8c6802668755a3f6dc4337b6ce15a17e4857139e5fc964f3 0B / 27.14MB 0.2s\n#5 sha256:6e7d39ff15355e0249529c91607c3e93f107c500b603a0ad75e90c85e4cf43b6 3.37MB / 3.37MB 0.4s done\n#5 sha256:b2697057e25fe078e5f17bdb522b6a913fc3ce2a041d34d2e4771e0f3ddd3c3f 242B / 242B 0.5s done\n#5 sha256:824416e234237961c9c5d4f41dfe5b295a3c35a671ee52889bfb08d8e257ec4c 0B / 2.78MB 0.2s\n#5 sha256:6903bcecb9721c4ee87e4188b263a0a392a16b2e2813c7a0ed0f9c4416194734 3.15MB / 11.50MB 0.6s\n#5 sha256:6903bcecb9721c4ee87e4188b263a0a392a16b2e2813c7a0ed0f9c4416194734 11.50MB / 11.50MB 0.8s done\n#5 sha256:8b91b88d557765cd8c6802668755a3f6dc4337b6ce15a17e4857139e5fc964f3 7.34MB / 27.14MB 0.8s\n#5 sha256:824416e234237961c9c5d4f41dfe5b295a3c35a671ee52889bfb08d8e257ec4c 2.78MB / 2.78MB 0.4s done\n#5 sha256:8b91b88d557765cd8c6802668755a3f6dc4337b6ce15a17e4857139e5fc964f3 27.14MB / 27.14MB 1.0s done\n#5 extracting sha256:8b91b88d557765cd8c6802668755a3f6dc4337b6ce15a17e4857139e5fc964f3\n#5 extracting sha256:8b91b88d557765cd8c6802668755a3f6dc4337b6ce15a17e4857139e5fc964f3 0.3s done\n#5 DONE 1.4s\n\n#5 [1/9] FROM docker.io/library/python:3.10-slim-buster@sha256:37aa274c2d001f09b14828450d903c55f821c90f225fdfdd80c5180fcca77b3f\n#5 extracting sha256:824416e234237961c9c5d4f41dfe5b295a3c35a671ee52889bfb08d8e257ec4c 0.0s done\n#5 extracting sha256:6903bcecb9721c4ee87e4188b263a0a392a16b2e2813c7a0ed0f9c4416194734 0.1s done\n#5 DONE 1.5s\n\n#5 [1/9] FROM docker.io/library/python:3.10-slim-buster@sha256:37aa274c2d001f09b14828450d903c55f821c90f225fdfdd80c5180fcca77b3f\n#5 extracting sha256:b2697057e25fe078e5f17bdb522b6a913fc3ce2a041d34d2e4771e0f3ddd3c3f done\n#5 extracting sha256:6e7d39ff15355e0249529c91607c3e93f107c500b603a0ad75e90c85e4cf43b6 0.1s done\n#5 DONE 1.5s\n\n#6 [2/9] WORKDIR /app\n#6 DONE 0.1s\n\n#7 [3/9] RUN apt-get update && apt-get install -y --no-install-recommends     nmap     curl     && rm -rf /var/lib/apt/lists/*\n#7 0.373 Ign:1 http://deb.debian.org/debian buster InRelease\n#7 0.406 Ign:2 http://deb.debian.org/debian-security buster/updates InRelease\n#7 0.439 Ign:3 http://deb.debian.org/debian buster-updates InRelease\n#7 0.477 Err:4 http://deb.debian.org/debian buster Release\n#7 0.477   404  Not Found [IP: 146.75.122.132 80]\n#7 0.508 Err:5 http://deb.debian.org/debian-security buster/updates Release\n#7 0.508   404  Not Found [IP: 146.75.122.132 80]\n#7 0.541 Err:6 http://deb.debian.org/debian buster-updates Release\n#7 0.541   404  Not Found [IP: 146.75.122.132 80]\n#7 0.588 Reading package lists...\n#7 0.689 E: The repository 'http://deb.debian.org/debian buster Release' does not have a Release file.\n#7 0.689 E: The repository 'http://deb.debian.org/debian-security buster/updates Release' does not have a Release file.\n#7 0.689 E: The repository 'http://deb.debian.org/debian buster-updates Release' does not have a Release file.\n#7 ERROR: process \"/bin/sh -c apt-get update && apt-get install -y --no-install-recommends     nmap     curl     && rm -rf /var/lib/apt/lists/*\" did not complete successfully: exit code: 100\n------\n > [3/9] RUN apt-get update && apt-get install -y --no-install-recommends     nmap     curl     && rm -rf /var/lib/apt/lists/*:\n0.373 Ign:1 http://deb.debian.org/debian buster InRelease\n0.406 Ign:2 http://deb.debian.org/debian-security buster/updates InRelease\n0.439 Ign:3 http://deb.debian.org/debian buster-updates InRelease\n0.477 Err:4 http://deb.debian.org/debian buster Release\n0.477   404  Not Found [IP: 146.75.122.132 80]\n\n0.689 E: The repository 'http://deb.debian.org/debian buster Release' does not have a Release file.\n0.689 E: The repository 'http://deb.debian.org/debian-security buster/updates Release' does not have a Release file.\n0.689 E: The repository 'http://deb.debian.org/debian buster-updates Release' does not have a Release file.\n------\nDockerfile:7\n--------------------\n   6 |     # Install system dependencies\n   7 | >>> RUN apt-get update && apt-get install -y --no-install-recommends \\\n   8 | >>>     nmap \\\n   9 | >>>     curl \\\n  10 | >>>     && rm -rf /var/lib/apt/lists/*\n  11 |     \n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c apt-get update && apt-get install -y --no-install-recommends     nmap     curl     && rm -rf /var/lib/apt/lists/*\" did not complete successfully: exit code: 100\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/3bievs27asduxvguejmhy6iho",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T19:03:17.420812: Starting configuration generation",
+    "2025-12-12T19:03:54.667012: Generated 1 Dockerfiles and 9 K8s manifests",
+    "2025-12-12T19:03:54.667032: Starting quality assessment",
+    "2025-12-12T19:04:00.729551: Dockerfile validation: 1 errors, 1 warnings",
+    "2025-12-12T19:04:00.729602: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T19:04:00.729621: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T19:04:00.729636: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/simple-webapp-4eacbdd5-a035-4180-bb47-1cc98006aec9",
+    "run_id": "4eacbdd5-a035-4180-bb47-1cc98006aec9"
+  }
+}

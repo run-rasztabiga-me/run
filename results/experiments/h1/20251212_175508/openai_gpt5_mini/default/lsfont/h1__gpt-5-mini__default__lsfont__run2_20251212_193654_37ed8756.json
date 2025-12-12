@@ -1,0 +1,181 @@
+{
+  "repo_url": "https://github.com/jan-bobrowski/lsfont.git",
+  "repo_name": "lsfont",
+  "evaluation_id": "37ed8756-ba76-4d1a-94d6-5a2d72880a65",
+  "status": "completed",
+  "start_time": "2025-12-12T19:35:55.697090",
+  "end_time": "2025-12-12T19:36:54.650311",
+  "total_evaluation_time": 58.953221,
+  "generation_result": {
+    "repo_url": "https://github.com/jan-bobrowski/lsfont.git",
+    "repo_name": "lsfont",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "lsfont",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 40.711461782455444,
+    "error_message": null,
+    "timestamp": "2025-12-12T19:36:43.364423",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/lsfont-aaee53c9-9631-4411-9be3-6e96354acdb3",
+    "run_id": "aaee53c9-9631-4411-9be3-6e96354acdb3"
+  },
+  "execution_metrics": {
+    "total_time": 40.711461782455444,
+    "tool_calls_count": 11,
+    "tool_calls_breakdown": {
+      "think": 1,
+      "search_files": 1,
+      "find_files": 1,
+      "write_file": 4,
+      "get_file_content": 1,
+      "ls": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 65018,
+    "input_tokens": 63164,
+    "output_tokens": 1854,
+    "error_count": 0,
+    "run_id": "aaee53c9-9631-4411-9be3-6e96354acdb3",
+    "docker_build_metrics": [
+      {
+        "image_tag": "lsfont",
+        "build_time": 0.9192488193511963,
+        "image_size_mb": 21.95,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"lsfont\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"lsfont\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T19:35:55.697122: Starting configuration generation",
+    "2025-12-12T19:36:43.364598: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T19:36:43.364606: Starting quality assessment",
+    "2025-12-12T19:36:54.650264: Built 1 Docker images (total: 21.9 MB, avg time: 0.9s)",
+    "2025-12-12T19:36:54.650287: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T19:36:54.650290: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T19:36:54.650302: Deployed to namespace: lsfont-aaee53c9-9631-4411-9be3-6e96354acdb3",
+    "2025-12-12T19:36:54.650303: Testing endpoint: /",
+    "2025-12-12T19:36:54.650305: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T19:36:54.650306: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/lsfont-aaee53c9-9631-4411-9be3-6e96354acdb3",
+    "run_id": "aaee53c9-9631-4411-9be3-6e96354acdb3"
+  }
+}

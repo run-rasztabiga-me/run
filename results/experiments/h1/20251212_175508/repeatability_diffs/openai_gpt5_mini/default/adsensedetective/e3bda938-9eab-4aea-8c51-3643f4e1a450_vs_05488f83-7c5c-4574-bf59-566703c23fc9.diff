@@ -1,0 +1,114 @@
+--- e3bda938-9eab-4aea-8c51-3643f4e1a450
++++ 05488f83-7c5c-4574-bf59-566703c23fc9
+@@ -1,41 +1,44 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Builder stage
+-FROM node:20-bullseye AS builder
++# Multi-stage build for Next.js app
++FROM node:20-alpine AS builder
++
++# Install dependencies needed for build
++RUN apk add --no-cache git python3 make g++
++
+ WORKDIR /app
+ 
+-# Copy package files first for caching
+-COPY package.json package-lock.json* pnpm-lock.yaml* ./
++# Copy package files and pnpm lock if present
++COPY package.json pnpm-lock.yaml* ./
+ 
+-# Copy everything else
++# Copy source
+ COPY . .
+ 
+-# Install dependencies and build
+-RUN npm install --legacy-peer-deps --no-audit --no-fund
++# Install dependencies (including devDependencies needed for build)
++RUN npm install --legacy-peer-deps
++
++# Build the Next.js app
+ RUN npm run build
+-# Remove dev dependencies to keep only production deps
+-RUN npm prune --production || true
+ 
+ # Production image
+-FROM node:20-bullseye-slim
++FROM node:20-alpine AS runner
+ WORKDIR /app
+ ENV NODE_ENV=production
+ 
+-# Copy built app and production deps
++# Copy build artifacts and production dependencies
+ COPY --from=builder /app/.next ./.next
+ COPY --from=builder /app/public ./public
+ COPY --from=builder /app/node_modules ./node_modules
+ COPY --from=builder /app/package.json ./package.json
+-COPY --from=builder /app/next.config.ts ./next.config.ts
+ 
+ EXPOSE 3000
+ 
+-# Use non-root user only if needed; keep default to ensure compatibility
+-CMD ["npm", "start"]
++# Start the Next.js server on port 3000
++CMD ["npx", "next", "start", "-p", "3000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: adsensedetective-deployment
++  name: adsensedetective
+   labels:
+     app: adsensedetective
+ spec:
+@@ -49,12 +52,11 @@
+         app: adsensedetective
+     spec:
+       containers:
+-        - name: adsensedetective
++        - name: web
+           image: adsensedetective:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 3000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+@@ -65,30 +67,28 @@
+           livenessProbe:
+             httpGet:
+               path: /
+-              port: http
++              port: 3000
+             initialDelaySeconds: 10
+-            periodSeconds: 15
+-            timeoutSeconds: 5
++            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+-              port: http
++              port: 3000
+             initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: adsensedetective-ingress
+   annotations:
+-    kubernetes.io/ingress.class: "nginx"
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+-    - host: "adsensedetective.rasztabiga.me"
++    - host: adsensedetective.rasztabiga.me
+       http:
+         paths:
+-          - path: /
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:

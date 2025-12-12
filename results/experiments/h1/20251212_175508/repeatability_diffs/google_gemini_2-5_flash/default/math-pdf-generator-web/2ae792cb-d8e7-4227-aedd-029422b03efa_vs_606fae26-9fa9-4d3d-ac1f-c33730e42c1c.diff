@@ -1,0 +1,56 @@
+--- 2ae792cb-d8e7-4227-aedd-029422b03efa
++++ 606fae26-9fa9-4d3d-ac1f-c33730e42c1c
+@@ -1,14 +1,8 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+-FROM nginx:stable-alpine
+-
++FROM nginx:alpine
+ COPY . /usr/share/nginx/html
+-
+ EXPOSE 80
+-
+-CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/deployment.yaml
+-
++@@FILE:K8s::k8s/math-pdf-generator-web-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -34,21 +28,20 @@
+         resources:
+           requests:
+             memory: "64Mi"
+-            cpu: "50m"
++            cpu: "100m"
+           limits:
+             memory: "128Mi"
+-            cpu: "100m"
+-@@FILE:K8s::k8s/ingress.yaml
+-
++            cpu: "200m"
++@@FILE:K8s::k8s/math-pdf-generator-web-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: math-pdf-generator-web-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-  - host: math-pdf-generator-web.rasztabiga.me
++  - host: "math-pdf-generator-web.rasztabiga.me"
+     http:
+       paths:
+       - path: /
+@@ -58,8 +51,7 @@
+             name: math-pdf-generator-web
+             port:
+               number: 80
+-@@FILE:K8s::k8s/service.yaml
+-
++@@FILE:K8s::k8s/math-pdf-generator-web-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:

@@ -1,0 +1,65 @@
+--- 6559cf27-cb10-4d9b-81e8-501d6c500870
++++ 4586b37c-d30a-4c54-82a7-69c9b66b313d
+@@ -2,8 +2,7 @@
+ FROM nginx:alpine
+ COPY . /usr/share/nginx/html
+ EXPOSE 80
+-CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/deployment.yaml
++@@FILE:K8s::k8s/tempo-sync-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -28,37 +27,37 @@
+         - containerPort: 80
+         resources:
+           requests:
++            memory: "64Mi"
++            cpu: "50m"
++          limits:
++            memory: "128Mi"
+             cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "200m"
+-            memory: "256Mi"
+-@@FILE:K8s::k8s/ingress.yaml
++@@FILE:K8s::k8s/tempo-sync-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: tempo-sync-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/use-regex: "true"
+ spec:
++  ingressClassName: nginx
+   rules:
+-  - host: tempo-sync.rasztabiga.me
++  - host: "tempo-sync.rasztabiga.me"
+     http:
+       paths:
+-      - path: /
++      - path: "/"
+         pathType: Prefix
+         backend:
+           service:
+             name: tempo-sync-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/service.yaml
++@@FILE:K8s::k8s/tempo-sync-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: tempo-sync-service
+-  labels:
+-    app: tempo-sync
+ spec:
+   selector:
+     app: tempo-sync
+@@ -66,4 +65,3 @@
+     - protocol: TCP
+       port: 80
+       targetPort: 80
+-  type: ClusterIP

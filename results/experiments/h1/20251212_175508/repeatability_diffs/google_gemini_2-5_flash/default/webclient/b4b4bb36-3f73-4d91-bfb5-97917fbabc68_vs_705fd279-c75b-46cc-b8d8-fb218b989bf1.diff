@@ -1,0 +1,127 @@
+--- b4b4bb36-3f73-4d91-bfb5-97917fbabc68
++++ 705fd279-c75b-46cc-b8d8-fb218b989bf1
+@@ -1,48 +1,27 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-# Build Stage
++# Stage 1: Build the React application
+ FROM node:20-alpine AS build
+ 
+ WORKDIR /app
+ 
+-# Install pnpm
+-RUN npm install -g pnpm
+-
+-COPY package.json .
+-
+-RUN pnpm install --frozen-lockfile
+-
+-COPY . .
+-
+-# Set the VITE_BASE_URL environment variable for the build
+-ENV VITE_BASE_URL=https://api.adapt.chat
+-
+-RUN pnpm run build
+-
+-# Serve Stage
+-FROM node:20-alpine AS serve
+-
+-WORKDIR /app
+-
+-# Install pnpm
+-RUN npm install -g pnpm
+-
+-# Copy only necessary files from build stage
+-COPY --from=build /app/dist ./dist
+ COPY package.json ./ 
+ 
+-# The serve script needs dev dependencies in package.json, so install them again
+-# or ensure `vite preview` doesn't need them.
+-# `vite preview` is a simple static file server. It might not need dev dependencies,
+-# but it does need `vite` itself.
+-# Let's install dependencies again for `vite` to be available.
+-RUN pnpm install --prod=false
++RUN npm install
+ 
+-EXPOSE 4173
++COPY . . 
+ 
+-CMD ["pnpm", "run", "serve", "--host", "0.0.0.0", "--port", "4173"]
++RUN npm run build
++
++# Stage 2: Serve the application with Nginx
++FROM nginx:alpine
++
++COPY --from=build /app/dist /usr/share/nginx/html
++
++EXPOSE 80
++
++CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/webclient-deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -64,41 +43,24 @@
+           image: webclient
+           imagePullPolicy: IfNotPresent
+           ports:
+-            - containerPort: 4173
+-          env:
+-            - name: VITE_BASE_URL
+-              value: "https://api.adapt.chat"
++            - containerPort: 80
+           resources:
+             requests:
+-              memory: "64Mi"
+-              cpu: "100m"
++              cpu: 100m
++              memory: 128Mi
+             limits:
+-              memory: "256Mi"
+-              cpu: "300m"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 4173
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 4173
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
++              cpu: 200m
++              memory: 256Mi
+ @@FILE:K8s::k8s/webclient-ingress.yaml
+-
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: webclient-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+ spec:
+   rules:
+-    - host: "webclient.rasztabiga.me"
++    - host: webclient.rasztabiga.me
+       http:
+         paths:
+           - path: /
+@@ -109,7 +71,6 @@
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/webclient-service.yaml
+-
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -122,5 +83,5 @@
+   ports:
+     - protocol: TCP
+       port: 80
+-      targetPort: 4173
++      targetPort: 80
+   type: ClusterIP

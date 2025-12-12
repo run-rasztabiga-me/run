@@ -1,0 +1,81 @@
+--- ad08a09b-5b8d-49ee-a0c1-9887012da027
++++ 0a3f20e7-82b5-4cad-904f-ae7d46d994f3
+@@ -1,7 +1,7 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM nginx:alpine
+ 
+-# Copy site content
++# Copy the static site into nginx html directory
+ COPY . /usr/share/nginx/html
+ 
+ EXPOSE 80
+@@ -12,8 +12,6 @@
+ kind: Deployment
+ metadata:
+   name: parklandschooltimer
+-  labels:
+-    app: parklandschooltimer
+ spec:
+   replicas: 1
+   selector:
+@@ -30,7 +28,6 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 80
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+@@ -40,25 +37,24 @@
+               memory: "256Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
+-              port: http
+-            initialDelaySeconds: 10
+-            periodSeconds: 20
++              path: /index.html
++              port: 80
++            initialDelaySeconds: 5
++            periodSeconds: 10
++            timeoutSeconds: 2
+             failureThreshold: 3
+           readinessProbe:
+             httpGet:
+-              path: /
+-              port: http
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            failureThreshold: 3
++              path: /index.html
++              port: 80
++            initialDelaySeconds: 2
++            periodSeconds: 5
++            timeoutSeconds: 2
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: parklandschooltimer-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: parklandschooltimer.rasztabiga.me
+@@ -68,14 +64,14 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: parklandschooltimer
++                name: parklandschooltimer-service
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: parklandschooltimer
++  name: parklandschooltimer-service
+ spec:
+   selector:
+     app: parklandschooltimer

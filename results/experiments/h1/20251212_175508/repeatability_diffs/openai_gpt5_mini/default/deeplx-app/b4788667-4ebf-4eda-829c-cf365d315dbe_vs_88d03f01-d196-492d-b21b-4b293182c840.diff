@@ -1,0 +1,119 @@
+--- b4788667-4ebf-4eda-829c-cf365d315dbe
++++ 88d03f01-d196-492d-b21b-4b293182c840
+@@ -1,85 +1,83 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Simple static site Dockerfile using nginx
+ FROM nginx:stable-alpine
+ 
+-# Remove default nginx welcome page (if any) and copy site files
+-COPY . /usr/share/nginx/html
++# Remove default nginx content and copy app
++RUN rm -rf /usr/share/nginx/html/*
++COPY . /usr/share/nginx/html/
+ 
+ EXPOSE 80
+ 
++# Nginx runs as root in the official image; keep default command
+ CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/deployment.yaml
++@@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: deeplx-app
+-  labels:
+-    app: deeplx-app
++  name: deeplx-app-frontend
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: deeplx-app
++      app: deeplx-frontend
+   template:
+     metadata:
+       labels:
+-        app: deeplx-app
++        app: deeplx-frontend
+     spec:
+       containers:
+-        - name: deeplx-app
+-          image: deeplx-app:latest
++        - name: frontend
++          image: deeplx-frontend:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 80
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+-              cpu: "500m"
++              cpu: "250m"
+               memory: "256Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
++              path: /index.html
+               port: 80
+             initialDelaySeconds: 10
+-            periodSeconds: 20
++            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+-              path: /
++              path: /index.html
+               port: 80
+             initialDelaySeconds: 5
+-            periodSeconds: 10
++            periodSeconds: 5
++@@FILE:K8s::k8s/frontend-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: deeplx-frontend-svc
++spec:
++  selector:
++    app: deeplx-frontend
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 80
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: deeplx-app-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: deeplx-app.rasztabiga.me
+       http:
+         paths:
+-          - path: /
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:
+-                name: deeplx-app-service
++                name: deeplx-frontend-svc
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: deeplx-app-service
+-spec:
+-  selector:
+-    app: deeplx-app
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 80
+-  type: ClusterIP

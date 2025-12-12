@@ -1,0 +1,109 @@
+--- 37ce2977-33aa-4996-83d6-24c424cf0572
++++ 6ddcbadf-e7b5-4053-bf78-2d956f20ac3d
+@@ -3,29 +3,29 @@
+ WORKDIR /app
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-COPY app.py .
++COPY . .
+ EXPOSE 8080
+ CMD ["python", "app.py"]
+-@@FILE:K8s::k8s/deployment.yaml
++@@FILE:K8s::k8s/flask-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: simple-webapp-flask-deployment
++  name: flask-app-deployment
+   labels:
+-    app: simple-webapp-flask
++    app: flask-app
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: simple-webapp-flask
++      app: flask-app
+   template:
+     metadata:
+       labels:
+-        app: simple-webapp-flask
++        app: flask-app
+     spec:
+       containers:
+-      - name: simple-webapp-flask
+-        image: simple-webapp-flask
++      - name: flask-app
++        image: flask-app:latest # Placeholder, will be replaced by the build system
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+@@ -36,37 +36,50 @@
+           limits:
+             memory: "128Mi"
+             cpu: "200m"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8080
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8080
++          initialDelaySeconds: 5
++          periodSeconds: 5
++@@FILE:K8s::k8s/flask-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: flask-app-service
++  labels:
++    app: flask-app
++spec:
++  selector:
++    app: flask-app
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 8080
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: simple-webapp-flask-ingress
++  name: flask-app-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: nginx
++  ingressClassName: public
+   rules:
+-  - host: "simple-webapp-flask.rasztabiga.me"
++  - host: simple-webapp-flask.rasztabiga.me
+     http:
+       paths:
+       - path: /
+         pathType: Prefix
+         backend:
+           service:
+-            name: simple-webapp-flask-service
++            name: flask-app-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: simple-webapp-flask-service
+-  labels:
+-    app: simple-webapp-flask
+-spec:
+-  selector:
+-    app: simple-webapp-flask
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 8080

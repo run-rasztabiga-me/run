@@ -1,0 +1,207 @@
+{
+  "repo_url": "https://github.com/prathmesh-ka-github/Chessable",
+  "repo_name": "chessable",
+  "evaluation_id": "2fc8c68d-2282-4f7a-b344-295d09eea865",
+  "status": "completed",
+  "start_time": "2025-12-12T22:10:12.846856",
+  "end_time": "2025-12-12T22:15:11.668598",
+  "total_evaluation_time": 298.821742,
+  "generation_result": {
+    "repo_url": "https://github.com/prathmesh-ka-github/Chessable",
+    "repo_name": "chessable",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "chessable",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/mongodb-secret.yaml",
+      "k8s/mongodb-configmap.yaml",
+      "k8s/mongodb-pvc.yaml",
+      "k8s/mongodb-service.yaml",
+      "k8s/mongodb-statefulset.yaml",
+      "k8s/chessable-configmap.yaml",
+      "k8s/chessable-deployment.yaml",
+      "k8s/chessable-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 165.30323481559753,
+    "error_message": null,
+    "timestamp": "2025-12-12T22:13:07.182690",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/chessable-36d9d89e-7361-4d58-b1c4-fb0f3fcee0e2",
+    "run_id": "36d9d89e-7361-4d58-b1c4-fb0f3fcee0e2"
+  },
+  "execution_metrics": {
+    "total_time": 165.30323481559753,
+    "tool_calls_count": 33,
+    "tool_calls_breakdown": {
+      "think": 7,
+      "get_file_content": 6,
+      "ls": 2,
+      "write_file": 10,
+      "search_files": 6,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 336612,
+    "input_tokens": 332776,
+    "output_tokens": 3836,
+    "error_count": 0,
+    "run_id": "36d9d89e-7361-4d58-b1c4-fb0f3fcee0e2",
+    "docker_build_metrics": [
+      {
+        "image_tag": "chessable",
+        "build_time": 0.9382479190826416,
+        "image_size_mb": 53.32,
+        "layers_count": 8
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 92.0,
+    "overall_score": 71.80000000000001,
+    "validation_issues": [
+      {
+        "file_path": "k8s/mongodb-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mongodb\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/mongodb-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mongodb\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/chessable-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"chessable\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/chessable-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"chessable\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "mongodb",
+        "line_number": null,
+        "severity": "error",
+        "message": "StatefulSet mongodb not ready within 120s: error: timed out waiting for the condition on statefulsets/mongodb",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 4,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 71.8,
+      "total_errors": 1,
+      "total_warnings": 4,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 92.0,
+        "total_errors": 0,
+        "total_warnings": 4,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 60.0,
+            "errors": 0,
+            "warnings": 4,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T22:10:12.846893: Starting configuration generation",
+    "2025-12-12T22:13:07.182784: Generated 1 Dockerfiles and 9 K8s manifests",
+    "2025-12-12T22:13:07.182789: Starting quality assessment",
+    "2025-12-12T22:15:11.668474: Built 1 Docker images (total: 53.3 MB, avg time: 0.9s)",
+    "2025-12-12T22:15:11.668520: Dockerfile validation: 1 errors, 4 warnings",
+    "2025-12-12T22:15:11.668542: K8s validation: 0 errors, 4 warnings",
+    "2025-12-12T22:15:11.668573: Deployed to namespace: chessable-36d9d89e-7361-4d58-b1c4-fb0f3fcee0e2",
+    "2025-12-12T22:15:11.668577: Testing endpoint: /",
+    "2025-12-12T22:15:11.668581: Runtime validation: 1 errors, 0 warnings",
+    "2025-12-12T22:15:11.668588: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/chessable-36d9d89e-7361-4d58-b1c4-fb0f3fcee0e2",
+    "run_id": "36d9d89e-7361-4d58-b1c4-fb0f3fcee0e2"
+  }
+}

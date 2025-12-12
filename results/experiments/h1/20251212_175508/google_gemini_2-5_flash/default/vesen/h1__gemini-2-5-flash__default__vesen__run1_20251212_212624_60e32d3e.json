@@ -1,0 +1,135 @@
+{
+  "repo_url": "https://github.com/hsalvesen/vesen",
+  "repo_name": "vesen",
+  "evaluation_id": "60e32d3e-4bca-413a-9bc4-87fd4a8bc7b4",
+  "status": "completed",
+  "start_time": "2025-12-12T21:25:56.065699",
+  "end_time": "2025-12-12T21:26:24.449864",
+  "total_evaluation_time": 28.384165,
+  "generation_result": {
+    "repo_url": "https://github.com/hsalvesen/vesen",
+    "repo_name": "vesen",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "vesen",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 17.08547306060791,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:26:19.875311",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/vesen-be74380a-fcae-48d3-8efe-f3c2d91158ff",
+    "run_id": "be74380a-fcae-48d3-8efe-f3c2d91158ff"
+  },
+  "execution_metrics": {
+    "total_time": 17.08547306060791,
+    "tool_calls_count": 7,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "get_file_content": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 32822,
+    "input_tokens": 30811,
+    "output_tokens": 2011,
+    "error_count": 0,
+    "run_id": "be74380a-fcae-48d3-8efe-f3c2d91158ff",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 20,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 318B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.3s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#4 resolve docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2 done\n#4 CACHED\n\n#5 [builder 2/6] WORKDIR /app\n#5 DONE 0.0s\n\n#6 [internal] load build context\n#6 transferring context: 12.95MB 0.1s done\n#6 DONE 0.1s\n\n#7 [builder 3/6] COPY package*.json ./\n#7 DONE 0.0s\n\n#8 [builder 4/6] RUN npm ci --omit=dev\n#8 0.858 \n#8 0.858 up to date, audited 1 package in 475ms\n#8 0.859 \n#8 0.859 found 0 vulnerabilities\n#8 DONE 0.9s\n\n#9 [builder 5/6] COPY . .\n#9 DONE 0.0s\n\n#10 [builder 6/6] RUN npm run build\n#10 0.480 \n#10 0.480 > vesen@1.1.0 build\n#10 0.480 > vite build\n#10 0.480 \n#10 0.488 sh: vite: not found\n#10 ERROR: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127\n------\n > [builder 6/6] RUN npm run build:\n0.480 \n0.480 > vesen@1.1.0 build\n0.480 > vite build\n0.480 \n0.488 sh: vite: not found\n------\nDockerfile:12\n--------------------\n  10 |     COPY . .\n  11 |     \n  12 | >>> RUN npm run build\n  13 |     \n  14 |     FROM node:20-alpine\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/s4gby69lpes1qfpjtsxt6fqg1",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:25:56.065770: Starting configuration generation",
+    "2025-12-12T21:26:19.875445: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T21:26:19.875452: Starting quality assessment",
+    "2025-12-12T21:26:24.449830: Dockerfile validation: 1 errors, 1 warnings",
+    "2025-12-12T21:26:24.449850: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T21:26:24.449856: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T21:26:24.449861: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/vesen-be74380a-fcae-48d3-8efe-f3c2d91158ff",
+    "run_id": "be74380a-fcae-48d3-8efe-f3c2d91158ff"
+  }
+}

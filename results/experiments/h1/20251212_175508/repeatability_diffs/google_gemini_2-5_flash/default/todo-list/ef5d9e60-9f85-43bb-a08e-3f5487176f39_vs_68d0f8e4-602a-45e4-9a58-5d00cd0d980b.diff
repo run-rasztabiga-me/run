@@ -1,0 +1,69 @@
+--- ef5d9e60-9f85-43bb-a08e-3f5487176f39
++++ 68d0f8e4-602a-45e4-9a58-5d00cd0d980b
+@@ -1,9 +1,11 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM nginx:alpine
+-COPY . /usr/share/nginx/html
++COPY index.html /usr/share/nginx/html/index.html
++COPY script.js /usr/share/nginx/html/script.js
++COPY style.css /usr/share/nginx/html/style.css
+ EXPOSE 80
+ CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/todo-list-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -33,19 +35,7 @@
+           limits:
+             memory: "128Mi"
+             cpu: "200m"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-@@FILE:K8s::k8s/todo-list-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -55,21 +45,23 @@
+     nginx.ingress.kubernetes.io/use-regex: "true"
+ spec:
+   rules:
+-  - host: todo-list.rasztabiga.me
++  - host: "todo-list.rasztabiga.me"
+     http:
+       paths:
+-      - path: /
++      - path: "/"
+         pathType: Prefix
+         backend:
+           service:
+             name: todo-list-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/todo-list-service.yaml
++@@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: todo-list-service
++  labels:
++    app: todo-list
+ spec:
+   selector:
+     app: todo-list
+@@ -77,4 +69,3 @@
+     - protocol: TCP
+       port: 80
+       targetPort: 80
+-  type: ClusterIP

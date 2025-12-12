@@ -1,0 +1,134 @@
+--- 2193f718-08fa-4e45-aadb-b83aa30992fa
++++ 1c70a852-a45f-4702-af4b-d62677f98b74
+@@ -1,8 +1,13 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM nginx:alpine
+ 
++# Remove default nginx index
++RUN rm -rf /usr/share/nginx/html/*
++
+ # Copy static site
+-COPY ./ /usr/share/nginx/html
++COPY index.html /usr/share/nginx/html/index.html
++COPY script.js /usr/share/nginx/html/script.js
++COPY style.css /usr/share/nginx/html/style.css
+ 
+ EXPOSE 80
+ 
+@@ -11,71 +16,73 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: todo-frontend
++  name: todo-list
++  labels:
++    app: todo-list
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: todo-frontend
++      app: todo-list
+   template:
+     metadata:
+       labels:
+-        app: todo-frontend
++        app: todo-list
+     spec:
+       containers:
+-      - name: todo-frontend
+-        image: todo-frontend:latest
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 80
+-        resources:
+-          requests:
+-            cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "500m"
+-            memory: "256Mi"
+-        livenessProbe:
+-          httpGet:
+-            path: /index.html
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /index.html
+-            port: 80
+-          initialDelaySeconds: 2
+-          periodSeconds: 5
++        - name: todo-list
++          image: todo-list:latest
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 80
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "128Mi"
++            limits:
++              cpu: "250m"
++              memory: "256Mi"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 80
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 80
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: todo-ingress
++  name: todo-list-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-  - host: todo-list.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: todo-frontend
+-            port:
+-              number: 80
++    - host: todo-list.rasztabiga.me
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: todo-list
++                port:
++                  number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: todo-frontend
++  name: todo-list
+ spec:
+   selector:
+-    app: todo-frontend
++    app: todo-list
+   ports:
+-  - protocol: TCP
+-    port: 80
+-    targetPort: 80
++    - protocol: TCP
++      port: 80
++      targetPort: 80
+   type: ClusterIP

@@ -1,0 +1,180 @@
+{
+  "repo_url": "https://github.com/efsavage/hello-world-war",
+  "repo_name": "hello-world-war",
+  "evaluation_id": "8a8bb1c6-4b45-4e30-a051-219cc6d792a5",
+  "status": "completed",
+  "start_time": "2025-12-12T23:58:38.052148",
+  "end_time": "2025-12-13T00:00:38.573000",
+  "total_evaluation_time": 120.520852,
+  "generation_result": {
+    "repo_url": "https://github.com/efsavage/hello-world-war",
+    "repo_name": "hello-world-war",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "hello-world-war",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 86.19200682640076,
+    "error_message": null,
+    "timestamp": "2025-12-13T00:00:13.609843",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/hello-world-war-1a571fe1-2421-4365-bcb8-231fe088bb5a",
+    "run_id": "1a571fe1-2421-4365-bcb8-231fe088bb5a"
+  },
+  "execution_metrics": {
+    "total_time": 86.19200682640076,
+    "tool_calls_count": 18,
+    "tool_calls_breakdown": {
+      "think": 5,
+      "ls": 2,
+      "write_file": 4,
+      "search_files": 2,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 85349,
+    "input_tokens": 83256,
+    "output_tokens": 2093,
+    "error_count": 0,
+    "run_id": "1a571fe1-2421-4365-bcb8-231fe088bb5a",
+    "docker_build_metrics": [
+      {
+        "image_tag": "hello-world-war",
+        "build_time": 4.1590001583099365,
+        "image_size_mb": 92.68,
+        "layers_count": 11
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"hello-world-war\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"hello-world-war\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T23:58:38.052229: Starting configuration generation",
+    "2025-12-13T00:00:13.609980: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-13T00:00:13.609986: Starting quality assessment",
+    "2025-12-13T00:00:38.572928: Built 1 Docker images (total: 92.7 MB, avg time: 4.2s)",
+    "2025-12-13T00:00:38.572951: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-13T00:00:38.572966: K8s validation: 0 errors, 2 warnings",
+    "2025-12-13T00:00:38.572980: Deployed to namespace: hello-world-war-1a571fe1-2421-4365-bcb8-231fe088bb5a",
+    "2025-12-13T00:00:38.572983: Testing endpoint: /",
+    "2025-12-13T00:00:38.572988: Runtime validation passed: endpoint is healthy",
+    "2025-12-13T00:00:38.572992: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/hello-world-war-1a571fe1-2421-4365-bcb8-231fe088bb5a",
+    "run_id": "1a571fe1-2421-4365-bcb8-231fe088bb5a"
+  }
+}

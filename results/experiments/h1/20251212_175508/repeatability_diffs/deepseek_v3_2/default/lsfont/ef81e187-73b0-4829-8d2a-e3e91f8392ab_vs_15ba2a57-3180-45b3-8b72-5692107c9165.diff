@@ -1,0 +1,99 @@
+--- ef81e187-73b0-4829-8d2a-e3e91f8392ab
++++ 15ba2a57-3180-45b3-8b72-5692107c9165
+@@ -1,15 +1,39 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use nginx alpine as base image
++# Build stage
++FROM node:18-alpine AS builder
++
++WORKDIR /app
++
++# Copy package files
++COPY package.json package-lock.json* ./
++
++# Install dependencies
++RUN npm ci --only=production
++
++# Copy source files
++COPY . .
++
++# Build the application
++RUN mkdir -p release && node assemble.js lsfont.html release/lsfont.html
++
++# Production stage
+ FROM nginx:alpine
+ 
+-# Copy the static HTML file and supporting JS files
+-COPY lsfont.html /usr/share/nginx/html/
+-COPY *.js /usr/share/nginx/html/
++# Copy built HTML file from builder stage
++COPY --from=builder /app/release/lsfont.html /usr/share/nginx/html/index.html
++
++# Copy other static files if any (none in this case)
++# COPY --from=builder /app/*.js /usr/share/nginx/html/  # Not needed as JS is embedded in HTML
+ 
+ # Expose port 80
+ EXPOSE 80
+ 
+-# Nginx will start automatically as per the base image
++# Nginx runs as non-root user by default in alpine image
++# No need to change user
++
++# Health check
++HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
++  CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -44,19 +68,34 @@
+           httpGet:
+             path: /
+             port: 80
+-          initialDelaySeconds: 10
+-          periodSeconds: 30
++          initialDelaySeconds: 5
++          periodSeconds: 10
++          timeoutSeconds: 3
++          failureThreshold: 3
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 80
+           initialDelaySeconds: 5
+           periodSeconds: 10
++          timeoutSeconds: 3
++          failureThreshold: 3
++        # Nginx runs as non-root user by default in alpine image
++        securityContext:
++          allowPrivilegeEscalation: false
++          runAsNonRoot: true
++          runAsUser: 101  # nginx user ID in alpine
++          readOnlyRootFilesystem: true
++          capabilities:
++            drop:
++              - ALL
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: lsfont
++  labels:
++    app: lsfont
+ spec:
+   rules:
+   - host: lsfont.rasztabiga.me
+@@ -74,6 +113,8 @@
+ kind: Service
+ metadata:
+   name: lsfont
++  labels:
++    app: lsfont
+ spec:
+   selector:
+     app: lsfont
+@@ -81,4 +122,5 @@
+   - port: 80
+     targetPort: 80
+     protocol: TCP
++    name: http
+   type: ClusterIP

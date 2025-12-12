@@ -1,0 +1,173 @@
+{
+  "repo_url": "https://github.com/SoLiDinity/airwatch.git",
+  "repo_name": "airwatch",
+  "evaluation_id": "c11b7b2f-bc47-45b7-af9a-4f22ff49de88",
+  "status": "completed",
+  "start_time": "2025-12-12T19:46:01.160675",
+  "end_time": "2025-12-12T19:49:20.186559",
+  "total_evaluation_time": 199.025884,
+  "generation_result": {
+    "repo_url": "https://github.com/SoLiDinity/airwatch.git",
+    "repo_name": "airwatch",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "back-end/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "back-end"
+      },
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/backend-configmap.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/mongodb-statefulset.yaml",
+      "k8s/mongodb-service.yaml",
+      "k8s/mongodb-secret.yaml"
+    ],
+    "generation_time": 173.69704818725586,
+    "error_message": null,
+    "timestamp": "2025-12-12T19:49:04.181204",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/airwatch-ae929dd4-3dc7-47c6-84dd-3f8df84ed3e5",
+    "run_id": "ae929dd4-3dc7-47c6-84dd-3f8df84ed3e5"
+  },
+  "execution_metrics": {
+    "total_time": 173.69704818725586,
+    "tool_calls_count": 43,
+    "tool_calls_breakdown": {
+      "write_file": 17,
+      "search_files": 5,
+      "get_file_content": 11,
+      "find_files": 3,
+      "think": 1,
+      "ls": 3,
+      "base64_encode": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 387397,
+    "input_tokens": 378491,
+    "output_tokens": 8906,
+    "error_count": 0,
+    "run_id": "ae929dd4-3dc7-47c6-84dd-3f8df84ed3e5",
+    "docker_build_metrics": [
+      {
+        "image_tag": "backend",
+        "build_time": 9.761158227920532,
+        "image_size_mb": 87.84,
+        "layers_count": 8
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 12,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 15,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 15,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 353B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 DONE 0.3s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [1/9] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#4 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e done\n#4 DONE 0.0s\n\n#5 [internal] load build context\n#5 transferring context: 5.55MB 0.0s done\n#5 DONE 0.1s\n\n#6 [2/9] WORKDIR /usr/src/app\n#6 CACHED\n\n#7 [3/9] COPY package*.json ./\n#7 DONE 0.0s\n\n#8 [4/9] COPY src ./src\n#8 DONE 0.0s\n\n#9 [5/9] COPY webpack.prod.js ./webpack.prod.js\n#9 DONE 0.0s\n\n#10 [6/9] COPY package.json ./package.json\n#10 DONE 0.0s\n\n#11 [7/9] RUN npm install --production\n#11 0.468 npm warn config production Use `--omit=dev` instead.\n#11 2.116 \n#11 2.116 added 11 packages, and audited 12 packages in 2s\n#11 2.116 \n#11 2.116 2 packages are looking for funding\n#11 2.116   run `npm fund` for details\n#11 2.117 \n#11 2.117 found 0 vulnerabilities\n#11 2.120 npm notice\n#11 2.120 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#11 2.120 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#11 2.120 npm notice To update run: npm install -g npm@11.7.0\n#11 2.120 npm notice\n#11 DONE 2.1s\n\n#12 [8/9] RUN npm run build\n#12 0.530 \n#12 0.530 > airwatch@1.0.0 build\n#12 0.530 > webpack --config webpack.prod.js\n#12 0.530 \n#12 0.538 sh: webpack: not found\n#12 ERROR: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127\n------\n > [8/9] RUN npm run build:\n0.530 \n0.530 > airwatch@1.0.0 build\n0.530 > webpack --config webpack.prod.js\n0.530 \n0.538 sh: webpack: not found\n------\nDockerfile:12\n--------------------\n  10 |     RUN npm install --production\n  11 |     \n  12 | >>> RUN npm run build\n  13 |     \n  14 |     # serve with http-server\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/8mzzvouidcsmba08rrdr37dp4",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 2,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 2,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 2,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 2
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T19:46:01.160877: Starting configuration generation",
+    "2025-12-12T19:49:04.181303: Generated 2 Dockerfiles and 9 K8s manifests",
+    "2025-12-12T19:49:04.181306: Starting quality assessment",
+    "2025-12-12T19:49:20.186501: Built 1 Docker images (total: 87.8 MB, avg time: 9.8s)",
+    "2025-12-12T19:49:20.186530: Dockerfile validation: 1 errors, 1 warnings",
+    "2025-12-12T19:49:20.186542: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T19:49:20.186551: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T19:49:20.186555: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/airwatch-ae929dd4-3dc7-47c6-84dd-3f8df84ed3e5",
+    "run_id": "ae929dd4-3dc7-47c6-84dd-3f8df84ed3e5"
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "repo_url": "https://github.com/SoLiDinity/airwatch.git",
+  "repo_name": "airwatch",
+  "evaluation_id": "4ff10ebb-a8db-4822-8fa0-0e9c82b1eaa9",
+  "status": "completed",
+  "start_time": "2025-12-12T19:42:43.861109",
+  "end_time": "2025-12-12T19:44:24.842229",
+  "total_evaluation_time": 100.98112,
+  "generation_result": {
+    "repo_url": "https://github.com/SoLiDinity/airwatch.git",
+    "repo_name": "airwatch",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "back-end/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "back-end"
+      },
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/mongodb-secret.yaml",
+      "k8s/mongodb-statefulset.yaml",
+      "k8s/mongodb-service.yaml",
+      "k8s/backend-configmap.yaml",
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 59.00599718093872,
+    "error_message": null,
+    "timestamp": "2025-12-12T19:43:51.511781",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/airwatch-4f6030c8-09c8-4392-92ae-83a0c9bb6972",
+    "run_id": "4f6030c8-09c8-4392-92ae-83a0c9bb6972"
+  },
+  "execution_metrics": {
+    "total_time": 59.00599718093872,
+    "tool_calls_count": 26,
+    "tool_calls_breakdown": {
+      "write_file": 13,
+      "get_file_content": 8,
+      "patch_file": 1,
+      "base64_encode": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 253402,
+    "input_tokens": 246092,
+    "output_tokens": 7310,
+    "error_count": 0,
+    "run_id": "4f6030c8-09c8-4392-92ae-83a0c9bb6972",
+    "docker_build_metrics": [
+      {
+        "image_tag": "frontend",
+        "build_time": 29.293890237808228,
+        "image_size_mb": 27.74,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "back-end/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 458B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 DONE 0.7s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [2/5] WORKDIR /app/back-end\n#5 CACHED\n\n#6 [3/5] COPY back-end/package*.json ./\n#6 CACHED\n\n#7 [4/5] RUN npm install\n#7 CACHED\n\n#8 [5/5] COPY back-end/ ./\n#8 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::h15jwobuy1ec6qllb8cppiqxg: \"/back-end\": not found\n\n#9 [1/5] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#9 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e 0.0s done\n#9 CANCELED\n------\n > [5/5] COPY back-end/ ./:\n------\nDockerfile:14\n--------------------\n  12 |     \n  13 |     # Copy the rest of the backend source code\n  14 | >>> COPY back-end/ ./ \n  15 |     \n  16 |     # Expose the application port\n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::h15jwobuy1ec6qllb8cppiqxg: \"/back-end\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/wk1pug9dy1ga5dueho9qmw09j",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T19:42:43.861139: Starting configuration generation",
+    "2025-12-12T19:43:51.511863: Generated 2 Dockerfiles and 9 K8s manifests",
+    "2025-12-12T19:43:51.511869: Starting quality assessment",
+    "2025-12-12T19:44:24.842207: Built 1 Docker images (total: 27.7 MB, avg time: 29.3s)",
+    "2025-12-12T19:44:24.842221: Dockerfile validation: 1 errors, 0 warnings",
+    "2025-12-12T19:44:24.842225: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T19:44:24.842227: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T19:44:24.842228: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/airwatch-4f6030c8-09c8-4392-92ae-83a0c9bb6972",
+    "run_id": "4f6030c8-09c8-4392-92ae-83a0c9bb6972"
+  }
+}

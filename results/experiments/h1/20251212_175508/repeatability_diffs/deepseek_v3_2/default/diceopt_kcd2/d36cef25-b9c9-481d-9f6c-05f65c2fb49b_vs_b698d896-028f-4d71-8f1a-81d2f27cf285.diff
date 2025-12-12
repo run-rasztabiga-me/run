@@ -1,0 +1,130 @@
+--- d36cef25-b9c9-481d-9f6c-05f65c2fb49b
++++ b698d896-028f-4d71-8f1a-81d2f27cf285
+@@ -1,22 +1,14 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use nginx alpine as base image for serving static files
++# Use official nginx image
+ FROM nginx:alpine
+ 
+ # Copy static files to nginx html directory
+-COPY index.html /usr/share/nginx/html/
+-COPY styles.css /usr/share/nginx/html/
+-COPY diceData.js /usr/share/nginx/html/
+-COPY simulator.js /usr/share/nginx/html/
+-COPY lang-en.js /usr/share/nginx/html/
+-COPY lang-es.js /usr/share/nginx/html/
+-COPY lang-ru.js /usr/share/nginx/html/
+-COPY img/ /usr/share/nginx/html/img/
++COPY . /usr/share/nginx/html
+ 
+ # Expose port 80
+ EXPOSE 80
+ 
+-# Start nginx
+-CMD ["nginx", "-g", "daemon off;"]
++# Nginx runs by default, no need for CMD
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -35,50 +27,49 @@
+         app: diceopt-kcd2
+     spec:
+       containers:
+-        - name: diceopt-kcd2
+-          image: diceopt-kcd2:latest
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 80
+-              protocol: TCP
+-          resources:
+-            requests:
+-              memory: "64Mi"
+-              cpu: "50m"
+-            limits:
+-              memory: "128Mi"
+-              cpu: "100m"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
++      - name: diceopt-kcd2
++        image: diceopt-kcd2
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 80
++        resources:
++          requests:
++            memory: "64Mi"
++            cpu: "50m"
++          limits:
++            memory: "128Mi"
++            cpu: "100m"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 10
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 2
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: diceopt-kcd2
+-  labels:
+-    app: diceopt-kcd2
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-    - host: diceopt-kcd2.rasztabiga.me
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: diceopt-kcd2
+-                port:
+-                  number: 80
++  - host: diceopt-kcd2.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: diceopt-kcd2
++            port:
++              number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -87,10 +78,10 @@
+   labels:
+     app: diceopt-kcd2
+ spec:
+-  type: ClusterIP
+   selector:
+     app: diceopt-kcd2
+   ports:
+-    - port: 80
+-      targetPort: 80
+-      protocol: TCP
++  - port: 80
++    targetPort: 80
++    protocol: TCP
++  type: ClusterIP

@@ -1,0 +1,185 @@
+{
+  "repo_url": "https://github.com/robweber/mario-kart-tournament",
+  "repo_name": "mario-kart-tournament",
+  "evaluation_id": "9e3ffedc-81ac-4e42-88e3-d12c8532b362",
+  "status": "completed",
+  "start_time": "2025-12-12T22:45:21.803533",
+  "end_time": "2025-12-12T22:46:54.517229",
+  "total_evaluation_time": 92.713696,
+  "generation_result": {
+    "repo_url": "https://github.com/robweber/mario-kart-tournament",
+    "repo_name": "mario-kart-tournament",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "mario-kart-tournament",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/mario-kart-tournament-pvc.yaml",
+      "k8s/mario-kart-tournament-deployment.yaml",
+      "k8s/mario-kart-tournament-service.yaml",
+      "k8s/mario-kart-tournament-ingress.yaml"
+    ],
+    "generation_time": 27.11056423187256,
+    "error_message": null,
+    "timestamp": "2025-12-12T22:45:55.947862",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mario-kart-tournament-aa89ec22-59ad-4de5-bbeb-25d0309d9749",
+    "run_id": "aa89ec22-59ad-4de5-bbeb-25d0309d9749"
+  },
+  "execution_metrics": {
+    "total_time": 27.11056423187256,
+    "tool_calls_count": 12,
+    "tool_calls_breakdown": {
+      "get_file_content": 5,
+      "write_file": 5,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 106831,
+    "input_tokens": 104044,
+    "output_tokens": 2787,
+    "error_count": 0,
+    "run_id": "aa89ec22-59ad-4de5-bbeb-25d0309d9749",
+    "docker_build_metrics": [
+      {
+        "image_tag": "mario-kart-tournament",
+        "build_time": 0.779348611831665,
+        "image_size_mb": 46.63,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 73.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/mario-kart-tournament-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mario-kart-tournament\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/mario-kart-tournament-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mario-kart-tournament\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "http://run-aa89ec22.mario-kart-tournament.rasztabiga.me/",
+        "line_number": null,
+        "severity": "error",
+        "message": "Endpoint http://run-aa89ec22.mario-kart-tournament.rasztabiga.me/ not accessible after 5 attempts: Endpoint returned non-2xx status: 503",
+        "rule_id": "ENDPOINT_HEALTH_CHECK_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 73.4,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T22:45:21.803575: Starting configuration generation",
+    "2025-12-12T22:45:55.947952: Generated 1 Dockerfiles and 4 K8s manifests",
+    "2025-12-12T22:45:55.947958: Starting quality assessment",
+    "2025-12-12T22:46:54.517181: Built 1 Docker images (total: 46.6 MB, avg time: 0.8s)",
+    "2025-12-12T22:46:54.517197: Dockerfile validation: 1 errors, 2 warnings",
+    "2025-12-12T22:46:54.517204: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T22:46:54.517216: Deployed to namespace: mario-kart-tournament-aa89ec22-59ad-4de5-bbeb-25d0309d9749",
+    "2025-12-12T22:46:54.517219: Testing endpoint: /",
+    "2025-12-12T22:46:54.517222: Runtime validation: 1 errors, 0 warnings",
+    "2025-12-12T22:46:54.517225: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mario-kart-tournament-aa89ec22-59ad-4de5-bbeb-25d0309d9749",
+    "run_id": "aa89ec22-59ad-4de5-bbeb-25d0309d9749"
+  }
+}

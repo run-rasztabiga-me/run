@@ -1,0 +1,122 @@
+--- c2faa5e1-d571-46a2-995e-c515e27db11f
++++ 3d2330d6-9018-4501-b464-9bd71d12698f
+@@ -1,31 +1,31 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++# set workdir
+ WORKDIR /app
+ 
+-# Install system deps
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
++# install system deps
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install
+-COPY requirements/prod.txt /app/requirements-prod.txt
+-RUN pip install --no-cache-dir -r /app/requirements-prod.txt \
+-    && pip install --no-cache-dir flask gunicorn
++# copy requirement files
++COPY requirements/prod.txt ./requirements/prod.txt
+ 
+-# Copy application
+-COPY app /app/app
+-COPY .env-example /app/.env-example
++# install python deps
++RUN pip install --no-cache-dir -r requirements/prod.txt
+ 
+-# Expose port
++# copy application code
++COPY . /app
++
++# expose port
+ EXPOSE 8080
+ 
+-# Default environment
++# default environment
+ ENV ENVIRONMENT=prod
+ 
+-# Run the Flask app using gunicorn
+-CMD ["gunicorn", "app.server:app", "-b", "0.0.0.0:8080", "--workers", "1"]
++# container run
++CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:8080", "app.server:app"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -44,49 +44,67 @@
+         app: openai-hello-world
+     spec:
+       containers:
+-        - name: openai-hello-world
++        - name: app
+           image: openai-hello-world:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
++          env:
++            - name: OPENAI_API_KEY
++              valueFrom:
++                secretKeyRef:
++                  name: openai-secret
++                  key: OPENAI_API_KEY
++            - name: ENVIRONMENT
++              value: "prod"
+           resources:
+             requests:
++              cpu: "100m"
+               memory: "128Mi"
+-              cpu: "100m"
+             limits:
+-              memory: "256Mi"
+               cpu: "500m"
++              memory: "512Mi"
+           readinessProbe:
+             httpGet:
+               path: /api/health
+               port: 8080
+             initialDelaySeconds: 5
+             periodSeconds: 10
++            failureThreshold: 6
+           livenessProbe:
+             httpGet:
+               path: /api/health
+               port: 8080
+             initialDelaySeconds: 10
+             periodSeconds: 20
++            failureThreshold: 6
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: openai-hello-world-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: openai-hello-world.rasztabiga.me
+       http:
+         paths:
+-          - path: /
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:
+                 name: openai-hello-world
+                 port:
+                   number: 80
++@@FILE:K8s::k8s/secret.yaml
++apiVersion: v1
++kind: Secret
++metadata:
++  name: openai-secret
++type: Opaque
++stringData:
++  OPENAI_API_KEY: "DUMMY_OPENAI_KEY"
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service

@@ -1,0 +1,221 @@
+{
+  "repo_url": "https://github.com/robweber/mario-kart-tournament",
+  "repo_name": "mario-kart-tournament",
+  "evaluation_id": "68ae4191-8c1d-4117-9c65-0d6e15a30c3a",
+  "status": "completed",
+  "start_time": "2025-12-12T22:50:55.820661",
+  "end_time": "2025-12-12T22:58:58.945060",
+  "total_evaluation_time": 483.124399,
+  "generation_result": {
+    "repo_url": "https://github.com/robweber/mario-kart-tournament",
+    "repo_name": "mario-kart-tournament",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "mario-kart-tournament",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/sqlite-pvc.yaml",
+      "k8s/configmap.yaml",
+      "k8s/deployment-with-pvc.yaml",
+      "k8s/pvc-and-config.yaml",
+      "k8s/namespace.yaml"
+    ],
+    "generation_time": 207.72687196731567,
+    "error_message": null,
+    "timestamp": "2025-12-12T22:54:32.127770",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mario-kart-tournament-ab755756-3208-420a-9bd1-6806aada9ec1",
+    "run_id": "ab755756-3208-420a-9bd1-6806aada9ec1"
+  },
+  "execution_metrics": {
+    "total_time": 207.72687196731567,
+    "tool_calls_count": 28,
+    "tool_calls_breakdown": {
+      "get_file_content": 7,
+      "ls": 2,
+      "find_files": 2,
+      "search_files": 3,
+      "write_file": 11,
+      "patch_file": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 460309,
+    "input_tokens": 447665,
+    "output_tokens": 12644,
+    "error_count": 0,
+    "run_id": "ab755756-3208-420a-9bd1-6806aada9ec1",
+    "docker_build_metrics": [
+      {
+        "image_tag": "mario-kart-tournament",
+        "build_time": 22.736583948135376,
+        "image_size_mb": 150.77,
+        "layers_count": 8
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 92.0,
+    "overall_score": 71.1,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 7,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/deployment-with-pvc.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment-with-pvc.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "mario-kart-tournament",
+        "line_number": null,
+        "severity": "error",
+        "message": "Deployment mario-kart-tournament not ready within 120s: error: timed out waiting for the condition on deployments/mario-kart-tournament",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      },
+      {
+        "file_path": "mario-kart-tournament",
+        "line_number": null,
+        "severity": "error",
+        "message": "Deployment mario-kart-tournament not ready within 120s: error: timed out waiting for the condition on deployments/mario-kart-tournament",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      }
+    ],
+    "error_count": 2,
+    "warning_count": 5,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 71.1,
+      "total_errors": 2,
+      "total_warnings": 5,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 92.0,
+        "total_errors": 0,
+        "total_warnings": 4,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 60.0,
+            "errors": 0,
+            "warnings": 4,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 2,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T22:50:55.820720: Starting configuration generation",
+    "2025-12-12T22:54:32.127874: Generated 1 Dockerfiles and 8 K8s manifests",
+    "2025-12-12T22:54:32.127877: Starting quality assessment",
+    "2025-12-12T22:58:58.944906: Built 1 Docker images (total: 150.8 MB, avg time: 22.7s)",
+    "2025-12-12T22:58:58.944957: Dockerfile validation: 2 errors, 5 warnings",
+    "2025-12-12T22:58:58.944974: K8s validation: 0 errors, 4 warnings",
+    "2025-12-12T22:58:58.945011: Deployed to namespace: mario-kart-tournament-ab755756-3208-420a-9bd1-6806aada9ec1",
+    "2025-12-12T22:58:58.945014: Testing endpoint: /tournaments/current_match",
+    "2025-12-12T22:58:58.945019: Runtime validation: 2 errors, 0 warnings",
+    "2025-12-12T22:58:58.945022: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mario-kart-tournament-ab755756-3208-420a-9bd1-6806aada9ec1",
+    "run_id": "ab755756-3208-420a-9bd1-6806aada9ec1"
+  }
+}

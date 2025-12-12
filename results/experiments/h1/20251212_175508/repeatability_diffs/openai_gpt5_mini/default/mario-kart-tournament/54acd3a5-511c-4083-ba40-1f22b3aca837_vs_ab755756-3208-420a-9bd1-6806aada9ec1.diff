@@ -1,0 +1,269 @@
+--- 54acd3a5-511c-4083-ba40-1f22b3aca837
++++ ab755756-3208-420a-9bd1-6806aada9ec1
+@@ -1,33 +1,40 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Install required packages
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
++# Set workdir
++WORKDIR /app
++
++# Install dependencies
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends \
++       build-essential \
+     && rm -rf /var/lib/apt/lists/*
+-
+-# Set working directory
+-WORKDIR /app
+ 
+ # Copy application
+ COPY . /app
+ 
+-# Install python dependencies
++# Install Python requirements
+ RUN pip install --no-cache-dir -r install/requirements.txt
+ 
+-# Expose port
++ENV PYTHONUNBUFFERED=1
++
+ EXPOSE 5000
+ 
+-# Use unbuffered output
+-ENV PYTHONUNBUFFERED=1
+-
+-# Default command
+ CMD ["python", "main.py", "-p", "5000"]
+-@@FILE:K8s::k8s/deployment.yaml
++@@FILE:K8s::k8s/configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: mario-kart-config
++data:
++  DATABASE_PATH: "/data/mario-kart-tournament.live.db"
++@@FILE:K8s::k8s/deployment-with-pvc.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: mario-kart-tournament
++  labels:
++    app: mario-kart-tournament
+ spec:
+   replicas: 1
+   selector:
+@@ -39,86 +46,155 @@
+         app: mario-kart-tournament
+     spec:
+       containers:
+-      - name: app
+-        image: mario-kart-tournament:latest
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 5000
+-        resources:
+-          requests:
+-            cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "500m"
+-            memory: "256Mi"
+-        livenessProbe:
+-          httpGet:
+-            path: /admin/pin
+-            port: 5000
+-          initialDelaySeconds: 10
+-          periodSeconds: 20
+-        readinessProbe:
+-          httpGet:
+-            path: /admin/pin
+-            port: 5000
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-        volumeMounts:
+-        - name: db
+-          mountPath: /app/mario-kart-tournament.live.db
+-          subPath: mario-kart-tournament.live.db
++        - name: app
++          image: mario-kart-tournament:latest
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 5000
++          env:
++            - name: DATABASE_PATH
++              value: /data/mario-kart-tournament.live.db
++          volumeMounts:
++            - name: db-storage
++              mountPath: /data
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "128Mi"
++            limits:
++              cpu: "500m"
++              memory: "256Mi"
++          livenessProbe:
++            httpGet:
++              path: /admin
++              port: 5000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /admin
++              port: 5000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+       volumes:
+-      - name: db
+-        persistentVolumeClaim:
+-          claimName: mario-db-pvc
++        - name: db-storage
++          persistentVolumeClaim:
++            claimName: mario-kart-db-pvc
++      restartPolicy: Always
++@@FILE:K8s::k8s/deployment.yaml
++apiVersion: apps/v1
++kind: Deployment
++metadata:
++  name: mario-kart-tournament
++  labels:
++    app: mario-kart-tournament
++spec:
++  replicas: 1
++  selector:
++    matchLabels:
++      app: mario-kart-tournament
++  template:
++    metadata:
++      labels:
++        app: mario-kart-tournament
++    spec:
++      containers:
++        - name: app
++          image: mario-kart-tournament:latest
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 5000
++          env:
++            - name: DATABASE_PATH
++              value: /data/mario-kart-tournament.live.db
++          volumeMounts:
++            - name: db-storage
++              mountPath: /data
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "128Mi"
++            limits:
++              cpu: "500m"
++              memory: "256Mi"
++          livenessProbe:
++            httpGet:
++              path: /admin
++              port: 5000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /admin
++              port: 5000
++            initialDelaySeconds: 5
++            periodSeconds: 5
++      volumes:
++        - name: db-storage
++          persistentVolumeClaim:
++            claimName: mario-kart-db-pvc
++      restartPolicy: Always
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: mario-kart-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++  name: mario-kart-tournament-ingress
+ spec:
+   rules:
+-  - host: mario-kart-tournament.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: mario-kart-service
+-            port:
+-              number: 80
+-@@FILE:K8s::k8s/pvc.yaml
++    - host: "mario-kart-tournament.rasztabiga.me"
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: mario-kart-tournament
++                port:
++                  number: 80
++@@FILE:K8s::k8s/namespace.yaml
++apiVersion: v1
++kind: Namespace
++metadata:
++  name: mario-kart-tournament
++@@FILE:K8s::k8s/pvc-and-config.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+-  name: mario-db-pvc
++  name: mario-kart-db-pvc
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+-@@FILE:K8s::k8s/secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: mario-db-secret
+-type: Opaque
++---
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: mario-kart-config
+ data:
+-  dummy: YmFzZTY0
++  DATABASE_PATH: "/data/mario-kart-tournament.live.db"
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: mario-kart-service
++  name: mario-kart-tournament
+ spec:
+   selector:
+     app: mario-kart-tournament
+   ports:
+-  - protocol: TCP
+-    port: 80
+-    targetPort: 5000
++    - protocol: TCP
++      port: 80
++      targetPort: 5000
+   type: ClusterIP
++@@FILE:K8s::k8s/sqlite-pvc.yaml
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: mario-kart-db-pvc
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi

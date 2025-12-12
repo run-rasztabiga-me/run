@@ -1,0 +1,128 @@
+--- 1c61e2d5-69ef-490d-974a-d2224502d608
++++ 509b20e5-e636-4955-9e39-57b39906b553
+@@ -1,7 +1,7 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM nginx:alpine
++FROM nginx:stable-alpine
+ 
+-# Copy the static site into nginx html directory
++# Copy site content
+ COPY . /usr/share/nginx/html
+ 
+ EXPOSE 80
+@@ -11,7 +11,7 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: class-order-checker
++  name: class-order-checker-deployment
+   labels:
+     app: class-order-checker
+ spec:
+@@ -25,33 +25,32 @@
+         app: class-order-checker
+     spec:
+       containers:
+-        - name: class-order-checker
+-          image: class-order-checker:latest
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 80
+-              name: http
+-          resources:
+-            requests:
+-              cpu: "100m"
+-              memory: "128Mi"
+-            limits:
+-              cpu: "500m"
+-              memory: "256Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: http
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            failureThreshold: 3
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: http
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
+-            failureThreshold: 3
++      - name: class-order-checker
++        image: class-order-checker:latest
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 80
++        resources:
++          requests:
++            cpu: "100m"
++            memory: "64Mi"
++          limits:
++            cpu: "500m"
++            memory: "256Mi"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 10
++          timeoutSeconds: 2
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 3
++          periodSeconds: 5
++          timeoutSeconds: 2
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -61,30 +60,27 @@
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-    - host: "class-order-checker.rasztabiga.me"
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: class-order-checker
+-                port:
+-                  number: 80
+-@@FILE:K8s::k8s/manifest-list.txt
+-k8s/deployment.yaml
+-k8s/service.yaml
+-k8s/ingress.yaml
++  - host: class-order-checker.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: class-order-checker-service
++            port:
++              number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: class-order-checker
++  name: class-order-checker-service
+ spec:
++  type: ClusterIP
+   selector:
+     app: class-order-checker
+   ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: http
+-  type: ClusterIP
++    - port: 80
++      targetPort: 80
++      protocol: TCP
++      name: http

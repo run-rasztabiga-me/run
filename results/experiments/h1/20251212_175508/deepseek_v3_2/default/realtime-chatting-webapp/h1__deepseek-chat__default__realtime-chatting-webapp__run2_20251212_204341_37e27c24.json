@@ -1,0 +1,159 @@
+{
+  "repo_url": "https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git",
+  "repo_name": "realtime-chatting-webapp",
+  "evaluation_id": "37e27c24-6f3c-4bca-87b2-78c09a8d86bf",
+  "status": "completed",
+  "start_time": "2025-12-12T20:39:02.713714",
+  "end_time": "2025-12-12T20:43:41.533275",
+  "total_evaluation_time": 278.819561,
+  "generation_result": {
+    "repo_url": "https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git",
+    "repo_name": "realtime-chatting-webapp",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "chat-backend",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/mongodb-secret.yaml",
+      "k8s/mongodb-configmap.yaml",
+      "k8s/mongodb-pvc.yaml",
+      "k8s/mongodb-statefulset.yaml",
+      "k8s/mongodb-service.yaml",
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 245.5803258419037,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:43:17.768290",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-570061bb-6a5f-4b0f-962d-5cb43a97c01b",
+    "run_id": "570061bb-6a5f-4b0f-962d-5cb43a97c01b"
+  },
+  "execution_metrics": {
+    "total_time": 245.5803258419037,
+    "tool_calls_count": 41,
+    "tool_calls_breakdown": {
+      "think": 8,
+      "write_file": 12,
+      "patch_file": 3,
+      "get_file_content": 8,
+      "ls": 2,
+      "find_files": 4,
+      "search_files": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 430834,
+    "input_tokens": 424406,
+    "output_tokens": 6428,
+    "error_count": 0,
+    "run_id": "570061bb-6a5f-4b0f-962d-5cb43a97c01b",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-570061bb-6a5f-4b0f-962d-5cb43a97c01b/Dockerfile:2 1 |     # Build stage for React frontend",
+        "rule_id": "FromAsCasing"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 13,
+        "severity": "warning",
+        "message": "Use WORKDIR to switch to a directory",
+        "rule_id": "DL3003"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 20,
+        "severity": "warning",
+        "message": "Use WORKDIR to switch to a directory",
+        "rule_id": "DL3003"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 1.23kB done\n#1 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:16-alpine\n#2 DONE 0.2s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [build 1/9] FROM docker.io/library/node:16-alpine@sha256:a1f9d027912b58a7c75be7716c97cfbc6d3099f3a97ed84aa490be9dee20e787\n#4 resolve docker.io/library/node:16-alpine@sha256:a1f9d027912b58a7c75be7716c97cfbc6d3099f3a97ed84aa490be9dee20e787 done\n#4 DONE 0.0s\n\n#5 [internal] load build context\n#5 transferring context: 5.90MB 0.0s done\n#5 DONE 0.1s\n\n#6 [build 2/9] WORKDIR /app\n#6 CACHED\n\n#7 [build 3/9] COPY package*.json ./\n#7 CACHED\n\n#8 [build 4/9] COPY client/package*.json ./client/\n#8 DONE 0.0s\n\n#9 [stage-1 4/9] RUN npm ci --only=production\n#9 0.761 npm WARN config only Use `--omit=dev` to omit dev dependencies from the install.\n#9 1.148 npm WARN old lockfile \n#9 1.149 npm WARN old lockfile The package-lock.json file was created with an old version of npm,\n#9 1.149 npm WARN old lockfile so supplemental metadata must be fetched from the registry.\n#9 1.149 npm WARN old lockfile \n#9 1.149 npm WARN old lockfile This is a one-time fix-up, please be patient...\n#9 1.150 npm WARN old lockfile \n#9 7.078 npm WARN deprecated lodash.get@4.4.2: This package is deprecated. Use the optional chaining (?.) operator instead.\n#9 7.327 npm WARN deprecated bson@1.0.9: Fixed a critical issue with BSON serialization documented in CVE-2019-2391, see https://bit.ly/2KcpXdo for more details\n#9 8.106 \n#9 8.106 added 127 packages, and audited 128 packages in 7s\n#9 8.170 \n#9 8.170 26 vulnerabilities (3 low, 3 moderate, 12 high, 8 critical)\n#9 8.170 \n#9 8.170 To address issues that do not require attention, run:\n#9 8.170   npm audit fix\n#9 8.170 \n#9 8.170 To address all issues (including breaking changes), run:\n#9 8.170   npm audit fix --force\n#9 8.170 \n#9 8.170 Run `npm audit` for details.\n#9 8.170 npm notice \n#9 8.170 npm notice New major version of npm available! 8.19.4 -> 11.7.0\n#9 8.170 npm notice Changelog: <https://github.com/npm/cli/releases/tag/v11.7.0>\n#9 8.170 npm notice Run `npm install -g npm@11.7.0` to update!\n#9 8.170 npm notice \n#9 ...\n\n#10 [build 5/9] RUN npm ci --only=production\n#10 0.726 npm WARN config only Use `--omit=dev` to omit dev dependencies from the install.\n#10 1.133 npm WARN old lockfile \n#10 1.133 npm WARN old lockfile The package-lock.json file was created with an old version of npm,\n#10 1.134 npm WARN old lockfile so supplemental metadata must be fetched from the registry.\n#10 1.134 npm WARN old lockfile \n#10 1.134 npm WARN old lockfile This is a one-time fix-up, please be patient...\n#10 1.135 npm WARN old lockfile \n#10 7.051 npm WARN deprecated lodash.get@4.4.2: This package is deprecated. Use the optional chaining (?.) operator instead.\n#10 7.343 npm WARN deprecated bson@1.0.9: Fixed a critical issue with BSON serialization documented in CVE-2019-2391, see https://bit.ly/2KcpXdo for more details\n#10 8.101 \n#10 8.101 added 127 packages, and audited 128 packages in 7s\n#10 8.168 \n#10 8.168 26 vulnerabilities (3 low, 3 moderate, 12 high, 8 critical)\n#10 8.168 \n#10 8.168 To address issues that do not require attention, run:\n#10 8.168   npm audit fix\n#10 8.168 \n#10 8.168 To address all issues (including breaking changes), run:\n#10 8.168   npm audit fix --force\n#10 8.168 \n#10 8.168 Run `npm audit` for details.\n#10 8.168 npm notice \n#10 8.168 npm notice New major version of npm available! 8.19.4 -> 11.7.0\n#10 8.168 npm notice Changelog: <https://github.com/npm/cli/releases/tag/v11.7.0>\n#10 8.168 npm notice Run `npm install -g npm@11.7.0` to update!\n#10 8.168 npm notice \n#10 ...\n\n#9 [stage-1 4/9] RUN npm ci --only=production\n#9 DONE 8.6s\n\n#10 [build 5/9] RUN npm ci --only=production\n#10 DONE 8.5s\n\n#11 [build 6/9] RUN cd client && npm ci --only=production\n#11 0.617 npm WARN config only Use `--omit=dev` to omit dev dependencies from the install.\n#11 1.334 npm WARN old lockfile \n#11 1.335 npm WARN old lockfile The package-lock.json file was created with an old version of npm,\n#11 1.335 npm WARN old lockfile so supplemental metadata must be fetched from the registry.\n#11 1.335 npm WARN old lockfile \n#11 1.335 npm WARN old lockfile This is a one-time fix-up, please be patient...\n#11 1.336 npm WARN old lockfile \n#11 12.22 npm ERR! code EBADPLATFORM\n#11 12.22 npm ERR! notsup Unsupported platform for fsevents@1.2.4: wanted {\"os\":\"darwin\"} (current: {\"os\":\"linux\",\"arch\":\"x64\"})\n#11 12.22 npm ERR! notsup Valid OS:    darwin\n#11 12.22 npm ERR! notsup Valid Arch:  undefined\n#11 12.22 npm ERR! notsup Actual OS:   linux\n#11 12.22 npm ERR! notsup Actual Arch: x64\n#11 12.22 \n#11 12.22 npm ERR! A complete log of this run can be found in:\n#11 12.22 npm ERR!     /root/.npm/_logs/2025-12-12T19_43_29_590Z-debug-0.log\n#11 ERROR: process \"/bin/sh -c cd client && npm ci --only=production\" did not complete successfully: exit code: 1\n------\n > [build 6/9] RUN cd client && npm ci --only=production:\n1.336 npm WARN old lockfile \n12.22 npm ERR! code EBADPLATFORM\n12.22 npm ERR! notsup Unsupported platform for fsevents@1.2.4: wanted {\"os\":\"darwin\"} (current: {\"os\":\"linux\",\"arch\":\"x64\"})\n12.22 npm ERR! notsup Valid OS:    darwin\n12.22 npm ERR! notsup Valid Arch:  undefined\n12.22 npm ERR! notsup Actual OS:   linux\n12.22 npm ERR! notsup Actual Arch: x64\n12.22 \n12.22 npm ERR! A complete log of this run can be found in:\n12.22 npm ERR!     /root/.npm/_logs/2025-12-12T19_43_29_590Z-debug-0.log\n------\n\n \u001b[33m1 warning found (use docker --debug to expand):\n\u001b[0m - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)\nDockerfile:13\n--------------------\n  11 |     # Install dependencies\n  12 |     RUN npm ci --only=production\n  13 | >>> RUN cd client && npm ci --only=production\n  14 |     \n  15 |     # Copy source code\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c cd client && npm ci --only=production\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/mb8zmc7jcnr6gu27ti3usswf3",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 3,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 3,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 3,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:39:02.713764: Starting configuration generation",
+    "2025-12-12T20:43:17.768411: Generated 1 Dockerfiles and 8 K8s manifests",
+    "2025-12-12T20:43:17.768416: Starting quality assessment",
+    "2025-12-12T20:43:41.533189: Dockerfile validation: 1 errors, 3 warnings",
+    "2025-12-12T20:43:41.533239: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T20:43:41.533245: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T20:43:41.533264: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-570061bb-6a5f-4b0f-962d-5cb43a97c01b",
+    "run_id": "570061bb-6a5f-4b0f-962d-5cb43a97c01b"
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "repo_url": "https://github.com/tschoffelen/csv-hero",
+  "repo_name": "csv-hero",
+  "evaluation_id": "c08d844d-19aa-44c6-9f58-5b6638bdc362",
+  "status": "completed",
+  "start_time": "2025-12-12T20:43:41.858593",
+  "end_time": "2025-12-12T20:45:10.537749",
+  "total_evaluation_time": 88.679156,
+  "generation_result": {
+    "repo_url": "https://github.com/tschoffelen/csv-hero",
+    "repo_name": "csv-hero",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "csv-hero",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/csv-hero-deployment.yaml",
+      "k8s/csv-hero-service.yaml",
+      "k8s/csv-hero-ingress.yaml"
+    ],
+    "generation_time": 16.455543994903564,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:44:06.752847",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/csv-hero-77ad9083-8dfd-4755-bb0a-c75a3908fa49",
+    "run_id": "77ad9083-8dfd-4755-bb0a-c75a3908fa49"
+  },
+  "execution_metrics": {
+    "total_time": 16.455543994903564,
+    "tool_calls_count": 7,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "get_file_content": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 35676,
+    "input_tokens": 33695,
+    "output_tokens": 1981,
+    "error_count": 0,
+    "run_id": "77ad9083-8dfd-4755-bb0a-c75a3908fa49",
+    "docker_build_metrics": [
+      {
+        "image_tag": "csv-hero",
+        "build_time": 43.04126501083374,
+        "image_size_mb": 20.66,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/csv-hero-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"csv-hero\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/csv-hero-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"csv-hero\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:43:41.858760: Starting configuration generation",
+    "2025-12-12T20:44:06.752960: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T20:44:06.752967: Starting quality assessment",
+    "2025-12-12T20:45:10.537631: Built 1 Docker images (total: 20.7 MB, avg time: 43.0s)",
+    "2025-12-12T20:45:10.537666: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T20:45:10.537683: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T20:45:10.537703: Deployed to namespace: csv-hero-77ad9083-8dfd-4755-bb0a-c75a3908fa49",
+    "2025-12-12T20:45:10.537710: Testing endpoint: /",
+    "2025-12-12T20:45:10.537719: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T20:45:10.537733: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/csv-hero-77ad9083-8dfd-4755-bb0a-c75a3908fa49",
+    "run_id": "77ad9083-8dfd-4755-bb0a-c75a3908fa49"
+  }
+}

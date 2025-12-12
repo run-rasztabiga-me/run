@@ -1,0 +1,160 @@
+{
+  "repo_url": "https://github.com/isixe/MetaThief",
+  "repo_name": "metathief",
+  "evaluation_id": "91d897f6-4812-45e1-8fe6-db18e7b99b38",
+  "status": "completed",
+  "start_time": "2025-12-12T21:07:32.230594",
+  "end_time": "2025-12-12T21:10:01.135964",
+  "total_evaluation_time": 148.90537,
+  "generation_result": {
+    "repo_url": "https://github.com/isixe/MetaThief",
+    "repo_name": "metathief",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "metathief",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 110.0779938697815,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:09:30.906727",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/metathief-2ec3030b-2735-4808-83cd-45523301997c",
+    "run_id": "2ec3030b-2735-4808-83cd-45523301997c"
+  },
+  "execution_metrics": {
+    "total_time": 110.0779938697815,
+    "tool_calls_count": 21,
+    "tool_calls_breakdown": {
+      "think": 3,
+      "write_file": 4,
+      "get_file_content": 5,
+      "ls": 1,
+      "find_files": 1,
+      "search_files": 5,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 262983,
+    "input_tokens": 260427,
+    "output_tokens": 2556,
+    "error_count": 0,
+    "run_id": "2ec3030b-2735-4808-83cd-45523301997c",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 5,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 27,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 30,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 31,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 966B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.2s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [builder 1/7] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#4 resolve docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2 done\n#4 CACHED\n\n#5 [runner 2/8] WORKDIR /app\n#5 DONE 0.0s\n\n#6 [internal] load build context\n#6 transferring context: 343.68kB 0.0s done\n#6 DONE 0.0s\n\n#7 [builder 2/7] RUN npm install -g pnpm\n#7 CACHED\n\n#8 [builder 3/7] WORKDIR /app\n#8 CACHED\n\n#9 [builder 4/7] COPY package.json pnpm-lock.yaml ./\n#9 CACHED\n\n#10 [builder 5/7] RUN pnpm install --frozen-lockfile\n#10 0.932 Lockfile is up to date, resolution step is skipped\n#10 1.042 Progress: resolved 1, reused 0, downloaded 0, added 0\n#10 1.103 Packages: +413\n#10 1.103 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n#10 2.066 Progress: resolved 413, reused 0, downloaded 115, added 112\n#10 ...\n\n#11 [runner 3/8] RUN npm install -g pnpm\n#11 2.104 \n#11 2.104 added 1 package in 2s\n#11 2.104 \n#11 2.104 1 package is looking for funding\n#11 2.104   run `npm fund` for details\n#11 2.108 npm notice\n#11 2.108 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#11 2.108 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#11 2.108 npm notice To update run: npm install -g npm@11.7.0\n#11 2.108 npm notice\n#11 DONE 2.6s\n\n#12 [runner 4/8] RUN addgroup --system --gid 1001 nodejs\n#12 DONE 0.3s\n\n#10 [builder 5/7] RUN pnpm install --frozen-lockfile\n#10 3.070 Progress: resolved 413, reused 0, downloaded 212, added 189\n#10 ...\n\n#13 [runner 5/8] RUN adduser --system --uid 1001 nextjs\n#13 DONE 0.2s\n\n#10 [builder 5/7] RUN pnpm install --frozen-lockfile\n#10 4.071 Progress: resolved 413, reused 0, downloaded 411, added 411\n#10 4.158 Progress: resolved 413, reused 0, downloaded 413, added 413, done\n#10 4.537 \n#10 4.537 dependencies:\n#10 4.537 + @eslint/eslintrc 3.3.3\n#10 4.537 + @radix-ui/react-dialog 1.1.15\n#10 4.537 + @radix-ui/react-label 2.1.8\n#10 4.537 + @radix-ui/react-popover 1.1.15\n#10 4.537 + @radix-ui/react-scroll-area 1.2.10\n#10 4.537 + @radix-ui/react-slot 1.2.4\n#10 4.537 + @radix-ui/react-toast 1.2.15\n#10 4.537 + @radix-ui/react-tooltip 1.2.8\n#10 4.537 + autoprefixer 10.4.22\n#10 4.537 + class-variance-authority 0.7.1\n#10 4.537 + clsx 2.1.1\n#10 4.537 + he 1.2.0\n#10 4.537 + lucide-react 0.454.0\n#10 4.537 + next 15.1.0\n#10 4.537 + next-themes 0.4.6\n#10 4.537 + prettier 3.7.4\n#10 4.537 + react 19.2.1\n#10 4.537 + react-dom 19.2.1\n#10 4.537 + react-hot-toast 2.6.0\n#10 4.537 + tailwind-merge 2.6.0\n#10 4.537 + tailwindcss-animate 1.0.7\n#10 4.537 \n#10 4.537 devDependencies:\n#10 4.537 + @types/he 1.2.3\n#10 4.537 + @types/node 22.19.1\n#10 4.537 + @types/react 19.2.7\n#10 4.537 + @types/react-dom 19.2.3\n#10 4.537 + eslint-config-next 15.2.3\n#10 4.537 + eslint-config-prettier 10.1.8\n#10 4.537 + postcss 8.5.6\n#10 4.537 + prettier-plugin-organize-imports 4.3.0\n#10 4.537 + prettier-plugin-tailwindcss 0.6.14\n#10 4.537 + tailwindcss 3.4.18\n#10 4.537 + typescript 5.9.3\n#10 4.537 \n#10 4.550 \u256d Warning \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n#10 4.550 \u2502                                                                              \u2502\n#10 4.550 \u2502   Ignored build scripts: sharp@0.33.5, unrs-resolver@1.11.1.                 \u2502\n#10 4.550 \u2502   Run \"pnpm approve-builds\" to pick which dependencies should be allowed     \u2502\n#10 4.550 \u2502   to run scripts.                                                            \u2502\n#10 4.550 \u2502                                                                              \u2502\n#10 4.550 \u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n#10 4.599 Done in 4.2s using pnpm v10.25.0\n#10 DONE 4.9s\n\n#14 [builder 6/7] COPY . .\n#14 DONE 0.1s\n\n#15 [builder 7/7] RUN pnpm run build\n#15 0.629 \n#15 0.629 > meta-thief@0.1.0 build /app\n#15 0.629 > next build\n#15 0.629 \n#15 1.545 Attention: Next.js now collects completely anonymous telemetry regarding usage.\n#15 1.545 This information is used to shape Next.js' roadmap and prioritize features.\n#15 1.545 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:\n#15 1.545 https://nextjs.org/telemetry\n#15 1.545 \n#15 1.590    \u25b2 Next.js 15.1.0\n#15 1.590    - Experiments (use with caution):\n#15 1.590      \u00b7 webpackBuildWorker\n#15 1.590      \u00b7 parallelServerCompiles\n#15 1.590      \u00b7 parallelServerBuildTraces\n#15 1.590 \n#15 1.666    Creating an optimized production build ...\n#15 14.13  \u2713 Compiled successfully\n#15 14.14    Skipping validation of types\n#15 14.14    Skipping linting\n#15 14.60    Collecting page data ...\n#15 15.45    Generating static pages (0/6) ...\n#15 16.14    Generating static pages (1/6) \n#15 16.15    Generating static pages (2/6) \n#15 16.23    Generating static pages (4/6) \n#15 16.37  \u2713 Generating static pages (6/6)\n#15 16.38    Finalizing page optimization ...\n#15 16.38    Collecting build traces ...\n#15 22.62 \n#15 22.64 Route (app)                              Size     First Load JS\n#15 22.64 \u250c \u0192 /                                    37 kB           154 kB\n#15 22.64 \u251c \u0192 /_not-found                          977 B           106 kB\n#15 22.64 \u251c \u0192 /api                                 140 B           105 kB\n#15 22.64 \u2514 \u0192 /api/meta                            140 B           105 kB\n#15 22.64 + First Load JS shared by all            105 kB\n#15 22.64   \u251c chunks/102e6350-1d6bce8ed69032ea.js  52.9 kB\n#15 22.64   \u251c chunks/939-ee93b70605714ff0.js       50.5 kB\n#15 22.64   \u2514 other shared chunks (total)          1.91 kB\n#15 22.64 \n#15 22.64 \n#15 22.64 \u0192  (Dynamic)  server-rendered on demand\n#15 22.64 \n#15 DONE 22.7s\n\n#16 [runner 6/8] COPY --from=builder /app/public ./public\n#16 CACHED\n\n#17 [runner 7/8] COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./\n#17 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::ow6md30spk7lcu085f7ikwwgd: \"/app/.next/standalone\": not found\n------\n > [runner 7/8] COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./:\n------\nDockerfile:35\n--------------------\n  33 |     # Copy necessary files from builder\n  34 |     COPY --from=builder /app/public ./public\n  35 | >>> COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./\n  36 |     COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static\n  37 |     \n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::ow6md30spk7lcu085f7ikwwgd: \"/app/.next/standalone\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/t5c3llvftgh07ke50lvfaeinj",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 2,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 2,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 2,
+        "total_info": 2,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 2
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:07:32.230689: Starting configuration generation",
+    "2025-12-12T21:09:30.906847: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T21:09:30.906853: Starting quality assessment",
+    "2025-12-12T21:10:01.135839: Dockerfile validation: 1 errors, 2 warnings",
+    "2025-12-12T21:10:01.135939: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T21:10:01.135945: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T21:10:01.135952: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/metathief-2ec3030b-2735-4808-83cd-45523301997c",
+    "run_id": "2ec3030b-2735-4808-83cd-45523301997c"
+  }
+}

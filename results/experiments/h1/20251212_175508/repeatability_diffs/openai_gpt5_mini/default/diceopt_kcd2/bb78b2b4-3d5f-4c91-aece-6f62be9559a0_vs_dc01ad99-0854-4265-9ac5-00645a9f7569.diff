@@ -1,0 +1,118 @@
+--- bb78b2b4-3d5f-4c91-aece-6f62be9559a0
++++ dc01ad99-0854-4265-9ac5-00645a9f7569
+@@ -1,8 +1,8 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM nginx:alpine
+ 
+-# Copy static website files
+-COPY . /usr/share/nginx/html
++# Copy site files into nginx html directory
++COPY . /usr/share/nginx/html/
+ 
+ EXPOSE 80
+ 
+@@ -11,7 +11,7 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: diceopt-frontend
++  name: diceopt-deployment
+   labels:
+     app: diceopt
+ spec:
+@@ -25,30 +25,30 @@
+         app: diceopt
+     spec:
+       containers:
+-      - name: nginx
+-        image: diceopt-frontend:latest
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 80
+-        resources:
+-          requests:
+-            cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "500m"
+-            memory: "512Mi"
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 10
+-          periodSeconds: 20
++        - name: diceopt
++          image: diceopt:latest
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 80
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "128Mi"
++            limits:
++              cpu: "500m"
++              memory: "256Mi"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 80
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 80
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -58,26 +58,26 @@
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-  - host: diceopt-kcd2.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: diceopt-frontend
+-            port:
+-              number: 80
++    - host: diceopt-kcd2.rasztabiga.me
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: diceopt-service
++                port:
++                  number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: diceopt-frontend
++  name: diceopt-service
+ spec:
+   selector:
+     app: diceopt
+   ports:
+-  - protocol: TCP
+-    port: 80
+-    targetPort: 80
++    - protocol: TCP
++      port: 80
++      targetPort: 80
+   type: ClusterIP

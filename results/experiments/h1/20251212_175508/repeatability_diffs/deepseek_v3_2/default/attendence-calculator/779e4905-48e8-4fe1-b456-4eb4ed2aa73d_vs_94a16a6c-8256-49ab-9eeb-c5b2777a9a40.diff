@@ -1,0 +1,35 @@
+--- 779e4905-48e8-4fe1-b456-4eb4ed2aa73d
++++ 94a16a6c-8256-49ab-9eeb-c5b2777a9a40
+@@ -1,14 +1,16 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use nginx alpine as base image
++# Use lightweight nginx image for serving static content
+ FROM nginx:alpine
+ 
+-# Copy static files to nginx html directory
+-COPY . /usr/share/nginx/html
++# Copy static files to nginx web directory
++COPY index.html /usr/share/nginx/html/
++COPY style.css /usr/share/nginx/html/
++COPY script.js /usr/share/nginx/html/
+ 
+-# Expose port 80
++# Expose port 80 for HTTP traffic
+ EXPOSE 80
+ 
+-# Nginx will start automatically with default CMD
++# Nginx runs by default, no need for CMD
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -49,8 +51,8 @@
+           httpGet:
+             path: /
+             port: 80
+-          initialDelaySeconds: 2
+-          periodSeconds: 5
++          initialDelaySeconds: 5
++          periodSeconds: 10
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

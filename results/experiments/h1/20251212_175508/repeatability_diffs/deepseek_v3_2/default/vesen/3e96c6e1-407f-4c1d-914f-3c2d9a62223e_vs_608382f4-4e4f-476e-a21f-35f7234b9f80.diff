@@ -1,0 +1,68 @@
+--- 3e96c6e1-407f-4c1d-914f-3c2d9a62223e
++++ 608382f4-4e4f-476e-a21f-35f7234b9f80
+@@ -6,6 +6,7 @@
+ 
+ # Copy package files
+ COPY package*.json ./
++COPY package-lock.json ./
+ 
+ # Install dependencies
+ RUN npm ci --only=production
+@@ -19,11 +20,11 @@
+ # Production stage
+ FROM nginx:alpine
+ 
+-# Copy built assets from builder stage
++# Copy built files from builder stage
+ COPY --from=builder /app/dist /usr/share/nginx/html
+ 
+ # Copy nginx configuration
+-COPY nginx.conf /etc/nginx/nginx.conf
++COPY nginx.conf /etc/nginx/conf.d/default.conf
+ 
+ # Expose port 80
+ EXPOSE 80
+@@ -62,32 +63,21 @@
+             cpu: "100m"
+         livenessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 80
+           initialDelaySeconds: 10
+           periodSeconds: 10
+-          timeoutSeconds: 5
+-          failureThreshold: 3
+         readinessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 80
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-          timeoutSeconds: 3
+-          failureThreshold: 1
+-        # Run as root since nginx image runs as root by default
+-        # securityContext:
+-        #   runAsNonRoot: false
+-        #   runAsUser: 0
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: vesen
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+ spec:
+   rules:
+   - host: vesen.rasztabiga.me
+@@ -105,8 +95,6 @@
+ kind: Service
+ metadata:
+   name: vesen
+-  labels:
+-    app: vesen
+ spec:
+   selector:
+     app: vesen

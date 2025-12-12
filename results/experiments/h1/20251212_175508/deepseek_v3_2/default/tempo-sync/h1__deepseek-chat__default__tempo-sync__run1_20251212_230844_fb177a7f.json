@@ -1,0 +1,188 @@
+{
+  "repo_url": "https://github.com/york9675/Tempo-Sync",
+  "repo_name": "tempo-sync",
+  "evaluation_id": "fb177a7f-49c8-4b0a-a231-3f73adc9e8d8",
+  "status": "completed",
+  "start_time": "2025-12-12T23:05:56.303479",
+  "end_time": "2025-12-12T23:08:44.444747",
+  "total_evaluation_time": 168.141268,
+  "generation_result": {
+    "repo_url": "https://github.com/york9675/Tempo-Sync",
+    "repo_name": "tempo-sync",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "tempo-sync",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 142.44682097434998,
+    "error_message": null,
+    "timestamp": "2025-12-12T23:08:27.186600",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/tempo-sync-13d06771-524e-4af4-bb4d-92182897eb49",
+    "run_id": "13d06771-524e-4af4-bb4d-92182897eb49"
+  },
+  "execution_metrics": {
+    "total_time": 142.44682097434998,
+    "tool_calls_count": 26,
+    "tool_calls_breakdown": {
+      "think": 10,
+      "ls": 3,
+      "write_file": 5,
+      "search_files": 3,
+      "get_file_content": 2,
+      "patch_file": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 325888,
+    "input_tokens": 322041,
+    "output_tokens": 3847,
+    "error_count": 0,
+    "run_id": "13d06771-524e-4af4-bb4d-92182897eb49",
+    "docker_build_metrics": [
+      {
+        "image_tag": "tempo-sync",
+        "build_time": 1.2002298831939697,
+        "image_size_mb": 27.55,
+        "layers_count": 17
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 17,
+        "severity": "info",
+        "message": "Expressions don't expand in single quotes, use double quotes for that.",
+        "rule_id": "SC2016"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"tempo-sync\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"tempo-sync\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 1,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T23:05:56.303505: Starting configuration generation",
+    "2025-12-12T23:08:27.186687: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T23:08:27.186693: Starting quality assessment",
+    "2025-12-12T23:08:44.444662: Built 1 Docker images (total: 27.6 MB, avg time: 1.2s)",
+    "2025-12-12T23:08:44.444687: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T23:08:44.444702: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T23:08:44.444726: Deployed to namespace: tempo-sync-13d06771-524e-4af4-bb4d-92182897eb49",
+    "2025-12-12T23:08:44.444731: Testing endpoint: /",
+    "2025-12-12T23:08:44.444736: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T23:08:44.444741: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/tempo-sync-13d06771-524e-4af4-bb4d-92182897eb49",
+    "run_id": "13d06771-524e-4af4-bb4d-92182897eb49"
+  }
+}

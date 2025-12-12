@@ -1,0 +1,128 @@
+{
+  "repo_url": "https://github.com/isixe/MetaThief",
+  "repo_name": "metathief",
+  "evaluation_id": "21597524-fcc9-49ec-bb22-a709a2f959d6",
+  "status": "completed",
+  "start_time": "2025-12-12T20:54:09.483826",
+  "end_time": "2025-12-12T20:54:41.759229",
+  "total_evaluation_time": 32.275403,
+  "generation_result": {
+    "repo_url": "https://github.com/isixe/MetaThief",
+    "repo_name": "metathief",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "metathief",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/metathief-deployment.yaml",
+      "k8s/metathief-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 17.9390070438385,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:54:36.750650",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/metathief-dcee5578-9c9d-4f15-ae7b-693b72e2e252",
+    "run_id": "dcee5578-9c9d-4f15-ae7b-693b72e2e252"
+  },
+  "execution_metrics": {
+    "total_time": 17.9390070438385,
+    "tool_calls_count": 8,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "get_file_content": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 51206,
+    "input_tokens": 48716,
+    "output_tokens": 2490,
+    "error_count": 0,
+    "run_id": "dcee5578-9c9d-4f15-ae7b-693b72e2e252",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 850B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.7s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 343.01kB 0.0s done\n#4 DONE 0.0s\n\n#5 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#5 resolve docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2 done\n#5 sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 0B / 446B 0.2s\n#5 sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 0B / 1.26MB 0.2s\n#5 sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 446B / 446B 0.3s done\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 0B / 42.78MB 0.2s\n#5 sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 1.26MB / 1.26MB 0.5s done\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 15.73MB / 42.78MB 0.8s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 28.31MB / 42.78MB 0.9s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 35.65MB / 42.78MB 1.1s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 42.78MB / 42.78MB 1.2s done\n#5 extracting sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645\n#5 extracting sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 0.4s done\n#5 DONE 1.6s\n\n#5 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#5 extracting sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 0.0s done\n#5 extracting sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 done\n#5 DONE 1.6s\n\n#6 [builder 2/6] WORKDIR /app\n#6 DONE 0.1s\n\n#7 [builder 3/6] COPY package.json pnpm-lock.yaml ./\n#7 DONE 0.0s\n\n#8 [builder 4/6] RUN pnpm install --frozen-lockfile\n#8 0.107 /bin/sh: pnpm: not found\n#8 ERROR: process \"/bin/sh -c pnpm install --frozen-lockfile\" did not complete successfully: exit code: 127\n------\n > [builder 4/6] RUN pnpm install --frozen-lockfile:\n0.107 /bin/sh: pnpm: not found\n------\nDockerfile:9\n--------------------\n   7 |     # Copy package.json and pnpm-lock.yaml and install dependencies\n   8 |     COPY package.json pnpm-lock.yaml ./\n   9 | >>> RUN pnpm install --frozen-lockfile\n  10 |     \n  11 |     # Copy the rest of the application files\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pnpm install --frozen-lockfile\" did not complete successfully: exit code: 127\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/n7hlh9t6v30phtmjsw614pdju",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:54:09.484149: Starting configuration generation",
+    "2025-12-12T20:54:36.750730: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T20:54:36.750734: Starting quality assessment",
+    "2025-12-12T20:54:41.759186: Dockerfile validation: 1 errors, 0 warnings",
+    "2025-12-12T20:54:41.759211: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T20:54:41.759220: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T20:54:41.759226: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/metathief-dcee5578-9c9d-4f15-ae7b-693b72e2e252",
+    "run_id": "dcee5578-9c9d-4f15-ae7b-693b72e2e252"
+  }
+}

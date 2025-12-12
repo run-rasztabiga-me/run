@@ -1,0 +1,289 @@
+--- 4f6030c8-09c8-4392-92ae-83a0c9bb6972
++++ a3fc6e8d-62b6-428c-916f-85b2a75c20a2
+@@ -1,5 +1,4 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Stage 1: Build the frontend application
+ FROM node:18-alpine AS build
+ 
+ WORKDIR /app
+@@ -12,49 +11,31 @@
+ 
+ RUN npm run build
+ 
+-# Stage 2: Serve the built application with a lightweight web server
+ FROM nginx:alpine
+ 
+-# Copy the built assets from the build stage
++COPY nginx.conf /etc/nginx/conf.d/default.conf
++
+ COPY --from=build /app/dist /usr/share/nginx/html
+ 
+-# Expose port 80 for the web server
+ EXPOSE 80
+ 
+-# Command to run Nginx
+ CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:Dockerfile::back-end/Dockerfile
+-# Use a lightweight Node.js base image
+ FROM node:18-alpine
+ 
+-# Set the working directory
++WORKDIR /app
++
++COPY back-end/package*.json ./
++
++RUN npm install --production
++
++COPY back-end/ ./back-end/
++
+ WORKDIR /app/back-end
+ 
+-# Copy package.json and package-lock.json to install dependencies
+-COPY back-end/package*.json ./
+-
+-# Install dependencies
+-RUN npm install
+-
+-# Copy the rest of the backend source code
+-COPY back-end/ ./ 
+-
+-# Expose the application port
+ EXPOSE 9000
+ 
+-# Command to run the application
+-CMD ["node", "./api/index.js"]
+-@@FILE:K8s::k8s/backend-configmap.yaml
+-
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: backend-config
+-  labels:
+-    app: backend
+-data:
+-  MONGODB_URI: "mongodb://airwatchuser:supersecurepassword123@mongodb-service:27017/AirwatchID-Articles?authSource=admin"
+-  API_KEY: "your-secret-api-key"
++CMD ["npm", "start"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -78,46 +59,56 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
+-          envFrom:
+-            - configMapRef:
+-                name: backend-config
++          env:
++            - name: MONGODB_URI
++              value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/$(MONGO_DATABASE)?authSource=admin"
++            - name: MONGO_USERNAME
++              valueFrom:
++                secretKeyRef:
++                  name: mongodb-secret
++                  key: MONGO_USERNAME
++            - name: MONGO_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: mongodb-secret
++                  key: MONGO_PASSWORD
++            - name: MONGO_DATABASE
++              valueFrom:
++                secretKeyRef:
++                  name: mongodb-secret
++                  key: MONGO_DATABASE
+           livenessProbe:
+             httpGet:
+               path: /articles
+               port: 9000
+-            initialDelaySeconds: 30
+-            periodSeconds: 10
+-            timeoutSeconds: 5
+-            failureThreshold: 6
++            initialDelaySeconds: 10
++            periodSeconds: 5
+           readinessProbe:
+             httpGet:
+               path: /articles
+               port: 9000
+             initialDelaySeconds: 15
+-            periodSeconds: 10
+-            timeoutSeconds: 5
+-            failureThreshold: 3
++            periodSeconds: 5
+           resources:
+             requests:
+               memory: "128Mi"
+               cpu: "100m"
+             limits:
+               memory: "256Mi"
+-              cpu: "300m"
++              cpu: "200m"
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: backend-service
++  name: backend
+   labels:
+     app: backend
+ spec:
++  ports:
++    - port: 9000
++      targetPort: 9000
+   selector:
+     app: backend
+-  ports:
+-    - protocol: TCP
+-      port: 9000
+-      targetPort: 9000
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -141,6 +132,21 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 80
++          env:
++            - name: AIRWATCH_ARTICLES_BASE_URL
++              value: "http://backend:9000"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 80
++            initialDelaySeconds: 10
++            periodSeconds: 5
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 80
++            initialDelaySeconds: 15
++            periodSeconds: 5
+           resources:
+             requests:
+               memory: "64Mi"
+@@ -152,25 +158,24 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: frontend-service
++  name: frontend
+   labels:
+     app: frontend
+ spec:
++  ports:
++    - port: 80
++      targetPort: 80
+   selector:
+     app: frontend
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 80
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: airwatch-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
+-spec:
++    nginx.ingress.kubernetes.io/rewrite-target: /
++spec:
++  ingressClassName: nginx
+   rules:
+     - host: "airwatch.rasztabiga.me"
+       http:
+@@ -179,27 +184,24 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: frontend-service
++                name: frontend
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/mongodb-secret.yaml
+-
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: mongodb-secret
+-  labels:
+-    app: mongodb
+-type: Opaque
+-data:
+-  MONGO_INITDB_ROOT_USERNAME: YWlyd2F0Y2h1c2Vy
+-  MONGO_INITDB_ROOT_PASSWORD: c3VwZXJzZWN1cmVwYXNzd29yZDEyMw==
++stringData:
++  MONGO_USERNAME: mongo-user
++  MONGO_PASSWORD: mysecretpassword
++  MONGO_DATABASE: AirwatchID-Articles
++  # MONGODB_URI will be constructed in the backend deployment using these values
+ @@FILE:K8s::k8s/mongodb-service.yaml
+-
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: mongodb-service
++  name: mongodb
+   labels:
+     app: mongodb
+ spec:
+@@ -217,7 +219,7 @@
+   labels:
+     app: mongodb
+ spec:
+-  serviceName: "mongodb-service"
++  serviceName: "mongodb"
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -229,24 +231,25 @@
+     spec:
+       containers:
+         - name: mongodb
+-          image: mongo:4.4
+-          imagePullPolicy: IfNotPresent
++          image: mongodb/mongodb-community-server:6.0-debian11
+           ports:
+             - containerPort: 27017
+-              name: mongodb
+           env:
+             - name: MONGO_INITDB_ROOT_USERNAME
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: MONGO_INITDB_ROOT_USERNAME
++                  key: MONGO_USERNAME
+             - name: MONGO_INITDB_ROOT_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: MONGO_INITDB_ROOT_PASSWORD
++                  key: MONGO_PASSWORD
+             - name: MONGO_INITDB_DATABASE
+-              value: AirwatchID-Articles
++              valueFrom:
++                secretKeyRef:
++                  name: mongodb-secret
++                  key: MONGO_DATABASE
+           volumeMounts:
+             - name: mongodb-persistent-storage
+               mountPath: /data/db
+@@ -257,9 +260,6 @@
+             limits:
+               memory: "512Mi"
+               cpu: "500m"
+-      securityContext:
+-        runAsUser: 0
+-        runAsGroup: 0
+   volumeClaimTemplates:
+     - metadata:
+         name: mongodb-persistent-storage
+@@ -268,4 +268,4 @@
+         storageClassName: "microk8s-hostpath"
+         resources:
+           requests:
+-            storage: 1Gi
++            storage: 5Gi

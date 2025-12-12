@@ -1,0 +1,229 @@
+{
+  "repo_url": "https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git",
+  "repo_name": "realtime-chatting-webapp",
+  "evaluation_id": "e87334e1-2ba9-4e32-9ff6-8a33580737d1",
+  "status": "completed",
+  "start_time": "2025-12-12T20:27:10.027768",
+  "end_time": "2025-12-12T20:29:48.731982",
+  "total_evaluation_time": 158.704214,
+  "generation_result": {
+    "repo_url": "https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git",
+    "repo_name": "realtime-chatting-webapp",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile-backend",
+        "image_tag": "realtime-chatting-webapp-backend",
+        "build_context": "."
+      },
+      {
+        "dockerfile_path": "client/Dockerfile-frontend",
+        "image_tag": "realtime-chatting-webapp-frontend",
+        "build_context": "client"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/mongodb-secret.yaml",
+      "k8s/mongodb-statefulset.yaml",
+      "k8s/mongodb-service.yaml",
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 41.4971239566803,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:27:59.536656",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-64732043-18c1-43d0-87a6-d8bd82ad68af",
+    "run_id": "64732043-18c1-43d0-87a6-d8bd82ad68af"
+  },
+  "execution_metrics": {
+    "total_time": 41.4971239566803,
+    "tool_calls_count": 20,
+    "tool_calls_breakdown": {
+      "write_file": 12,
+      "base64_encode": 3,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 102765,
+    "input_tokens": 95722,
+    "output_tokens": 7043,
+    "error_count": 0,
+    "run_id": "64732043-18c1-43d0-87a6-d8bd82ad68af",
+    "docker_build_metrics": [
+      {
+        "image_tag": "realtime-chatting-webapp-backend",
+        "build_time": 12.867660522460938,
+        "image_size_mb": 56.38,
+        "layers_count": 8
+      },
+      {
+        "image_tag": "realtime-chatting-webapp-frontend",
+        "build_time": 41.17333984375,
+        "image_size_mb": 22.39,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 88.0,
+    "overall_score": 70.2,
+    "validation_issues": [
+      {
+        "file_path": "k8s/mongodb-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mongodb\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/mongodb-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mongodb\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "http://run-64732043.realtime-chatting-webapp.rasztabiga.me/check",
+        "line_number": null,
+        "severity": "error",
+        "message": "Endpoint http://run-64732043.realtime-chatting-webapp.rasztabiga.me/check not accessible after 5 attempts: Endpoint returned non-2xx status: 404",
+        "rule_id": "ENDPOINT_HEALTH_CHECK_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 6,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 70.2,
+      "total_errors": 1,
+      "total_warnings": 6,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 88.0,
+        "total_errors": 0,
+        "total_warnings": 6,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 40.0,
+            "errors": 0,
+            "warnings": 6,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:27:10.027863: Starting configuration generation",
+    "2025-12-12T20:27:59.536765: Generated 2 Dockerfiles and 8 K8s manifests",
+    "2025-12-12T20:27:59.536770: Starting quality assessment",
+    "2025-12-12T20:29:48.731888: Built 2 Docker images (total: 78.8 MB, avg time: 27.0s)",
+    "2025-12-12T20:29:48.731917: Dockerfile validation: 1 errors, 6 warnings",
+    "2025-12-12T20:29:48.731928: K8s validation: 0 errors, 6 warnings",
+    "2025-12-12T20:29:48.731958: Deployed to namespace: realtime-chatting-webapp-64732043-18c1-43d0-87a6-d8bd82ad68af",
+    "2025-12-12T20:29:48.731962: Testing endpoint: /check",
+    "2025-12-12T20:29:48.731967: Runtime validation: 1 errors, 0 warnings",
+    "2025-12-12T20:29:48.731970: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-64732043-18c1-43d0-87a6-d8bd82ad68af",
+    "run_id": "64732043-18c1-43d0-87a6-d8bd82ad68af"
+  }
+}

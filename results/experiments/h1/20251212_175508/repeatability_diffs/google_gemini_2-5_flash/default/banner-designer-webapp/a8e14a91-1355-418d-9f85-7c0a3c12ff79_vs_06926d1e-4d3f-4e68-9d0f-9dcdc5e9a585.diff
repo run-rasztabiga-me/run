@@ -1,0 +1,117 @@
+--- a8e14a91-1355-418d-9f85-7c0a3c12ff79
++++ 06926d1e-4d3f-4e68-9d0f-9dcdc5e9a585
+@@ -1,26 +1,29 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+ # Stage 1: Build the React application
+-FROM node:20-alpine as builder
++FROM node:20-alpine AS builder
+ 
+ WORKDIR /app
+ 
+ COPY package*.json ./
++
+ RUN npm install
+ 
+ COPY . .
++
+ RUN npm run build
+ 
+ # Stage 2: Serve the application with Nginx
+-FROM nginx:stable-alpine
++FROM nginx:alpine
++
++# Copy custom Nginx configuration if needed, otherwise use default
++# If no custom config is provided, Nginx will serve from /usr/share/nginx/html by default
+ 
+ COPY --from=builder /app/dist /usr/share/nginx/html
+ 
+ EXPOSE 80
+ 
+ CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/deployment.yaml
+-
++@@FILE:K8s::k8s/banner-designer-webapp-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -38,40 +41,50 @@
+         app: banner-designer-webapp
+     spec:
+       containers:
+-      - name: banner-designer-webapp
+-        image: banner-designer-webapp
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 80
+-        resources:
+-          requests:
+-            memory: "64Mi"
+-            cpu: "50m"
+-          limits:
+-            memory: "128Mi"
+-            cpu: "100m"
+-@@FILE:K8s::k8s/ingress.yaml
+-
++        - name: banner-designer-webapp
++          image: banner-designer-webapp
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 80
++          resources:
++            requests:
++              memory: "64Mi"
++              cpu: "100m"
++            limits:
++              memory: "128Mi"
++              cpu: "200m"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 80
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 80
++            initialDelaySeconds: 5
++            periodSeconds: 5
++@@FILE:K8s::k8s/banner-designer-webapp-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: banner-designer-webapp-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++  name: banner-designer-webapp
++  labels:
++    app: banner-designer-webapp
+ spec:
+   rules:
+-  - host: banner-designer-webapp.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: banner-designer-webapp
+-            port:
+-              number: 80
+-@@FILE:K8s::k8s/service.yaml
+-
++    - host: "banner-designer-webapp.rasztabiga.me"
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: banner-designer-webapp
++                port:
++                  number: 80
++@@FILE:K8s::k8s/banner-designer-webapp-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:

@@ -1,0 +1,451 @@
+--- dbc0124c-df36-435d-bb3f-aab088a421aa
++++ c3011666-b62e-4ed2-bdf0-4a44a468ffb5
+@@ -1,5 +1,4 @@
+ @@FILE:Dockerfile::Backend/Dockerfile
+-# Backend Dockerfile for Node.js/Express application
+ FROM node:18-alpine
+ 
+ WORKDIR /app
+@@ -10,20 +9,26 @@
+ # Install dependencies
+ RUN npm ci --only=production
+ 
+-# Copy application source code
++# Copy source code
+ COPY . .
+ 
+-# Expose the application port
++# Create a non-root user
++RUN addgroup -g 1001 -S nodejs && \
++    adduser -S nodejs -u 1001
++
++# Change ownership to non-root user
++RUN chown -R nodejs:nodejs /app
++
++# Switch to non-root user
++USER nodejs
++
++# Expose port
+ EXPOSE 5000
+-
+-# Set environment variable for production
+-ENV NODE_ENV=production
+ 
+ # Start the application
+ CMD ["node", "index.js"]
+ @@FILE:Dockerfile::Frontend/Dockerfile
+-# Frontend Dockerfile for React application
+-# Build stage with environment variable support
++# Build stage
+ FROM node:18-alpine AS build
+ 
+ WORKDIR /app
+@@ -32,40 +37,24 @@
+ COPY package*.json ./
+ 
+ # Install dependencies
+-RUN npm ci
+-
+-# Copy application source code
++RUN npm ci --only=production
++
++# Copy source code
+ COPY . .
+ 
+-# Set the backend URL for the React build
+-# Default to empty string for same-origin requests
+-ARG REACT_APP_BACKEND_URL=""
+-ENV REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+-
+-# Build the application
++# Build the React app
+ RUN npm run build
+ 
+-# Production stage with nginx
++# Production stage
+ FROM nginx:alpine
+ 
++# Copy built assets from build stage
++COPY --from=build /app/build /usr/share/nginx/html
++
+ # Copy nginx configuration
+-COPY --from=build /app/build /usr/share/nginx/html
+-
+-# Create nginx configuration for SPA
+-RUN echo 'server { \
+-    listen 80; \
+-    server_name localhost; \
+-    root /usr/share/nginx/html; \
+-    index index.html; \
+-    location / { \
+-        try_files $uri $uri/ /index.html; \
+-    } \
+-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ { \
+-        expires 1y; \
+-        add_header Cache-Control "public, immutable"; \
+-    } \
+-}' > /etc/nginx/conf.d/default.conf
+-
++COPY nginx.conf /etc/nginx/conf.d/default.conf
++
++# Expose port 80
+ EXPOSE 80
+ 
+ CMD ["nginx", "-g", "daemon off;"]
+@@ -74,32 +63,25 @@
+ kind: ConfigMap
+ metadata:
+   name: backend-config
+-  labels:
+-    app: scheme-seva
+-    component: backend
+ data:
+-  node-env: "production"
+-  port: "5000"
+-  mongodb-url: "mongodb://root:rootpassword@mongodb:27017/scheme-seva?authSource=admin"
++  NODE_ENV: "production"
++  ACCESS_TOKEN_EXPIRY: "15m"
++  REFRESH_TOKEN_EXPIRY: "7d"
++  PORT: "5000"
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: backend
+-  labels:
+-    app: scheme-seva
+-    component: backend
++  name: backend-deployment
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: scheme-seva
+-      component: backend
++      app: backend
+   template:
+     metadata:
+       labels:
+-        app: scheme-seva
+-        component: backend
++        app: backend
+     spec:
+       containers:
+       - name: backend
+@@ -108,43 +90,43 @@
+         ports:
+         - containerPort: 5000
+         env:
++        - name: MONGODB_URL
++          value: "mongodb://admin:admin123@mongodb-service:27017/scheme-seva?authSource=admin"
+         - name: NODE_ENV
+           valueFrom:
+             configMapKeyRef:
+               name: backend-config
+-              key: node-env
++              key: NODE_ENV
+         - name: PORT
+           valueFrom:
+             configMapKeyRef:
+               name: backend-config
+-              key: port
+-        - name: MONGODB_URL
+-          valueFrom:
+-            configMapKeyRef:
+-              name: backend-config
+-              key: mongodb-url
++              key: PORT
+         - name: ACCESS_TOKEN_SECRET
+           valueFrom:
+             secretKeyRef:
+               name: backend-secret
+-              key: access-token-secret
+-        - name: ACCESS_TOKEN_EXPIRY
++              key: ACCESS_TOKEN_SECRET
++        - name: REFRESH_TOKEN_SECRET
+           valueFrom:
+             secretKeyRef:
+               name: backend-secret
+-              key: access-token-expiry
+-        - name: REFRESH_TOKEN_SECRET
++              key: REFRESH_TOKEN_SECRET
++        - name: ACCESS_TOKEN_EXPIRY
++          valueFrom:
++            configMapKeyRef:
++              name: backend-config
++              key: ACCESS_TOKEN_EXPIRY
++        - name: REFRESH_TOKEN_EXPIRY
++          valueFrom:
++            configMapKeyRef:
++              name: backend-config
++              key: REFRESH_TOKEN_EXPIRY
++        - name: GEMINI_API_KEY
+           valueFrom:
+             secretKeyRef:
+               name: backend-secret
+-              key: refresh-token-secret
+-        - name: REFRESH_TOKEN_EXPIRY
+-          valueFrom:
+-            secretKeyRef:
+-              name: backend-secret
+-              key: refresh-token-expiry
+-        - name: GEMINI_API_KEY
+-          value: ""  # Optional - can be set via secret if needed
++              key: GEMINI_API_KEY
+         resources:
+           requests:
+             memory: "256Mi"
+@@ -171,50 +153,45 @@
+ kind: Secret
+ metadata:
+   name: backend-secret
+-  labels:
+-    app: scheme-seva
+-    component: backend
+ type: Opaque
+ data:
+-  access-token-secret: YWNjZXNzLXRva2VuLXNlY3JldC1rZXk=  # access-token-secret-key
+-  refresh-token-secret: cmVmcmVzaC10b2tlbi1zZWNyZXQta2V5  # refresh-token-secret-key
+-  access-token-expiry: IDFk  # 1d
+-  refresh-token-expiry: IDdk  # 7d
++  ACCESS_TOKEN_SECRET: eW91ci1hY2Nlc3MtdG9rZW4tc2VjcmV0LWhlcmU=
++  REFRESH_TOKEN_SECRET: eW91ci1yZWZyZXNoLXRva2VuLXNlY3JldC1oZXJl
++  GEMINI_API_KEY: eW91ci1nZW1pbmktYXBpLWtleS1oZXJl
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: backend
+-  labels:
+-    app: scheme-seva
+-    component: backend
+-spec:
+-  selector:
+-    app: scheme-seva
+-    component: backend
++  name: backend-service
++spec:
++  selector:
++    app: backend
+   ports:
+-  - port: 5000
+-    targetPort: 5000
+-    protocol: TCP
++    - port: 5000
++      targetPort: 5000
++      protocol: TCP
++  type: ClusterIP
++@@FILE:K8s::k8s/frontend-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: frontend-config
++data:
++  REACT_APP_BACKEND_URL: ""
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: frontend
+-  labels:
+-    app: scheme-seva
+-    component: frontend
++  name: frontend-deployment
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: scheme-seva
+-      component: frontend
++      app: frontend
+   template:
+     metadata:
+       labels:
+-        app: scheme-seva
+-        component: frontend
++        app: frontend
+     spec:
+       containers:
+       - name: frontend
+@@ -224,7 +201,10 @@
+         - containerPort: 80
+         env:
+         - name: REACT_APP_BACKEND_URL
+-          value: ""  # Empty string means same origin - will use relative URLs
++          valueFrom:
++            configMapKeyRef:
++              name: frontend-config
++              key: REACT_APP_BACKEND_URL
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -234,41 +214,36 @@
+             cpu: "250m"
+         readinessProbe:
+           httpGet:
+-            path: /
++            path: /health
+             port: 80
+           initialDelaySeconds: 5
+           periodSeconds: 10
+-          timeoutSeconds: 5
++          timeoutSeconds: 3
+         livenessProbe:
+           httpGet:
+-            path: /
++            path: /health
+             port: 80
+-          initialDelaySeconds: 15
++          initialDelaySeconds: 30
+           periodSeconds: 15
+           timeoutSeconds: 5
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: frontend
+-  labels:
+-    app: scheme-seva
+-    component: frontend
+-spec:
+-  selector:
+-    app: scheme-seva
+-    component: frontend
++  name: frontend-service
++spec:
++  selector:
++    app: frontend
+   ports:
+-  - port: 80
+-    targetPort: 80
+-    protocol: TCP
++    - port: 80
++      targetPort: 80
++      protocol: TCP
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: scheme-seva-ingress
+-  labels:
+-    app: scheme-seva
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+@@ -281,14 +256,14 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: frontend
++            name: frontend-service
+             port:
+               number: 80
+       - path: /api
+         pathType: Prefix
+         backend:
+           service:
+-            name: backend
++            name: backend-service
+             port:
+               number: 5000
+ @@FILE:K8s::k8s/mongodb-pvc.yaml
+@@ -296,9 +271,6 @@
+ kind: PersistentVolumeClaim
+ metadata:
+   name: mongodb-pvc
+-  labels:
+-    app: scheme-seva
+-    component: mongodb
+ spec:
+   accessModes:
+     - ReadWriteOnce
+@@ -311,51 +283,37 @@
+ kind: Secret
+ metadata:
+   name: mongodb-secret
+-  labels:
+-    app: scheme-seva
+-    component: mongodb
+ type: Opaque
+ data:
+-  mongodb-root-password: cm9vdHBhc3N3b3Jk  # rootpassword
+-  mongodb-username: cm9vdA==  # root
+-  mongodb-password: cm9vdHBhc3N3b3Jk  # rootpassword
+-  mongodb-database: c2NoZW1lLXNldmE=  # scheme-seva
++  mongodb-root-password: YWRtaW4xMjM=  # admin123 in base64
++  mongodb-password: YWRtaW4xMjM=       # admin123 in base64
+ @@FILE:K8s::k8s/mongodb-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: mongodb
+-  labels:
+-    app: scheme-seva
+-    component: mongodb
+-spec:
+-  selector:
+-    app: scheme-seva
+-    component: mongodb
++  name: mongodb-service
++spec:
++  selector:
++    app: mongodb
+   ports:
+-  - port: 27017
+-    targetPort: 27017
++    - port: 27017
++      targetPort: 27017
+   clusterIP: None
+ @@FILE:K8s::k8s/mongodb-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: mongodb
+-  labels:
+-    app: scheme-seva
+-    component: mongodb
+-spec:
+-  serviceName: mongodb
++spec:
++  serviceName: mongodb-service
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: scheme-seva
+-      component: mongodb
++      app: mongodb
+   template:
+     metadata:
+       labels:
+-        app: scheme-seva
+-        component: mongodb
++        app: mongodb
+     spec:
+       containers:
+       - name: mongodb
+@@ -364,20 +322,14 @@
+         - containerPort: 27017
+         env:
+         - name: MONGO_INITDB_ROOT_USERNAME
++          value: admin
++        - name: MONGO_INITDB_ROOT_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: mongodb-secret
+-              key: mongodb-username
+-        - name: MONGO_INITDB_ROOT_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: mongodb-secret
+-              key: mongodb-password
++              key: mongodb-root-password
+         - name: MONGO_INITDB_DATABASE
+-          valueFrom:
+-            secretKeyRef:
+-              name: mongodb-secret
+-              key: mongodb-database
++          value: scheme-seva
+         volumeMounts:
+         - name: mongodb-data
+           mountPath: /data/db

@@ -1,0 +1,136 @@
+--- fba1f4d3-bfd0-470b-99be-690d241edfd5
++++ 9d04b478-1244-4e34-8bdf-6c87205bb8a5
+@@ -1,90 +1,79 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use nginx to serve static files
+-FROM nginx:stable-alpine
++FROM nginx:1.25-alpine
+ 
+-# Remove default static files
+-RUN rm -rf /usr/share/nginx/html/*
++# Copy static website files into nginx html folder
++COPY . /usr/share/nginx/html
+ 
+-# Copy application files
+-COPY index.html /usr/share/nginx/html/index.html
+-COPY style.css /usr/share/nginx/html/style.css
+-COPY script.js /usr/share/nginx/html/script.js
+-COPY readme.md /usr/share/nginx/html/readme.md
+-
+-# Expose port
+ EXPOSE 80
+ 
+-# Start nginx
+ CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: attendance-frontend
+-  labels:
+-    app: attendance
++  name: attendence-calculator
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: attendance
++      app: attendence-calculator
+   template:
+     metadata:
+       labels:
+-        app: attendance
++        app: attendence-calculator
+     spec:
+       containers:
+-      - name: attendance
+-        image: attendance-frontend:latest
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 80
+-        resources:
+-          requests:
+-            cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "250m"
+-            memory: "256Mi"
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 15
+-          periodSeconds: 20
++        - name: web
++          image: attendence-calculator:latest
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 80
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "64Mi"
++            limits:
++              cpu: "250m"
++              memory: "128Mi"
++          livenessProbe:
++            httpGet:
++              path: /index.html
++              port: 80
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /index.html
++              port: 80
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: attendance-ingress
++  name: attendence-calculator-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-  - host: attendence-calculator.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: attendance-service
+-            port:
+-              number: 80
++    - host: attendence-calculator.rasztabiga.me
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: attendence-calculator
++                port:
++                  number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: attendance-service
++  name: attendence-calculator
+ spec:
+   selector:
+-    app: attendance
++    app: attendence-calculator
+   ports:
+     - protocol: TCP
+       port: 80

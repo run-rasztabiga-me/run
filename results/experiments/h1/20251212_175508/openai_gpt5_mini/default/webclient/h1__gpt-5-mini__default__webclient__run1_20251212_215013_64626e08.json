@@ -1,0 +1,216 @@
+{
+  "repo_url": "https://github.com/AdaptChat/webclient.git",
+  "repo_name": "webclient",
+  "evaluation_id": "64626e08-75a6-4aee-a1da-a2e8927eb583",
+  "status": "completed",
+  "start_time": "2025-12-12T21:38:32.019508",
+  "end_time": "2025-12-12T21:50:13.145374",
+  "total_evaluation_time": 701.125866,
+  "generation_result": {
+    "repo_url": "https://github.com/AdaptChat/webclient.git",
+    "repo_name": "webclient",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "adaptchat-webclient",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/webclient-deployment.yaml",
+      "k8s/webclient-service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/manifest-list.txt",
+      "k8s/README.txt",
+      "nginx.conf",
+      "Dockerfile"
+    ],
+    "generation_time": 312.2782859802246,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:43:53.765106",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-5471b6e7-62a3-47b3-aabf-edd448d8b83b",
+    "run_id": "5471b6e7-62a3-47b3-aabf-edd448d8b83b"
+  },
+  "execution_metrics": {
+    "total_time": 312.2782859802246,
+    "tool_calls_count": 41,
+    "tool_calls_breakdown": {
+      "think": 1,
+      "ls": 2,
+      "find_files": 4,
+      "write_file": 14,
+      "search_files": 11,
+      "get_file_content": 5,
+      "patch_file": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 2291863,
+    "input_tokens": 2277152,
+    "output_tokens": 14711,
+    "error_count": 0,
+    "run_id": "5471b6e7-62a3-47b3-aabf-edd448d8b83b",
+    "docker_build_metrics": [
+      {
+        "image_tag": "adaptchat-webclient",
+        "build_time": 135.68455481529236,
+        "image_size_mb": 25.08,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 92.0,
+    "overall_score": 71.80000000000001,
+    "validation_issues": [
+      {
+        "file_path": "k8s/webclient-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webclient\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/webclient-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webclient\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webclient\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webclient\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "adaptchat-webclient",
+        "line_number": null,
+        "severity": "error",
+        "message": "Deployment adaptchat-webclient not ready within 120s: error: timed out waiting for the condition on deployments/adaptchat-webclient",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      },
+      {
+        "file_path": "adaptchat-webclient",
+        "line_number": null,
+        "severity": "error",
+        "message": "Deployment adaptchat-webclient not ready within 120s: error: timed out waiting for the condition on deployments/adaptchat-webclient",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      }
+    ],
+    "error_count": 2,
+    "warning_count": 4,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 71.8,
+      "total_errors": 2,
+      "total_warnings": 4,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 92.0,
+        "total_errors": 0,
+        "total_warnings": 4,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 60.0,
+            "errors": 0,
+            "warnings": 4,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 2,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:38:32.019962: Starting configuration generation",
+    "2025-12-12T21:43:53.765215: Generated 1 Dockerfiles and 9 K8s manifests",
+    "2025-12-12T21:43:53.765218: Starting quality assessment",
+    "2025-12-12T21:50:13.145245: Built 1 Docker images (total: 25.1 MB, avg time: 135.7s)",
+    "2025-12-12T21:50:13.145305: Dockerfile validation: 2 errors, 4 warnings",
+    "2025-12-12T21:50:13.145319: K8s validation: 0 errors, 4 warnings",
+    "2025-12-12T21:50:13.145347: Deployed to namespace: webclient-5471b6e7-62a3-47b3-aabf-edd448d8b83b",
+    "2025-12-12T21:50:13.145355: Testing endpoint: /",
+    "2025-12-12T21:50:13.145360: Runtime validation: 2 errors, 0 warnings",
+    "2025-12-12T21:50:13.145366: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-5471b6e7-62a3-47b3-aabf-edd448d8b83b",
+    "run_id": "5471b6e7-62a3-47b3-aabf-edd448d8b83b"
+  }
+}

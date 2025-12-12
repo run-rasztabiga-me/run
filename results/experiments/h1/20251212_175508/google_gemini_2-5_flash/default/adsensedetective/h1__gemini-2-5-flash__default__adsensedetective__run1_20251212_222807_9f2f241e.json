@@ -1,0 +1,135 @@
+{
+  "repo_url": "https://github.com/isixe/AdSenseDetective.git",
+  "repo_name": "adsensedetective",
+  "evaluation_id": "9f2f241e-f6ca-4ff3-95c3-035ff9947904",
+  "status": "completed",
+  "start_time": "2025-12-12T22:27:41.204440",
+  "end_time": "2025-12-12T22:28:07.626543",
+  "total_evaluation_time": 26.422103,
+  "generation_result": {
+    "repo_url": "https://github.com/isixe/AdSenseDetective.git",
+    "repo_name": "adsensedetective",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "adsensedetective",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/adsensedetective-deployment.yaml",
+      "k8s/adsensedetective-service.yaml",
+      "k8s/adsensedetective-ingress.yaml"
+    ],
+    "generation_time": 16.063276052474976,
+    "error_message": null,
+    "timestamp": "2025-12-12T22:28:04.797509",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/adsensedetective-6fa8c2f5-68ef-4960-a391-f909d089b967",
+    "run_id": "6fa8c2f5-68ef-4960-a391-f909d089b967"
+  },
+  "execution_metrics": {
+    "total_time": 16.063276052474976,
+    "tool_calls_count": 7,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "get_file_content": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 31062,
+    "input_tokens": 28926,
+    "output_tokens": 2136,
+    "error_count": 0,
+    "run_id": "6fa8c2f5-68ef-4960-a391-f909d089b967",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/legacy-key-value-format/ \"ENV key=value\" should be used instead of legacy \"ENV key value\" format /Users/rasztabigab/Studia/run/tmp/adsensedetective-6fa8c2f5-68ef-4960-a391-f909d089b967/Dockerfile:10 8 |     FROM node:20-alpine AS runner",
+        "rule_id": "LegacyKeyValueFormat"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 438B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.2s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#4 resolve docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2 0.0s done\n#4 DONE 0.0s\n\n#5 [builder 2/6] WORKDIR /app\n#5 CACHED\n\n#6 [internal] load build context\n#6 transferring context: 1.18MB 0.0s done\n#6 DONE 0.0s\n\n#7 [builder 3/6] COPY package.json pnpm-lock.yaml* ./\n#7 DONE 0.0s\n\n#8 [builder 4/6] RUN pnpm install --frozen-lockfile\n#8 0.101 /bin/sh: pnpm: not found\n#8 ERROR: process \"/bin/sh -c pnpm install --frozen-lockfile\" did not complete successfully: exit code: 127\n------\n > [builder 4/6] RUN pnpm install --frozen-lockfile:\n\n------\n\n \u001b[33m1 warning found (use docker --debug to expand):\n\u001b[0m - LegacyKeyValueFormat: \"ENV key=value\" should be used instead of legacy \"ENV key value\" format (line 10)\nDockerfile:4\n--------------------\n   2 |     WORKDIR /app\n   3 |     COPY package.json pnpm-lock.yaml* ./\n   4 | >>> RUN pnpm install --frozen-lockfile\n   5 |     COPY . .\n   6 |     RUN pnpm run build\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pnpm install --frozen-lockfile\" did not complete successfully: exit code: 127\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/nzpm4pvrj73wbq0n8dc1a986e",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T22:27:41.204491: Starting configuration generation",
+    "2025-12-12T22:28:04.797616: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T22:28:04.797626: Starting quality assessment",
+    "2025-12-12T22:28:07.626509: Dockerfile validation: 1 errors, 1 warnings",
+    "2025-12-12T22:28:07.626529: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T22:28:07.626534: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T22:28:07.626540: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/adsensedetective-6fa8c2f5-68ef-4960-a391-f909d089b967",
+    "run_id": "6fa8c2f5-68ef-4960-a391-f909d089b967"
+  }
+}

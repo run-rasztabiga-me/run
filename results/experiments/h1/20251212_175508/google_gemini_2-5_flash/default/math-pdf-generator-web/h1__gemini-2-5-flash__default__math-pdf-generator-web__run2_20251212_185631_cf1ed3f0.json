@@ -1,0 +1,176 @@
+{
+  "repo_url": "https://github.com/sankeer28/Math-PDF-Generator-Web.git",
+  "repo_name": "math-pdf-generator-web",
+  "evaluation_id": "cf1ed3f0-569c-4674-bd83-40e25d705d18",
+  "status": "completed",
+  "start_time": "2025-12-12T18:55:53.903508",
+  "end_time": "2025-12-12T18:56:31.368870",
+  "total_evaluation_time": 37.465362,
+  "generation_result": {
+    "repo_url": "https://github.com/sankeer28/Math-PDF-Generator-Web.git",
+    "repo_name": "math-pdf-generator-web",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "math-pdf-generator-web",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/math-pdf-generator-web-deployment.yaml",
+      "k8s/math-pdf-generator-web-service.yaml",
+      "k8s/math-pdf-generator-web-ingress.yaml"
+    ],
+    "generation_time": 16.916974306106567,
+    "error_message": null,
+    "timestamp": "2025-12-12T18:56:18.362921",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/math-pdf-generator-web-606fae26-9fa9-4d3d-ac1f-c33730e42c1c",
+    "run_id": "606fae26-9fa9-4d3d-ac1f-c33730e42c1c"
+  },
+  "execution_metrics": {
+    "total_time": 16.916974306106567,
+    "tool_calls_count": 6,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 21266,
+    "input_tokens": 19790,
+    "output_tokens": 1476,
+    "error_count": 0,
+    "run_id": "606fae26-9fa9-4d3d-ac1f-c33730e42c1c",
+    "docker_build_metrics": [
+      {
+        "image_tag": "math-pdf-generator-web",
+        "build_time": 2.8539462089538574,
+        "image_size_mb": 21.96,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/math-pdf-generator-web-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"math-pdf-generator-web\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/math-pdf-generator-web-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"math-pdf-generator-web\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T18:55:53.903544: Starting configuration generation",
+    "2025-12-12T18:56:18.363136: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T18:56:18.363143: Starting quality assessment",
+    "2025-12-12T18:56:31.368805: Built 1 Docker images (total: 22.0 MB, avg time: 2.9s)",
+    "2025-12-12T18:56:31.368826: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T18:56:31.368835: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T18:56:31.368845: Deployed to namespace: math-pdf-generator-web-606fae26-9fa9-4d3d-ac1f-c33730e42c1c",
+    "2025-12-12T18:56:31.368848: Testing endpoint: /",
+    "2025-12-12T18:56:31.368852: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T18:56:31.368854: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/math-pdf-generator-web-606fae26-9fa9-4d3d-ac1f-c33730e42c1c",
+    "run_id": "606fae26-9fa9-4d3d-ac1f-c33730e42c1c"
+  }
+}

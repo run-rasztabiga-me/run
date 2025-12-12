@@ -1,0 +1,181 @@
+{
+  "repo_url": "https://github.com/isixe/MetaThief",
+  "repo_name": "metathief",
+  "evaluation_id": "9c84502d-c42f-4b88-a0b9-6b1f64fb5179",
+  "status": "completed",
+  "start_time": "2025-12-12T20:55:40.590097",
+  "end_time": "2025-12-12T20:59:21.437783",
+  "total_evaluation_time": 220.847686,
+  "generation_result": {
+    "repo_url": "https://github.com/isixe/MetaThief",
+    "repo_name": "metathief",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "metathief",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 99.65060997009277,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:57:28.382347",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/metathief-84970dd8-17b7-4208-b49c-0bc4a013d783",
+    "run_id": "84970dd8-17b7-4208-b49c-0bc4a013d783"
+  },
+  "execution_metrics": {
+    "total_time": 99.65060997009277,
+    "tool_calls_count": 25,
+    "tool_calls_breakdown": {
+      "get_file_content": 7,
+      "search_files": 6,
+      "find_files": 3,
+      "ls": 1,
+      "write_file": 5,
+      "patch_file": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 281300,
+    "input_tokens": 276827,
+    "output_tokens": 4473,
+    "error_count": 0,
+    "run_id": "84970dd8-17b7-4208-b49c-0bc4a013d783",
+    "docker_build_metrics": [
+      {
+        "image_tag": "metathief",
+        "build_time": 80.36803412437439,
+        "image_size_mb": 300.66,
+        "layers_count": 8
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"metathief\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"metathief\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:55:40.590896: Starting configuration generation",
+    "2025-12-12T20:57:28.382455: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T20:57:28.382458: Starting quality assessment",
+    "2025-12-12T20:59:21.437655: Built 1 Docker images (total: 300.7 MB, avg time: 80.4s)",
+    "2025-12-12T20:59:21.437698: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T20:59:21.437710: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T20:59:21.437732: Deployed to namespace: metathief-84970dd8-17b7-4208-b49c-0bc4a013d783",
+    "2025-12-12T20:59:21.437739: Testing endpoint: /api/meta?url=https://example.com",
+    "2025-12-12T20:59:21.437746: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T20:59:21.437754: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/metathief-84970dd8-17b7-4208-b49c-0bc4a013d783",
+    "run_id": "84970dd8-17b7-4208-b49c-0bc4a013d783"
+  }
+}

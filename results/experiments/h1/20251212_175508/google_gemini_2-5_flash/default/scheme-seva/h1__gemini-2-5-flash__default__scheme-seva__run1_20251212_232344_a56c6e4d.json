@@ -1,0 +1,238 @@
+{
+  "repo_url": "https://github.com/9582anupam/scheme-seva.git",
+  "repo_name": "scheme-seva",
+  "evaluation_id": "a56c6e4d-3814-4265-a48a-76274f2d7035",
+  "status": "completed",
+  "start_time": "2025-12-12T23:19:42.147783",
+  "end_time": "2025-12-12T23:23:44.996083",
+  "total_evaluation_time": 242.8483,
+  "generation_result": {
+    "repo_url": "https://github.com/9582anupam/scheme-seva.git",
+    "repo_name": "scheme-seva",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Backend/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "Backend"
+      },
+      {
+        "dockerfile_path": "Frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "Frontend"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/mongodb-secret.yaml",
+      "k8s/mongodb-statefulset.yaml",
+      "k8s/mongodb-service.yaml",
+      "k8s/backend-secret.yaml",
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 42.25309991836548,
+    "error_message": null,
+    "timestamp": "2025-12-12T23:20:32.027984",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/scheme-seva-e298fc86-5aef-4347-9862-f86d0e1cd807",
+    "run_id": "e298fc86-5aef-4347-9862-f86d0e1cd807"
+  },
+  "execution_metrics": {
+    "total_time": 42.25309991836548,
+    "tool_calls_count": 27,
+    "tool_calls_breakdown": {
+      "write_file": 11,
+      "base64_encode": 7,
+      "get_file_content": 6,
+      "search_files": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 60828,
+    "input_tokens": 52422,
+    "output_tokens": 8406,
+    "error_count": 0,
+    "run_id": "e298fc86-5aef-4347-9862-f86d0e1cd807",
+    "docker_build_metrics": [
+      {
+        "image_tag": "backend",
+        "build_time": 5.916949033737183,
+        "image_size_mb": 59.91,
+        "layers_count": 8
+      },
+      {
+        "image_tag": "frontend",
+        "build_time": 61.207762002944946,
+        "image_size_mb": 21.92,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 96.0,
+    "k8s_manifests_score": 88.0,
+    "overall_score": 68.8,
+    "validation_issues": [
+      {
+        "file_path": "Frontend/Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/scheme-seva-e298fc86-5aef-4347-9862-f86d0e1cd807/Frontend/Dockerfile:2 1 |     # Stage 1: Build the React application",
+        "rule_id": "FromAsCasing"
+      },
+      {
+        "file_path": "k8s/mongodb-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mongodb\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/mongodb-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mongodb\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "mongodb",
+        "line_number": null,
+        "severity": "error",
+        "message": "StatefulSet mongodb not ready within 120s: error: timed out waiting for the condition on statefulsets/mongodb",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 7,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 68.8,
+      "total_errors": 1,
+      "total_warnings": 7,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 88.0,
+        "total_errors": 0,
+        "total_warnings": 6,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 40.0,
+            "errors": 0,
+            "warnings": 6,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T23:19:42.149311: Starting configuration generation",
+    "2025-12-12T23:20:32.028028: Generated 2 Dockerfiles and 9 K8s manifests",
+    "2025-12-12T23:20:32.028034: Starting quality assessment",
+    "2025-12-12T23:23:44.995985: Built 2 Docker images (total: 81.8 MB, avg time: 33.6s)",
+    "2025-12-12T23:23:44.996032: Dockerfile validation: 1 errors, 7 warnings",
+    "2025-12-12T23:23:44.996042: K8s validation: 0 errors, 6 warnings",
+    "2025-12-12T23:23:44.996061: Deployed to namespace: scheme-seva-e298fc86-5aef-4347-9862-f86d0e1cd807",
+    "2025-12-12T23:23:44.996064: Testing endpoint: /",
+    "2025-12-12T23:23:44.996070: Runtime validation: 1 errors, 0 warnings",
+    "2025-12-12T23:23:44.996072: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/scheme-seva-e298fc86-5aef-4347-9862-f86d0e1cd807",
+    "run_id": "e298fc86-5aef-4347-9862-f86d0e1cd807"
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "repo_url": "https://github.com/hsalvesen/vesen",
+  "repo_name": "vesen",
+  "evaluation_id": "13ee352c-58ee-4871-857a-9a86c82b33cc",
+  "status": "completed",
+  "start_time": "2025-12-12T21:27:10.248661",
+  "end_time": "2025-12-12T21:29:08.238002",
+  "total_evaluation_time": 117.989341,
+  "generation_result": {
+    "repo_url": "https://github.com/hsalvesen/vesen",
+    "repo_name": "vesen",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "vesen",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 87.57535219192505,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:28:45.953617",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/vesen-f29d5c33-467e-4a15-8548-388a3a38a406",
+    "run_id": "f29d5c33-467e-4a15-8548-388a3a38a406"
+  },
+  "execution_metrics": {
+    "total_time": 87.57535219192505,
+    "tool_calls_count": 24,
+    "tool_calls_breakdown": {
+      "think": 1,
+      "find_files": 4,
+      "search_files": 4,
+      "write_file": 5,
+      "get_file_content": 7,
+      "ls": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 191638,
+    "input_tokens": 187595,
+    "output_tokens": 4043,
+    "error_count": 0,
+    "run_id": "f29d5c33-467e-4a15-8548-388a3a38a406",
+    "docker_build_metrics": [
+      {
+        "image_tag": "vesen",
+        "build_time": 6.810323476791382,
+        "image_size_mb": 20.36,
+        "layers_count": 11
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 12,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"vesen\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"vesen\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 1,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:27:10.248725: Starting configuration generation",
+    "2025-12-12T21:28:45.955199: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T21:28:45.955204: Starting quality assessment",
+    "2025-12-12T21:29:08.237907: Built 1 Docker images (total: 20.4 MB, avg time: 6.8s)",
+    "2025-12-12T21:29:08.237935: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T21:29:08.237947: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T21:29:08.237968: Deployed to namespace: vesen-f29d5c33-467e-4a15-8548-388a3a38a406",
+    "2025-12-12T21:29:08.237974: Testing endpoint: /",
+    "2025-12-12T21:29:08.237982: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T21:29:08.237987: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/vesen-f29d5c33-467e-4a15-8548-388a3a38a406",
+    "run_id": "f29d5c33-467e-4a15-8548-388a3a38a406"
+  }
+}

@@ -1,0 +1,65 @@
+--- 6aec1b50-500f-4db2-9b45-6181bfd46095
++++ 3bbcea0d-eb79-4863-a3bb-f1c8e662eb12
+@@ -1,10 +1,9 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM tomcat:9.0-jdk11-openjdk
+-
++FROM tomcat:9-jre11-slim
+ COPY dist/hello-world.war /usr/local/tomcat/webapps/ROOT.war
+-
+ EXPOSE 8080
+-@@FILE:K8s::k8s/hello-world-deployment.yaml
++CMD ["catalina.sh", "run"]
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -29,11 +28,11 @@
+         - containerPort: 8080
+         resources:
+           requests:
++            memory: "64Mi"
+             cpu: "100m"
+-            memory: "128Mi"
+           limits:
+-            cpu: "200m"
+             memory: "256Mi"
++            cpu: "500m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -44,9 +43,9 @@
+           httpGet:
+             path: /
+             port: 8080
+-          initialDelaySeconds: 20
+-          periodSeconds: 5
+-@@FILE:K8s::k8s/hello-world-ingress.yaml
++          initialDelaySeconds: 30
++          periodSeconds: 10
++@@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -64,8 +63,8 @@
+           service:
+             name: hello-world-war
+             port:
+-              number: 8080
+-@@FILE:K8s::k8s/hello-world-service.yaml
++              number: 80
++@@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -76,7 +75,7 @@
+   selector:
+     app: hello-world-war
+   ports:
+-  - protocol: TCP
+-    port: 8080
+-    targetPort: 8080
++    - protocol: TCP
++      port: 80
++      targetPort: 8080
+   type: ClusterIP

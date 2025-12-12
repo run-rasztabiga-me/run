@@ -1,0 +1,27 @@
+--- 5e9b4bed-ca48-4c96-98f8-51e3efa02d4e
++++ 03d23588-a36d-4b76-8927-60914311805b
+@@ -43,20 +43,16 @@
+             cpu: "200m"
+         livenessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8080
+-          initialDelaySeconds: 30
++          initialDelaySeconds: 5
+           periodSeconds: 10
+-          timeoutSeconds: 5
+-          failureThreshold: 3
+         readinessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8080
+           initialDelaySeconds: 5
+-          periodSeconds: 5
+-          timeoutSeconds: 3
+-          failureThreshold: 1
++          periodSeconds: 10
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

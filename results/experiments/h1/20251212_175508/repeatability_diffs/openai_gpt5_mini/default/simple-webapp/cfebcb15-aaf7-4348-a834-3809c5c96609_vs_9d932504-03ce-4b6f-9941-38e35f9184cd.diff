@@ -1,0 +1,287 @@
+--- cfebcb15-aaf7-4348-a834-3809c5c96609
++++ 9d932504-03ce-4b6f-9941-38e35f9184cd
+@@ -1,67 +1,39 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Install system dependencies required by the app (nmap, psutil build deps, etc.)
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    gcc \
+-    libffi-dev \
+-    libssl-dev \
+-    nmap \
+-    iproute2 \
+-    procps \
++# Install system dependencies needed by the app (nmap, curl) and for building some Python packages
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends \
++       netcat \
++       nmap \
++       curl \
++       build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Create app directory
++# Set working directory
+ WORKDIR /app
+ 
+-# Copy python requirements first to leverage Docker cache
++# Copy application code
++COPY app/ /app/
++COPY config/ /app/config/
+ COPY requirements.txt /app/requirements.txt
+-# Install python dependencies and gunicorn
+-RUN pip install --no-cache-dir -r /app/requirements.txt gunicorn
+-
+-# Copy application code
+-COPY app /app
+-COPY config /app/config
+-COPY scripts /app/scripts
++COPY scripts/ /app/scripts/
++
++# Install Python dependencies
++RUN pip install --no-cache-dir -r /app/requirements.txt
+ 
+ # Ensure scripts are executable
+-RUN chmod +x /app/scripts/* || true
+-
+-# Expose port used by the app
++RUN chmod +x /app/scripts/*.sh || true
++
++# Expose application port
+ EXPOSE 80
+ 
+-# Use gunicorn to serve the Flask app for production
+-CMD ["gunicorn", "--bind", "0.0.0.0:80", "app.api:app", "--workers", "2"]
+-@@FILE:K8s::k8s/configmap-services.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: simple-webapp-services
+-data:
+-  services.json: |
+-    {
+-      "services": [
+-        {
+-          "name": "test-redis",
+-          "host": "simple-webapp-test-redis-0",
+-          "port": 6379,
+-          "type": "tcp"
+-        },
+-        {
+-          "name": "test-postgres",
+-          "host": "simple-webapp-test-postgres-0",
+-          "port": 5432,
+-          "type": "tcp"
+-        },
+-        {
+-          "name": "webapp-itself",
+-          "host": "localhost",
+-          "port": 80,
+-          "type": "http"
+-        }
+-      ]
+-    }
++# Default environment
++ENV PORT=80
++ENV FLASK_ENV=production
++
++# Run the Flask app directly (api.py binds to 0.0.0.0)
++CMD ["python3", "/app/api.py"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -83,6 +55,14 @@
+         - name: simple-webapp
+           image: simple-webapp:latest
+           imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 80
++              name: http
++          env:
++            - name: PORT
++              value: "80"
++            - name: FLASK_ENV
++              value: "production"
+           resources:
+             requests:
+               cpu: "100m"
+@@ -90,74 +70,58 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          ports:
+-            - containerPort: 80
+-          readinessProbe:
+-            httpGet:
+-              path: /ready
+-              port: 80
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
+-            timeoutSeconds: 2
+           livenessProbe:
+             httpGet:
+               path: /health
+               port: 80
+             initialDelaySeconds: 5
+             periodSeconds: 10
+-            timeoutSeconds: 2
+-          volumeMounts:
+-            - name: services-config
+-              mountPath: /app/config/services.json
+-              subPath: services.json
+-              readOnly: true
+-      volumes:
+-        - name: services-config
+-          configMap:
+-            name: simple-webapp-services
++            timeoutSeconds: 3
++          readinessProbe:
++            httpGet:
++              path: /ready
++              port: 80
++            initialDelaySeconds: 5
++            periodSeconds: 10
++            timeoutSeconds: 3
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: simple-webapp-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    kubernetes.io/ingress.class: "nginx"
+ spec:
+   rules:
+-    - host: simple-webapp.rasztabiga.me
++    - host: "simple-webapp.rasztabiga.me"
+       http:
+         paths:
+           - path: /
+             pathType: Prefix
+             backend:
+               service:
+-                name: simple-webapp
++                name: simple-webapp-service
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: simple-webapp
+ @@FILE:K8s::k8s/postgres-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: postgres-secret
+ type: Opaque
+-stringData:
+-  POSTGRES_PASSWORD: testpass
++data:
++  POSTGRES_PASSWORD: dGVzdHBhc3M=
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: simple-webapp-test-postgres
+ spec:
+-  selector:
+-    app: simple-webapp-test-postgres
+   ports:
+     - port: 5432
+       targetPort: 5432
++  selector:
++    app: simple-webapp-test-postgres
+   clusterIP: None
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+@@ -181,27 +145,28 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 5432
++              name: postgres
+           env:
+             - name: POSTGRES_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+                   key: POSTGRES_PASSWORD
++          volumeMounts:
++            - name: pgdata
++              mountPath: /var/lib/postgresql/data
+           resources:
+             requests:
+               cpu: "100m"
+-              memory: "128Mi"
++              memory: "256Mi"
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          volumeMounts:
+-            - name: postgres-data
+-              mountPath: /var/lib/postgresql/data
+   volumeClaimTemplates:
+     - metadata:
+-        name: postgres-data
++        name: pgdata
+       spec:
+-        accessModes: [ "ReadWriteOnce" ]
++        accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 1Gi
+@@ -211,11 +176,11 @@
+ metadata:
+   name: simple-webapp-test-redis
+ spec:
+-  selector:
+-    app: simple-webapp-test-redis
+   ports:
+     - port: 6379
+       targetPort: 6379
++  selector:
++    app: simple-webapp-test-redis
+   clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+@@ -239,29 +204,30 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 6379
++              name: redis
++          volumeMounts:
++            - name: redisdata
++              mountPath: /data
+           resources:
+             requests:
+               cpu: "50m"
+               memory: "64Mi"
+             limits:
+-              cpu: "200m"
++              cpu: "250m"
+               memory: "256Mi"
+-          volumeMounts:
+-            - name: redis-data
+-              mountPath: /data
+   volumeClaimTemplates:
+     - metadata:
+-        name: redis-data
++        name: redisdata
+       spec:
+-        accessModes: [ "ReadWriteOnce" ]
++        accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+-            storage: 256Mi
++            storage: 500Mi
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: simple-webapp
++  name: simple-webapp-service
+ spec:
+   selector:
+     app: simple-webapp

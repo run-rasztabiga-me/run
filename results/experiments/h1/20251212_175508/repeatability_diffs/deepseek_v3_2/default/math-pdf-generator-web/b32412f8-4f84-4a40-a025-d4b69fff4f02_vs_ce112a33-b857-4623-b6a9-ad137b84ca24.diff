@@ -1,0 +1,124 @@
+--- b32412f8-4f84-4a40-a025-d4b69fff4f02
++++ ce112a33-b857-4623-b6a9-ad137b84ca24
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use nginx alpine for a lightweight static file server
++# Use official nginx image
+ FROM nginx:alpine
+ 
+ # Copy static files to nginx html directory
+@@ -10,8 +10,7 @@
+ # Expose port 80
+ EXPOSE 80
+ 
+-# nginx runs as root by default and starts as daemon
+-CMD ["nginx", "-g", "daemon off;"]
++# Nginx will start automatically per base image
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -30,63 +29,59 @@
+         app: math-pdf-generator-web
+     spec:
+       containers:
+-        - name: math-pdf-generator-web
+-          image: math-pdf-generator-web:latest
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 80
+-              protocol: TCP
+-          resources:
+-            requests:
+-              memory: "64Mi"
+-              cpu: "50m"
+-            limits:
+-              memory: "128Mi"
+-              cpu: "100m"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 3
+-            periodSeconds: 5
++      - name: web
++        image: math-pdf-generator-web
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 80
++        resources:
++          requests:
++            memory: "64Mi"
++            cpu: "50m"
++          limits:
++            memory: "128Mi"
++            cpu: "100m"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 10
++          periodSeconds: 30
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 10
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: math-pdf-generator-web
+-  labels:
+-    app: math-pdf-generator-web
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-    - host: math-pdf-generator-web.rasztabiga.me
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: math-pdf-generator-web
+-                port:
+-                  number: 80
++  - host: math-pdf-generator-web.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: math-pdf-generator-web
++            port:
++              number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: math-pdf-generator-web
+-  labels:
+-    app: math-pdf-generator-web
+ spec:
+-  type: ClusterIP
+-  ports:
+-    - port: 80
+-      targetPort: 80
+-      protocol: TCP
+-      name: http
+   selector:
+     app: math-pdf-generator-web
++  ports:
++  - port: 80
++    targetPort: 80
++    protocol: TCP
++  type: ClusterIP

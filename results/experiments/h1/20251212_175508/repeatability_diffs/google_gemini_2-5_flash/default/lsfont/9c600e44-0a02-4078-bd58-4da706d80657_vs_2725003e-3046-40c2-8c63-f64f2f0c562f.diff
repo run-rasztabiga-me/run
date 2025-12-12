@@ -1,0 +1,70 @@
+--- 9c600e44-0a02-4078-bd58-4da706d80657
++++ 2725003e-3046-40c2-8c63-f64f2f0c562f
+@@ -1,8 +1,12 @@
+ @@FILE:Dockerfile::Dockerfile
++
+ FROM nginx:alpine
+-COPY . /usr/share/nginx/html
++
++COPY lsfont.html assemble.js font-info.m.js inflate.m.js Makefile /usr/share/nginx/html/
++
+ EXPOSE 80
+ @@FILE:K8s::k8s/lsfont-deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -21,23 +25,29 @@
+     spec:
+       containers:
+       - name: lsfont
+-        image: lsfont
++        image: lsfont:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 80
+         resources:
+           requests:
++            memory: "32Mi"
++            cpu: "50m"
++          limits:
++            memory: "64Mi"
+             cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "200m"
+-            memory: "256Mi"
+ @@FILE:K8s::k8s/lsfont-ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: lsfont-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/use-regex: "true"
++    nginx.ingress.kubernetes.io/rewrite-target: / 
+ spec:
++  ingressClassName: nginx
+   rules:
+   - host: "lsfont.rasztabiga.me"
+     http:
+@@ -50,10 +60,13 @@
+             port:
+               number: 80
+ @@FILE:K8s::k8s/lsfont-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: lsfont-service
++  labels:
++    app: lsfont
+ spec:
+   selector:
+     app: lsfont
+@@ -61,3 +74,4 @@
+     - protocol: TCP
+       port: 80
+       targetPort: 80
++  type: ClusterIP

@@ -1,0 +1,61 @@
+--- 69c6c424-d56f-4490-8bf0-e782e03fe35a
++++ da89ecc8-3c3e-40d0-81a8-df82d80f76ae
+@@ -1,20 +1,18 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM tomcat:9.0-jdk11-openjdk
++FROM tomcat:9.0-jdk11
+ 
+-# Copy the pre-built WAR into Tomcat as the ROOT application
++# Remove default apps and deploy the provided WAR as ROOT
++RUN rm -rf /usr/local/tomcat/webapps/*
+ COPY dist/hello-world.war /usr/local/tomcat/webapps/ROOT.war
+ 
+ EXPOSE 8080
+ 
+-# Start Tomcat in the foreground
+-CMD ["catalina.sh", "run"]
++# Use the default Tomcat startup command provided by the base image
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: hello-world-deployment
+-  labels:
+-    app: hello-world
+ spec:
+   replicas: 1
+   selector:
+@@ -27,7 +25,7 @@
+     spec:
+       containers:
+         - name: hello-world
+-          image: hello-world
++          image: hello-world:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
+@@ -55,9 +53,11 @@
+ kind: Ingress
+ metadata:
+   name: hello-world-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-    - host: "hello-world-war.rasztabiga.me"
++    - host: hello-world-war.rasztabiga.me
+       http:
+         paths:
+           - path: /
+@@ -67,11 +67,6 @@
+                 name: hello-world-service
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: hello-world-war
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service

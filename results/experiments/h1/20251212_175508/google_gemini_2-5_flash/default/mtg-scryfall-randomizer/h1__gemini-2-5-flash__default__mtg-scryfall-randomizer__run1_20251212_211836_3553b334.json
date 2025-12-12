@@ -1,0 +1,177 @@
+{
+  "repo_url": "https://github.com/rafuwu/mtg-scryfall-randomizer",
+  "repo_name": "mtg-scryfall-randomizer",
+  "evaluation_id": "3553b334-e5d0-46b1-97f1-45015ae688e1",
+  "status": "completed",
+  "start_time": "2025-12-12T21:17:55.950280",
+  "end_time": "2025-12-12T21:18:36.843008",
+  "total_evaluation_time": 40.892728,
+  "generation_result": {
+    "repo_url": "https://github.com/rafuwu/mtg-scryfall-randomizer",
+    "repo_name": "mtg-scryfall-randomizer",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "mtg-scryfall-randomizer",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 13.704329252243042,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:18:16.527144",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mtg-scryfall-randomizer-b6adadec-135b-4ca7-bd87-997e8fd27868",
+    "run_id": "b6adadec-135b-4ca7-bd87-997e8fd27868"
+  },
+  "execution_metrics": {
+    "total_time": 13.704329252243042,
+    "tool_calls_count": 7,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "ls": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 24806,
+    "input_tokens": 23248,
+    "output_tokens": 1558,
+    "error_count": 0,
+    "run_id": "b6adadec-135b-4ca7-bd87-997e8fd27868",
+    "docker_build_metrics": [
+      {
+        "image_tag": "mtg-scryfall-randomizer",
+        "build_time": 0.735943078994751,
+        "image_size_mb": 20.04,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mtg-scryfall-randomizer\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mtg-scryfall-randomizer\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:17:55.950493: Starting configuration generation",
+    "2025-12-12T21:18:16.527232: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T21:18:16.527239: Starting quality assessment",
+    "2025-12-12T21:18:36.842927: Built 1 Docker images (total: 20.0 MB, avg time: 0.7s)",
+    "2025-12-12T21:18:36.842948: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T21:18:36.842959: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T21:18:36.842981: Deployed to namespace: mtg-scryfall-randomizer-b6adadec-135b-4ca7-bd87-997e8fd27868",
+    "2025-12-12T21:18:36.842987: Testing endpoint: /",
+    "2025-12-12T21:18:36.842996: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T21:18:36.843002: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mtg-scryfall-randomizer-b6adadec-135b-4ca7-bd87-997e8fd27868",
+    "run_id": "b6adadec-135b-4ca7-bd87-997e8fd27868"
+  }
+}

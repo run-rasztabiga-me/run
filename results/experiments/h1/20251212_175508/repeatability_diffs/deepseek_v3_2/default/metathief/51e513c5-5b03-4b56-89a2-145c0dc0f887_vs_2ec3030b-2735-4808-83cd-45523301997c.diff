@@ -1,0 +1,112 @@
+--- 51e513c5-5b03-4b56-89a2-145c0dc0f887
++++ 2ec3030b-2735-4808-83cd-45523301997c
+@@ -1,27 +1,6 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use Node.js LTS as base image
+-FROM node:20-alpine AS base
+-
+-# Install pnpm
+-RUN npm install -g pnpm
+-
+-# Set working directory
+-WORKDIR /app
+-
+-# Copy package files
+-COPY package.json pnpm-lock.yaml ./
+-
+-# Install dependencies
+-RUN pnpm install --frozen-lockfile
+-
+-# Copy source code and config files
+-COPY . .
+-
+-# Build the application
+-RUN pnpm build
+-
+-# Production stage
+-FROM node:20-alpine AS production
++# Multi-stage build for Next.js application
++FROM node:20-alpine AS builder
+ 
+ # Install pnpm
+ RUN npm install -g pnpm
+@@ -31,23 +10,44 @@
+ # Copy package files
+ COPY package.json pnpm-lock.yaml ./
+ 
+-# Install production dependencies only
+-RUN pnpm install --prod --frozen-lockfile
++# Install dependencies
++RUN pnpm install --frozen-lockfile
+ 
+-# Copy built application from build stage
+-COPY --from=base /app/.next ./.next
+-COPY --from=base /app/public ./public
+-COPY --from=base /app/next.config.mjs ./
+-COPY --from=base /app/tailwind.config.ts ./
+-COPY --from=base /app/postcss.config.mjs ./
+-COPY --from=base /app/tsconfig.json ./
+-COPY --from=base /app/components.json ./
++# Copy source code
++COPY . .
++
++# Build the application
++RUN pnpm run build
++
++# Production stage
++FROM node:20-alpine AS runner
++
++WORKDIR /app
++
++# Install pnpm
++RUN npm install -g pnpm
++
++# Create non-root user
++RUN addgroup --system --gid 1001 nodejs
++RUN adduser --system --uid 1001 nextjs
++
++# Copy necessary files from builder
++COPY --from=builder /app/public ./public
++COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
++COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
++
++# Switch to non-root user
++USER nextjs
+ 
+ # Expose port
+ EXPOSE 3000
+ 
++# Set environment variable
++ENV PORT=3000
++ENV HOSTNAME="0.0.0.0"
++
+ # Start the application
+-CMD ["pnpm", "start"]
++CMD ["node", "server.js"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -72,6 +72,8 @@
+         ports:
+         - containerPort: 3000
+         env:
++        - name: PORT
++          value: "3000"
+         - name: NODE_ENV
+           value: "production"
+         resources:
+@@ -97,6 +99,14 @@
+           periodSeconds: 5
+           timeoutSeconds: 3
+           failureThreshold: 1
++        # Security context - running as non-root user from Dockerfile
++        securityContext:
++          runAsNonRoot: true
++          runAsUser: 1001
++          allowPrivilegeEscalation: false
++          capabilities:
++            drop:
++              - ALL
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

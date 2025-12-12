@@ -1,0 +1,184 @@
+{
+  "repo_url": "https://github.com/FullStackWithLawrence/openai-hello-world",
+  "repo_name": "openai-hello-world",
+  "evaluation_id": "c5790a32-bedf-4a9f-9205-060f86c549e1",
+  "status": "completed",
+  "start_time": "2025-12-13T00:03:32.208685",
+  "end_time": "2025-12-13T00:04:09.980519",
+  "total_evaluation_time": 37.771834,
+  "generation_result": {
+    "repo_url": "https://github.com/FullStackWithLawrence/openai-hello-world",
+    "repo_name": "openai-hello-world",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "openai-hello-world",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/openai-api-key-secret.yaml",
+      "k8s/openai-hello-world-deployment.yaml"
+    ],
+    "generation_time": 17.48871088027954,
+    "error_message": null,
+    "timestamp": "2025-12-13T00:03:56.541623",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/openai-hello-world-958fba74-5410-4c36-880a-8dc84a1802e2",
+    "run_id": "958fba74-5410-4c36-880a-8dc84a1802e2"
+  },
+  "execution_metrics": {
+    "total_time": 17.48871088027954,
+    "tool_calls_count": 9,
+    "tool_calls_breakdown": {
+      "write_file": 3,
+      "base64_encode": 1,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 33297,
+    "input_tokens": 30725,
+    "output_tokens": 2572,
+    "error_count": 0,
+    "run_id": "958fba74-5410-4c36-880a-8dc84a1802e2",
+    "docker_build_metrics": [
+      {
+        "image_tag": "openai-hello-world",
+        "build_time": 8.071616172790527,
+        "image_size_mb": 50.01,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 73.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/openai-hello-world-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"openai-hello-world\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/openai-hello-world-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"openai-hello-world\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "openai-hello-world-958fba74-5410-4c36-880a-8dc84a1802e2",
+        "line_number": null,
+        "severity": "error",
+        "message": "No ingress URL found in cluster, skipping runtime health check",
+        "rule_id": "NO_INGRESS_URL"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 73.4,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-13T00:03:32.209055: Starting configuration generation",
+    "2025-12-13T00:03:56.541738: Generated 1 Dockerfiles and 2 K8s manifests",
+    "2025-12-13T00:03:56.541746: Starting quality assessment",
+    "2025-12-13T00:04:09.980481: Built 1 Docker images (total: 50.0 MB, avg time: 8.1s)",
+    "2025-12-13T00:04:09.980496: Dockerfile validation: 1 errors, 2 warnings",
+    "2025-12-13T00:04:09.980503: K8s validation: 0 errors, 2 warnings",
+    "2025-12-13T00:04:09.980508: Deployed to namespace: openai-hello-world-958fba74-5410-4c36-880a-8dc84a1802e2",
+    "2025-12-13T00:04:09.980509: Testing endpoint: /",
+    "2025-12-13T00:04:09.980511: Runtime validation: 1 errors, 0 warnings",
+    "2025-12-13T00:04:09.980514: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/openai-hello-world-958fba74-5410-4c36-880a-8dc84a1802e2",
+    "run_id": "958fba74-5410-4c36-880a-8dc84a1802e2"
+  }
+}

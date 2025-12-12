@@ -1,0 +1,135 @@
+{
+  "repo_url": "https://github.com/isixe/MetaThief",
+  "repo_name": "metathief",
+  "evaluation_id": "f544b1b4-4202-4ecd-9a6a-ab9d55b15bd7",
+  "status": "completed",
+  "start_time": "2025-12-12T20:54:42.027508",
+  "end_time": "2025-12-12T20:55:40.063411",
+  "total_evaluation_time": 58.035903,
+  "generation_result": {
+    "repo_url": "https://github.com/isixe/MetaThief",
+    "repo_name": "metathief",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "metathief",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/metathief-deployment.yaml",
+      "k8s/metathief-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 17.059749126434326,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:55:06.398675",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/metathief-26b370df-874f-4f17-b364-b49f58597f43",
+    "run_id": "26b370df-874f-4f17-b364-b49f58597f43"
+  },
+  "execution_metrics": {
+    "total_time": 17.059749126434326,
+    "tool_calls_count": 7,
+    "tool_calls_breakdown": {
+      "get_file_content": 1,
+      "write_file": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 30508,
+    "input_tokens": 28212,
+    "output_tokens": 2296,
+    "error_count": 0,
+    "run_id": "26b370df-874f-4f17-b364-b49f58597f43",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 8,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 803B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.7s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 343.21kB 0.0s done\n#4 DONE 0.0s\n\n#5 [builder 1/7] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#5 resolve docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2 0.0s done\n#5 sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 0B / 446B 0.2s\n#5 sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 0B / 1.26MB 0.2s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 0B / 42.78MB 0.2s\n#5 sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 446B / 446B 0.3s done\n#5 sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 1.26MB / 1.26MB 0.3s done\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 4.19MB / 42.78MB 0.6s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 13.63MB / 42.78MB 0.8s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 25.17MB / 42.78MB 0.9s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 34.60MB / 42.78MB 1.1s\n#5 sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 42.78MB / 42.78MB 1.2s done\n#5 extracting sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645\n#5 extracting sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645 0.4s done\n#5 DONE 1.6s\n\n#5 [builder 1/7] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#5 extracting sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a 0.0s done\n#5 extracting sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855 done\n#5 DONE 1.6s\n\n#6 [builder 2/7] WORKDIR /app\n#6 DONE 0.1s\n\n#7 [builder 3/7] RUN npm install -g pnpm\n#7 1.495 \n#7 1.495 added 1 package in 1s\n#7 1.495 \n#7 1.495 1 package is looking for funding\n#7 1.495   run `npm fund` for details\n#7 1.497 npm notice\n#7 1.497 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#7 1.497 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#7 1.497 npm notice To update run: npm install -g npm@11.7.0\n#7 1.497 npm notice\n#7 DONE 1.6s\n\n#8 [builder 4/7] COPY package.json pnpm-lock.yaml ./\n#8 DONE 0.0s\n\n#9 [builder 5/7] RUN pnpm install --frozen-lockfile\n#9 1.094 Lockfile is up to date, resolution step is skipped\n#9 1.191 Progress: resolved 1, reused 0, downloaded 0, added 0\n#9 1.235 Packages: +413\n#9 1.235 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n#9 2.193 Progress: resolved 413, reused 0, downloaded 166, added 160\n#9 3.194 Progress: resolved 413, reused 0, downloaded 342, added 342\n#9 4.144 Progress: resolved 413, reused 0, downloaded 413, added 413, done\n#9 4.522 \n#9 4.522 dependencies:\n#9 4.522 + @eslint/eslintrc 3.3.3\n#9 4.522 + @radix-ui/react-dialog 1.1.15\n#9 4.522 + @radix-ui/react-label 2.1.8\n#9 4.522 + @radix-ui/react-popover 1.1.15\n#9 4.522 + @radix-ui/react-scroll-area 1.2.10\n#9 4.522 + @radix-ui/react-slot 1.2.4\n#9 4.522 + @radix-ui/react-toast 1.2.15\n#9 4.522 + @radix-ui/react-tooltip 1.2.8\n#9 4.522 + autoprefixer 10.4.22\n#9 4.522 + class-variance-authority 0.7.1\n#9 4.522 + clsx 2.1.1\n#9 4.522 + he 1.2.0\n#9 4.522 + lucide-react 0.454.0\n#9 4.522 + next 15.1.0\n#9 4.522 + next-themes 0.4.6\n#9 4.522 + prettier 3.7.4\n#9 4.522 + react 19.2.1\n#9 4.522 + react-dom 19.2.1\n#9 4.522 + react-hot-toast 2.6.0\n#9 4.522 + tailwind-merge 2.6.0\n#9 4.522 + tailwindcss-animate 1.0.7\n#9 4.522 \n#9 4.522 devDependencies:\n#9 4.522 + @types/he 1.2.3\n#9 4.522 + @types/node 22.19.1\n#9 4.522 + @types/react 19.2.7\n#9 4.522 + @types/react-dom 19.2.3\n#9 4.522 + eslint-config-next 15.2.3\n#9 4.522 + eslint-config-prettier 10.1.8\n#9 4.522 + postcss 8.5.6\n#9 4.522 + prettier-plugin-organize-imports 4.3.0\n#9 4.522 + prettier-plugin-tailwindcss 0.6.14\n#9 4.522 + tailwindcss 3.4.18\n#9 4.522 + typescript 5.9.3\n#9 4.522 \n#9 4.536 \u256d Warning \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n#9 4.536 \u2502                                                                              \u2502\n#9 4.536 \u2502   Ignored build scripts: sharp@0.33.5, unrs-resolver@1.11.1.                 \u2502\n#9 4.536 \u2502   Run \"pnpm approve-builds\" to pick which dependencies should be allowed     \u2502\n#9 4.536 \u2502   to run scripts.                                                            \u2502\n#9 4.536 \u2502                                                                              \u2502\n#9 4.536 \u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n#9 4.579 Done in 4.2s using pnpm v10.25.0\n#9 DONE 4.8s\n\n#10 [builder 6/7] COPY . .\n#10 DONE 0.1s\n\n#11 [builder 7/7] RUN pnpm build\n#11 0.674 \n#11 0.674 > meta-thief@0.1.0 build /app\n#11 0.674 > next build\n#11 0.674 \n#11 1.642 Attention: Next.js now collects completely anonymous telemetry regarding usage.\n#11 1.642 This information is used to shape Next.js' roadmap and prioritize features.\n#11 1.642 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:\n#11 1.642 https://nextjs.org/telemetry\n#11 1.642 \n#11 1.689    \u25b2 Next.js 15.1.0\n#11 1.689    - Experiments (use with caution):\n#11 1.690      \u00b7 webpackBuildWorker\n#11 1.690      \u00b7 parallelServerCompiles\n#11 1.690      \u00b7 parallelServerBuildTraces\n#11 1.690 \n#11 1.759    Creating an optimized production build ...\n#11 13.80  \u2713 Compiled successfully\n#11 13.81    Skipping validation of types\n#11 13.81    Skipping linting\n#11 14.25    Collecting page data ...\n#11 15.05    Generating static pages (0/6) ...\n#11 15.78    Generating static pages (1/6) \n#11 15.79    Generating static pages (2/6) \n#11 15.87    Generating static pages (4/6) \n#11 16.00  \u2713 Generating static pages (6/6)\n#11 16.01    Finalizing page optimization ...\n#11 16.01    Collecting build traces ...\n#11 22.61 \n#11 22.63 Route (app)                              Size     First Load JS\n#11 22.63 \u250c \u0192 /                                    37 kB           154 kB\n#11 22.63 \u251c \u0192 /_not-found                          977 B           106 kB\n#11 22.63 \u251c \u0192 /api                                 140 B           105 kB\n#11 22.63 \u2514 \u0192 /api/meta                            140 B           105 kB\n#11 22.63 + First Load JS shared by all            105 kB\n#11 22.63   \u251c chunks/102e6350-1d6bce8ed69032ea.js  52.9 kB\n#11 22.63   \u251c chunks/939-ee93b70605714ff0.js       50.5 kB\n#11 22.63   \u2514 other shared chunks (total)          1.91 kB\n#11 22.63 \n#11 22.63 \n#11 22.63 \u0192  (Dynamic)  server-rendered on demand\n#11 22.63 \n#11 DONE 22.7s\n\n#12 [runner 3/5] COPY --from=builder /app/public ./public\n#12 CACHED\n\n#13 [runner 4/5] COPY --from=builder /app/.next/standalone ./.\n#13 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::mit9a3dcqzyw6qyyxedsbtdnm: \"/app/.next/standalone\": not found\n------\n > [runner 4/5] COPY --from=builder /app/.next/standalone ./.:\n------\nDockerfile:32\n--------------------\n  30 |     # Copy necessary files from the builder stage\n  31 |     COPY --from=builder /app/public ./public\n  32 | >>> COPY --from=builder /app/.next/standalone ./.\n  33 |     COPY --from=builder /app/.next/static ./.next/static\n  34 |     \n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::mit9a3dcqzyw6qyyxedsbtdnm: \"/app/.next/standalone\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/pivijsr78fgz0q5b9w6klkhxu",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:54:42.027534: Starting configuration generation",
+    "2025-12-12T20:55:06.398738: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T20:55:06.398744: Starting quality assessment",
+    "2025-12-12T20:55:40.063375: Dockerfile validation: 1 errors, 1 warnings",
+    "2025-12-12T20:55:40.063400: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T20:55:40.063403: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T20:55:40.063407: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/metathief-26b370df-874f-4f17-b364-b49f58597f43",
+    "run_id": "26b370df-874f-4f17-b364-b49f58597f43"
+  }
+}

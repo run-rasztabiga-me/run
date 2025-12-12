@@ -1,0 +1,70 @@
+--- d50a6c8f-bde3-4fde-9c71-484f0c25ac18
++++ aaee53c9-9631-4411-9be3-6e96354acdb3
+@@ -1,16 +1,16 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM nginx:stable-alpine
++FROM nginx:alpine
+ 
+-# Copy static site files
+-# Ensure the app is served at root by writing lsfont.html to index.html
+-COPY lsfont.html /usr/share/nginx/html/index.html
+-COPY assemble.js /usr/share/nginx/html/assemble.js
+-COPY inflate.m.js /usr/share/nginx/html/inflate.m.js
+-COPY font-info.m.js /usr/share/nginx/html/font-info.m.js
++# Copy website files
++COPY . /usr/share/nginx/html/
++
++# Ensure lsfont.html is served as index
++RUN if [ -f /usr/share/nginx/html/lsfont.html ]; then \
++    mv /usr/share/nginx/html/lsfont.html /usr/share/nginx/html/index.html; \
++    fi
+ 
+ EXPOSE 80
+ 
+-# Use the default nginx entrypoint; nothing special to run
+ CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -31,34 +31,34 @@
+     spec:
+       containers:
+       - name: lsfont
+-        image: lsfont
++        image: lsfont:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 80
+         resources:
+           requests:
+-            cpu: "100m"
+-            memory: "128Mi"
++            cpu: 100m
++            memory: 128Mi
+           limits:
+-            cpu: "500m"
+-            memory: "512Mi"
++            cpu: 500m
++            memory: 256Mi
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 80
+-          initialDelaySeconds: 10
++          initialDelaySeconds: 5
+           periodSeconds: 10
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 80
+-          initialDelaySeconds: 5
++          initialDelaySeconds: 2
+           periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: lsfont-ingress
++  name: lsfont
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:

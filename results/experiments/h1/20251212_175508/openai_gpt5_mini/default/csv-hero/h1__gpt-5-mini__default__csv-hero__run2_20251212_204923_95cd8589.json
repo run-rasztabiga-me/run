@@ -1,0 +1,144 @@
+{
+  "repo_url": "https://github.com/tschoffelen/csv-hero",
+  "repo_name": "csv-hero",
+  "evaluation_id": "95cd8589-377b-412a-94a5-aeefd8bd3f8f",
+  "status": "completed",
+  "start_time": "2025-12-12T20:47:05.558002",
+  "end_time": "2025-12-12T20:49:23.454455",
+  "total_evaluation_time": 137.896453,
+  "generation_result": {
+    "repo_url": "https://github.com/tschoffelen/csv-hero",
+    "repo_name": "csv-hero",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "csv-hero:latest",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 121.5585880279541,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:49:15.527064",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/csv-hero-34f438c1-6a8f-4eff-8070-d996f7583ce4",
+    "run_id": "34f438c1-6a8f-4eff-8070-d996f7583ce4"
+  },
+  "execution_metrics": {
+    "total_time": 121.5585880279541,
+    "tool_calls_count": 26,
+    "tool_calls_breakdown": {
+      "get_file_content": 9,
+      "search_files": 4,
+      "write_file": 7,
+      "find_files": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 178476,
+    "input_tokens": 172612,
+    "output_tokens": 5864,
+    "error_count": 0,
+    "run_id": "34f438c1-6a8f-4eff-8070-d996f7583ce4",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 4,
+        "severity": "warning",
+        "message": "Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`",
+        "rule_id": "DL3018"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 10,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 616B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 ...\n\n#3 [internal] load metadata for docker.io/library/nginx:stable-alpine\n#3 DONE 0.2s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 DONE 0.3s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [builder 1/7] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#5 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e 0.0s done\n#5 CACHED\n\n#6 [stage-1 1/3] FROM docker.io/library/nginx:stable-alpine@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284\n#6 resolve docker.io/library/nginx:stable-alpine@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284 0.0s done\n#6 DONE 0.0s\n\n#7 [internal] load build context\n#7 transferring context: 365.20kB 0.0s done\n#7 DONE 0.0s\n\n#8 [builder 2/7] RUN apk add --no-cache python3 make g++\n#8 0.141 fetch https://dl-cdn.alpinelinux.org/alpine/v3.21/main/x86_64/APKINDEX.tar.gz\n#8 0.414 fetch https://dl-cdn.alpinelinux.org/alpine/v3.21/community/x86_64/APKINDEX.tar.gz\n#8 0.670 (1/29) Installing libstdc++-dev (14.2.0-r4)\n#8 0.885 (2/29) Installing jansson (2.14-r4)\n#8 0.918 (3/29) Installing zstd-libs (1.5.6-r2)\n#8 0.972 (4/29) Installing binutils (2.43.1-r3)\n#8 1.124 (5/29) Installing libgomp (14.2.0-r4)\n#8 1.160 (6/29) Installing libatomic (14.2.0-r4)\n#8 1.194 (7/29) Installing gmp (6.3.0-r2)\n#8 1.233 (8/29) Installing isl26 (0.26-r1)\n#8 1.292 (9/29) Installing mpfr4 (4.2.1-r0)\n#8 1.342 (10/29) Installing mpc1 (1.3.1-r1)\n#8 1.382 (11/29) Installing gcc (14.2.0-r4)\n#8 2.529 (12/29) Installing musl-dev (1.2.5-r9)\n#8 2.616 (13/29) Installing g++ (14.2.0-r4)\n#8 2.874 (14/29) Installing make (4.4.1-r2)\n#8 2.923 (15/29) Installing libbz2 (1.0.8-r6)\n#8 2.965 (16/29) Installing libexpat (2.7.3-r0)\n#8 2.999 (17/29) Installing libffi (3.4.7-r0)\n#8 3.039 (18/29) Installing gdbm (1.24-r0)\n#8 3.092 (19/29) Installing xz-libs (5.6.3-r1)\n#8 3.136 (20/29) Installing mpdecimal (4.0.0-r0)\n#8 3.170 (21/29) Installing ncurses-terminfo-base (6.5_p20241006-r3)\n#8 3.212 (22/29) Installing libncursesw (6.5_p20241006-r3)\n#8 3.252 (23/29) Installing libpanelw (6.5_p20241006-r3)\n#8 3.290 (24/29) Installing readline (8.2.13-r0)\n#8 3.332 (25/29) Installing sqlite-libs (3.48.0-r4)\n#8 3.388 (26/29) Installing python3 (3.12.12-r0)\n#8 3.553 (27/29) Installing python3-pycache-pyc0 (3.12.12-r0)\n#8 3.652 (28/29) Installing pyc (3.12.12-r0)\n#8 3.652 (29/29) Installing python3-pyc (3.12.12-r0)\n#8 3.653 Executing busybox-1.37.0-r12.trigger\n#8 3.668 OK: 269 MiB in 46 packages\n#8 DONE 3.9s\n\n#9 [builder 3/7] WORKDIR /app\n#9 DONE 0.0s\n\n#10 [builder 4/7] COPY package.json yarn.lock ./\n#10 DONE 0.0s\n\n#11 [builder 5/7] RUN npm install -g yarn && yarn install --frozen-lockfile\n#11 1.249 npm error code EEXIST\n#11 1.249 npm error path /usr/local/bin/yarn\n#11 1.249 npm error EEXIST: file already exists\n#11 1.249 npm error File exists: /usr/local/bin/yarn\n#11 1.249 npm error Remove the existing file and try again, or run npm\n#11 1.249 npm error with --force to overwrite files recklessly.\n#11 1.251 npm notice\n#11 1.251 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#11 1.251 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#11 1.251 npm notice To update run: npm install -g npm@11.7.0\n#11 1.251 npm notice\n#11 1.252 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-12T19_49_22_688Z-debug-0.log\n#11 ERROR: process \"/bin/sh -c npm install -g yarn && yarn install --frozen-lockfile\" did not complete successfully: exit code: 1\n------\n > [builder 5/7] RUN npm install -g yarn && yarn install --frozen-lockfile:\n1.249 npm error EEXIST: file already exists\n1.249 npm error File exists: /usr/local/bin/yarn\n1.249 npm error Remove the existing file and try again, or run npm\n1.249 npm error with --force to overwrite files recklessly.\n1.251 npm notice\n1.251 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n1.251 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n1.251 npm notice To update run: npm install -g npm@11.7.0\n1.251 npm notice\n1.252 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-12T19_49_22_688Z-debug-0.log\n------\nDockerfile:10\n--------------------\n   8 |     # Copy package files and install dependencies\n   9 |     COPY package.json yarn.lock ./\n  10 | >>> RUN npm install -g yarn && yarn install --frozen-lockfile\n  11 |     \n  12 |     # Copy source and build\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm install -g yarn && yarn install --frozen-lockfile\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/n7xzpjvmzak4epvhlbop6lj5e",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:47:05.558028: Starting configuration generation",
+    "2025-12-12T20:49:15.527171: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T20:49:15.527175: Starting quality assessment",
+    "2025-12-12T20:49:23.454405: Dockerfile validation: 1 errors, 2 warnings",
+    "2025-12-12T20:49:23.454439: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T20:49:23.454446: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T20:49:23.454451: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/csv-hero-34f438c1-6a8f-4eff-8070-d996f7583ce4",
+    "run_id": "34f438c1-6a8f-4eff-8070-d996f7583ce4"
+  }
+}

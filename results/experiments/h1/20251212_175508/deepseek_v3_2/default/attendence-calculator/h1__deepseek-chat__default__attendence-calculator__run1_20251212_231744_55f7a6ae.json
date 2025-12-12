@@ -1,0 +1,180 @@
+{
+  "repo_url": "https://github.com/bhavish00007/Attendence-Calculator",
+  "repo_name": "attendence-calculator",
+  "evaluation_id": "55f7a6ae-88ab-4d4c-96de-e2a13c32ab87",
+  "status": "completed",
+  "start_time": "2025-12-12T23:16:13.696166",
+  "end_time": "2025-12-12T23:17:44.658596",
+  "total_evaluation_time": 90.96243,
+  "generation_result": {
+    "repo_url": "https://github.com/bhavish00007/Attendence-Calculator",
+    "repo_name": "attendence-calculator",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "attendance-calculator",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 73.02463293075562,
+    "error_message": null,
+    "timestamp": "2025-12-12T23:17:33.709406",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/attendence-calculator-779e4905-48e8-4fe1-b456-4eb4ed2aa73d",
+    "run_id": "779e4905-48e8-4fe1-b456-4eb4ed2aa73d"
+  },
+  "execution_metrics": {
+    "total_time": 73.02463293075562,
+    "tool_calls_count": 17,
+    "tool_calls_breakdown": {
+      "think": 4,
+      "ls": 1,
+      "write_file": 4,
+      "search_files": 2,
+      "get_file_content": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 98718,
+    "input_tokens": 96846,
+    "output_tokens": 1872,
+    "error_count": 0,
+    "run_id": "779e4905-48e8-4fe1-b456-4eb4ed2aa73d",
+    "docker_build_metrics": [
+      {
+        "image_tag": "attendance-calculator",
+        "build_time": 0.701209545135498,
+        "image_size_mb": 21.93,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"attendance-calculator\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"attendance-calculator\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T23:16:13.696199: Starting configuration generation",
+    "2025-12-12T23:17:33.709531: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T23:17:33.709538: Starting quality assessment",
+    "2025-12-12T23:17:44.658498: Built 1 Docker images (total: 21.9 MB, avg time: 0.7s)",
+    "2025-12-12T23:17:44.658529: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T23:17:44.658553: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T23:17:44.658572: Deployed to namespace: attendence-calculator-779e4905-48e8-4fe1-b456-4eb4ed2aa73d",
+    "2025-12-12T23:17:44.658578: Testing endpoint: /",
+    "2025-12-12T23:17:44.658585: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T23:17:44.658591: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/attendence-calculator-779e4905-48e8-4fe1-b456-4eb4ed2aa73d",
+    "run_id": "779e4905-48e8-4fe1-b456-4eb4ed2aa73d"
+  }
+}

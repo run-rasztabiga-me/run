@@ -1,0 +1,172 @@
+{
+  "repo_url": "https://github.com/FullStackWithLawrence/openai-hello-world",
+  "repo_name": "openai-hello-world",
+  "evaluation_id": "a6c1caae-9236-4bd9-84dd-482b83fdcadd",
+  "status": "completed",
+  "start_time": "2025-12-13T00:16:24.918400",
+  "end_time": "2025-12-13T00:20:40.180075",
+  "total_evaluation_time": 255.261675,
+  "generation_result": {
+    "repo_url": "https://github.com/FullStackWithLawrence/openai-hello-world",
+    "repo_name": "openai-hello-world",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "openai-hello-world",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/secret.yaml",
+      "k8s/configmap.yaml"
+    ],
+    "generation_time": 221.3469157218933,
+    "error_message": null,
+    "timestamp": "2025-12-13T00:20:14.082141",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/openai-hello-world-1ac17b80-057d-4b84-806e-407cc992a2e8",
+    "run_id": "1ac17b80-057d-4b84-806e-407cc992a2e8"
+  },
+  "execution_metrics": {
+    "total_time": 221.3469157218933,
+    "tool_calls_count": 38,
+    "tool_calls_breakdown": {
+      "think": 9,
+      "get_file_content": 9,
+      "write_file": 9,
+      "patch_file": 2,
+      "base64_encode": 1,
+      "search_files": 4,
+      "find_files": 1,
+      "ls": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 369395,
+    "input_tokens": 363928,
+    "output_tokens": 5467,
+    "error_count": 0,
+    "run_id": "1ac17b80-057d-4b84-806e-407cc992a2e8",
+    "docker_build_metrics": [
+      {
+        "image_tag": "openai-hello-world",
+        "build_time": 23.614337682724,
+        "image_size_mb": 119.72,
+        "layers_count": 12
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 96.0,
+    "k8s_manifests_score": 85.0,
+    "overall_score": 67.6,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 13,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 22,
+        "severity": "warning",
+        "message": "Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`",
+        "rule_id": "DL3013"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: error: error parsing /Users/rasztabigab/Studia/run/tmp/openai-hello-world-1ac17b80-057d-4b84-806e-407cc992a2e8/k8s/deployment.yaml: error converting YAML to JSON: yaml: line 22: did not find expected key",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 67.6,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 85.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 85.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-13T00:16:24.918426: Starting configuration generation",
+    "2025-12-13T00:20:14.082453: Generated 1 Dockerfiles and 5 K8s manifests",
+    "2025-12-13T00:20:14.082462: Starting quality assessment",
+    "2025-12-13T00:20:40.180050: Built 1 Docker images (total: 119.7 MB, avg time: 23.6s)",
+    "2025-12-13T00:20:40.180062: Dockerfile validation: 1 errors, 2 warnings",
+    "2025-12-13T00:20:40.180065: K8s validation: 1 errors, 0 warnings",
+    "2025-12-13T00:20:40.180072: Deployed to namespace: openai-hello-world-1ac17b80-057d-4b84-806e-407cc992a2e8",
+    "2025-12-13T00:20:40.180073: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/openai-hello-world-1ac17b80-057d-4b84-806e-407cc992a2e8",
+    "run_id": "1ac17b80-057d-4b84-806e-407cc992a2e8"
+  }
+}

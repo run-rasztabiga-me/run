@@ -1,0 +1,131 @@
+{
+  "repo_url": "https://github.com/jan-bobrowski/lsfont.git",
+  "repo_name": "lsfont",
+  "evaluation_id": "054cbc36-fc8b-44d9-93fc-4b81e9236c49",
+  "status": "completed",
+  "start_time": "2025-12-12T19:39:51.188478",
+  "end_time": "2025-12-12T19:42:43.566775",
+  "total_evaluation_time": 172.378297,
+  "generation_result": {
+    "repo_url": "https://github.com/jan-bobrowski/lsfont.git",
+    "repo_name": "lsfont",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "lsfont",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 158.70436716079712,
+    "error_message": null,
+    "timestamp": "2025-12-12T19:42:37.423692",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/lsfont-15ba2a57-3180-45b3-8b72-5692107c9165",
+    "run_id": "15ba2a57-3180-45b3-8b72-5692107c9165"
+  },
+  "execution_metrics": {
+    "total_time": 158.70436716079712,
+    "tool_calls_count": 26,
+    "tool_calls_breakdown": {
+      "think": 7,
+      "write_file": 6,
+      "ls": 2,
+      "search_files": 5,
+      "get_file_content": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 270231,
+    "input_tokens": 266059,
+    "output_tokens": 4172,
+    "error_count": 0,
+    "run_id": "15ba2a57-3180-45b3-8b72-5692107c9165",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 921B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 ...\n\n#3 [internal] load metadata for docker.io/library/nginx:alpine\n#3 DONE 0.3s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 DONE 0.7s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [stage-1 1/2] FROM docker.io/library/nginx:alpine@sha256:289decab414250121a93c3f1b8316b9c69906de3a4993757c424cb964169ad42\n#5 resolve docker.io/library/nginx:alpine@sha256:289decab414250121a93c3f1b8316b9c69906de3a4993757c424cb964169ad42 0.0s done\n#5 CACHED\n\n#6 [internal] load build context\n#6 transferring context: 29.28kB done\n#6 DONE 0.0s\n\n#7 [builder 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#7 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e 0.0s done\n#7 sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 0B / 1.26MB 0.2s\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 0B / 40.01MB 0.2s\n#7 sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 0B / 446B 0.2s\n#7 sha256:f18232174bc91741fdf3da96d85011092101a032a93a388b79e99e69c2d5c870 0B / 3.64MB 0.2s\n#7 sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 446B / 446B 0.3s done\n#7 sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 1.26MB / 1.26MB 0.5s done\n#7 sha256:f18232174bc91741fdf3da96d85011092101a032a93a388b79e99e69c2d5c870 3.64MB / 3.64MB 0.7s done\n#7 extracting sha256:f18232174bc91741fdf3da96d85011092101a032a93a388b79e99e69c2d5c870 0.0s done\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 26.21MB / 40.01MB 0.9s\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 37.75MB / 40.01MB 1.1s\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 40.01MB / 40.01MB 1.1s done\n#7 extracting sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e\n#7 extracting sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 0.4s done\n#7 DONE 1.5s\n\n#7 [builder 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#7 extracting sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 0.0s done\n#7 extracting sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 done\n#7 DONE 1.5s\n\n#8 [builder 2/6] WORKDIR /app\n#8 DONE 0.1s\n\n#9 [builder 3/6] COPY package.json package-lock.json* ./\n#9 DONE 0.0s\n\n#10 [builder 4/6] RUN npm ci --only=production\n#10 0.481 npm warn config only Use `--omit=dev` to omit dev dependencies from the install.\n#10 1.209 npm warn tarball tarball data for clean-css@https://registry.npmjs.org/clean-css/-/clean-css-5.3.2.tgz (sha512-JVJbM+f3d3Q704rF4bqQ5WWd2YiLFLD2D//0Z5p48hZ8VzDHtE9kTmMk5pXcbjhmr0PoPhm3XvqKdKk28DUCwA==) seems to be corrupted. Trying again.\n#10 1.284 npm warn tarball tarball data for clean-css@https://registry.npmjs.org/clean-css/-/clean-css-5.3.2.tgz (sha512-JVJbM+f3d3Q704rF4bqQ5WWd2YiLFLD2D//0Z5p48hZ8VzDHtE9kTmMk5pXcbjhmr0PoPhm3XvqKdKk28DUCwA==) seems to be corrupted. Trying again.\n#10 1.306 npm warn cleanup Failed to remove some directories [\n#10 1.306 npm warn cleanup   [\n#10 1.306 npm warn cleanup     '/app/node_modules/clean-css',\n#10 1.306 npm warn cleanup     [Error: ENOTEMPTY: directory not empty, rmdir '/app/node_modules/clean-css'] {\n#10 1.306 npm warn cleanup       errno: -39,\n#10 1.306 npm warn cleanup       code: 'ENOTEMPTY',\n#10 1.306 npm warn cleanup       syscall: 'rmdir',\n#10 1.306 npm warn cleanup       path: '/app/node_modules/clean-css'\n#10 1.306 npm warn cleanup     }\n#10 1.306 npm warn cleanup   ],\n#10 1.306 npm warn cleanup   [\n#10 1.306 npm warn cleanup     '/app/node_modules',\n#10 1.306 npm warn cleanup     [Error: ENOTEMPTY: directory not empty, rmdir '/app/node_modules/clean-css'] {\n#10 1.306 npm warn cleanup       errno: -39,\n#10 1.306 npm warn cleanup       code: 'ENOTEMPTY',\n#10 1.306 npm warn cleanup       syscall: 'rmdir',\n#10 1.306 npm warn cleanup       path: '/app/node_modules/clean-css'\n#10 1.306 npm warn cleanup     }\n#10 1.306 npm warn cleanup   ]\n#10 1.306 npm warn cleanup ]\n#10 1.313 npm error code EINTEGRITY\n#10 1.313 npm error sha512-JVJbM+f3d3Q704rF4bqQ5WWd2YiLFLD2D//0Z5p48hZ8VzDHtE9kTmMk5pXcbjhmr0PoPhm3XvqKdKk28DUCwA== integrity checksum failed when using sha512: wanted sha512-JVJbM+f3d3Q704rF4bqQ5WWd2YiLFLD2D//0Z5p48hZ8VzDHtE9kTmMk5pXcbjhmr0PoPhm3XvqKdKk28DUCwA== but got sha512-JVJbM+f3d3Q704rF4bqQ5UUyTtuJ0JRKNbTKVEeujCCBoMdkEi+V+e8oktO9qGQNSvHrFTM6JZRXrUvGR1czww==. (103451 bytes)\n#10 1.316 npm notice\n#10 1.316 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#10 1.316 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#10 1.316 npm notice To update run: npm install -g npm@11.7.0\n#10 1.316 npm notice\n#10 1.316 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-12T18_42_42_620Z-debug-0.log\n#10 ERROR: process \"/bin/sh -c npm ci --only=production\" did not complete successfully: exit code: 1\n------\n > [builder 4/6] RUN npm ci --only=production:\n1.306 npm warn cleanup   ]\n1.306 npm warn cleanup ]\n1.313 npm error code EINTEGRITY\n1.313 npm error sha512-JVJbM+f3d3Q704rF4bqQ5WWd2YiLFLD2D//0Z5p48hZ8VzDHtE9kTmMk5pXcbjhmr0PoPhm3XvqKdKk28DUCwA== integrity checksum failed when using sha512: wanted sha512-JVJbM+f3d3Q704rF4bqQ5WWd2YiLFLD2D//0Z5p48hZ8VzDHtE9kTmMk5pXcbjhmr0PoPhm3XvqKdKk28DUCwA== but got sha512-JVJbM+f3d3Q704rF4bqQ5UUyTtuJ0JRKNbTKVEeujCCBoMdkEi+V+e8oktO9qGQNSvHrFTM6JZRXrUvGR1czww==. (103451 bytes)\n1.316 npm notice\n1.316 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n1.316 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n1.316 npm notice To update run: npm install -g npm@11.7.0\n1.316 npm notice\n1.316 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-12T18_42_42_620Z-debug-0.log\n------\nDockerfile:10\n--------------------\n   8 |     \n   9 |     # Install dependencies\n  10 | >>> RUN npm ci --only=production\n  11 |     \n  12 |     # Copy source files\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm ci --only=production\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ovykhukps40xn3mvki0qj5qs1",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T19:39:51.188725: Starting configuration generation",
+    "2025-12-12T19:42:37.423776: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T19:42:37.423781: Starting quality assessment",
+    "2025-12-12T19:42:43.566742: Dockerfile validation: 1 errors, 0 warnings",
+    "2025-12-12T19:42:43.566764: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T19:42:43.566767: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T19:42:43.566772: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/lsfont-15ba2a57-3180-45b3-8b72-5692107c9165",
+    "run_id": "15ba2a57-3180-45b3-8b72-5692107c9165"
+  }
+}

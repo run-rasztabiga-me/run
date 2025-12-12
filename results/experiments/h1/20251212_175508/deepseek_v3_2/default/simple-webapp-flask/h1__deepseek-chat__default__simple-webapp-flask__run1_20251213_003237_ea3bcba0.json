@@ -1,0 +1,182 @@
+{
+  "repo_url": "https://github.com/mmumshad/simple-webapp-flask",
+  "repo_name": "simple-webapp-flask",
+  "evaluation_id": "ea3bcba0-6d46-4288-98ae-9ad5162ac6b2",
+  "status": "completed",
+  "start_time": "2025-12-13T00:30:25.943608",
+  "end_time": "2025-12-13T00:32:37.836364",
+  "total_evaluation_time": 131.892756,
+  "generation_result": {
+    "repo_url": "https://github.com/mmumshad/simple-webapp-flask",
+    "repo_name": "simple-webapp-flask",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "simple-webapp-flask",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 102.51003408432007,
+    "error_message": null,
+    "timestamp": "2025-12-13T00:32:16.760740",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/simple-webapp-flask-5e9b4bed-ca48-4c96-98f8-51e3efa02d4e",
+    "run_id": "5e9b4bed-ca48-4c96-98f8-51e3efa02d4e"
+  },
+  "execution_metrics": {
+    "total_time": 102.51003408432007,
+    "tool_calls_count": 22,
+    "tool_calls_breakdown": {
+      "think": 5,
+      "write_file": 5,
+      "get_file_content": 3,
+      "ls": 3,
+      "patch_file": 1,
+      "find_files": 1,
+      "search_files": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 103163,
+    "input_tokens": 100682,
+    "output_tokens": 2481,
+    "error_count": 0,
+    "run_id": "5e9b4bed-ca48-4c96-98f8-51e3efa02d4e",
+    "docker_build_metrics": [
+      {
+        "image_tag": "simple-webapp-flask",
+        "build_time": 4.768369913101196,
+        "image_size_mb": 46.54,
+        "layers_count": 8
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webapp\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webapp\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-13T00:30:25.944190: Starting configuration generation",
+    "2025-12-13T00:32:16.760939: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-13T00:32:16.760949: Starting quality assessment",
+    "2025-12-13T00:32:37.836259: Built 1 Docker images (total: 46.5 MB, avg time: 4.8s)",
+    "2025-12-13T00:32:37.836283: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-13T00:32:37.836310: K8s validation: 0 errors, 2 warnings",
+    "2025-12-13T00:32:37.836329: Deployed to namespace: simple-webapp-flask-5e9b4bed-ca48-4c96-98f8-51e3efa02d4e",
+    "2025-12-13T00:32:37.836335: Testing endpoint: /health",
+    "2025-12-13T00:32:37.836343: Runtime validation passed: endpoint is healthy",
+    "2025-12-13T00:32:37.836349: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/simple-webapp-flask-5e9b4bed-ca48-4c96-98f8-51e3efa02d4e",
+    "run_id": "5e9b4bed-ca48-4c96-98f8-51e3efa02d4e"
+  }
+}

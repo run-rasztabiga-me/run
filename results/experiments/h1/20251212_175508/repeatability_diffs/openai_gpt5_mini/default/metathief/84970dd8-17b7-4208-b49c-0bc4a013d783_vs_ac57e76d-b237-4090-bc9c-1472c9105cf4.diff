@@ -1,0 +1,122 @@
+--- 84970dd8-17b7-4208-b49c-0bc4a013d783
++++ ac57e76d-b237-4090-bc9c-1472c9105cf4
+@@ -1,40 +1,46 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Multi-stage build for Next.js app
++# Multi-stage Dockerfile for Next.js application (MetaThief)
+ FROM node:20-bullseye AS builder
+ 
+ WORKDIR /app
+ 
+-# Install dependencies
+-COPY package.json package-lock.json* pnpm-lock.yaml* ./
+-RUN npm install --silent
++# Copy package files first for better caching
++COPY package.json pnpm-lock.yaml ./
++
++# Install dependencies (including devDependencies needed for the build)
++RUN npm install
+ 
+ # Copy source
+ COPY . .
+ 
+-# Build the app
++# Build the Next.js app
+ RUN npm run build
+ 
+-# Production image
++# Remove devDependencies to keep only production deps
++RUN npm prune --production
++
++# Runtime image
+ FROM node:20-bullseye-slim AS runner
+ WORKDIR /app
++
+ ENV NODE_ENV=production
++ENV PORT=3000
+ 
+-# Copy built app and package files
+-COPY --from=builder /app/ .
+-
+-# Remove dev dependencies
+-RUN npm prune --production --silent || true
++# Copy built app and production node_modules
++COPY --from=builder /app/.next ./.next
++COPY --from=builder /app/node_modules ./node_modules
++COPY --from=builder /app/public ./public
++COPY --from=builder /app/package.json ./package.json
+ 
+ EXPOSE 3000
+-ENV PORT=3000
+ 
+-# Use npm start which runs `next start`
++# Start the Next.js server
+ CMD ["npm", "start"]
+-@@FILE:K8s::k8s/deployment.yaml
++@@FILE:K8s::k8s/metathief-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: metathief-deployment
++  name: metathief
+   labels:
+     app: metathief
+ spec:
+@@ -59,7 +65,7 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
++              memory: "256Mi"
+           readinessProbe:
+             httpGet:
+               path: /api
+@@ -70,37 +76,42 @@
+             httpGet:
+               path: /api
+               port: 3000
+-            initialDelaySeconds: 30
++            initialDelaySeconds: 15
+             periodSeconds: 20
+-@@FILE:K8s::k8s/ingress.yaml
++@@FILE:K8s::k8s/metathief-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: metathief-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: metathief.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
++          - path: /
+             pathType: Prefix
+             backend:
+               service:
+                 name: metathief-service
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/service.yaml
++@@FILE:K8s::k8s/metathief-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: metathief-service
+ spec:
++  type: ClusterIP
+   selector:
+     app: metathief
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 3000
+-  type: ClusterIP
++@@FILE:K8s::k8s/namespace.yaml
++apiVersion: v1
++kind: Namespace
++metadata:
++  name: metathief

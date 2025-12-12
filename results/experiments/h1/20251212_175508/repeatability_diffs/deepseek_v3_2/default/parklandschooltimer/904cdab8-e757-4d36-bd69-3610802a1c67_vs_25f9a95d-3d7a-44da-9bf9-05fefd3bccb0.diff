@@ -1,0 +1,20 @@
+--- 904cdab8-e757-4d36-bd69-3610802a1c67
++++ 25f9a95d-3d7a-44da-9bf9-05fefd3bccb0
+@@ -1,14 +1,14 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use official nginx image
++# Use nginx alpine as base image
+ FROM nginx:alpine
+ 
+-# Copy all static files to nginx's html directory
++# Copy static website files to nginx html directory
+ COPY . /usr/share/nginx/html
+ 
+ # Expose port 80
+ EXPOSE 80
+ 
+-# Nginx runs by default, no need for CMD
++# Nginx runs by default
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment

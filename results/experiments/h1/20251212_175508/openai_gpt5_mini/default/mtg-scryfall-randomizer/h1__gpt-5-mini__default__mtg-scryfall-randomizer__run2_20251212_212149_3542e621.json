@@ -1,0 +1,181 @@
+{
+  "repo_url": "https://github.com/rafuwu/mtg-scryfall-randomizer",
+  "repo_name": "mtg-scryfall-randomizer",
+  "evaluation_id": "3542e621-b15e-4581-aa01-6409e17c95f1",
+  "status": "completed",
+  "start_time": "2025-12-12T21:20:41.323047",
+  "end_time": "2025-12-12T21:21:49.282424",
+  "total_evaluation_time": 67.959377,
+  "generation_result": {
+    "repo_url": "https://github.com/rafuwu/mtg-scryfall-randomizer",
+    "repo_name": "mtg-scryfall-randomizer",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "mtg-scryfall-randomizer",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 49.20108509063721,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:21:38.972226",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mtg-scryfall-randomizer-363af271-ba00-4a23-b5b6-e1047e773fa9",
+    "run_id": "363af271-ba00-4a23-b5b6-e1047e773fa9"
+  },
+  "execution_metrics": {
+    "total_time": 49.20108509063721,
+    "tool_calls_count": 14,
+    "tool_calls_breakdown": {
+      "think": 1,
+      "search_files": 1,
+      "find_files": 1,
+      "write_file": 4,
+      "get_file_content": 4,
+      "ls": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 99008,
+    "input_tokens": 96500,
+    "output_tokens": 2508,
+    "error_count": 0,
+    "run_id": "363af271-ba00-4a23-b5b6-e1047e773fa9",
+    "docker_build_metrics": [
+      {
+        "image_tag": "mtg-scryfall-randomizer",
+        "build_time": 0.7472922801971436,
+        "image_size_mb": 20.04,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"web\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"web\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:20:41.323080: Starting configuration generation",
+    "2025-12-12T21:21:38.972320: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T21:21:38.972326: Starting quality assessment",
+    "2025-12-12T21:21:49.282338: Built 1 Docker images (total: 20.0 MB, avg time: 0.7s)",
+    "2025-12-12T21:21:49.282366: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T21:21:49.282383: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T21:21:49.282395: Deployed to namespace: mtg-scryfall-randomizer-363af271-ba00-4a23-b5b6-e1047e773fa9",
+    "2025-12-12T21:21:49.282400: Testing endpoint: /",
+    "2025-12-12T21:21:49.282410: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T21:21:49.282417: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mtg-scryfall-randomizer-363af271-ba00-4a23-b5b6-e1047e773fa9",
+    "run_id": "363af271-ba00-4a23-b5b6-e1047e773fa9"
+  }
+}

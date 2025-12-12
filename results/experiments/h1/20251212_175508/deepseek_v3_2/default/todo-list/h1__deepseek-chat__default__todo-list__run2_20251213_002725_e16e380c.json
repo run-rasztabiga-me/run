@@ -1,0 +1,181 @@
+{
+  "repo_url": "https://github.com/angelvicenteg/ToDo-List",
+  "repo_name": "todo-list",
+  "evaluation_id": "e16e380c-5bbf-4478-bd6d-d5ff1ad3c665",
+  "status": "completed",
+  "start_time": "2025-12-13T00:25:34.082517",
+  "end_time": "2025-12-13T00:27:25.113015",
+  "total_evaluation_time": 111.030498,
+  "generation_result": {
+    "repo_url": "https://github.com/angelvicenteg/ToDo-List",
+    "repo_name": "todo-list",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "todo-list",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 86.41915702819824,
+    "error_message": null,
+    "timestamp": "2025-12-13T00:27:08.363543",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/todo-list-fa6cb092-52f9-4022-896f-c076a02aed45",
+    "run_id": "fa6cb092-52f9-4022-896f-c076a02aed45"
+  },
+  "execution_metrics": {
+    "total_time": 86.41915702819824,
+    "tool_calls_count": 20,
+    "tool_calls_breakdown": {
+      "think": 4,
+      "ls": 2,
+      "write_file": 4,
+      "find_files": 3,
+      "search_files": 2,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 178570,
+    "input_tokens": 176612,
+    "output_tokens": 1958,
+    "error_count": 0,
+    "run_id": "fa6cb092-52f9-4022-896f-c076a02aed45",
+    "docker_build_metrics": [
+      {
+        "image_tag": "todo-list",
+        "build_time": 0.7180681228637695,
+        "image_size_mb": 21.94,
+        "layers_count": 11
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"todo-list\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"todo-list\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-13T00:25:34.082557: Starting configuration generation",
+    "2025-12-13T00:27:08.363671: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-13T00:27:08.363682: Starting quality assessment",
+    "2025-12-13T00:27:25.112931: Built 1 Docker images (total: 21.9 MB, avg time: 0.7s)",
+    "2025-12-13T00:27:25.112959: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-13T00:27:25.112975: K8s validation: 0 errors, 2 warnings",
+    "2025-12-13T00:27:25.112989: Deployed to namespace: todo-list-fa6cb092-52f9-4022-896f-c076a02aed45",
+    "2025-12-13T00:27:25.112995: Testing endpoint: /",
+    "2025-12-13T00:27:25.113003: Runtime validation passed: endpoint is healthy",
+    "2025-12-13T00:27:25.113008: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/todo-list-fa6cb092-52f9-4022-896f-c076a02aed45",
+    "run_id": "fa6cb092-52f9-4022-896f-c076a02aed45"
+  }
+}

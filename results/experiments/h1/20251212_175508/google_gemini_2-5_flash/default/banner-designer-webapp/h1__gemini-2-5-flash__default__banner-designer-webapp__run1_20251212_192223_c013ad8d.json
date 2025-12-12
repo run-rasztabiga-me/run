@@ -1,0 +1,184 @@
+{
+  "repo_url": "https://github.com/IamLRBA/Banner-Designer-WebApp.git",
+  "repo_name": "banner-designer-webapp",
+  "evaluation_id": "c013ad8d-88b6-4142-8abe-973cd8b8cf57",
+  "status": "completed",
+  "start_time": "2025-12-12T19:21:28.659947",
+  "end_time": "2025-12-12T19:22:23.890226",
+  "total_evaluation_time": 55.230279,
+  "generation_result": {
+    "repo_url": "https://github.com/IamLRBA/Banner-Designer-WebApp.git",
+    "repo_name": "banner-designer-webapp",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "banner-designer-webapp",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 18.183051109313965,
+    "error_message": null,
+    "timestamp": "2025-12-12T19:21:54.161957",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/banner-designer-webapp-a8e14a91-1355-418d-9f85-7c0a3c12ff79",
+    "run_id": "a8e14a91-1355-418d-9f85-7c0a3c12ff79"
+  },
+  "execution_metrics": {
+    "total_time": 18.183051109313965,
+    "tool_calls_count": 7,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "get_file_content": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 30157,
+    "input_tokens": 28357,
+    "output_tokens": 1800,
+    "error_count": 0,
+    "run_id": "a8e14a91-1355-418d-9f85-7c0a3c12ff79",
+    "docker_build_metrics": [
+      {
+        "image_tag": "banner-designer-webapp",
+        "build_time": 18.872957706451416,
+        "image_size_mb": 60.22,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 96.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 97.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/banner-designer-webapp-a8e14a91-1355-418d-9f85-7c0a3c12ff79/Dockerfile:3 1 |",
+        "rule_id": "FromAsCasing"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"banner-designer-webapp\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"banner-designer-webapp\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 3,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 97.0,
+      "total_errors": 0,
+      "total_warnings": 3,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T19:21:28.660010: Starting configuration generation",
+    "2025-12-12T19:21:54.162274: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T19:21:54.162285: Starting quality assessment",
+    "2025-12-12T19:22:23.890173: Built 1 Docker images (total: 60.2 MB, avg time: 18.9s)",
+    "2025-12-12T19:22:23.890193: Dockerfile validation: 0 errors, 3 warnings",
+    "2025-12-12T19:22:23.890198: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T19:22:23.890208: Deployed to namespace: banner-designer-webapp-a8e14a91-1355-418d-9f85-7c0a3c12ff79",
+    "2025-12-12T19:22:23.890210: Testing endpoint: /",
+    "2025-12-12T19:22:23.890214: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T19:22:23.890216: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/banner-designer-webapp-a8e14a91-1355-418d-9f85-7c0a3c12ff79",
+    "run_id": "a8e14a91-1355-418d-9f85-7c0a3c12ff79"
+  }
+}

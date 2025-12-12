@@ -1,0 +1,174 @@
+{
+  "repo_url": "https://github.com/9582anupam/scheme-seva.git",
+  "repo_name": "scheme-seva",
+  "evaluation_id": "f40229b2-476d-4edc-9257-d66f86ea61f6",
+  "status": "completed",
+  "start_time": "2025-12-12T23:26:02.054669",
+  "end_time": "2025-12-12T23:32:02.479167",
+  "total_evaluation_time": 360.424498,
+  "generation_result": {
+    "repo_url": "https://github.com/9582anupam/scheme-seva.git",
+    "repo_name": "scheme-seva",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Backend/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "Backend"
+      },
+      {
+        "dockerfile_path": "Frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "Frontend"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/backend-secret.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/frontend-configmap.yaml",
+      "k8s/ingress.yaml",
+      "k8s/mongo-statefulset.yaml",
+      "k8s/mongo-service.yaml",
+      "k8s/mongodb-secret.yaml",
+      "k8s/postgres-placeholder.yaml"
+    ],
+    "generation_time": 274.52036809921265,
+    "error_message": null,
+    "timestamp": "2025-12-12T23:30:46.770478",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/scheme-seva-8ac65822-5780-4d3f-8cc2-94de57e1ac4c",
+    "run_id": "8ac65822-5780-4d3f-8cc2-94de57e1ac4c"
+  },
+  "execution_metrics": {
+    "total_time": 274.52036809921265,
+    "tool_calls_count": 67,
+    "tool_calls_breakdown": {
+      "get_file_content": 21,
+      "find_files": 9,
+      "search_files": 12,
+      "write_file": 17,
+      "patch_file": 3,
+      "ls": 2,
+      "base64_encode": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 1257986,
+    "input_tokens": 1246393,
+    "output_tokens": 11593,
+    "error_count": 0,
+    "run_id": "8ac65822-5780-4d3f-8cc2-94de57e1ac4c",
+    "docker_build_metrics": [
+      {
+        "image_tag": "backend",
+        "build_time": 6.911128759384155,
+        "image_size_mb": 57.06,
+        "layers_count": 8
+      },
+      {
+        "image_tag": "frontend",
+        "build_time": 63.697936058044434,
+        "image_size_mb": 21.92,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 85.0,
+    "overall_score": 69.0,
+    "validation_issues": [
+      {
+        "file_path": "k8s/postgres-placeholder.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: error: no objects passed to apply",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 69.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 85.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 85.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T23:26:02.055209: Starting configuration generation",
+    "2025-12-12T23:30:46.770642: Generated 2 Dockerfiles and 11 K8s manifests",
+    "2025-12-12T23:30:46.770645: Starting quality assessment",
+    "2025-12-12T23:32:02.479116: Built 2 Docker images (total: 79.0 MB, avg time: 35.3s)",
+    "2025-12-12T23:32:02.479141: Dockerfile validation: 1 errors, 0 warnings",
+    "2025-12-12T23:32:02.479150: K8s validation: 1 errors, 0 warnings",
+    "2025-12-12T23:32:02.479160: Deployed to namespace: scheme-seva-8ac65822-5780-4d3f-8cc2-94de57e1ac4c",
+    "2025-12-12T23:32:02.479162: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/scheme-seva-8ac65822-5780-4d3f-8cc2-94de57e1ac4c",
+    "run_id": "8ac65822-5780-4d3f-8cc2-94de57e1ac4c"
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "repo_url": "https://github.com/FullStackWithLawrence/openai-hello-world",
+  "repo_name": "openai-hello-world",
+  "evaluation_id": "b32c4416-7803-4a08-9ff8-1f298b20dca6",
+  "status": "completed",
+  "start_time": "2025-12-13T00:07:15.972351",
+  "end_time": "2025-12-13T00:10:06.816495",
+  "total_evaluation_time": 170.844144,
+  "generation_result": {
+    "repo_url": "https://github.com/FullStackWithLawrence/openai-hello-world",
+    "repo_name": "openai-hello-world",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "openai-hello-world",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 110.97111487388611,
+    "error_message": null,
+    "timestamp": "2025-12-13T00:09:13.929849",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/openai-hello-world-c2faa5e1-d571-46a2-995e-c515e27db11f",
+    "run_id": "c2faa5e1-d571-46a2-995e-c515e27db11f"
+  },
+  "execution_metrics": {
+    "total_time": 110.97111487388611,
+    "tool_calls_count": 27,
+    "tool_calls_breakdown": {
+      "think": 2,
+      "ls": 1,
+      "write_file": 7,
+      "get_file_content": 11,
+      "patch_file": 2,
+      "search_files": 1,
+      "find_files": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 165515,
+    "input_tokens": 158690,
+    "output_tokens": 6825,
+    "error_count": 0,
+    "run_id": "c2faa5e1-d571-46a2-995e-c515e27db11f",
+    "docker_build_metrics": [
+      {
+        "image_tag": "openai-hello-world",
+        "build_time": 28.170318841934204,
+        "image_size_mb": 156.55,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 96.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 97.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 7,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 13,
+        "severity": "warning",
+        "message": "Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`",
+        "rule_id": "DL3013"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"openai-hello-world\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"openai-hello-world\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 4,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 97.0,
+      "total_errors": 0,
+      "total_warnings": 4,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-13T00:07:15.973153: Starting configuration generation",
+    "2025-12-13T00:09:13.929948: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-13T00:09:13.929952: Starting quality assessment",
+    "2025-12-13T00:10:06.816414: Built 1 Docker images (total: 156.6 MB, avg time: 28.2s)",
+    "2025-12-13T00:10:06.816442: Dockerfile validation: 0 errors, 4 warnings",
+    "2025-12-13T00:10:06.816451: K8s validation: 0 errors, 2 warnings",
+    "2025-12-13T00:10:06.816471: Deployed to namespace: openai-hello-world-c2faa5e1-d571-46a2-995e-c515e27db11f",
+    "2025-12-13T00:10:06.816475: Testing endpoint: /api/health",
+    "2025-12-13T00:10:06.816479: Runtime validation passed: endpoint is healthy",
+    "2025-12-13T00:10:06.816483: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/openai-hello-world-c2faa5e1-d571-46a2-995e-c515e27db11f",
+    "run_id": "c2faa5e1-d571-46a2-995e-c515e27db11f"
+  }
+}

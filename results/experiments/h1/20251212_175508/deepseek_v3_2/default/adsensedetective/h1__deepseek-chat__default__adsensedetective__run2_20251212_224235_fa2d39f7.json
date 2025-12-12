@@ -1,0 +1,189 @@
+{
+  "repo_url": "https://github.com/isixe/AdSenseDetective.git",
+  "repo_name": "adsensedetective",
+  "evaluation_id": "fa2d39f7-2f54-4d91-8ed9-06fc191dc0b5",
+  "status": "completed",
+  "start_time": "2025-12-12T22:38:08.831793",
+  "end_time": "2025-12-12T22:42:35.886167",
+  "total_evaluation_time": 267.054374,
+  "generation_result": {
+    "repo_url": "https://github.com/isixe/AdSenseDetective.git",
+    "repo_name": "adsensedetective",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "adsensedetective",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 168.7751088142395,
+    "error_message": null,
+    "timestamp": "2025-12-12T22:41:06.280357",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/adsensedetective-6613d469-8d24-433c-acb5-3b123866bf85",
+    "run_id": "6613d469-8d24-433c-acb5-3b123866bf85"
+  },
+  "execution_metrics": {
+    "total_time": 168.7751088142395,
+    "tool_calls_count": 36,
+    "tool_calls_breakdown": {
+      "think": 10,
+      "ls": 4,
+      "write_file": 5,
+      "patch_file": 1,
+      "get_file_content": 7,
+      "find_files": 2,
+      "search_files": 5,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 552463,
+    "input_tokens": 548115,
+    "output_tokens": 4348,
+    "error_count": 0,
+    "run_id": "6613d469-8d24-433c-acb5-3b123866bf85",
+    "docker_build_metrics": [
+      {
+        "image_tag": "adsensedetective",
+        "build_time": 62.55919575691223,
+        "image_size_mb": 278.6,
+        "layers_count": 12
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 98.0,
+    "overall_score": 98.5,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 5,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 34,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 1,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.5,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T22:38:08.832073: Starting configuration generation",
+    "2025-12-12T22:41:06.280508: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T22:41:06.280513: Starting quality assessment",
+    "2025-12-12T22:42:35.886027: Built 1 Docker images (total: 278.6 MB, avg time: 62.6s)",
+    "2025-12-12T22:42:35.886086: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T22:42:35.886113: K8s validation: 0 errors, 1 warnings",
+    "2025-12-12T22:42:35.886131: Deployed to namespace: adsensedetective-6613d469-8d24-433c-acb5-3b123866bf85",
+    "2025-12-12T22:42:35.886136: Testing endpoint: /",
+    "2025-12-12T22:42:35.886144: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T22:42:35.886155: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/adsensedetective-6613d469-8d24-433c-acb5-3b123866bf85",
+    "run_id": "6613d469-8d24-433c-acb5-3b123866bf85"
+  }
+}

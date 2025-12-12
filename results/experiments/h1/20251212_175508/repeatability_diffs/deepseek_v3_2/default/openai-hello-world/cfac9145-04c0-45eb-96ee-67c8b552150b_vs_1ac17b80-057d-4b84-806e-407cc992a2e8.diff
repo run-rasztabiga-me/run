@@ -1,0 +1,175 @@
+--- cfac9145-04c0-45eb-96ee-67c8b552150b
++++ 1ac17b80-057d-4b84-806e-407cc992a2e8
+@@ -1,9 +1,14 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use Python 3.11 slim image
++# Use Python 3.11 slim image as base
+ FROM python:3.11-slim
+ 
+ # Set working directory
+ WORKDIR /app
++
++# Set environment variables
++ENV PYTHONDONTWRITEBYTECODE=1
++ENV PYTHONUNBUFFERED=1
++ENV PORT=5000
+ 
+ # Install system dependencies
+ RUN apt-get update && apt-get install -y --no-install-recommends \
+@@ -11,34 +16,44 @@
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements files
+-COPY requirements/prod.txt requirements.txt
+-COPY requirements-web.txt .
++COPY requirements/prod.txt requirements/prod.txt
++COPY requirements/web.txt requirements/web.txt
+ 
+ # Install Python dependencies
+-RUN pip install --no-cache-dir -r requirements-web.txt
++RUN pip install --no-cache-dir --upgrade pip && \
++    pip install --no-cache-dir -r requirements/prod.txt -r requirements/web.txt
+ 
+ # Copy application code
+-COPY . .
++COPY app/ app/
++COPY pyproject.toml .
+ 
+-# Create a non-root user
++# Create a non-root user to run the application
+ RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+ USER appuser
+ 
+-# Expose port
+-EXPOSE 8080
++# Expose the port the app runs on
++EXPOSE 5000
+ 
+ # Health check
+ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"
++    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+ 
+-# Run the application with gunicorn
+-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "web:app"]
++# Command to run the application
++CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app.web_server:app"]
++@@FILE:K8s::k8s/configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: openai-config
++data:
++  openai-api-model: "gpt-4o-mini"
++  openai-api-temperature: "0.0"
++  openai-api-max-tokens: "64"
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: openai-hello-world
+-  namespace: openai-hello-world
+   labels:
+     app: openai-hello-world
+ spec:
+@@ -51,21 +66,29 @@
+       labels:
+         app: openai-hello-world
+     spec:
++        - name: OPENAI_API_MODEL
++          value: "gpt-4o-mini"
++        - name: OPENAI_API_TEMPERATURE
++          value: "0.0"
++        - name: OPENAI_API_MAX_TOKENS
++          value: "64"
+       containers:
+       - name: openai-hello-world
+         image: openai-hello-world:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+-        - containerPort: 8080
++        - containerPort: 5000
+           name: http
+         env:
+         - name: OPENAI_API_KEY
+           valueFrom:
+             secretKeyRef:
+-              name: openai-hello-world-secret
+-              key: OPENAI_API_KEY
++              name: openai-secret
++              key: api-key
+         - name: ENVIRONMENT
+           value: "prod"
++        - name: PORT
++          value: "5000"
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -76,7 +99,7 @@
+         livenessProbe:
+           httpGet:
+             path: /health
+-            port: 8080
++            port: 5000
+           initialDelaySeconds: 30
+           periodSeconds: 10
+           timeoutSeconds: 3
+@@ -84,17 +107,16 @@
+         readinessProbe:
+           httpGet:
+             path: /health
+-            port: 8080
++            port: 5000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+           timeoutSeconds: 3
+-          failureThreshold: 3
++          failureThreshold: 1
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: openai-hello-world-ingress
+-  namespace: openai-hello-world
++  name: openai-hello-world
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -109,26 +131,19 @@
+             name: openai-hello-world
+             port:
+               number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: openai-hello-world
+ @@FILE:K8s::k8s/secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+-  name: openai-hello-world-secret
+-  namespace: openai-hello-world
++  name: openai-secret
+ type: Opaque
+ data:
+-  OPENAI_API_KEY: eW91ci1vcGVuYWktYXBpLWtleS1oZXJl
++  api-key: eW91ci1vcGVuYWktYXBpLWtleS1oZXJl
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: openai-hello-world
+-  namespace: openai-hello-world
+   labels:
+     app: openai-hello-world
+ spec:
+@@ -136,6 +151,7 @@
+     app: openai-hello-world
+   ports:
+   - port: 80
+-    targetPort: 8080
++    targetPort: 5000
++    protocol: TCP
+     name: http
+   type: ClusterIP

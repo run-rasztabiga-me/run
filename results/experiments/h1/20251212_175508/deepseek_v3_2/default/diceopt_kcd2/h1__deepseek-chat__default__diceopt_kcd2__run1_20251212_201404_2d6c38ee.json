@@ -1,0 +1,179 @@
+{
+  "repo_url": "https://github.com/cgize/DiceOpt_kcd2.git",
+  "repo_name": "diceopt_kcd2",
+  "evaluation_id": "2d6c38ee-ee76-4c50-92af-c48de9b58be6",
+  "status": "completed",
+  "start_time": "2025-12-12T20:12:13.407799",
+  "end_time": "2025-12-12T20:14:04.425362",
+  "total_evaluation_time": 111.017563,
+  "generation_result": {
+    "repo_url": "https://github.com/cgize/DiceOpt_kcd2.git",
+    "repo_name": "diceopt_kcd2",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "diceopt-kcd2",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 82.25164794921875,
+    "error_message": null,
+    "timestamp": "2025-12-12T20:13:42.520322",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/diceopt_kcd2-d36cef25-b9c9-481d-9f6c-05f65c2fb49b",
+    "run_id": "d36cef25-b9c9-481d-9f6c-05f65c2fb49b"
+  },
+  "execution_metrics": {
+    "total_time": 82.25164794921875,
+    "tool_calls_count": 16,
+    "tool_calls_breakdown": {
+      "think": 5,
+      "ls": 2,
+      "write_file": 4,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 133486,
+    "input_tokens": 131268,
+    "output_tokens": 2218,
+    "error_count": 0,
+    "run_id": "d36cef25-b9c9-481d-9f6c-05f65c2fb49b",
+    "docker_build_metrics": [
+      {
+        "image_tag": "diceopt-kcd2",
+        "build_time": 0.8968117237091064,
+        "image_size_mb": 22.14,
+        "layers_count": 16
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"diceopt-kcd2\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"diceopt-kcd2\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T20:12:13.407922: Starting configuration generation",
+    "2025-12-12T20:13:42.520408: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T20:13:42.520415: Starting quality assessment",
+    "2025-12-12T20:14:04.425293: Built 1 Docker images (total: 22.1 MB, avg time: 0.9s)",
+    "2025-12-12T20:14:04.425313: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T20:14:04.425322: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T20:14:04.425338: Deployed to namespace: diceopt-kcd2-d36cef25-b9c9-481d-9f6c-05f65c2fb49b",
+    "2025-12-12T20:14:04.425342: Testing endpoint: /",
+    "2025-12-12T20:14:04.425348: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T20:14:04.425352: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/diceopt_kcd2-d36cef25-b9c9-481d-9f6c-05f65c2fb49b",
+    "run_id": "d36cef25-b9c9-481d-9f6c-05f65c2fb49b"
+  }
+}

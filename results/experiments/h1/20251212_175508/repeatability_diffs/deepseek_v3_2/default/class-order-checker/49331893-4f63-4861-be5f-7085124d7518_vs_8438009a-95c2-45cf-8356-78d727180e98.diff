@@ -1,0 +1,23 @@
+--- 49331893-4f63-4861-be5f-7085124d7518
++++ 8438009a-95c2-45cf-8356-78d727180e98
+@@ -1,9 +1,9 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use nginx as base image to serve static files
++# Use official nginx image as base
+ FROM nginx:alpine
+ 
+ # Copy static files to nginx html directory
+-COPY . /usr/share/nginx/html
++COPY . /usr/share/nginx/html/
+ 
+ # Expose port 80
+ EXPOSE 80
+@@ -27,7 +27,7 @@
+         app: class-order-checker
+     spec:
+       containers:
+-      - name: class-order-checker
++      - name: web
+         image: class-order-checker
+         imagePullPolicy: IfNotPresent
+         ports:

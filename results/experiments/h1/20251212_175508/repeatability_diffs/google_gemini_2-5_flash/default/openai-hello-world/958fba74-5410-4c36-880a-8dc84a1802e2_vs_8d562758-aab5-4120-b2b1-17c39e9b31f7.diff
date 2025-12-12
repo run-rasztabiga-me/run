@@ -1,0 +1,113 @@
+--- 958fba74-5410-4c36-880a-8dc84a1802e2
++++ 8d562758-aab5-4120-b2b1-17c39e9b31f7
+@@ -1,4 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
++
+ FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+@@ -6,20 +7,14 @@
+ COPY requirements/prod.txt .
+ RUN pip install --no-cache-dir -r prod.txt
+ 
+-COPY app .
++COPY . .
+ 
+-ENV PYTHONUNBUFFERED=1
++EXPOSE 5000
+ 
+-CMD ["python", "-m", "hello_world"]
+-@@FILE:K8s::k8s/openai-api-key-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: openai-api-key-secret
+-type: Opaque
+-data:
+-  OPENAI_API_KEY: WU9VUl9PUEVOQUlfQVBJX0tFWV9IRVJF
+-@@FILE:K8s::k8s/openai-hello-world-deployment.yaml
++ENV RUN_AS_WEB_APP="true"
++
++CMD ["python", "-m", "app.hello_world"]
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -40,12 +35,16 @@
+       - name: openai-hello-world
+         image: openai-hello-world
+         imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 5000
+         env:
+         - name: OPENAI_API_KEY
+           valueFrom:
+             secretKeyRef:
+-              name: openai-api-key-secret
++              name: openai-secret
+               key: OPENAI_API_KEY
++        - name: RUN_AS_WEB_APP
++          value: "true"
+         resources:
+           requests:
+             memory: "64Mi"
+@@ -53,3 +52,59 @@
+           limits:
+             memory: "128Mi"
+             cpu: "100m"
++        livenessProbe:
++          httpGet:
++            path: /hello
++            port: 5000
++          initialDelaySeconds: 5
++          periodSeconds: 10
++        readinessProbe:
++          httpGet:
++            path: /hello
++            port: 5000
++          initialDelaySeconds: 5
++          periodSeconds: 10
++@@FILE:K8s::k8s/ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: openai-hello-world-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/use-regex: "true"
++    nginx.ingress.kubernetes.io/rewrite-target: /$2
++spec:
++  rules:
++  - host: openai-hello-world.rasztabiga.me
++    http:
++      paths:
++      - path: /(.*)
++        pathType: Prefix
++        backend:
++          service:
++            name: openai-hello-world-service
++            port:
++              number: 5000
++@@FILE:K8s::k8s/openai-secret.yaml
++apiVersion: v1
++kind: Secret
++metadata:
++  name: openai-secret
++type: Opaque
++data:
++  OPENAI_API_KEY: eW91ci1vcGVuYWktYXBpLWtleQ==
++@@FILE:K8s::k8s/service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: openai-hello-world-service
++  labels:
++    app: openai-hello-world
++spec:
++  selector:
++    app: openai-hello-world
++  ports:
++    - protocol: TCP
++      port: 5000
++      targetPort: 5000
++  type: ClusterIP

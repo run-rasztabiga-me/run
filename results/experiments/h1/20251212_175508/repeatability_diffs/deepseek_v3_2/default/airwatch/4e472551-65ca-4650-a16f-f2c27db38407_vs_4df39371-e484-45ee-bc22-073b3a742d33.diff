@@ -1,0 +1,449 @@
+--- 4e472551-65ca-4650-a16f-f2c27db38407
++++ 4df39371-e484-45ee-bc22-073b3a742d33
+@@ -1,6 +1,6 @@
+ @@FILE:Dockerfile::Dockerfile
+ # Build stage
+-FROM node:18-alpine AS builder
++FROM node:18-alpine AS build
+ 
+ WORKDIR /app
+ 
+@@ -8,30 +8,24 @@
+ COPY package*.json ./
+ 
+ # Install dependencies
+-RUN npm ci
++RUN npm ci --only=production
+ 
+ # Copy source code
+ COPY . .
+ 
+-# Build the application with environment variables
+-ARG WAQI_API_KEY=demo
+-ARG AIRWATCH_ARTICLES_BASE_URL=http://backend-service
+-
+-ENV WAQI_API_KEY=${WAQI_API_KEY}
+-ENV AIRWATCH_ARTICLES_BASE_URL=${AIRWATCH_ARTICLES_BASE_URL}
+-
+-RUN npm run build
+-
+-# Production stage
++# Build the application with backend URL
++ARG AIRWATCH_BACKEND_URL=http://backend-service:9000
++RUN AIRWATCH_BACKEND_URL=${AIRWATCH_BACKEND_URL} npm run build
++
++# Production stage - serve static files
+ FROM nginx:alpine
+ 
+-# Copy built files from builder stage
+-COPY --from=builder /app/dist /usr/share/nginx/html
++# Copy built files from build stage
++COPY --from=build /app/dist /usr/share/nginx/html
+ 
+ # Copy nginx configuration
+ COPY nginx.conf /etc/nginx/conf.d/default.conf
+ 
+-# Expose port 80
+ EXPOSE 80
+ 
+ CMD ["nginx", "-g", "daemon off;"]
+@@ -49,25 +43,47 @@
+ # Copy source code
+ COPY . .
+ 
+-# Expose port 9000
++# Create non-root user
++RUN addgroup -g 1001 -S nodejs && \
++    adduser -S nodejs -u 1001
++
++# Change ownership to non-root user
++RUN chown -R nodejs:nodejs /app
++
++USER nodejs
++
+ EXPOSE 9000
+ 
+-# Start the application
+ CMD ["npm", "start"]
++@@FILE:K8s::k8s/backend-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: backend-config
++  labels:
++    app: airwatch
++data:
++  NODE_ENV: "production"
++  PORT: "9000"
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: backend-deployment
++  name: backend
++  labels:
++    app: airwatch
++    component: backend
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: backend
++      app: airwatch
++      component: backend
+   template:
+     metadata:
+       labels:
+-        app: backend
++        app: airwatch
++        component: backend
+     spec:
+       containers:
+       - name: backend
+@@ -76,82 +92,87 @@
+         ports:
+         - containerPort: 9000
+         env:
++        - name: NODE_ENV
++          valueFrom:
++            configMapKeyRef:
++              name: backend-config
++              key: NODE_ENV
+         - name: MONGODB_URI
+           valueFrom:
+             secretKeyRef:
++              name: mongodb-secret
++              key: MONGODB_URI
++        - name: API_KEY
++          valueFrom:
++            secretKeyRef:
+               name: backend-secret
+-              key: mongodb-uri
+-        - name: API_KEY
+-          valueFrom:
+-            secretKeyRef:
+-              name: backend-secret
+-              key: api-key
+-        - name: PORT
+-          value: "9000"
++              key: API_KEY
+         resources:
+           requests:
+-            memory: "128Mi"
+-            cpu: "100m"
++            memory: "256Mi"
++            cpu: "200m"
+           limits:
+-            memory: "256Mi"
+-            cpu: "250m"
+-        readinessProbe:
++            memory: "512Mi"
++            cpu: "500m"
++        livenessProbe:
+           httpGet:
+             path: /articles
+             port: 9000
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
+-          timeoutSeconds: 5
+-        livenessProbe:
++          initialDelaySeconds: 60
++          periodSeconds: 30
++        readinessProbe:
+           httpGet:
+             path: /articles
+             port: 9000
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-          timeoutSeconds: 5
+ @@FILE:K8s::k8s/backend-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: backend-secret
++  labels:
++    app: airwatch
+ type: Opaque
+ data:
+-  api-key: dGVzdC1hcGkta2V5  # test-api-key
+-  mongodb-uri: bW9uZ29kYjovL3Jvb3Q6cGFzc3dvcmRAbW9uZ28tZGItc2VydmljZToyNzAxNy9BaXJ3YXRjaElELUFydGljbGVz  # mongodb://root:password@mongo-db-service:27017/AirwatchID-Articles
++  API_KEY: eW91ci1hcGkta2V5LWhlcmU=
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: backend-service
+-spec:
+-  selector:
+-    app: backend
++  labels:
++    app: airwatch
++    component: backend
++spec:
++  selector:
++    app: airwatch
++    component: backend
+   ports:
+-  - port: 80
++  - port: 9000
+     targetPort: 9000
++    protocol: TCP
++    name: http
+   type: ClusterIP
+-@@FILE:K8s::k8s/frontend-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: frontend-config
+-data:
+-  WAQI_API_KEY: "demo"  # Using demo key for WAQI API
+-  AIRWATCH_ARTICLES_BASE_URL: "http://backend-service"
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: frontend-deployment
++  name: frontend
++  labels:
++    app: airwatch
++    component: frontend
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: frontend
++      app: airwatch
++      component: frontend
+   template:
+     metadata:
+       labels:
+-        app: frontend
++        app: airwatch
++        component: frontend
+     spec:
+       containers:
+       - name: frontend
+@@ -162,46 +183,55 @@
+         env:
+         - name: WAQI_API_KEY
+           valueFrom:
+-            configMapKeyRef:
+-              name: frontend-config
++            secretKeyRef:
++              name: frontend-secret
+               key: WAQI_API_KEY
+-        - name: AIRWATCH_ARTICLES_BASE_URL
+-          valueFrom:
+-            configMapKeyRef:
+-              name: frontend-config
+-              key: AIRWATCH_ARTICLES_BASE_URL
+         resources:
+           requests:
+             memory: "128Mi"
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "250m"
+-        readinessProbe:
+-          httpGet:
+-            path: /health
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-          timeoutSeconds: 5
++            cpu: "200m"
+         livenessProbe:
+           httpGet:
+             path: /health
+             port: 80
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-          timeoutSeconds: 5
++        readinessProbe:
++          httpGet:
++            path: /health
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 5
++@@FILE:K8s::k8s/frontend-secret.yaml
++apiVersion: v1
++kind: Secret
++metadata:
++  name: frontend-secret
++  labels:
++    app: airwatch
++type: Opaque
++data:
++  WAQI_API_KEY: eW91ci13YXFpLWFwaS1rZXktaGVyZQ==
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: frontend-service
+-spec:
+-  selector:
+-    app: frontend
++  labels:
++    app: airwatch
++    component: frontend
++spec:
++  selector:
++    app: airwatch
++    component: frontend
+   ports:
+   - port: 80
+     targetPort: 80
++    protocol: TCP
++    name: http
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -229,77 +259,97 @@
+           service:
+             name: backend-service
+             port:
+-              number: 80
++              number: 9000
+ @@FILE:K8s::k8s/mongodb-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: mongodb-secret
++  labels:
++    app: airwatch
+ type: Opaque
+ data:
+-  mongodb-root-username: cm9vdA==  # root
+-  mongodb-root-password: cGFzc3dvcmQ=  # password
+-  mongodb-database: QWlyd2F0Y2hJRC1BcnRpY2xlcw==  # AirwatchID-Articles
+-  mongodb-uri: bW9uZ29kYjovL3Jvb3Q6cGFzc3dvcmRAbW9uZ28tZGItc2VydmljZToyNzAxNy9BaXJ3YXRjaElELUFydGljbGVz  # mongodb://root:password@mongo-db-service:27017/AirwatchID-Articles
++  MONGO_INITDB_ROOT_USERNAME: YWRtaW4=
++  MONGO_INITDB_ROOT_PASSWORD: cGFzc3dvcmQxMjM=
++  MONGODB_URI: bW9uZ29kYjovL2FkbWluOnBhc3N3b3JkMTIzQG1vbmdvZGItc2VydmljZToyNzAxNy9BaXJ3YXRjaElELUFydGljbGVz
+ @@FILE:K8s::k8s/mongodb-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: mongo-db-service
+-spec:
+-  selector:
+-    app: mongo-db
++  name: mongodb-service
++  labels:
++    app: airwatch
++    component: mongodb
++spec:
++  selector:
++    app: airwatch
++    component: mongodb
+   ports:
+   - port: 27017
+     targetPort: 27017
+-  clusterIP: None
++    protocol: TCP
++    name: mongodb
++  type: ClusterIP
+ @@FILE:K8s::k8s/mongodb-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: mongo-db
+-spec:
+-  serviceName: mongo-db-service
++  name: mongodb
++  labels:
++    app: airwatch
++    component: mongodb
++spec:
++  serviceName: mongodb-service
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: mongo-db
++      app: airwatch
++      component: mongodb
+   template:
+     metadata:
+       labels:
+-        app: mongo-db
++        app: airwatch
++        component: mongodb
+     spec:
+       containers:
+       - name: mongodb
+-        image: mongo:6.0
++        image: mongo:6
++        imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 27017
++          name: mongodb
+         env:
+         - name: MONGO_INITDB_ROOT_USERNAME
+           valueFrom:
+             secretKeyRef:
+               name: mongodb-secret
+-              key: mongodb-root-username
++              key: MONGO_INITDB_ROOT_USERNAME
+         - name: MONGO_INITDB_ROOT_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: mongodb-secret
+-              key: mongodb-root-password
++              key: MONGO_INITDB_ROOT_PASSWORD
+         - name: MONGO_INITDB_DATABASE
+-          valueFrom:
+-            secretKeyRef:
+-              name: mongodb-secret
+-              key: mongodb-database
++          value: "AirwatchID-Articles"
++        resources:
++          requests:
++            memory: "512Mi"
++            cpu: "250m"
++          limits:
++            memory: "1Gi"
++            cpu: "500m"
+         volumeMounts:
+         - name: mongodb-data
+           mountPath: /data/db
+-        resources:
+-          requests:
+-            memory: "256Mi"
+-            cpu: "250m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
++        livenessProbe:
++          exec:
++            command:
++            - mongosh
++            - --eval
++            - "db.adminCommand('ping')"
++          initialDelaySeconds: 30
++          periodSeconds: 10
++          timeoutSeconds: 5
+         readinessProbe:
+           exec:
+             command:
+@@ -309,15 +359,6 @@
+           initialDelaySeconds: 5
+           periodSeconds: 10
+           timeoutSeconds: 5
+-        livenessProbe:
+-          exec:
+-            command:
+-            - mongosh
+-            - --eval
+-            - "db.adminCommand('ping')"
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
+-          timeoutSeconds: 5
+   volumeClaimTemplates:
+   - metadata:
+       name: mongodb-data
+@@ -325,4 +366,4 @@
+       accessModes: [ "ReadWriteOnce" ]
+       resources:
+         requests:
+-          storage: 1Gi
++          storage: 5Gi

@@ -1,0 +1,368 @@
+--- 4abe9d2c-13f7-405d-9767-9d4d2929f261
++++ 097bb773-f60d-4014-a0b9-9f3e876b8c4e
+@@ -1,168 +1,81 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Multi-stage build: build React client then build server image
+-FROM node:14 AS builder
++# Multi-stage build for server + client
++FROM node:14-buster-slim as builder
++WORKDIR /usr/src/app
++
++# copy root package files
++COPY package*.json ./
++# copy client package files
++COPY client/package*.json ./client/
++
++# install server deps
++RUN npm install --only=production || true
++# install client deps and build
++WORKDIR /usr/src/app/client
++RUN npm install
++COPY client/ ./
++RUN npm run build
++
++# Final image
++FROM node:14-buster-slim
++WORKDIR /usr/src/app
++
++# copy server files
++COPY package*.json ./
++# install server dependencies (production)
++RUN npm install --only=production
++
++# copy app source
++COPY . /usr/src/app
++# copy built client
++COPY --from=builder /usr/src/app/client/build /usr/src/app/client/build
++
++ENV NODE_ENV=production
++EXPOSE 4000
++
++CMD ["node", "index.js"]
++@@FILE:Dockerfile::client/Dockerfile
++# Optional frontend-only Dockerfile (not used by k8s, server serves static build)
++FROM node:14-buster-slim as build
+ WORKDIR /app
+-# Copy client sources and install + build
+-COPY client/package*.json ./client/
+-COPY client/ ./client/
+-RUN cd client && npm install && npm run build
+-
+-# Final image
+-FROM node:14-alpine
+-WORKDIR /usr/src/app
+-# Install server dependencies
+-COPY package*.json ./
+-RUN npm install --production
+-
+-# Copy server source
+-COPY . .
+-# Copy built client assets
+-COPY --from=builder /app/client/build ./client/build
+-
+-EXPOSE 4000
+-ENV PORT=4000
+-CMD ["node","index.js"]
++COPY client/package*.json ./
++RUN npm install
++COPY client/ ./
++RUN npm run build
++
++FROM nginx:alpine
++COPY --from=build /app/build /usr/share/nginx/html
++EXPOSE 80
++CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/README.txt
+-Files generated:
+-- Dockerfile (root)
+-- k8s/server-deployment.yaml
+-- k8s/server-service.yaml
+-- k8s/ingress.yaml
+-- k8s/mongo-statefulset.yaml
+-- k8s/mongo-service.yaml
+-- k8s/mongo-secret-simple.yaml
+-- k8s/app-secret.yaml
+-
+-Test endpoint: /check
+-Ingress host: realtime-chatting-webapp.rasztabiga.me
+-@@FILE:K8s::k8s/app-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: app-secret
+-type: Opaque
+-data:
+-  bcrypt_KEY: c3VwZXJzZWNyZXQ=
+-@@FILE:K8s::k8s/ingress.yaml
+-apiVersion: networking.k8s.io/v1
+-kind: Ingress
+-metadata:
+-  name: realtime-chat-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+-spec:
+-  rules:
+-  - host: realtime-chatting-webapp.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: realtime-chat-service
+-            port:
+-              number: 80
+-@@FILE:K8s::k8s/mongo-secret-simple.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: mongo-secret-simple
+-type: Opaque
+-data:
+-  mongodb_uri: bW9uZ29kYjovL21vbmdvOjI3MDE3L2NoYXRkYg==
+-@@FILE:K8s::k8s/mongo-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: mongo-secret
+-type: Opaque
+-data:
+-  mongodb_uri: bW9uZ29kYjovL3Jvb3Q6ZXhhbXBsZUBtb25nbzoyNzAxNy9jaGF0ZGI/YXV0aFNvdXJjZT1hZG1pbg==
+-@@FILE:K8s::k8s/mongo-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: mongo
+-spec:
+-  ports:
+-  - port: 27017
+-    targetPort: 27017
+-  clusterIP: None
+-  selector:
+-    app: mongo
+-@@FILE:K8s::k8s/mongo-statefulset.yaml
++Notes:
++- The mongo secret contains default credentials (root / examplepassword). You can change it before applying manifests.
++- The backend image name in Deployment is set to 'backend'. Build and tag your image accordingly.
++- Ingress host: realtime-chatting-webapp.rasztabiga.me
++- Test endpoint: /check
++@@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+-kind: StatefulSet
+-metadata:
+-  name: mongo
+-spec:
+-  serviceName: "mongo"
++kind: Deployment
++metadata:
++  name: realtime-chat-backend
++  labels:
++    app: realtime-chat
++spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: mongo
++      app: realtime-chat
+   template:
+     metadata:
+       labels:
+-        app: mongo
++        app: realtime-chat
+     spec:
+       containers:
+-      - name: mongo
+-        image: mongo:4.4
+-        ports:
+-        - containerPort: 27017
+-        volumeMounts:
+-        - name: mongo-pvc
+-          mountPath: /data/db
+-        resources:
+-          requests:
+-            cpu: "100m"
+-            memory: "256Mi"
+-          limits:
+-            cpu: "500m"
+-            memory: "512Mi"
+-  volumeClaimTemplates:
+-  - metadata:
+-      name: mongo-pvc
+-    spec:
+-      accessModes: ["ReadWriteOnce"]
+-      resources:
+-        requests:
+-          storage: 1Gi
+-@@FILE:K8s::k8s/server-deployment.yaml
+-apiVersion: apps/v1
+-kind: Deployment
+-metadata:
+-  name: realtime-chat-server
+-spec:
+-  replicas: 1
+-  selector:
+-    matchLabels:
+-      app: realtime-chat-server
+-  template:
+-    metadata:
+-      labels:
+-        app: realtime-chat-server
+-    spec:
+-      containers:
+-      - name: server
+-        image: realtime-chat-server:latest
++      - name: backend
++        image: backend
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 4000
+-        env:
+-        - name: PORT
+-          value: "4000"
+-        - name: DATABASE_URL
+-          valueFrom:
+-            secretKeyRef:
+-              name: mongo-secret-simple
+-              key: mongodb_uri
+-        - name: bcrypt_KEY
+-          valueFrom:
+-            secretKeyRef:
+-              name: app-secret
+-              key: bcrypt_KEY
+         resources:
+           requests:
+             cpu: "100m"
+@@ -170,6 +83,21 @@
+           limits:
+             cpu: "500m"
+             memory: "512Mi"
++        env:
++        - name: PORT
++          value: "4000"
++        - name: MONGO_USER
++          valueFrom:
++            secretKeyRef:
++              name: mongo-secret
++              key: mongo-user
++        - name: MONGO_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: mongo-secret
++              key: mongo-password
++        - name: DATABASE_URL
++          value: "mongodb://$(MONGO_USER):$(MONGO_PASSWORD)@mongo:27017/chatdb?authSource=admin"
+         livenessProbe:
+           httpGet:
+             path: /check
+@@ -182,16 +110,108 @@
+             port: 4000
+           initialDelaySeconds: 5
+           periodSeconds: 10
+-@@FILE:K8s::k8s/server-service.yaml
++@@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: realtime-chat-service
+ spec:
+   selector:
+-    app: realtime-chat-server
++    app: realtime-chat
+   ports:
+-  - protocol: TCP
++  - name: http
+     port: 80
+     targetPort: 4000
+   type: ClusterIP
++@@FILE:K8s::k8s/ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: realtime-chat-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
++spec:
++  rules:
++  - host: realtime-chatting-webapp.rasztabiga.me
++    http:
++      paths:
++      - path: /(.*)
++        pathType: ImplementationSpecific
++        backend:
++          service:
++            name: realtime-chat-service
++            port:
++              number: 80
++@@FILE:K8s::k8s/mongo-secret.yaml
++apiVersion: v1
++kind: Secret
++metadata:
++  name: mongo-secret
++type: Opaque
++stringData:
++  mongo-user: root
++  mongo-password: examplepassword
++@@FILE:K8s::k8s/mongo-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: mongo
++spec:
++  ports:
++  - port: 27017
++    targetPort: 27017
++  clusterIP: None
++  selector:
++    app: mongo
++@@FILE:K8s::k8s/mongo-statefulset.yaml
++apiVersion: apps/v1
++kind: StatefulSet
++metadata:
++  name: mongo
++spec:
++  selector:
++    matchLabels:
++      app: mongo
++  serviceName: "mongo"
++  replicas: 1
++  template:
++    metadata:
++      labels:
++        app: mongo
++    spec:
++      containers:
++      - name: mongo
++        image: mongo:4.4
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 27017
++          name: mongo
++        env:
++        - name: MONGO_INITDB_ROOT_USERNAME
++          valueFrom:
++            secretKeyRef:
++              name: mongo-secret
++              key: mongo-user
++        - name: MONGO_INITDB_ROOT_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: mongo-secret
++              key: mongo-password
++        volumeMounts:
++        - name: mongo-persistent-storage
++          mountPath: /data/db
++        resources:
++          requests:
++            cpu: "100m"
++            memory: "256Mi"
++          limits:
++            cpu: "500m"
++            memory: "1Gi"
++  volumeClaimTemplates:
++  - metadata:
++      name: mongo-persistent-storage
++    spec:
++      accessModes: [ "ReadWriteOnce" ]
++      resources:
++        requests:
++          storage: 1Gi

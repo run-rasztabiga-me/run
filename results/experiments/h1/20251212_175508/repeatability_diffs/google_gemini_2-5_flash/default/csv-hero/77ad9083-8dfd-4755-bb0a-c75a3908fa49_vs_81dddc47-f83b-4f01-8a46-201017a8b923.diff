@@ -1,0 +1,112 @@
+--- 77ad9083-8dfd-4755-bb0a-c75a3908fa49
++++ 81dddc47-f83b-4f01-8a46-201017a8b923
+@@ -1,20 +1,35 @@
+ @@FILE:Dockerfile::Dockerfile
++
++# Stage 1: Build the application
+ FROM node:20-alpine AS builder
++
+ WORKDIR /app
+-COPY package.json yarn.lock ./ 
+-RUN yarn install --frozen-lockfile
++
++COPY package*.json ./
++RUN npm install
++
+ COPY . .
+-RUN yarn build
++RUN npm run build
+ 
+-FROM nginx:stable-alpine
+-COPY --from=builder /app/dist /usr/share/nginx/html
+-EXPOSE 80
+-CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/csv-hero-deployment.yaml
++# Stage 2: Serve the application with http-server
++FROM node:20-alpine
++
++WORKDIR /app
++
++# Install http-server
++RUN npm install -g http-server
++
++COPY --from=builder /app/dist ./public
++
++EXPOSE 8080
++
++CMD ["http-server", "public", "-p", "8080"]
++@@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: csv-hero
++  name: csv-hero-deployment
+   labels:
+     app: csv-hero
+ spec:
+@@ -32,7 +47,7 @@
+           image: csv-hero
+           imagePullPolicy: IfNotPresent
+           ports:
+-            - containerPort: 80
++            - containerPort: 8080
+           resources:
+             requests:
+               memory: "64Mi"
+@@ -40,26 +55,14 @@
+             limits:
+               memory: "128Mi"
+               cpu: "200m"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-@@FILE:K8s::k8s/csv-hero-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: csv-hero-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
++    kubernetes.io/ingress.class: nginx
+ spec:
+   rules:
+     - host: csv-hero.rasztabiga.me
+@@ -69,14 +72,15 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: csv-hero
++                name: csv-hero-service
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/csv-hero-service.yaml
++@@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: csv-hero
++  name: csv-hero-service
+   labels:
+     app: csv-hero
+ spec:
+@@ -85,5 +89,4 @@
+   ports:
+     - protocol: TCP
+       port: 80
+-      targetPort: 80
+-  type: ClusterIP
++      targetPort: 8080

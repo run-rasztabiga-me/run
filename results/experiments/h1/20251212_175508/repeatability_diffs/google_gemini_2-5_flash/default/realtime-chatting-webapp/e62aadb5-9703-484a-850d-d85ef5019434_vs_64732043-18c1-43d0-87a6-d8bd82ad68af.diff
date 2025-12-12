@@ -1,0 +1,368 @@
+--- e62aadb5-9703-484a-850d-d85ef5019434
++++ 64732043-18c1-43d0-87a6-d8bd82ad68af
+@@ -1,42 +1,59 @@
+-@@FILE:Dockerfile::Dockerfile
+-# Stage 1: Build the React frontend
+-FROM node:18-alpine AS frontend-builder
+-
+-WORKDIR /app/client
+-
+-COPY client/package.json client/package-lock.json ./
++@@FILE:Dockerfile::Dockerfile-backend
++# Stage 1: Build the backend
++FROM node:16-alpine AS builder
++
++WORKDIR /app
++
++# Copy package.json and package-lock.json for dependency installation
++COPY package*.json ./
++
++# Install dependencies
+ RUN npm install
+ 
+-COPY client/src ./src
+-COPY client/public ./public
++# Copy the rest of the application code
++COPY . .
++
++# Expose the port the app runs on
++EXPOSE 4000
++
++# Command to run the application
++CMD ["npm", "start"]
++@@FILE:Dockerfile::client/Dockerfile-frontend
++# Stage 1: Build the React application
++FROM node:16-alpine AS builder
++
++WORKDIR /app
++
++# Copy package.json and package-lock.json for dependency installation
++COPY package*.json ./
++
++# Install dependencies
++RUN npm install
++
++# Copy the rest of the application code
++COPY . .
++
++# Build the React app
+ RUN npm run build
+ 
+-# Stage 2: Build and run the Node.js backend
+-FROM node:18-alpine
+-
+-WORKDIR /app
+-
+-# Copy backend package files
+-COPY package.json package-lock.json ./
+-
+-# Install backend dependencies
+-RUN npm install
+-
+-# Copy the built frontend from the previous stage
+-COPY --from=frontend-builder /app/client/build ./client/build
+-
+-# Copy backend source code
+-COPY index.js ./
+-COPY models ./models
+-
+-EXPOSE 4000
+-
+-CMD ["node", "index.js"]
++# Stage 2: Serve the React application with Nginx
++FROM nginx:alpine
++
++# Copy the built React app from the builder stage to Nginx html directory
++COPY --from=builder /app/build /usr/share/nginx/html
++
++# Expose port 80 for the frontend
++EXPOSE 80
++
++# Command to run Nginx
++CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: backend
++  labels:
++    app: backend
+ spec:
+   replicas: 1
+   selector:
+@@ -48,43 +65,42 @@
+         app: backend
+     spec:
+       containers:
+-        - name: backend
+-          image: backend
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 4000
+-          env:
+-            - name: DATABASE_URL
+-              value: "mongodb://chatuser:chatpassword@mongodb-service:27017/chat-app?authSource=admin"
+-            - name: bcrypt_KEY
+-              valueFrom:
+-                secretKeyRef:
+-                  name: bcrypt-key-secret
+-                  key: bcrypt_key
+-          livenessProbe:
+-            httpGet:
+-              path: /check
+-              port: 4000
+-            initialDelaySeconds: 15
+-            periodSeconds: 20
+-          readinessProbe:
+-            httpGet:
+-              path: /check
+-              port: 4000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-          resources:
+-            requests:
+-              memory: "256Mi"
+-              cpu: "200m"
+-            limits:
+-              memory: "512Mi"
+-              cpu: "500m"
++      - name: backend
++        image: realtime-chatting-webapp-backend:latest
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 4000
++        env:
++        - name: DATABASE_URL
++          value: "mongodb://admin:password@mongodb:27017/chatdb?authSource=admin"
++        - name: PORT
++          value: "4000"
++        - name: bcrypt_KEY
++          value: "superSecretKeyForJWT"
++        livenessProbe:
++          httpGet:
++            path: /check
++            port: 4000
++          initialDelaySeconds: 15
++          periodSeconds: 20
++        readinessProbe:
++          httpGet:
++            path: /check
++            port: 4000
++          initialDelaySeconds: 5
++          periodSeconds: 10
++        resources:
++          requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
++            memory: "256Mi"
++            cpu: "300m"
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: backend-service
++  name: backend
+ spec:
+   selector:
+     app: backend
+@@ -92,33 +108,69 @@
+     - protocol: TCP
+       port: 4000
+       targetPort: 4000
+-@@FILE:K8s::k8s/bcrypt-key-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: bcrypt-key-secret
+-type: Opaque
+-data:
+-  bcrypt_key: dGhpc2lzYXNlY3JldGtleWZvcmJjcnlwdA==
++  type: ClusterIP
++@@FILE:K8s::k8s/frontend-deployment.yaml
++apiVersion: apps/v1
++kind: Deployment
++metadata:
++  name: frontend
++  labels:
++    app: frontend
++spec:
++  replicas: 1
++  selector:
++    matchLabels:
++      app: frontend
++  template:
++    metadata:
++      labels:
++        app: frontend
++    spec:
++      containers:
++      - name: frontend
++        image: realtime-chatting-webapp-frontend:latest
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 80
++        resources:
++          requests:
++            memory: "64Mi"
++            cpu: "50m"
++          limits:
++            memory: "128Mi"
++            cpu: "100m"
++@@FILE:K8s::k8s/frontend-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: frontend
++spec:
++  selector:
++    app: frontend
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 80
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: realtime-chatting-webapp-ingress
+   annotations:
+-    kubernetes.io/ingress.class: "public"
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-    - host: "realtime-chatting-webapp.rasztabiga.me"
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: backend-service
+-                port:
+-                  number: 4000
++  - host: realtime-chatting-webapp.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: frontend
++            port:
++              number: 80
+ @@FILE:K8s::k8s/mongodb-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -126,13 +178,14 @@
+   name: mongodb-secret
+ type: Opaque
+ data:
+-  mongo-root-username: Y2hhdHVzZXI=
+-  mongo-root-password: Y2hhdHBhc3N3b3Jk
++  mongo-root-username: YWRtaW4=
++  mongo-root-password: cGFzc3dvcmQ=
++  mongo-database-name: Y2hhdGRi
+ @@FILE:K8s::k8s/mongodb-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: mongodb-service
++  name: mongodb
+ spec:
+   selector:
+     app: mongodb
+@@ -140,6 +193,7 @@
+     - protocol: TCP
+       port: 27017
+       targetPort: 27017
++  type: ClusterIP
+ @@FILE:K8s::k8s/mongodb-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -157,39 +211,50 @@
+         app: mongodb
+     spec:
+       containers:
+-        - name: mongodb
+-          image: mongo:4.4
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 27017
+-              name: mongo
+-          env:
+-            - name: MONGO_INITDB_ROOT_USERNAME
+-              valueFrom:
+-                secretKeyRef:
+-                  name: mongodb-secret
+-                  key: mongo-root-username
+-            - name: MONGO_INITDB_ROOT_PASSWORD
+-              valueFrom:
+-                secretKeyRef:
+-                  name: mongodb-secret
+-                  key: mongo-root-password
+-          volumeMounts:
+-            - name: mongodb-persistent-storage
+-              mountPath: /data/db
+-          resources:
+-            requests:
+-              memory: "256Mi"
+-              cpu: "200m"
+-            limits:
+-              memory: "512Mi"
+-              cpu: "500m"
+-  volumeClaimTemplates:
+-    - metadata:
+-        name: mongodb-persistent-storage
+-      spec:
+-        accessModes: ["ReadWriteOnce"]
+-        storageClassName: "microk8s-hostpath"
++      - name: mongodb
++        image: mongo:4.4
++        ports:
++        - containerPort: 27017
++          name: mongodb
++        env:
++        - name: MONGO_INITDB_ROOT_USERNAME
++          valueFrom:
++            secretKeyRef:
++              name: mongodb-secret
++              key: mongo-root-username
++        - name: MONGO_INITDB_ROOT_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: mongodb-secret
++              key: mongo-root-password
++        - name: MONGO_INITDB_DATABASE
++          valueFrom:
++            secretKeyRef:
++              name: mongodb-secret
++              key: mongo-database-name
+         resources:
+           requests:
+-            storage: 1Gi
++            memory: "256Mi"
++            cpu: "200m"
++          limits:
++            memory: "512Mi"
++            cpu: "500m"
++        volumeMounts:
++        - name: mongodb-persistent-storage
++          mountPath: /data/db
++      volumes:
++      - name: mongodb-persistent-storage
++        persistentVolumeClaim:
++          claimName: mongodb-pvc
++---
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: mongodb-pvc
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++  storageClassName: microk8s-hostpath

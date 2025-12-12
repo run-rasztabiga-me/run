@@ -1,0 +1,180 @@
+{
+  "repo_url": "https://github.com/AdaptChat/webclient.git",
+  "repo_name": "webclient",
+  "evaluation_id": "fe2173a6-52ff-4972-985b-899233ebadd6",
+  "status": "completed",
+  "start_time": "2025-12-12T21:56:59.782901",
+  "end_time": "2025-12-12T22:02:23.508722",
+  "total_evaluation_time": 323.725821,
+  "generation_result": {
+    "repo_url": "https://github.com/AdaptChat/webclient.git",
+    "repo_name": "webclient",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "webclient",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 161.053719997406,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:59:48.148690",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-935717fb-3f8f-4804-9fab-f4381e566856",
+    "run_id": "935717fb-3f8f-4804-9fab-f4381e566856"
+  },
+  "execution_metrics": {
+    "total_time": 161.053719997406,
+    "tool_calls_count": 23,
+    "tool_calls_breakdown": {
+      "think": 4,
+      "write_file": 4,
+      "ls": 1,
+      "get_file_content": 8,
+      "search_files": 2,
+      "find_files": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 140695,
+    "input_tokens": 138379,
+    "output_tokens": 2316,
+    "error_count": 0,
+    "run_id": "935717fb-3f8f-4804-9fab-f4381e566856",
+    "docker_build_metrics": [
+      {
+        "image_tag": "webclient",
+        "build_time": 139.49871587753296,
+        "image_size_mb": 25.08,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webclient\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"webclient\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:56:59.783960: Starting configuration generation",
+    "2025-12-12T21:59:48.148800: Generated 1 Dockerfiles and 2 K8s manifests",
+    "2025-12-12T21:59:48.148806: Starting quality assessment",
+    "2025-12-12T22:02:23.508665: Built 1 Docker images (total: 25.1 MB, avg time: 139.5s)",
+    "2025-12-12T22:02:23.508686: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T22:02:23.508695: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T22:02:23.508701: Deployed to namespace: webclient-935717fb-3f8f-4804-9fab-f4381e566856",
+    "2025-12-12T22:02:23.508704: Testing endpoint: /health",
+    "2025-12-12T22:02:23.508707: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T22:02:23.508710: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-935717fb-3f8f-4804-9fab-f4381e566856",
+    "run_id": "935717fb-3f8f-4804-9fab-f4381e566856"
+  }
+}

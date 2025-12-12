@@ -1,0 +1,87 @@
+--- 2503b441-18d9-4119-8e1d-fae4fe1a2170
++++ 363af271-ba00-4a23-b5b6-e1047e773fa9
+@@ -1,12 +1,10 @@
+ @@FILE:Dockerfile::Dockerfile
++# Simple static site Dockerfile using nginx
+ FROM nginx:stable-alpine
++LABEL maintainer="rafuwu <rafuwu@example.com>"
+ 
+-LABEL maintainer="auto-generated"
+-
+-# Remove default nginx content
++# Remove default nginx content and copy app files
+ RUN rm -rf /usr/share/nginx/html/*
+-
+-# Copy static site
+ COPY . /usr/share/nginx/html/
+ 
+ EXPOSE 80
+@@ -17,6 +15,8 @@
+ kind: Deployment
+ metadata:
+   name: mtg-scryfall-randomizer
++  labels:
++    app: mtg-scryfall-randomizer
+ spec:
+   replicas: 1
+   selector:
+@@ -28,7 +28,7 @@
+         app: mtg-scryfall-randomizer
+     spec:
+       containers:
+-      - name: mtg-scryfall-randomizer
++      - name: web
+         image: mtg-scryfall-randomizer:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+@@ -40,29 +40,31 @@
+           limits:
+             cpu: "500m"
+             memory: "256Mi"
+-        readinessProbe:
++        livenessProbe:
+           httpGet:
+-            path: /
++            path: /index.html
+             port: 80
+           initialDelaySeconds: 5
+           periodSeconds: 10
+-        livenessProbe:
++        readinessProbe:
+           httpGet:
+-            path: /
++            path: /index.html
+             port: 80
+-          initialDelaySeconds: 15
+-          periodSeconds: 20
++          initialDelaySeconds: 2
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: mtg-scryfall-randomizer
++  name: mtg-scryfall-randomizer-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+   - host: mtg-scryfall-randomizer.rasztabiga.me
+     http:
+       paths:
+-      - path: /
++      - path: /(.*)
+         pathType: Prefix
+         backend:
+           service:
+@@ -78,7 +80,7 @@
+   selector:
+     app: mtg-scryfall-randomizer
+   ports:
+-  - protocol: TCP
+-    port: 80
+-    targetPort: 80
++    - protocol: TCP
++      port: 80
++      targetPort: 80
+   type: ClusterIP

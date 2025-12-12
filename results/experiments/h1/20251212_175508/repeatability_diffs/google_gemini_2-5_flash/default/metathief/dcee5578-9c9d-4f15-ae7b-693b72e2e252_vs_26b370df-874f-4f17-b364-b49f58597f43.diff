@@ -1,0 +1,122 @@
+--- dcee5578-9c9d-4f15-ae7b-693b72e2e252
++++ 26b370df-874f-4f17-b364-b49f58597f43
+@@ -1,58 +1,60 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-# Stage 1: Install dependencies and build the application
++# Stage 1: Build the Next.js application
+ FROM node:20-alpine AS builder
+ 
+ WORKDIR /app
+ 
+-# Copy package.json and pnpm-lock.yaml and install dependencies
++# Install pnpm globally
++RUN npm install -g pnpm
++
++# Copy package.json and pnpm-lock.yaml
+ COPY package.json pnpm-lock.yaml ./
++
++# Install dependencies
+ RUN pnpm install --frozen-lockfile
+ 
+ # Copy the rest of the application files
+ COPY . .
+ 
+ # Build the Next.js application
+-RUN pnpm run build
++RUN pnpm build
+ 
+-# Stage 2: Serve the application with a minimal image
++# Stage 2: Run the Next.js application
+ FROM node:20-alpine AS runner
+ 
+ WORKDIR /app
+ 
+-# Set environment variables for production
++# Set environment variables for Next.js standalone output
+ ENV NODE_ENV=production
+ 
+ # Copy necessary files from the builder stage
+ COPY --from=builder /app/public ./public
+-COPY --from=builder /app/.next ./.next
+-COPY --from=builder /app/node_modules ./node_modules
+-COPY --from=builder /app/package.json ./
++COPY --from=builder /app/.next/standalone ./.
++COPY --from=builder /app/.next/static ./.next/static
+ 
+ EXPOSE 3000
+ 
+-# Command to run the application
+-CMD ["pnpm", "start"]
+-
+-USER node
++CMD ["node", "server.js"]
+ @@FILE:K8s::k8s/ingress.yaml
+-
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: metathief-ingress
+   annotations:
+-    kubernetes.io/ingress.class: "nginx"
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/use-regex: "true"
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+-    - host: "metathief.rasztabiga.me"
++    - host: metathief.rasztabiga.me
+       http:
+         paths:
+-          - path: /
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:
+-                name: metathief-service
++                name: metathief
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/metathief-deployment.yaml
+@@ -75,25 +77,35 @@
+     spec:
+       containers:
+         - name: metathief
+-          image: metathief:latest
++          image: metathief
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 3000
+           resources:
+             requests:
++              cpu: "100m"
+               memory: "128Mi"
+-              cpu: "100m"
+             limits:
++              cpu: "500m"
+               memory: "512Mi"
+-              cpu: "500m"
+-          # No explicit health checks as the app doesn't expose a dedicated health endpoint, 
+-          # and root path should return 200 if the app is running.
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 3000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 3000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/metathief-service.yaml
+ 
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: metathief-service
++  name: metathief
+   labels:
+     app: metathief
+ spec:

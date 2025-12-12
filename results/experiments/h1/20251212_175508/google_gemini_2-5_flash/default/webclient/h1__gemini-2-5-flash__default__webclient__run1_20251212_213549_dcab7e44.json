@@ -1,0 +1,143 @@
+{
+  "repo_url": "https://github.com/AdaptChat/webclient.git",
+  "repo_name": "webclient",
+  "evaluation_id": "dcab7e44-7d48-47df-8d4e-29c062e7acfa",
+  "status": "completed",
+  "start_time": "2025-12-12T21:35:09.153814",
+  "end_time": "2025-12-12T21:35:49.233358",
+  "total_evaluation_time": 40.079544,
+  "generation_result": {
+    "repo_url": "https://github.com/AdaptChat/webclient.git",
+    "repo_name": "webclient",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "webclient",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/webclient-deployment.yaml",
+      "k8s/webclient-service.yaml",
+      "k8s/webclient-ingress.yaml"
+    ],
+    "generation_time": 26.81097102165222,
+    "error_message": null,
+    "timestamp": "2025-12-12T21:35:44.502542",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-b4b4bb36-3f73-4d91-bfb5-97917fbabc68",
+    "run_id": "b4b4bb36-3f73-4d91-bfb5-97917fbabc68"
+  },
+  "execution_metrics": {
+    "total_time": 26.81097102165222,
+    "tool_calls_count": 9,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "get_file_content": 2,
+      "search_files": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 82752,
+    "input_tokens": 79151,
+    "output_tokens": 3601,
+    "error_count": 0,
+    "run_id": "b4b4bb36-3f73-4d91-bfb5-97917fbabc68",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 8,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 27,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 948B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.2s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [build 1/7] FROM docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2\n#4 resolve docker.io/library/node:20-alpine@sha256:643e7036aa985317ebfee460005e322aa550c6b6883000d01daefb58689a58e2 done\n#4 CACHED\n\n#5 [build 2/7] WORKDIR /app\n#5 DONE 0.0s\n\n#6 [internal] load build context\n#6 transferring context: 2.31MB 0.1s done\n#6 DONE 0.1s\n\n#7 [build 3/7] RUN npm install -g pnpm\n#7 1.436 \n#7 1.436 added 1 package in 1s\n#7 1.436 \n#7 1.436 1 package is looking for funding\n#7 1.436   run `npm fund` for details\n#7 1.438 npm notice\n#7 1.438 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#7 1.438 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#7 1.438 npm notice To update run: npm install -g npm@11.7.0\n#7 1.438 npm notice\n#7 DONE 1.5s\n\n#8 [build 4/7] COPY package.json .\n#8 DONE 0.0s\n\n#9 [build 5/7] RUN pnpm install --frozen-lockfile\n#9 0.783 \u2009ERR_PNPM_NO_LOCKFILE\u2009 Cannot install with \"frozen-lockfile\" because pnpm-lock.yaml is absent\n#9 0.783 \n#9 0.783 Note that in CI environments this setting is true by default. If you still need to run install in such cases, use \"pnpm install --no-frozen-lockfile\"\n#9 ERROR: process \"/bin/sh -c pnpm install --frozen-lockfile\" did not complete successfully: exit code: 1\n------\n > [build 5/7] RUN pnpm install --frozen-lockfile:\n0.783 \u2009ERR_PNPM_NO_LOCKFILE\u2009 Cannot install with \"frozen-lockfile\" because pnpm-lock.yaml is absent\n0.783 \n0.783 Note that in CI environments this setting is true by default. If you still need to run install in such cases, use \"pnpm install --no-frozen-lockfile\"\n------\nDockerfile:12\n--------------------\n  10 |     COPY package.json .\n  11 |     \n  12 | >>> RUN pnpm install --frozen-lockfile\n  13 |     \n  14 |     COPY . .\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pnpm install --frozen-lockfile\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/man7nv4m1xmhy1gnloq7cwddb",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T21:35:09.153837: Starting configuration generation",
+    "2025-12-12T21:35:44.502628: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T21:35:44.502634: Starting quality assessment",
+    "2025-12-12T21:35:49.233334: Dockerfile validation: 1 errors, 2 warnings",
+    "2025-12-12T21:35:49.233352: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T21:35:49.233355: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T21:35:49.233357: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-b4b4bb36-3f73-4d91-bfb5-97917fbabc68",
+    "run_id": "b4b4bb36-3f73-4d91-bfb5-97917fbabc68"
+  }
+}

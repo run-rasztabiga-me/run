@@ -1,0 +1,81 @@
+--- 866f8656-806f-4e0e-a9a6-a1d65ab31dcf
++++ 0ba6b097-96d9-4321-96e3-13ab441d04cd
+@@ -1,18 +1,12 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+-FROM nginx:stable-alpine
+-
++FROM nginx:alpine
+ COPY . /usr/share/nginx/html
+-
+ EXPOSE 80
+-
+-CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/deeplx-app-deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: deeplx-app
++  name: deeplx-app-deployment
+   labels:
+     app: deeplx-app
+ spec:
+@@ -33,25 +27,11 @@
+         - containerPort: 80
+         resources:
+           requests:
++            memory: "64Mi"
++            cpu: "50m"
++          limits:
++            memory: "128Mi"
+             cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "200m"
+-            memory: "256Mi"
+-        # Static applications generally don't have health endpoints, 
+-        # but for demonstration purposes, we can check for file presence.
+-        livenessProbe:
+-          httpGet:
+-            path: /index.html
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /index.html
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+ @@FILE:K8s::k8s/deeplx-app-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -60,23 +40,24 @@
+   annotations:
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+     nginx.ingress.kubernetes.io/use-regex: "true"
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+   - host: "deeplx-app.rasztabiga.me"
+     http:
+       paths:
+-      - path: / # This will match all paths
++      - path: /(.*)
+         pathType: Prefix
+         backend:
+           service:
+-            name: deeplx-app
++            name: deeplx-app-service
+             port:
+               number: 80
+ @@FILE:K8s::k8s/deeplx-app-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: deeplx-app
++  name: deeplx-app-service
+   labels:
+     app: deeplx-app
+ spec:

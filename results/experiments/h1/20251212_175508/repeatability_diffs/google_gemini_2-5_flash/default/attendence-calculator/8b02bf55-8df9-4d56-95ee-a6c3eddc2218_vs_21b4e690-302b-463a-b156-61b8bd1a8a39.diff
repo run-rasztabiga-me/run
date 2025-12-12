@@ -1,0 +1,63 @@
+--- 8b02bf55-8df9-4d56-95ee-a6c3eddc2218
++++ 21b4e690-302b-463a-b156-61b8bd1a8a39
+@@ -1,18 +1,13 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+ FROM nginx:alpine
+-
+ COPY . /usr/share/nginx/html
+-
+ EXPOSE 80
+-
+ CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/attendence-calculator-deployment.yaml
+-
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: attendence-calculator
++  name: attendence-calculator-deployment
+   labels:
+     app: attendence-calculator
+ spec:
+@@ -38,14 +33,13 @@
+           limits:
+             memory: "128Mi"
+             cpu: "200m"
+-@@FILE:K8s::k8s/attendence-calculator-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: attendence-calculator-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
+ spec:
+   rules:
+   - host: attendence-calculator.rasztabiga.me
+@@ -55,15 +49,14 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: attendence-calculator
++            name: attendence-calculator-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/attendence-calculator-service.yaml
+-
++@@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: attendence-calculator
++  name: attendence-calculator-service
+   labels:
+     app: attendence-calculator
+ spec:
+@@ -73,4 +66,3 @@
+   - protocol: TCP
+     port: 80
+     targetPort: 80
+-  type: ClusterIP

@@ -1,0 +1,184 @@
+{
+  "repo_url": "https://github.com/FullStackWithLawrence/openai-hello-world",
+  "repo_name": "openai-hello-world",
+  "evaluation_id": "589d5254-c0c0-4ebb-be5c-9a22b0c6af7a",
+  "status": "completed",
+  "start_time": "2025-12-13T00:12:54.528665",
+  "end_time": "2025-12-13T00:16:24.727310",
+  "total_evaluation_time": 210.198645,
+  "generation_result": {
+    "repo_url": "https://github.com/FullStackWithLawrence/openai-hello-world",
+    "repo_name": "openai-hello-world",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "openai-hello-world",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/namespace.yaml",
+      "k8s/secret.yaml",
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 171.99944400787354,
+    "error_message": null,
+    "timestamp": "2025-12-13T00:15:55.425571",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/openai-hello-world-cfac9145-04c0-45eb-96ee-67c8b552150b",
+    "run_id": "cfac9145-04c0-45eb-96ee-67c8b552150b"
+  },
+  "execution_metrics": {
+    "total_time": 171.99944400787354,
+    "tool_calls_count": 27,
+    "tool_calls_breakdown": {
+      "think": 5,
+      "get_file_content": 8,
+      "ls": 2,
+      "write_file": 8,
+      "base64_encode": 1,
+      "find_files": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 183159,
+    "input_tokens": 177939,
+    "output_tokens": 5220,
+    "error_count": 0,
+    "run_id": "cfac9145-04c0-45eb-96ee-67c8b552150b",
+    "docker_build_metrics": [
+      {
+        "image_tag": "openai-hello-world",
+        "build_time": 25.91186785697937,
+        "image_size_mb": 120.1,
+        "layers_count": 11
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 40.0,
+    "overall_score": 50.3,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 8,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "k8s/secret.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: Error from server (NotFound): error when creating \"/Users/rasztabigab/Studia/run/tmp/openai-hello-world-cfac9145-04c0-45eb-96ee-67c8b552150b/k8s/secret.yaml\": namespaces \"openai-hello-world\" not found",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: Error from server (NotFound): error when creating \"/Users/rasztabigab/Studia/run/tmp/openai-hello-world-cfac9145-04c0-45eb-96ee-67c8b552150b/k8s/deployment.yaml\": namespaces \"openai-hello-world\" not found",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      },
+      {
+        "file_path": "k8s/service.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: Error from server (NotFound): error when creating \"/Users/rasztabigab/Studia/run/tmp/openai-hello-world-cfac9145-04c0-45eb-96ee-67c8b552150b/k8s/service.yaml\": namespaces \"openai-hello-world\" not found",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      },
+      {
+        "file_path": "k8s/ingress.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: Error from server (NotFound): error when creating \"/Users/rasztabigab/Studia/run/tmp/openai-hello-world-cfac9145-04c0-45eb-96ee-67c8b552150b/k8s/ingress.yaml\": namespaces \"openai-hello-world\" not found",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 4,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 50.3,
+      "total_errors": 4,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 40.0,
+        "total_errors": 4,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 40.0,
+            "errors": 4,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-13T00:12:54.528710: Starting configuration generation",
+    "2025-12-13T00:15:55.425847: Generated 1 Dockerfiles and 5 K8s manifests",
+    "2025-12-13T00:15:55.425855: Starting quality assessment",
+    "2025-12-13T00:16:24.727273: Built 1 Docker images (total: 120.1 MB, avg time: 25.9s)",
+    "2025-12-13T00:16:24.727289: Dockerfile validation: 4 errors, 1 warnings",
+    "2025-12-13T00:16:24.727293: K8s validation: 4 errors, 0 warnings",
+    "2025-12-13T00:16:24.727304: Deployed to namespace: openai-hello-world-cfac9145-04c0-45eb-96ee-67c8b552150b",
+    "2025-12-13T00:16:24.727305: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/openai-hello-world-cfac9145-04c0-45eb-96ee-67c8b552150b",
+    "run_id": "cfac9145-04c0-45eb-96ee-67c8b552150b"
+  }
+}

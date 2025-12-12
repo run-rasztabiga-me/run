@@ -1,0 +1,146 @@
+--- 149250aa-5701-4fbe-bbaa-36cf1a4b842f
++++ 0e9ea1f7-e24b-43be-bf41-612762f49d81
+@@ -1,85 +1,82 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM nginx:stable-alpine
++FROM nginx:alpine
+ 
+-# Copy only the static site files
+-COPY index.html /usr/share/nginx/html/index.html
+-COPY styles.css /usr/share/nginx/html/styles.css
+-COPY script.js /usr/share/nginx/html/script.js
++# Copy static site content
++COPY . /usr/share/nginx/html
+ 
+ EXPOSE 80
+ 
+-# Use the default nginx entrypoint/cmd from the base image
+-@@FILE:K8s::k8s/frontend-deployment.yaml
++CMD ["nginx", "-g", "daemon off;"]
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: math-pdf-generator-frontend
+-  labels:
+-    app: math-pdf-generator-frontend
++  name: math-pdf-generator-web
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: math-pdf-generator-frontend
++      app: math-pdf-generator-web
+   template:
+     metadata:
+       labels:
+-        app: math-pdf-generator-frontend
++        app: math-pdf-generator-web
+     spec:
+       containers:
+-        - name: frontend
+-          image: frontend:latest
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 80
+-          resources:
+-            requests:
+-              cpu: "100m"
+-              memory: "128Mi"
+-            limits:
+-              cpu: "250m"
+-              memory: "256Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /index.html
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /index.html
+-              port: 80
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/frontend-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: math-pdf-generator-frontend
+-spec:
+-  selector:
+-    app: math-pdf-generator-frontend
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 80
+-  type: ClusterIP
++      - name: web
++        image: math-pdf-generator-web:latest
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 80
++        resources:
++          requests:
++            cpu: "100m"
++            memory: "128Mi"
++          limits:
++            cpu: "500m"
++            memory: "256Mi"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 10
++          periodSeconds: 10
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: math-pdf-generator-ingress
++  name: math-pdf-generator-web-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+-    - host: math-pdf-generator-web.rasztabiga.me
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: math-pdf-generator-frontend
+-                port:
+-                  number: 80
++  - host: math-pdf-generator-web.rasztabiga.me
++    http:
++      paths:
++      - path: /(.*)
++        pathType: Prefix
++        backend:
++          service:
++            name: math-pdf-generator-web
++            port:
++              number: 80
++@@FILE:K8s::k8s/service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: math-pdf-generator-web
++spec:
++  selector:
++    app: math-pdf-generator-web
++  ports:
++  - port: 80
++    targetPort: 80
++    protocol: TCP
++    name: http
++  type: ClusterIP

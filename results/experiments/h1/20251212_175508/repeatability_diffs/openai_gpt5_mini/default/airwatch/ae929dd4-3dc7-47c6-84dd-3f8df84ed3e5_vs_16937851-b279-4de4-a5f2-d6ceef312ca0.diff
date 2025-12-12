@@ -1,0 +1,327 @@
+--- ae929dd4-3dc7-47c6-84dd-3f8df84ed3e5
++++ 16937851-b279-4de4-a5f2-d6ceef312ca0
+@@ -1,45 +1,45 @@
+ @@FILE:Dockerfile::Dockerfile
++# Multi-stage build for frontend static site
++FROM node:18-alpine AS builder
++WORKDIR /app
++
++# Install all dependencies (including dev for build)
++COPY package*.json ./
++RUN npm ci
++
++# Copy source files and build
++COPY . .
++RUN npm run build
++
++# Final image: lightweight server to serve static files
+ FROM node:18-alpine
+-
+-WORKDIR /usr/src/app
+-
+-COPY package*.json ./
+-COPY src ./src
+-COPY webpack.prod.js ./webpack.prod.js
+-COPY package.json ./package.json
+-
+-RUN npm install --production
+-
+-RUN npm run build
+-
+-# serve with http-server
++WORKDIR /app
++
++# Install a simple static server
+ RUN npm install -g http-server
+ 
++# Copy built static files
++COPY --from=builder /app/dist ./dist
++
+ EXPOSE 9155
+-
+-CMD ["http-server", "dist", "-p", "9155"]
++CMD ["http-server", "dist", "--port", "9155"]
+ @@FILE:Dockerfile::back-end/Dockerfile
+ FROM node:18-alpine
+ 
+-WORKDIR /usr/src/app
+-
++WORKDIR /app
++
++# Install dependencies
+ COPY package*.json ./
+-COPY api ./api
+-
+-RUN npm install --production
++RUN npm ci --only=production
++
++# Copy application files
++COPY . .
+ 
+ EXPOSE 9000
+-
+ ENV NODE_ENV=production
+ 
++# Start the server (server-dev.js listens on port 9000)
+ CMD ["node", "./api/server-dev.js"]
+-@@FILE:K8s::k8s/backend-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: backend-config
+-data:
+-  AIRWATCH_ARTICLES_BASE_URL: "http://airwatch-backend"
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -57,17 +57,10 @@
+     spec:
+       containers:
+         - name: backend
+-          image: backend:latest
++          image: backend
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
+-          resources:
+-            requests:
+-              cpu: "100m"
+-              memory: "128Mi"
+-            limits:
+-              cpu: "500m"
+-              memory: "256Mi"
+           env:
+             - name: MONGODB_URI
+               valueFrom:
+@@ -78,29 +71,31 @@
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: api_key
+-            - name: AIRWATCH_ARTICLES_BASE_URL
+-              valueFrom:
+-                configMapKeyRef:
+-                  name: backend-config
+-                  key: AIRWATCH_ARTICLES_BASE_URL
++                  key: apiKey
+           readinessProbe:
+             httpGet:
+-              path: /api/health
++              path: /articles
+               port: 9000
+-            initialDelaySeconds: 3
++            initialDelaySeconds: 2
+             periodSeconds: 5
+           livenessProbe:
+             httpGet:
+-              path: /api/health
++              path: /articles
+               port: 9000
+             initialDelaySeconds: 10
+             periodSeconds: 20
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "128Mi"
++            limits:
++              cpu: "500m"
++              memory: "512Mi"
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: airwatch-backend-svc
++  name: airwatch-backend
+ spec:
+   selector:
+     app: airwatch-backend
+@@ -126,7 +121,7 @@
+     spec:
+       containers:
+         - name: frontend
+-          image: frontend:latest
++          image: frontend
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9155
+@@ -136,27 +131,12 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
+-          env:
+-            - name: AIRWATCH_ARTICLES_BASE_URL
+-              value: "http://airwatch-backend"
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 9155
+-            initialDelaySeconds: 3
+-            periodSeconds: 5
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 9155
+-            initialDelaySeconds: 10
+-            periodSeconds: 20
++              memory: "512Mi"
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: airwatch-frontend-svc
++  name: airwatch-frontend
+ spec:
+   selector:
+     app: airwatch-frontend
+@@ -171,62 +151,53 @@
+ metadata:
+   name: airwatch-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: airwatch.rasztabiga.me
+       http:
+         paths:
+-          - path: /api
++          - path: /api(/|$)(.*)
+             pathType: Prefix
+             backend:
+               service:
+-                name: airwatch-backend-svc
++                name: airwatch-backend
+                 port:
+                   number: 80
+-          - path: /
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:
+-                name: airwatch-frontend-svc
++                name: airwatch-frontend
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/mongodb-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: mongodb-secret
+-type: Opaque
+-stringData:
+-  uri: mongodb://mongodb-0.mongodb-svc.default.svc.cluster.local:27017
+-  api_key: "changeme"
+-@@FILE:K8s::k8s/mongodb-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: mongodb-svc
+-spec:
+-  selector:
+-    app: mongodb
++@@FILE:K8s::k8s/mongo-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: airwatch-mongo
++spec:
++  clusterIP: None
++  selector:
++    app: airwatch-mongo
+   ports:
+     - port: 27017
+       targetPort: 27017
+-  clusterIP: None
+-@@FILE:K8s::k8s/mongodb-statefulset.yaml
++@@FILE:K8s::k8s/mongo-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: mongodb
+-spec:
++  name: airwatch-mongo
++spec:
++  serviceName: airwatch-mongo-headless
++  replicas: 1
+   selector:
+     matchLabels:
+-      app: mongodb
+-  serviceName: mongodb
+-  replicas: 1
++      app: airwatch-mongo
+   template:
+     metadata:
+       labels:
+-        app: mongodb
++        app: airwatch-mongo
+     spec:
+       containers:
+         - name: mongo
+@@ -234,21 +205,60 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 27017
++          volumeMounts:
++            - name: mongo-data
++              mountPath: /data/db
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "256Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
+-          volumeMounts:
+-            - name: mongo-pvc
+-              mountPath: /data/db
++              memory: "1Gi"
+   volumeClaimTemplates:
+     - metadata:
+-        name: mongo-pvc
++        name: mongo-data
+       spec:
+-        accessModes: [ "ReadWriteOnce" ]
++        accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 1Gi
++@@FILE:K8s::k8s/mongodb-secret.yaml
++apiVersion: v1
++kind: Secret
++metadata:
++  name: mongodb-secret
++type: Opaque
++stringData:
++  uri: "mongodb://airwatch-mongo:27017"
++  apiKey: "changeme"
++@@FILE:K8s::k8s/postgres-secret.yaml
++# placeholder
++apiVersion: v1
++kind: Secret
++metadata:
++  name: placeholder-postgres-secret
++type: Opaque
++stringData:
++  username: "user"
++  password: "pass"
++@@FILE:K8s::k8s/postgres-service.yaml
++# placeholder for postgres - not used
++apiVersion: v1
++kind: Service
++metadata:
++  name: placeholder-postgres
++spec:
++  selector:
++    app: placeholder
++  ports:
++    - port: 5432
++      targetPort: 5432
++@@FILE:K8s::k8s/postgres-statefulset.yaml
++# Not used; placeholder
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: placeholder
++data:
++  note: "No Postgres required"

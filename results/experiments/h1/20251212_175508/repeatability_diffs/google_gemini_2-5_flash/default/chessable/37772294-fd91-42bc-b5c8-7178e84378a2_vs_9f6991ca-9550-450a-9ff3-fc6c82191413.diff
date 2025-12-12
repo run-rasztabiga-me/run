@@ -1,0 +1,208 @@
+--- 37772294-fd91-42bc-b5c8-7178e84378a2
++++ 9f6991ca-9550-450a-9ff3-fc6c82191413
+@@ -1,11 +1,17 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM node:20-alpine
++
+ WORKDIR /app
++
+ COPY package*.json ./
++
+ RUN npm install
++
+ COPY . .
++
+ EXPOSE 3000
+-CMD ["npm", "start"]
++
++CMD ["node", "server.js"]
+ @@FILE:K8s::k8s/chessable-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -30,23 +36,18 @@
+           ports:
+             - containerPort: 3000
+           env:
+-            - name: MONGO_URI
++            - name: MONGODB_URI
+               value: "mongodb://mongodb-service:27017/chessable"
+             - name: MONGO_USERNAME
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: mongo-username
++                  key: MONGO_INITDB_ROOT_USERNAME
+             - name: MONGO_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: mongo-password
+-            - name: MONGO_DATABASE
+-              valueFrom:
+-                secretKeyRef:
+-                  name: mongodb-secret
+-                  key: mongo-database
++                  key: MONGO_INITDB_ROOT_PASSWORD
+           livenessProbe:
+             httpGet:
+               path: /
+@@ -61,31 +62,20 @@
+             periodSeconds: 5
+           resources:
+             requests:
++              cpu: "100m"
+               memory: "128Mi"
+-              cpu: "100m"
+             limits:
+-              memory: "256Mi"
+-              cpu: "200m"
+-@@FILE:K8s::k8s/chessable-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: chessable-service
+-  labels:
+-    app: chessable
+-spec:
+-  selector:
+-    app: chessable
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 3000
+-@@FILE:K8s::k8s/ingress.yaml
++              cpu: "500m"
++              memory: "512Mi"
++@@FILE:K8s::k8s/chessable-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: chessable-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
++  ingressClassName: nginx
+   rules:
+     - host: "chessable.rasztabiga.me"
+       http:
+@@ -96,7 +86,32 @@
+               service:
+                 name: chessable-service
+                 port:
+-                  number: 80
++                  number: 3000
++@@FILE:K8s::k8s/chessable-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: chessable-service
++spec:
++  selector:
++    app: chessable
++  ports:
++    - protocol: TCP
++      port: 3000
++      targetPort: 3000
++  type: ClusterIP
++@@FILE:K8s::k8s/mongodb-pvc.yaml
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: mongodb-pvc
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++  # storageClassName: microk8s-hostpath # Use this if a specific storage class is needed, otherwise omit to use default
+ @@FILE:K8s::k8s/mongodb-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -104,32 +119,27 @@
+   name: mongodb-secret
+ type: Opaque
+ data:
+-  mongo-username: YWRtaW4=
+-  mongo-password: cGFzc3dvcmQ=
+-  mongo-database: Y2hlc3NhYmxl
++  MONGO_INITDB_ROOT_USERNAME: YWRtaW4=
++  MONGO_INITDB_ROOT_PASSWORD: YWRtaW5wYXNzd29yZA==
+ @@FILE:K8s::k8s/mongodb-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: mongodb-service
+-  labels:
+-    app: mongodb
+ spec:
+-  ports:
+-    - port: 27017
+-      targetPort: 27017
+   selector:
+     app: mongodb
+-  clusterIP: None
++  ports:
++    - protocol: TCP
++      port: 27017
++      targetPort: 27017
+ @@FILE:K8s::k8s/mongodb-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: mongodb
+-  labels:
+-    app: mongodb
+ spec:
+-  serviceName: "mongodb"
++  serviceName: "mongodb-service"
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -142,6 +152,7 @@
+       containers:
+         - name: mongodb
+           image: mongo:latest
++          imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 27017
+               name: mongodb
+@@ -150,32 +161,28 @@
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: mongo-username
++                  key: MONGO_INITDB_ROOT_USERNAME
+             - name: MONGO_INITDB_ROOT_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: mongo-password
+-            - name: MONGO_INITDB_DATABASE
+-              valueFrom:
+-                secretKeyRef:
+-                  name: mongodb-secret
+-                  key: mongo-database
++                  key: MONGO_INITDB_ROOT_PASSWORD
+           volumeMounts:
+             - name: mongodb-persistent-storage
+               mountPath: /data/db
+           resources:
+             requests:
++              cpu: "100m"
+               memory: "256Mi"
+-              cpu: "200m"
+             limits:
++              cpu: "500m"
+               memory: "512Mi"
+-              cpu: "500m"
+   volumeClaimTemplates:
+     - metadata:
+         name: mongodb-persistent-storage
+       spec:
+-        accessModes: ["ReadWriteOnce"]
++        accessModes: [ "ReadWriteOnce" ]
+         resources:
+           requests:
+             storage: 1Gi
++        # storageClassName: microk8s-hostpath # Use this if a specific storage class is needed, otherwise omit to use default

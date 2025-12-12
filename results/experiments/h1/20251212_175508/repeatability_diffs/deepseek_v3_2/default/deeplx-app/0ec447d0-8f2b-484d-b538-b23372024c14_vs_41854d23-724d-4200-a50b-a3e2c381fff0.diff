@@ -1,0 +1,53 @@
+--- 0ec447d0-8f2b-484d-b538-b23372024c14
++++ 41854d23-724d-4200-a50b-a3e2c381fff0
+@@ -2,14 +2,23 @@
+ # Use official nginx image as base
+ FROM nginx:alpine
+ 
+-# Copy static files to nginx web root
+-COPY . /usr/share/nginx/html
++# Set working directory
++WORKDIR /usr/share/nginx/html
++
++# Remove default nginx static files
++RUN rm -rf ./*
++
++# Copy static files to nginx html directory
++COPY . .
++
++# Copy custom nginx configuration if needed
++# COPY nginx.conf /etc/nginx/nginx.conf
+ 
+ # Expose port 80
+ EXPOSE 80
+ 
+-# Nginx runs by default as defined in the base image
+-# The nginx image runs as non-root user 'nginx' by default
++# Start nginx
++CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -40,20 +49,18 @@
+           limits:
+             memory: "128Mi"
+             cpu: "100m"
+-        # The nginx image runs as non-root user 'nginx' by default
+-        # No need to set security context as the image already runs as non-root
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 80
+           initialDelaySeconds: 10
+-          periodSeconds: 10
++          periodSeconds: 30
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 80
+           initialDelaySeconds: 5
+-          periodSeconds: 5
++          periodSeconds: 10
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

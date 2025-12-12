@@ -1,0 +1,119 @@
+--- 3263f6a3-2db3-4ed6-8e4b-29165dde509e
++++ a45dadd8-855a-4dba-b1bc-65f0554948e7
+@@ -5,14 +5,14 @@
+ # Create app directory
+ WORKDIR /usr/src/app
+ 
+-# Install app dependencies
+-COPY package.json package-lock.json ./
++# Install dependencies
++COPY package*.json ./
+ RUN npm ci --only=production
+ 
+ # Copy app source
+ COPY . .
+ 
+-# Expose the port the app runs on
++# Expose port
+ EXPOSE 3000
+ 
+ # Start the app
+@@ -21,7 +21,7 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: chessable-deployment
++  name: chessable
+   labels:
+     app: chessable
+ spec:
+@@ -35,49 +35,54 @@
+         app: chessable
+     spec:
+       containers:
+-      - name: chessable
+-        image: chessable:latest
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 3000
+-        resources:
+-          requests:
+-            cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "500m"
+-            memory: "256Mi"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 3000
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 3000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
++        - name: chessable
++          image: chessable:latest
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 3000
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "128Mi"
++            limits:
++              cpu: "500m"
++              memory: "256Mi"
++          livenessProbe:
++            httpGet:
++              path: /health
++              port: 3000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /health
++              port: 3000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: chessable-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+-  - host: chessable.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: chessable-service
+-            port:
+-              number: 80
++    - host: chessable.rasztabiga.me
++      http:
++        paths:
++          - path: /(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: chessable-service
++                port:
++                  number: 80
++@@FILE:K8s::k8s/namespace.yaml
++apiVersion: v1
++kind: Namespace
++metadata:
++  name: chessable
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service

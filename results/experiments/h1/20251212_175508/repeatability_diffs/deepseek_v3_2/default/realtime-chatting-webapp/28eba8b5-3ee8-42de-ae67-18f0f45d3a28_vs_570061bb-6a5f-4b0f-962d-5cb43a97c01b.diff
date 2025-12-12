@@ -1,0 +1,312 @@
+--- 28eba8b5-3ee8-42de-ae67-18f0f45d3a28
++++ 570061bb-6a5f-4b0f-962d-5cb43a97c01b
+@@ -2,6 +2,7 @@
+ # Build stage for React frontend
+ FROM node:16-alpine as build
+ 
++# Set working directory
+ WORKDIR /app
+ 
+ # Copy package files
+@@ -22,6 +23,7 @@
+ # Production stage
+ FROM node:16-alpine
+ 
++# Install only production dependencies
+ WORKDIR /app
+ 
+ # Copy package files
+@@ -35,11 +37,11 @@
+ 
+ # Copy backend source code
+ COPY index.js ./
+-COPY models/ ./models/
++COPY models ./models
+ 
+ # Create non-root user
+-RUN addgroup -g 1001 -S nodejs
+-RUN adduser -S nodejs -u 1001
++RUN addgroup -g 1001 -S nodejs && \
++    adduser -S nodejs -u 1001 -G nodejs
+ 
+ # Change ownership to non-root user
+ RUN chown -R nodejs:nodejs /app
+@@ -50,58 +52,53 @@
+ # Expose port
+ EXPOSE 4000
+ 
++# Health check
++HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
++  CMD wget --no-verbose --tries=1 --spider http://localhost:4000/check || exit 1
++
+ # Start the application
+ CMD ["node", "index.js"]
+-@@FILE:K8s::k8s/backend-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: backend-config
+-data:
+-  NODE_ENV: production
+-  PORT: "4000"
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: backend-deployment
++  name: chat-backend
++  labels:
++    app: realtime-chatting-webapp
++    component: backend
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: backend
++      app: realtime-chatting-webapp
++      component: backend
+   template:
+     metadata:
+       labels:
+-        app: backend
++        app: realtime-chatting-webapp
++        component: backend
+     spec:
+       containers:
+-      - name: backend
+-        image: backend:latest
++      - name: chat-backend
++        image: chat-backend:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 4000
+         env:
++        - name: PORT
++          value: "4000"
+         - name: DATABASE_URL
+           valueFrom:
++            configMapKeyRef:
++              name: mongodb-config
++              key: mongodb-connection-string
++        - name: bcrypt_KEY
++          valueFrom:
+             secretKeyRef:
+-              name: backend-secret
+-              key: DATABASE_URL
+-        - name: bcrypt_KEY
+-          valueFrom:
+-            secretKeyRef:
+-              name: backend-secret
+-              key: bcrypt_KEY
++              name: mongodb-secret
++              key: bcrypt-key
+         - name: NODE_ENV
+-          valueFrom:
+-            configMapKeyRef:
+-              name: backend-config
+-              key: NODE_ENV
+-        - name: PORT
+-          valueFrom:
+-            configMapKeyRef:
+-              name: backend-config
+-              key: PORT
++          value: "production"
+         resources:
+           requests:
+             memory: "256Mi"
+@@ -114,41 +111,50 @@
+             path: /check
+             port: 4000
+           initialDelaySeconds: 10
+-          periodSeconds: 5
++          periodSeconds: 10
++          timeoutSeconds: 5
+         livenessProbe:
+           httpGet:
+             path: /check
+             port: 4000
+-          initialDelaySeconds: 15
++          initialDelaySeconds: 30
+           periodSeconds: 10
+-@@FILE:K8s::k8s/backend-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: backend-secret
+-type: Opaque
+-data:
+-  DATABASE_URL: bW9uZ29kYjovL21vbmdvdXNlcjptb25nb3Bhc3NAbW9uZ29kYi1zZXJ2aWNlOjI3MDE3L2NoYXRkYj9hdXRoU291cmNlPWFkbWlu
+-  bcrypt_KEY: c3VwZXJzZWNyZXRrZXk=  # supersecretkey
++          timeoutSeconds: 5
++        # Security context - running as non-root user from Dockerfile
++        securityContext:
++          runAsUser: 1001
++          runAsGroup: 1001
++          allowPrivilegeEscalation: false
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: backend-service
++  name: chat-backend
++  labels:
++    app: realtime-chatting-webapp
++    component: backend
+ spec:
+   selector:
+-    app: backend
++    app: realtime-chatting-webapp
++    component: backend
+   ports:
+   - port: 80
+     targetPort: 4000
+-  type: ClusterIP
++    protocol: TCP
++    name: http
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: chat-app-ingress
++  name: chat-ingress
++  labels:
++    app: realtime-chatting-webapp
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
++    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
++    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
++    nginx.ingress.kubernetes.io/websocket-services: "chat-backend"
+ spec:
+   rules:
+   - host: realtime-chatting-webapp.rasztabiga.me
+@@ -158,7 +164,7 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: backend-service
++            name: chat-backend
+             port:
+               number: 80
+ @@FILE:K8s::k8s/mongodb-configmap.yaml
+@@ -166,62 +172,82 @@
+ kind: ConfigMap
+ metadata:
+   name: mongodb-config
++  labels:
++    app: realtime-chatting-webapp
+ data:
+   mongodb-database: chatdb
+-  mongodb-replica-set: rs0
++  mongodb-connection-string: mongodb://root:chatdbpassword@mongodb:27017/chatdb?authSource=admin
+ @@FILE:K8s::k8s/mongodb-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+   name: mongodb-pvc
++  labels:
++    app: realtime-chatting-webapp
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
++  # Use default storage class
+ @@FILE:K8s::k8s/mongodb-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: mongodb-secret
++  labels:
++    app: realtime-chatting-webapp
+ type: Opaque
+ data:
+-  mongodb-root-password: cm9vdHBhc3N3b3Jk  # rootpassword
+-  mongodb-password: bW9uZ29wYXNz  # mongopass
+-  mongodb-username: bW9uZ291c2Vy  # mongouser
+-  bcrypt-key: c3VwZXJzZWNyZXRrZXk=  # supersecretkey
++  # mongodb root password - base64 encoded "chatdbpassword"
++  mongodb-root-password: Y2hhdGRicGFzc3dvcmQ=
++  # mongodb username - base64 encoded "root"
++  mongodb-username: cm9vdA==
++  # JWT secret key - base64 encoded "supersecretjwtkeyforchatapp"
++  jwt-secret-key: c3VwZXJzZWNyZXRqd3RrZXlmb3JjaGF0YXBw
++  # bcrypt key - base64 encoded "supersecretbcryptkey"
++  bcrypt-key: c3VwZXJzZWNyZXRiY3J5cHRrZXk=
+ @@FILE:K8s::k8s/mongodb-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: mongodb-service
++  name: mongodb
++  labels:
++    app: realtime-chatting-webapp
++    component: mongodb
+ spec:
+   selector:
+-    app: mongodb
++    app: realtime-chatting-webapp
++    component: mongodb
+   ports:
+-    - port: 27017
+-      targetPort: 27017
++  - port: 27017
++    targetPort: 27017
+   clusterIP: None
+ @@FILE:K8s::k8s/mongodb-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: mongodb
+-spec:
+-  serviceName: mongodb-service
++  labels:
++    app: realtime-chatting-webapp
++    component: mongodb
++spec:
++  serviceName: mongodb
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: mongodb
++      app: realtime-chatting-webapp
++      component: mongodb
+   template:
+     metadata:
+       labels:
+-        app: mongodb
++        app: realtime-chatting-webapp
++        component: mongodb
+     spec:
+       containers:
+       - name: mongodb
+-        image: mongo:5.0
++        image: mongo:6
+         ports:
+         - containerPort: 27017
+         env:
+@@ -240,6 +266,7 @@
+             configMapKeyRef:
+               name: mongodb-config
+               key: mongodb-database
++        args: ["--bind_ip_all"]
+         volumeMounts:
+         - name: mongodb-data
+           mountPath: /data/db
+@@ -258,6 +285,7 @@
+             - "db.adminCommand('ping')"
+           initialDelaySeconds: 5
+           periodSeconds: 10
++          timeoutSeconds: 5
+         livenessProbe:
+           exec:
+             command:
+@@ -266,6 +294,7 @@
+             - "db.adminCommand('ping')"
+           initialDelaySeconds: 30
+           periodSeconds: 10
++          timeoutSeconds: 5
+       volumes:
+       - name: mongodb-data
+         persistentVolumeClaim:

@@ -1,0 +1,54 @@
+{
+  "repo_url": "https://github.com/isixe/AdSenseDetective.git",
+  "repo_name": "adsensedetective",
+  "evaluation_id": "68ba6a9d-7d91-4729-95ea-d6133d8c81bf",
+  "status": "failed",
+  "start_time": "2025-12-12T22:34:40.476233",
+  "end_time": "2025-12-12T22:38:08.517972",
+  "total_evaluation_time": 208.041739,
+  "generation_result": {
+    "repo_url": "https://github.com/isixe/AdSenseDetective.git",
+    "repo_name": "adsensedetective",
+    "success": false,
+    "docker_images": [],
+    "k8s_manifests": [],
+    "generation_time": 208.04052710533142,
+    "error_message": "'structured_response'",
+    "timestamp": "2025-12-12T22:38:08.517609",
+    "workspace_dir": null,
+    "run_id": null
+  },
+  "execution_metrics": {
+    "total_time": 208.04046320915222,
+    "tool_calls_count": 0,
+    "tool_calls_breakdown": {},
+    "tokens_used": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "error_count": 1,
+    "run_id": null,
+    "docker_build_metrics": []
+  },
+  "quality_metrics": null,
+  "notes": [
+    "2025-12-12T22:34:40.477014: Starting configuration generation",
+    "2025-12-12T22:38:08.517991: Evaluation failed: Generation failed: 'structured_response'"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt"
+  }
+}

@@ -1,0 +1,11 @@
+--- 450a6c48-4a52-4339-ae2f-c6c0151395bc
++++ fa6cb092-52f9-4022-896f-c076a02aed45
+@@ -10,7 +10,7 @@
+ # Expose port 80
+ EXPOSE 80
+ 
+-# Nginx will start automatically with default CMD
++# Nginx runs by default, no need for CMD
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment

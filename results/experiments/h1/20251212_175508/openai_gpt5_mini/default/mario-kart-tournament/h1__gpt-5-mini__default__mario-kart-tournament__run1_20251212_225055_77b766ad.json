@@ -1,0 +1,196 @@
+{
+  "repo_url": "https://github.com/robweber/mario-kart-tournament",
+  "repo_name": "mario-kart-tournament",
+  "evaluation_id": "77b766ad-988e-4548-8bf3-41021f7f6577",
+  "status": "completed",
+  "start_time": "2025-12-12T22:46:54.928068",
+  "end_time": "2025-12-12T22:50:55.578207",
+  "total_evaluation_time": 240.650139,
+  "generation_result": {
+    "repo_url": "https://github.com/robweber/mario-kart-tournament",
+    "repo_name": "mario-kart-tournament",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "mario-kart-tournament",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/pvc.yaml",
+      "k8s/secret.yaml"
+    ],
+    "generation_time": 85.32221007347107,
+    "error_message": null,
+    "timestamp": "2025-12-12T22:48:28.555334",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mario-kart-tournament-54acd3a5-511c-4083-ba40-1f22b3aca837",
+    "run_id": "54acd3a5-511c-4083-ba40-1f22b3aca837"
+  },
+  "execution_metrics": {
+    "total_time": 85.32221007347107,
+    "tool_calls_count": 19,
+    "tool_calls_breakdown": {
+      "think": 1,
+      "get_file_content": 6,
+      "search_files": 1,
+      "find_files": 3,
+      "write_file": 6,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 207546,
+    "input_tokens": 203049,
+    "output_tokens": 4497,
+    "error_count": 0,
+    "run_id": "54acd3a5-511c-4083-ba40-1f22b3aca837",
+    "docker_build_metrics": [
+      {
+        "image_tag": "mario-kart-tournament",
+        "build_time": 23.19340419769287,
+        "image_size_mb": 150.77,
+        "layers_count": 8
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 72.7,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 4,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "mario-kart-tournament",
+        "line_number": null,
+        "severity": "error",
+        "message": "Deployment mario-kart-tournament not ready within 120s: error: timed out waiting for the condition on deployments/mario-kart-tournament",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 3,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 72.7,
+      "total_errors": 1,
+      "total_warnings": 3,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T22:46:54.928102: Starting configuration generation",
+    "2025-12-12T22:48:28.555433: Generated 1 Dockerfiles and 5 K8s manifests",
+    "2025-12-12T22:48:28.555437: Starting quality assessment",
+    "2025-12-12T22:50:55.577883: Built 1 Docker images (total: 150.8 MB, avg time: 23.2s)",
+    "2025-12-12T22:50:55.578101: Dockerfile validation: 1 errors, 3 warnings",
+    "2025-12-12T22:50:55.578118: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T22:50:55.578169: Deployed to namespace: mario-kart-tournament-54acd3a5-511c-4083-ba40-1f22b3aca837",
+    "2025-12-12T22:50:55.578173: Testing endpoint: /admin/pin",
+    "2025-12-12T22:50:55.578177: Runtime validation: 1 errors, 0 warnings",
+    "2025-12-12T22:50:55.578189: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/mario-kart-tournament-54acd3a5-511c-4083-ba40-1f22b3aca837",
+    "run_id": "54acd3a5-511c-4083-ba40-1f22b3aca837"
+  }
+}

@@ -1,0 +1,79 @@
+--- 1fa2fc90-58d8-4c55-8b6f-4408e436b603
++++ f1159248-5103-4346-bfc8-a64a288e5a9e
+@@ -1,14 +1,12 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+-FROM nginx:stable-alpine
++FROM nginx:alpine
+ COPY . /usr/share/nginx/html
+ EXPOSE 80
+-CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/class-order-checker-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: class-order-checker
++  name: class-order-checker-deployment
+   labels:
+     app: class-order-checker
+ spec:
+@@ -34,11 +32,30 @@
+           limits:
+             cpu: "200m"
+             memory: "256Mi"
+-@@FILE:K8s::k8s/class-order-checker-service.yaml
++@@FILE:K8s::k8s/ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: class-order-checker-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++spec:
++  rules:
++  - host: class-order-checker.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: class-order-checker-service
++            port:
++              number: 80
++@@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: class-order-checker
++  name: class-order-checker-service
+   labels:
+     app: class-order-checker
+ spec:
+@@ -48,25 +65,3 @@
+     - protocol: TCP
+       port: 80
+       targetPort: 80
+-  type: ClusterIP
+-@@FILE:K8s::k8s/ingress.yaml
+-apiVersion: networking.k8s.io/v1
+-kind: Ingress
+-metadata:
+-  name: class-order-checker-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+-spec:
+-  rules:
+-  - host: class-order-checker.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /(.*)
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: class-order-checker
+-            port:
+-              number: 80

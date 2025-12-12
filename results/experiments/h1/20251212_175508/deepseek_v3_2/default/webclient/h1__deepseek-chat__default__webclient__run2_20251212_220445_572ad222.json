@@ -1,0 +1,132 @@
+{
+  "repo_url": "https://github.com/AdaptChat/webclient.git",
+  "repo_name": "webclient",
+  "evaluation_id": "572ad222-490d-4cc2-ba50-b889aa8751b3",
+  "status": "completed",
+  "start_time": "2025-12-12T22:02:24.054265",
+  "end_time": "2025-12-12T22:04:45.047517",
+  "total_evaluation_time": 140.993252,
+  "generation_result": {
+    "repo_url": "https://github.com/AdaptChat/webclient.git",
+    "repo_name": "webclient",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "webclient",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 129.3703670501709,
+    "error_message": null,
+    "timestamp": "2025-12-12T22:04:41.379134",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-ede666d8-623c-4ea1-83f5-eede27acff78",
+    "run_id": "ede666d8-623c-4ea1-83f5-eede27acff78"
+  },
+  "execution_metrics": {
+    "total_time": 129.3703670501709,
+    "tool_calls_count": 26,
+    "tool_calls_breakdown": {
+      "think": 5,
+      "get_file_content": 6,
+      "ls": 2,
+      "write_file": 5,
+      "search_files": 5,
+      "find_files": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 342105,
+    "input_tokens": 339071,
+    "output_tokens": 3034,
+    "error_count": 0,
+    "run_id": "ede666d8-623c-4ea1-83f5-eede27acff78",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 529B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 DONE 0.2s\n\n#3 [internal] load metadata for docker.io/library/nginx:alpine\n#3 DONE 0.2s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [builder 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#5 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e 0.0s done\n#5 DONE 0.0s\n\n#6 [builder 2/6] WORKDIR /app\n#6 CACHED\n\n#7 [stage-1 1/3] FROM docker.io/library/nginx:alpine@sha256:289decab414250121a93c3f1b8316b9c69906de3a4993757c424cb964169ad42\n#7 resolve docker.io/library/nginx:alpine@sha256:289decab414250121a93c3f1b8316b9c69906de3a4993757c424cb964169ad42 0.0s done\n#7 DONE 0.0s\n\n#8 [internal] load build context\n#8 transferring context: 2.31MB 0.0s done\n#8 DONE 0.1s\n\n#9 [builder 3/6] COPY package.json package-lock.json* ./\n#9 DONE 0.0s\n\n#10 [builder 4/6] RUN npm ci --only=production\n#10 0.537 npm warn config only Use `--omit=dev` to omit dev dependencies from the install.\n#10 0.922 npm error code EUSAGE\n#10 0.923 npm error\n#10 0.923 npm error The `npm ci` command can only install with an existing package-lock.json or\n#10 0.923 npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or\n#10 0.923 npm error later to generate a package-lock.json file, then try again.\n#10 0.923 npm error\n#10 0.923 npm error Clean install a project\n#10 0.923 npm error\n#10 0.923 npm error Usage:\n#10 0.923 npm error npm ci\n#10 0.923 npm error\n#10 0.923 npm error Options:\n#10 0.923 npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]\n#10 0.923 npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]\n#10 0.923 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\n#10 0.923 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]\n#10 0.923 npm error [--no-bin-links] [--no-fund] [--dry-run]\n#10 0.923 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\n#10 0.923 npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]\n#10 0.923 npm error\n#10 0.923 npm error aliases: clean-install, ic, install-clean, isntall-clean\n#10 0.923 npm error\n#10 0.923 npm error Run \"npm help ci\" for more info\n#10 0.924 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-12T21_04_44_553Z-debug-0.log\n#10 ERROR: process \"/bin/sh -c npm ci --only=production\" did not complete successfully: exit code: 1\n------\n > [builder 4/6] RUN npm ci --only=production:\n0.923 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\n0.923 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]\n0.923 npm error [--no-bin-links] [--no-fund] [--dry-run]\n0.923 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\n0.923 npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]\n0.923 npm error\n0.923 npm error aliases: clean-install, ic, install-clean, isntall-clean\n0.923 npm error\n0.923 npm error Run \"npm help ci\" for more info\n0.924 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-12T21_04_44_553Z-debug-0.log\n------\nDockerfile:8\n--------------------\n   6 |     # Copy package files\n   7 |     COPY package.json package-lock.json* ./\n   8 | >>> RUN npm ci --only=production\n   9 |     \n  10 |     # Copy source code\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm ci --only=production\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/3k9n81ip8cqh99hz1lxno49sj",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T22:02:24.054689: Starting configuration generation",
+    "2025-12-12T22:04:41.379242: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T22:04:41.379246: Starting quality assessment",
+    "2025-12-12T22:04:45.047468: Dockerfile validation: 1 errors, 0 warnings",
+    "2025-12-12T22:04:45.047500: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T22:04:45.047507: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T22:04:45.047513: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/webclient-ede666d8-623c-4ea1-83f5-eede27acff78",
+    "run_id": "ede666d8-623c-4ea1-83f5-eede27acff78"
+  }
+}

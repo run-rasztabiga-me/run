@@ -1,0 +1,46 @@
+--- 13083942-8775-419a-86ad-5bcef204558d
++++ d1e512cd-ec97-405e-b875-7f9a57b13733
+@@ -1,21 +1,14 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use nginx alpine for serving static files
++# Use official nginx image as base
+ FROM nginx:alpine
+ 
+-# Copy static files to nginx html directory
+-COPY index.html /usr/share/nginx/html/
+-COPY app.js /usr/share/nginx/html/
+-COPY deck.js /usr/share/nginx/html/
+-COPY deck.cod.js /usr/share/nginx/html/
+-COPY deck.dec.js /usr/share/nginx/html/
+-COPY style.css /usr/share/nginx/html/
+-COPY favicon.png /usr/share/nginx/html/
++# Copy static files to nginx web directory
++COPY . /usr/share/nginx/html
+ 
+ # Expose port 80
+ EXPOSE 80
+ 
+-# nginx runs as root by default in the official image
+-CMD ["nginx", "-g", "daemon off;"]
++# nginx runs automatically with default CMD
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -58,15 +51,13 @@
+             port: 80
+           initialDelaySeconds: 5
+           periodSeconds: 10
+-        # nginx runs as root by default in the official image
+-        # No need to set securityContext for root user
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: mtg-scryfall-randomizer
+-  labels:
+-    app: mtg-scryfall-randomizer
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: mtg-scryfall-randomizer.rasztabiga.me

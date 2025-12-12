@@ -1,0 +1,196 @@
+--- 13d06771-524e-4af4-bb4d-92182897eb49
++++ 7f4fd187-3230-4987-ac6c-6920b8d4b133
+@@ -1,39 +1,45 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use nginx alpine for serving static files
++# Use nginx alpine as base image
+ FROM nginx:alpine
+ 
+-# Remove default nginx static assets
+-RUN rm -rf /usr/share/nginx/html/*
++# Set working directory
++WORKDIR /usr/share/nginx/html
+ 
+-# Copy all static files to nginx html directory
+-COPY index.html /usr/share/nginx/html/
+-COPY styles.css /usr/share/nginx/html/
+-COPY script.js /usr/share/nginx/html/
+-COPY 404.html /usr/share/nginx/html/
+-COPY assets/ /usr/share/nginx/html/assets/
+-COPY themes/ /usr/share/nginx/html/themes/
+-COPY Screenshots/ /usr/share/nginx/html/Screenshots/
++# Remove default nginx static files
++RUN rm -rf ./*
+ 
+-# Create nginx configuration for SPA support and proper caching
+-RUN echo 'server { \
+-    listen 80; \
+-    server_name localhost; \
+-    root /usr/share/nginx/html; \
+-    index index.html; \
++# Copy all static files from the repository
++COPY . .
++
++# Create a custom nginx configuration to handle SPA routing
++RUN echo 'server {\
++    listen 80;\
++    server_name localhost;\
++    root /usr/share/nginx/html;\
++    index index.html;\
+     \
+-    location / { \
+-        try_files $uri $uri/ /index.html; \
+-    } \
++    # Handle SPA routing - redirect all requests to index.html\
++    location / {\
++        try_files $uri $uri/ /index.html;\
++    }\
+     \
+-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ { \
+-        expires 1d; \
+-        add_header Cache-Control "public, immutable"; \
+-    } \
++    # Cache static assets\
++    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {\
++        expires 1y;\
++        add_header Cache-Control "public, immutable";\
++    }\
+     \
+-    error_page 404 /404.html; \
+-    location = /404.html { \
+-        internal; \
+-    } \
++    # Security headers\
++    add_header X-Frame-Options "SAMEORIGIN" always;\
++    add_header X-Content-Type-Options "nosniff" always;\
++    add_header X-XSS-Protection "1; mode=block" always;\
++    add_header Referrer-Policy "strict-origin-when-cross-origin" always;\
++    \
++    # Gzip compression\
++    gzip on;\
++    gzip_vary on;\
++    gzip_min_length 1024;\
++    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;\
+ }' > /etc/nginx/conf.d/default.conf
+ 
+ # Expose port 80
+@@ -59,56 +65,61 @@
+         app: tempo-sync
+     spec:
+       containers:
+-        - name: tempo-sync
+-          image: tempo-sync:latest
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 80
+-              protocol: TCP
+-          resources:
+-            requests:
+-              memory: "64Mi"
+-              cpu: "50m"
+-            limits:
+-              memory: "128Mi"
+-              cpu: "100m"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
+-            failureThreshold: 3
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 3
+-            periodSeconds: 5
+-            timeoutSeconds: 3
+-            failureThreshold: 3
++      - name: tempo-sync
++        image: tempo-sync:latest
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 80
++          name: http
++        resources:
++          requests:
++            memory: "64Mi"
++            cpu: "50m"
++          limits:
++            memory: "128Mi"
++            cpu: "100m"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 10
++          periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 5
++          timeoutSeconds: 3
++          failureThreshold: 1
++        securityContext:
++          allowPrivilegeEscalation: false
++          readOnlyRootFilesystem: true
++          capabilities:
++            drop:
++            - ALL
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: tempo-sync
+-  labels:
+-    app: tempo-sync
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+ spec:
+   rules:
+-    - host: tempo-sync.rasztabiga.me
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: tempo-sync
+-                port:
+-                  number: 80
++  - host: tempo-sync.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: tempo-sync
++            port:
++              number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -117,11 +128,11 @@
+   labels:
+     app: tempo-sync
+ spec:
+-  type: ClusterIP
+   selector:
+     app: tempo-sync
+   ports:
+-    - port: 80
+-      targetPort: 80
+-      protocol: TCP
+-      name: http
++  - port: 80
++    targetPort: 80
++    protocol: TCP
++    name: http
++  type: ClusterIP

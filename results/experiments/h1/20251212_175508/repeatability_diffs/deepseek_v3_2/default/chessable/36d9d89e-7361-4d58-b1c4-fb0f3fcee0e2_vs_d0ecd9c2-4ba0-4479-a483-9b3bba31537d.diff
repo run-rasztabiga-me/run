@@ -1,0 +1,251 @@
+--- 36d9d89e-7361-4d58-b1c4-fb0f3fcee0e2
++++ d0ecd9c2-4ba0-4479-a483-9b3bba31537d
+@@ -1,38 +1,29 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use official Node.js runtime as base image
+ FROM node:18-alpine
+ 
+-# Create app directory
+-WORKDIR /usr/src/app
++WORKDIR /app
+ 
+-# Copy package.json and package-lock.json
++# Copy package files
+ COPY package*.json ./
+ 
+ # Install dependencies
+ RUN npm ci --only=production
+ 
+-# Copy app source code
++# Copy application source
+ COPY . .
+ 
+-# Expose port 3000
++# Expose the application port
+ EXPOSE 3000
+ 
+ # Start the application
+ CMD ["node", "server.js"]
+-@@FILE:K8s::k8s/chessable-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: chessable-config
+-data:
+-  NODE_ENV: production
+-  PORT: "3000"
+-  MONGODB_URI: "mongodb://chessable:chessable123@mongodb-service:27017/chessable?authSource=admin"
+ @@FILE:K8s::k8s/chessable-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: chessable
++  labels:
++    app: chessable
+ spec:
+   replicas: 1
+   selector:
+@@ -45,26 +36,15 @@
+     spec:
+       containers:
+       - name: chessable
+-        image: chessable:latest
++        image: chessable
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 3000
+         env:
+-        - name: NODE_ENV
+-          valueFrom:
+-            configMapKeyRef:
+-              name: chessable-config
+-              key: NODE_ENV
+         - name: PORT
+-          valueFrom:
+-            configMapKeyRef:
+-              name: chessable-config
+-              key: PORT
++          value: "3000"
+         - name: MONGODB_URI
+-          valueFrom:
+-            configMapKeyRef:
+-              name: chessable-config
+-              key: MONGODB_URI
++          value: "mongodb://chessable-mongodb:27017/chessable"
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -72,31 +52,19 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 3000
++          initialDelaySeconds: 30
++          periodSeconds: 10
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 3000
+-          initialDelaySeconds: 10
++          initialDelaySeconds: 5
+           periodSeconds: 5
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 3000
+-          initialDelaySeconds: 15
+-          periodSeconds: 10
+-@@FILE:K8s::k8s/chessable-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: chessable-service
+-spec:
+-  selector:
+-    app: chessable
+-  ports:
+-    - port: 80
+-      targetPort: 3000
+-      protocol: TCP
+-@@FILE:K8s::k8s/ingress.yaml
++@@FILE:K8s::k8s/chessable-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -112,18 +80,22 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: chessable-service
++            name: chessable
+             port:
+               number: 80
+-@@FILE:K8s::k8s/mongodb-configmap.yaml
++@@FILE:K8s::k8s/chessable-service.yaml
+ apiVersion: v1
+-kind: ConfigMap
++kind: Service
+ metadata:
+-  name: mongodb-config
+-data:
+-  mongodb-host: mongodb-service
+-  mongodb-port: "27017"
+-  mongodb-database: chessable
++  name: chessable
++spec:
++  selector:
++    app: chessable
++  ports:
++  - port: 80
++    targetPort: 3000
++    protocol: TCP
++  type: ClusterIP
+ @@FILE:K8s::k8s/mongodb-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+@@ -142,41 +114,42 @@
+   name: mongodb-secret
+ type: Opaque
+ data:
+-  mongodb-root-password: cm9vdHBhc3N3b3Jk  # rootpassword in base64
+-  mongodb-username: Y2hlc3NhYmxl  # chessable in base64
+-  mongodb-password: Y2hlc3NhYmxlMTIz  # chessable123 in base64
+-  mongodb-database: Y2hlc3NhYmxl  # chessable in base64
++  mongodb-root-password: Y2hlc3NhYmxlLW1vbmdvZGItcGFzc3dvcmQ=
++  mongodb-password: Y2hlc3NhYmxlLW1vbmdvZGItcGFzc3dvcmQ=
++  mongodb-username: Y2hlc3NhYmxl
+ @@FILE:K8s::k8s/mongodb-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: mongodb-service
++  name: chessable-mongodb
+ spec:
+   selector:
+-    app: mongodb
++    app: chessable-mongodb
+   ports:
+-    - port: 27017
+-      targetPort: 27017
+-  clusterIP: None
++  - port: 27017
++    targetPort: 27017
++    protocol: TCP
++  type: ClusterIP
+ @@FILE:K8s::k8s/mongodb-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: mongodb
++  name: chessable-mongodb
+ spec:
+-  serviceName: mongodb-service
++  serviceName: chessable-mongodb
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: mongodb
++      app: chessable-mongodb
+   template:
+     metadata:
+       labels:
+-        app: mongodb
++        app: chessable-mongodb
+     spec:
+       containers:
+       - name: mongodb
+         image: mongo:6
++        imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 27017
+         env:
+@@ -191,28 +164,17 @@
+               name: mongodb-secret
+               key: mongodb-root-password
+         - name: MONGO_INITDB_DATABASE
+-          valueFrom:
+-            secretKeyRef:
+-              name: mongodb-secret
+-              key: mongodb-database
++          value: "chessable"
+         volumeMounts:
+         - name: mongodb-data
+           mountPath: /data/db
+         resources:
+           requests:
+             memory: "256Mi"
+-            cpu: "250m"
++            cpu: "100m"
+           limits:
+             memory: "512Mi"
+-            cpu: "500m"
+-        readinessProbe:
+-          exec:
+-            command:
+-            - mongosh
+-            - --eval
+-            - "db.adminCommand('ping')"
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
++            cpu: "200m"
+         livenessProbe:
+           exec:
+             command:
+@@ -221,6 +183,14 @@
+             - "db.adminCommand('ping')"
+           initialDelaySeconds: 30
+           periodSeconds: 10
++        readinessProbe:
++          exec:
++            command:
++            - mongosh
++            - --eval
++            - "db.adminCommand('ping')"
++          initialDelaySeconds: 5
++          periodSeconds: 5
+       volumes:
+       - name: mongodb-data
+         persistentVolumeClaim:

@@ -1,0 +1,242 @@
+{
+  "repo_url": "https://github.com/SoLiDinity/airwatch.git",
+  "repo_name": "airwatch",
+  "evaluation_id": "4fdf4765-5dd8-4906-a4bf-d165136fa530",
+  "status": "completed",
+  "start_time": "2025-12-12T19:49:20.414523",
+  "end_time": "2025-12-12T19:54:49.451510",
+  "total_evaluation_time": 329.036987,
+  "generation_result": {
+    "repo_url": "https://github.com/SoLiDinity/airwatch.git",
+    "repo_name": "airwatch",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "back-end/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "back-end"
+      },
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/mongodb-secret.yaml",
+      "k8s/mongo-statefulset.yaml",
+      "k8s/mongo-service.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/postgres-secret.yaml"
+    ],
+    "generation_time": 190.7482030391693,
+    "error_message": null,
+    "timestamp": "2025-12-12T19:52:39.390284",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/airwatch-16937851-b279-4de4-a5f2-d6ceef312ca0",
+    "run_id": "16937851-b279-4de4-a5f2-d6ceef312ca0"
+  },
+  "execution_metrics": {
+    "total_time": 190.7482030391693,
+    "tool_calls_count": 39,
+    "tool_calls_breakdown": {
+      "find_files": 3,
+      "write_file": 15,
+      "ls": 3,
+      "get_file_content": 12,
+      "think": 1,
+      "search_files": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 388112,
+    "input_tokens": 376864,
+    "output_tokens": 11248,
+    "error_count": 0,
+    "run_id": "16937851-b279-4de4-a5f2-d6ceef312ca0",
+    "docker_build_metrics": [
+      {
+        "image_tag": "backend",
+        "build_time": 7.560766935348511,
+        "image_size_mb": 88.05,
+        "layers_count": 8
+      },
+      {
+        "image_tag": "frontend",
+        "build_time": 30.408745050430298,
+        "image_size_mb": 51.03,
+        "layers_count": 7
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 88.0,
+    "overall_score": 69.5,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 18,
+        "severity": "warning",
+        "message": "Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`",
+        "rule_id": "DL3016"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/mongo-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mongo\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/mongo-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"mongo\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "http://run-16937851.airwatch.rasztabiga.me/articles",
+        "line_number": null,
+        "severity": "error",
+        "message": "Endpoint http://run-16937851.airwatch.rasztabiga.me/articles not accessible after 5 attempts: Endpoint returned non-2xx status: 404",
+        "rule_id": "ENDPOINT_HEALTH_CHECK_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 7,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 69.5,
+      "total_errors": 1,
+      "total_warnings": 7,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 88.0,
+        "total_errors": 0,
+        "total_warnings": 6,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 40.0,
+            "errors": 0,
+            "warnings": 6,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T19:49:20.414550: Starting configuration generation",
+    "2025-12-12T19:52:39.390402: Generated 2 Dockerfiles and 11 K8s manifests",
+    "2025-12-12T19:52:39.390404: Starting quality assessment",
+    "2025-12-12T19:54:49.451390: Built 2 Docker images (total: 139.1 MB, avg time: 19.0s)",
+    "2025-12-12T19:54:49.451423: Dockerfile validation: 1 errors, 7 warnings",
+    "2025-12-12T19:54:49.451435: K8s validation: 0 errors, 6 warnings",
+    "2025-12-12T19:54:49.451474: Deployed to namespace: airwatch-16937851-b279-4de4-a5f2-d6ceef312ca0",
+    "2025-12-12T19:54:49.451478: Testing endpoint: /articles",
+    "2025-12-12T19:54:49.451485: Runtime validation: 1 errors, 0 warnings",
+    "2025-12-12T19:54:49.451496: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/airwatch-16937851-b279-4de4-a5f2-d6ceef312ca0",
+    "run_id": "16937851-b279-4de4-a5f2-d6ceef312ca0"
+  }
+}

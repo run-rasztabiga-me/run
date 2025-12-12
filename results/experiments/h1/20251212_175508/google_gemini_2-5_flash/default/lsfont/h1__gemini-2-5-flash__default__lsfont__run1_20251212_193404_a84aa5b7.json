@@ -1,0 +1,176 @@
+{
+  "repo_url": "https://github.com/jan-bobrowski/lsfont.git",
+  "repo_name": "lsfont",
+  "evaluation_id": "a84aa5b7-c84f-4b8a-b04e-b923dd47075e",
+  "status": "completed",
+  "start_time": "2025-12-12T19:33:34.579118",
+  "end_time": "2025-12-12T19:34:04.254677",
+  "total_evaluation_time": 29.675559,
+  "generation_result": {
+    "repo_url": "https://github.com/jan-bobrowski/lsfont.git",
+    "repo_name": "lsfont",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "lsfont",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/lsfont-deployment.yaml",
+      "k8s/lsfont-service.yaml",
+      "k8s/lsfont-ingress.yaml"
+    ],
+    "generation_time": 12.123928785324097,
+    "error_message": null,
+    "timestamp": "2025-12-12T19:33:54.113506",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/lsfont-9c600e44-0a02-4078-bd58-4da706d80657",
+    "run_id": "9c600e44-0a02-4078-bd58-4da706d80657"
+  },
+  "execution_metrics": {
+    "total_time": 12.123928785324097,
+    "tool_calls_count": 6,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 21033,
+    "input_tokens": 19552,
+    "output_tokens": 1481,
+    "error_count": 0,
+    "run_id": "9c600e44-0a02-4078-bd58-4da706d80657",
+    "docker_build_metrics": [
+      {
+        "image_tag": "lsfont",
+        "build_time": 0.7665700912475586,
+        "image_size_mb": 21.94,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/lsfont-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"lsfont\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/lsfont-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"lsfont\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T19:33:34.579803: Starting configuration generation",
+    "2025-12-12T19:33:54.113637: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T19:33:54.113648: Starting quality assessment",
+    "2025-12-12T19:34:04.254594: Built 1 Docker images (total: 21.9 MB, avg time: 0.8s)",
+    "2025-12-12T19:34:04.254618: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-12T19:34:04.254630: K8s validation: 0 errors, 2 warnings",
+    "2025-12-12T19:34:04.254650: Deployed to namespace: lsfont-9c600e44-0a02-4078-bd58-4da706d80657",
+    "2025-12-12T19:34:04.254656: Testing endpoint: /lsfont.html",
+    "2025-12-12T19:34:04.254663: Runtime validation passed: endpoint is healthy",
+    "2025-12-12T19:34:04.254668: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/lsfont-9c600e44-0a02-4078-bd58-4da706d80657",
+    "run_id": "9c600e44-0a02-4078-bd58-4da706d80657"
+  }
+}

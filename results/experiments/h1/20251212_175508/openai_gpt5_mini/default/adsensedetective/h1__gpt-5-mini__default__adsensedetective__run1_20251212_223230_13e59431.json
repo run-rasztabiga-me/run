@@ -1,0 +1,137 @@
+{
+  "repo_url": "https://github.com/isixe/AdSenseDetective.git",
+  "repo_name": "adsensedetective",
+  "evaluation_id": "13e59431-05f5-4a3b-a037-703b472dca43",
+  "status": "completed",
+  "start_time": "2025-12-12T22:29:58.104894",
+  "end_time": "2025-12-12T22:32:30.667213",
+  "total_evaluation_time": 152.562319,
+  "generation_result": {
+    "repo_url": "https://github.com/isixe/AdSenseDetective.git",
+    "repo_name": "adsensedetective",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "adsensedetective",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 95.54179096221924,
+    "error_message": null,
+    "timestamp": "2025-12-12T22:31:42.363023",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/adsensedetective-e3bda938-9eab-4aea-8c51-3643f4e1a450",
+    "run_id": "e3bda938-9eab-4aea-8c51-3643f4e1a450"
+  },
+  "execution_metrics": {
+    "total_time": 95.54179096221924,
+    "tool_calls_count": 20,
+    "tool_calls_breakdown": {
+      "get_file_content": 6,
+      "search_files": 7,
+      "find_files": 1,
+      "write_file": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 256024,
+    "input_tokens": 251569,
+    "output_tokens": 4455,
+    "error_count": 0,
+    "run_id": "e3bda938-9eab-4aea-8c51-3643f4e1a450",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 13,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 901B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-bullseye\n#2 ...\n\n#3 [internal] load metadata for docker.io/library/node:20-bullseye-slim\n#3 DONE 0.7s\n\n#2 [internal] load metadata for docker.io/library/node:20-bullseye\n#2 DONE 0.7s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [internal] load build context\n#5 transferring context: 1.18MB 0.0s done\n#5 DONE 0.0s\n\n#6 [builder 1/7] FROM docker.io/library/node:20-bullseye@sha256:3bf1bf603e3e282c84c627e89a310b9bc9a9cb16871960bf11f522067c6a6014\n#6 resolve docker.io/library/node:20-bullseye@sha256:3bf1bf603e3e282c84c627e89a310b9bc9a9cb16871960bf11f522067c6a6014 done\n#6 DONE 0.1s\n\n#7 [stage-1 1/7] FROM docker.io/library/node:20-bullseye-slim@sha256:a6de496e0a3828ebd898f48a019ee8f3acfd0f3c22f8d26e2d3c70a12e05a801\n#7 resolve docker.io/library/node:20-bullseye-slim@sha256:a6de496e0a3828ebd898f48a019ee8f3acfd0f3c22f8d26e2d3c70a12e05a801 done\n#7 extracting sha256:a88499d92e58a9f7d74dc939bd949d9c2d87abbbaaec03b5f87553e69d901a53\n#7 extracting sha256:a88499d92e58a9f7d74dc939bd949d9c2d87abbbaaec03b5f87553e69d901a53 0.5s done\n#7 DONE 0.5s\n\n#6 [builder 1/7] FROM docker.io/library/node:20-bullseye@sha256:3bf1bf603e3e282c84c627e89a310b9bc9a9cb16871960bf11f522067c6a6014\n#6 sha256:4873611133bae06c32a886a25bc26f42efdf78f2d7c74e3ef3a8a0abba039414 445B / 445B 0.4s done\n#6 sha256:e423e6b0ac3604f4defa5e302620236f6fb641f8519a3fc8e845a3a6f5f02900 1.25MB / 1.25MB 0.4s done\n#6 sha256:c7c66ffff5169a0f30d6a4a21c3f46d238e5f260d07d5801d0d2bbeb7b1836d4 0B / 48.41MB 0.3s\n#6 sha256:9dceff9be88d197414826bdfcdcbdc57dc5d5345b504ede6b04e1ec55d20744f 0B / 4.09kB 0.3s\n#6 sha256:c7c66ffff5169a0f30d6a4a21c3f46d238e5f260d07d5801d0d2bbeb7b1836d4 10.49MB / 48.41MB 0.6s\n#6 sha256:9dceff9be88d197414826bdfcdcbdc57dc5d5345b504ede6b04e1ec55d20744f 4.09kB / 4.09kB 0.5s done\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 0B / 197.21MB 0.2s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 0B / 54.76MB 0.2s\n#6 sha256:c7c66ffff5169a0f30d6a4a21c3f46d238e5f260d07d5801d0d2bbeb7b1836d4 24.12MB / 48.41MB 0.8s\n#6 sha256:291bf09cec80aaf3d13eefc3fba3a6cb13a44cdce91da75e0e2c3d8b72348e79 0B / 15.76MB 0.2s\n#6 sha256:c7c66ffff5169a0f30d6a4a21c3f46d238e5f260d07d5801d0d2bbeb7b1836d4 37.75MB / 48.41MB 0.9s\n#6 ...\n\n#7 [stage-1 1/7] FROM docker.io/library/node:20-bullseye-slim@sha256:a6de496e0a3828ebd898f48a019ee8f3acfd0f3c22f8d26e2d3c70a12e05a801\n#7 extracting sha256:8fce94f571dfc6da8a2ec7528f608a2d6b399f3935f2f3e469571fb922d8b876 done\n#7 extracting sha256:ac70ad0812f876de7e06c576b292aa3fec3df155d2188632b46e8363462a4122 0.6s done\n#7 DONE 1.1s\n\n#6 [builder 1/7] FROM docker.io/library/node:20-bullseye@sha256:3bf1bf603e3e282c84c627e89a310b9bc9a9cb16871960bf11f522067c6a6014\n#6 sha256:291bf09cec80aaf3d13eefc3fba3a6cb13a44cdce91da75e0e2c3d8b72348e79 1.05MB / 15.76MB 0.5s\n#6 ...\n\n#7 [stage-1 1/7] FROM docker.io/library/node:20-bullseye-slim@sha256:a6de496e0a3828ebd898f48a019ee8f3acfd0f3c22f8d26e2d3c70a12e05a801\n#7 extracting sha256:c7d59c8eae3adaae403cffee303b468d7a7f738ea02d04f3629d88331b187e54 0.0s done\n#7 extracting sha256:9fd554b9d942a6fe87542aa839d57a958752852469756f5b01799c10bd5979a7 done\n#7 DONE 1.1s\n\n#6 [builder 1/7] FROM docker.io/library/node:20-bullseye@sha256:3bf1bf603e3e282c84c627e89a310b9bc9a9cb16871960bf11f522067c6a6014\n#6 sha256:c7c66ffff5169a0f30d6a4a21c3f46d238e5f260d07d5801d0d2bbeb7b1836d4 48.41MB / 48.41MB 1.2s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 10.49MB / 197.21MB 0.8s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 5.24MB / 54.76MB 0.8s\n#6 sha256:291bf09cec80aaf3d13eefc3fba3a6cb13a44cdce91da75e0e2c3d8b72348e79 8.39MB / 15.76MB 0.6s\n#6 sha256:c7c66ffff5169a0f30d6a4a21c3f46d238e5f260d07d5801d0d2bbeb7b1836d4 48.41MB / 48.41MB 1.3s done\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 8.39MB / 54.76MB 0.9s\n#6 sha256:291bf09cec80aaf3d13eefc3fba3a6cb13a44cdce91da75e0e2c3d8b72348e79 15.76MB / 15.76MB 0.8s done\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 20.55MB / 197.21MB 1.1s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 11.53MB / 54.76MB 1.1s\n#6 sha256:437b5b60e3a4b64e2c621589a67483eeef6d4b3fc4926655006ef41bd44f71dd 0B / 53.76MB 0.2s\n#6 ...\n\n#8 [stage-1 2/7] WORKDIR /app\n#8 DONE 0.5s\n\n#6 [builder 1/7] FROM docker.io/library/node:20-bullseye@sha256:3bf1bf603e3e282c84c627e89a310b9bc9a9cb16871960bf11f522067c6a6014\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 16.78MB / 54.76MB 1.2s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 33.55MB / 197.21MB 1.4s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 25.17MB / 54.76MB 1.5s\n#6 sha256:437b5b60e3a4b64e2c621589a67483eeef6d4b3fc4926655006ef41bd44f71dd 9.44MB / 53.76MB 0.5s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 29.36MB / 54.76MB 1.7s\n#6 sha256:437b5b60e3a4b64e2c621589a67483eeef6d4b3fc4926655006ef41bd44f71dd 18.87MB / 53.76MB 0.6s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 47.19MB / 197.21MB 1.8s\n#6 sha256:437b5b60e3a4b64e2c621589a67483eeef6d4b3fc4926655006ef41bd44f71dd 28.31MB / 53.76MB 0.8s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 36.70MB / 54.76MB 2.0s\n#6 sha256:437b5b60e3a4b64e2c621589a67483eeef6d4b3fc4926655006ef41bd44f71dd 38.80MB / 53.76MB 0.9s\n#6 sha256:437b5b60e3a4b64e2c621589a67483eeef6d4b3fc4926655006ef41bd44f71dd 53.76MB / 53.76MB 1.1s done\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 63.96MB / 197.21MB 2.3s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 41.94MB / 54.76MB 2.1s\n#6 extracting sha256:437b5b60e3a4b64e2c621589a67483eeef6d4b3fc4926655006ef41bd44f71dd\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 47.19MB / 54.76MB 2.3s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 54.53MB / 54.76MB 2.4s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 78.64MB / 197.21MB 2.6s\n#6 sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 54.76MB / 54.76MB 2.5s done\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 89.13MB / 197.21MB 2.7s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 99.61MB / 197.21MB 2.9s\n#6 extracting sha256:437b5b60e3a4b64e2c621589a67483eeef6d4b3fc4926655006ef41bd44f71dd 0.6s done\n#6 extracting sha256:291bf09cec80aaf3d13eefc3fba3a6cb13a44cdce91da75e0e2c3d8b72348e79\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 112.20MB / 197.21MB 3.0s\n#6 extracting sha256:291bf09cec80aaf3d13eefc3fba3a6cb13a44cdce91da75e0e2c3d8b72348e79 0.1s done\n#6 extracting sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 123.73MB / 197.21MB 3.2s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 135.27MB / 197.21MB 3.3s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 154.14MB / 197.21MB 3.6s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 166.72MB / 197.21MB 3.8s\n#6 extracting sha256:f17ff9cfdab33e1021de93428c7968b682c4bb6322df919b3c6622b8ac14ec0b 0.8s done\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 177.21MB / 197.21MB 3.9s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 187.70MB / 197.21MB 4.1s\n#6 sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 197.21MB / 197.21MB 4.3s done\n#6 extracting sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413\n#6 extracting sha256:e853b40334c538bcc5e2df110b0fecfb8423a3bbe5081982d24d096846277413 2.1s done\n#6 DONE 6.8s\n\n#6 [builder 1/7] FROM docker.io/library/node:20-bullseye@sha256:3bf1bf603e3e282c84c627e89a310b9bc9a9cb16871960bf11f522067c6a6014\n#6 extracting sha256:9dceff9be88d197414826bdfcdcbdc57dc5d5345b504ede6b04e1ec55d20744f done\n#6 extracting sha256:c7c66ffff5169a0f30d6a4a21c3f46d238e5f260d07d5801d0d2bbeb7b1836d4\n#6 extracting sha256:c7c66ffff5169a0f30d6a4a21c3f46d238e5f260d07d5801d0d2bbeb7b1836d4 0.5s done\n#6 DONE 7.4s\n\n#6 [builder 1/7] FROM docker.io/library/node:20-bullseye@sha256:3bf1bf603e3e282c84c627e89a310b9bc9a9cb16871960bf11f522067c6a6014\n#6 extracting sha256:e423e6b0ac3604f4defa5e302620236f6fb641f8519a3fc8e845a3a6f5f02900 0.0s done\n#6 extracting sha256:4873611133bae06c32a886a25bc26f42efdf78f2d7c74e3ef3a8a0abba039414 done\n#6 DONE 7.4s\n\n#9 [builder 2/7] WORKDIR /app\n#9 DONE 0.4s\n\n#10 [builder 3/7] COPY package.json package-lock.json* pnpm-lock.yaml* ./\n#10 DONE 0.0s\n\n#11 [builder 4/7] COPY . .\n#11 DONE 0.0s\n\n#12 [builder 5/7] RUN npm install --legacy-peer-deps --no-audit --no-fund\n#12 28.04 npm warn deprecated @cloudflare/next-on-pages@1.13.16: Please use the OpenNext adapter instead: https://opennext.js.org/cloudflare\n#12 34.51 npm warn deprecated next@15.3.1: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.\n#12 35.25 \n#12 35.25 added 467 packages in 35s\n#12 35.25 npm notice\n#12 35.25 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#12 35.25 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#12 35.25 npm notice To update run: npm install -g npm@11.7.0\n#12 35.25 npm notice\n#12 DONE 35.6s\n\n#13 [builder 6/7] RUN npm run build\n#13 0.586 \n#13 0.586 > nextn@0.1.0 build\n#13 0.586 > next build\n#13 0.586 \n#13 1.773  \u2a2f Failed to load next.config.ts, see more info here https://nextjs.org/docs/messages/next-config-error\n#13 1.774 \n#13 1.774 > Build error occurred\n#13 1.781 [Error: Cannot find module 'wrangler'\n#13 1.781 Require stack:\n#13 1.781 - /app/node_modules/@cloudflare/next-on-pages/dist/next-dev/index.cjs\n#13 1.781 - /app/next.config.compiled.js\n#13 1.781 - /app/node_modules/next/dist/build/next-config-ts/transpile-config.js\n#13 1.781 - /app/node_modules/next/dist/server/config.js\n#13 1.781 - /app/node_modules/next/dist/cli/next-test.js\n#13 1.781 - /app/node_modules/next/dist/bin/next] {\n#13 1.781   code: 'MODULE_NOT_FOUND',\n#13 1.781   requireStack: [Array]\n#13 1.781 }\n#13 ERROR: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 1\n------\n > [builder 6/7] RUN npm run build:\n1.781 Require stack:\n1.781 - /app/node_modules/@cloudflare/next-on-pages/dist/next-dev/index.cjs\n1.781 - /app/next.config.compiled.js\n1.781 - /app/node_modules/next/dist/build/next-config-ts/transpile-config.js\n1.781 - /app/node_modules/next/dist/server/config.js\n1.781 - /app/node_modules/next/dist/cli/next-test.js\n1.781 - /app/node_modules/next/dist/bin/next] {\n1.781   code: 'MODULE_NOT_FOUND',\n1.781   requireStack: [Array]\n1.781 }\n------\nDockerfile:13\n--------------------\n  11 |     # Install dependencies and build\n  12 |     RUN npm install --legacy-peer-deps --no-audit --no-fund\n  13 | >>> RUN npm run build\n  14 |     # Remove dev dependencies to keep only production deps\n  15 |     RUN npm prune --production || true\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/m89c2rcsdfz86p5desiqp0ssp",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 1,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-12T22:29:58.105351: Starting configuration generation",
+    "2025-12-12T22:31:42.363127: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-12T22:31:42.363130: Starting quality assessment",
+    "2025-12-12T22:32:30.667149: Dockerfile validation: 1 errors, 0 warnings",
+    "2025-12-12T22:32:30.667193: K8s validation: 0 errors, 0 warnings",
+    "2025-12-12T22:32:30.667198: Runtime validation skipped due to Docker build errors",
+    "2025-12-12T22:32:30.667208: Generating evaluation report"
+  ],
+  "experiment_name": "h1",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/adsensedetective-e3bda938-9eab-4aea-8c51-3643f4e1a450",
+    "run_id": "e3bda938-9eab-4aea-8c51-3643f4e1a450"
+  }
+}

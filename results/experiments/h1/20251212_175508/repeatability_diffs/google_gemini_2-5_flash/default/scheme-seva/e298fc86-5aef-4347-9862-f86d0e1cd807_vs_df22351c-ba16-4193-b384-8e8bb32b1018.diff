@@ -1,0 +1,353 @@
+--- e298fc86-5aef-4347-9862-f86d0e1cd807
++++ df22351c-ba16-4193-b384-8e8bb32b1018
+@@ -1,30 +1,48 @@
+ @@FILE:Dockerfile::Backend/Dockerfile
++
+ FROM node:20-alpine
++
+ WORKDIR /app
++
+ COPY package*.json ./
+-RUN npm install
+-COPY . ./
++
++RUN npm install --omit=dev
++
++COPY . .
++
+ EXPOSE 5000
++
+ CMD ["node", "index.js"]
+ @@FILE:Dockerfile::Frontend/Dockerfile
+-# Stage 1: Build the React application
+-FROM node:20-alpine as build-stage
++FROM node:20-alpine as builder
++
+ WORKDIR /app
++
+ COPY package*.json ./
+-RUN npm install
+-COPY . ./
++
++RUN npm install --omit=dev
++
++COPY . .
++
+ RUN npm run build
+ 
+-# Stage 2: Serve the application with Nginx
+-FROM nginx:stable-alpine
+-COPY --from=build-stage /app/build /usr/share/nginx/html
++FROM nginx:alpine
++
++COPY --from=builder /app/build /usr/share/nginx/html
++
++COPY nginx.conf /etc/nginx/conf.d/default.conf
++
+ EXPOSE 80
++
+ CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: backend
++  name: backend-deployment
++  labels:
++    app: backend
+ spec:
+   replicas: 1
+   selector:
+@@ -44,43 +62,23 @@
+           env:
+             - name: PORT
+               value: "5000"
++            - name: MONGO_USERNAME
++              valueFrom:
++                secretKeyRef:
++                  name: mongodb-secret
++                  key: mongo-username
++            - name: MONGO_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: mongodb-secret
++                  key: mongo-password
++            - name: MONGO_DATABASE
++              valueFrom:
++                secretKeyRef:
++                  name: mongodb-secret
++                  key: mongo-database
+             - name: MONGODB_URL
+-              valueFrom:
+-                secretKeyRef:
+-                  name: backend-secret
+-                  key: MONGODB_URL
+-            - name: DB_NAME
+-              valueFrom:
+-                secretKeyRef:
+-                  name: backend-secret
+-                  key: DB_NAME
+-            - name: ACCESS_TOKEN_SECRET
+-              valueFrom:
+-                secretKeyRef:
+-                  name: backend-secret
+-                  key: ACCESS_TOKEN_SECRET
+-            - name: REFRESH_TOKEN_SECRET
+-              valueFrom:
+-                secretKeyRef:
+-                  name: backend-secret
+-                  key: REFRESH_TOKEN_SECRET
+-            - name: ACCESS_TOKEN_EXPIRY
+-              valueFrom:
+-                secretKeyRef:
+-                  name: backend-secret
+-                  key: ACCESS_TOKEN_EXPIRY
+-            - name: REFRESH_TOKEN_EXPIRY
+-              valueFrom:
+-                secretKeyRef:
+-                  name: backend-secret
+-                  key: REFRESH_TOKEN_EXPIRY
+-            - name: GEMINI_API_KEY
+-              valueFrom:
+-                secretKeyRef:
+-                  name: backend-secret
+-                  key: GEMINI_API_KEY
+-            - name: NODE_ENV
+-              value: "production"
++              value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb-service:27017/$(MONGO_DATABASE)?authSource=admin"
+           resources:
+             requests:
+               memory: "128Mi"
+@@ -88,37 +86,12 @@
+             limits:
+               memory: "256Mi"
+               cpu: "100m"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 5000
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 5000
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/backend-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: backend-secret
+-type: Opaque
+-data:
+-  MONGODB_URL: bW9uZ29kYjovL2FkbWluOnBhc3N3b3JkQG1vbmdvZGIvP2F1dGhTb3VyY2U9YWRtaW4= # mongodb://admin:password@mongodb/?authSource=admin
+-  DB_NAME: c2NoZW1lLXNldmE= # scheme-seva
+-  ACCESS_TOKEN_SECRET: eW91ci1hY2Nlc3MtdG9rZW4tc2VjcmV0 # your-access-token-secret
+-  REFRESH_TOKEN_SECRET: eW91ci1yZWZyZXNoLXRva2VuLXNlY3JldA== # your-refresh-token-secret
+-  ACCESS_TOKEN_EXPIRY: MWg= # 1h
+-  REFRESH_TOKEN_EXPIRY: N2Q= # 7d
+-  GEMINI_API_KEY: eW91ci1nZW1pbmktYXBpLWtleQ== # your-gemini-api-key
+ @@FILE:K8s::k8s/backend-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: backend
++  name: backend-service
+ spec:
+   selector:
+     app: backend
+@@ -127,10 +100,13 @@
+       port: 5000
+       targetPort: 5000
+ @@FILE:K8s::k8s/frontend-deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: frontend
++  name: frontend-deployment
++  labels:
++    app: frontend
+ spec:
+   replicas: 1
+   selector:
+@@ -147,33 +123,19 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 80
+-          env:
+-            - name: REACT_APP_BACKEND_URL
+-              value: "http://scheme-seva.rasztabiga.me/api" # Pointing to the Ingress with /api path
+           resources:
+             requests:
+               memory: "64Mi"
+-              cpu: "50m"
++              cpu: "25m"
+             limits:
+               memory: "128Mi"
+-              cpu: "100m"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
++              cpu: "50m"
+ @@FILE:K8s::k8s/frontend-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: frontend
++  name: frontend-service
+ spec:
+   selector:
+     app: frontend
+@@ -182,45 +144,42 @@
+       port: 80
+       targetPort: 80
+ @@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: scheme-seva-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$2
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: scheme-seva.rasztabiga.me
+       http:
+         paths:
+-          - path: /api(/|$)(.*)
++          - path: /
+             pathType: Prefix
+             backend:
+               service:
+-                name: backend
+-                port:
+-                  number: 5000
+-          - path: /(.*)
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: frontend
++                name: frontend-service
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/mongodb-secret.yaml
++
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: mongodb-secret
+ type: Opaque
+ data:
+-  MONGO_INITDB_ROOT_USERNAME: YWRtaW4= # admin
+-  MONGO_INITDB_ROOT_PASSWORD: cGFzc3dvcmQ= # password
++  mongo-username: bW9uZ28tdXNlcg==
++  mongo-password: bW9uZ28tcGFzc3dvcmQtMTIz
++  mongo-database: c2NoZW1lLXNldmE=
+ @@FILE:K8s::k8s/mongodb-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: mongodb
++  name: mongodb-service
+ spec:
+   selector:
+     app: mongodb
+@@ -228,13 +187,14 @@
+     - protocol: TCP
+       port: 27017
+       targetPort: 27017
++  clusterIP: None
+ @@FILE:K8s::k8s/mongodb-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: mongodb
+ spec:
+-  serviceName: "mongodb"
++  serviceName: mongodb-service
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -246,21 +206,26 @@
+     spec:
+       containers:
+         - name: mongodb
+-          image: mongo:6.0
++          image: mongo:4.4
++          imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 27017
+-              name: mongo
+           env:
+             - name: MONGO_INITDB_ROOT_USERNAME
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: MONGO_INITDB_ROOT_USERNAME
++                  key: mongo-username
+             - name: MONGO_INITDB_ROOT_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: mongodb-secret
+-                  key: MONGO_INITDB_ROOT_PASSWORD
++                  key: mongo-password
++            - name: MONGO_INITDB_DATABASE
++              valueFrom:
++                secretKeyRef:
++                  name: mongodb-secret
++                  key: mongo-database
+           volumeMounts:
+             - name: mongodb-persistent-storage
+               mountPath: /data/db
+@@ -271,34 +236,11 @@
+             limits:
+               memory: "512Mi"
+               cpu: "200m"
+-          readinessProbe:
+-            exec:
+-              command:
+-                - mongo
+-                - --disableImplicitReadWriteRetry
+-                - --eval
+-                - "db.adminCommand('ping')"
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
+-            failureThreshold: 6
+-          livenessProbe:
+-            exec:
+-              command:
+-                - mongo
+-                - --disableImplicitReadWriteRetry
+-                - --eval
+-                - "db.adminCommand('ping')"
+-            initialDelaySeconds: 15
+-            periodSeconds: 20
+-            timeoutSeconds: 5
+-            failureThreshold: 6
+   volumeClaimTemplates:
+     - metadata:
+         name: mongodb-persistent-storage
+       spec:
+-        accessModes: [ "ReadWriteOnce" ]
++        accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 1Gi
+-        # storageClassName: "microk8s-hostpath" # Using default storage class

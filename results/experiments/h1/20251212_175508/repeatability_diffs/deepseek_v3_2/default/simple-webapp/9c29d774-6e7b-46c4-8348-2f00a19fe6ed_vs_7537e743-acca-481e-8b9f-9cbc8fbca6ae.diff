@@ -1,0 +1,534 @@
+--- 9c29d774-6e7b-46c4-8348-2f00a19fe6ed
++++ 7537e743-acca-481e-8b9f-9cbc8fbca6ae
+@@ -1,18 +1,17 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Simple Web App Dockerfile
+ FROM python:3.11-slim
+ 
+-# Install system dependencies
++# Install system dependencies and tools
+ RUN apt-get update && apt-get install -y \
++    curl \
+     nmap \
+-    curl \
+     iproute2 \
++    iputils-ping \
+     net-tools \
+-    iputils-ping \
+     supervisor \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Create app directory
++# Set working directory
+ WORKDIR /app
+ 
+ # Copy requirements and install Python dependencies
+@@ -23,51 +22,36 @@
+ COPY app/ ./app/
+ COPY config/ ./config/
+ COPY scripts/ ./scripts/
+-COPY public/ ./public/
+-
+-# Create necessary directories for supervisord
+-RUN mkdir -p /var/log/supervisor /var/run
+ 
+ # Copy supervisord configuration
+ COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+ 
+-# Make scripts executable
+-RUN chmod +x /app/scripts/system-info.sh /scripts/entrypoint.sh
+-
+-# Expose ports: 80 for web app, 61208 for glances
++# Make entrypoint script executable
++RUN chmod +x /scripts/entrypoint.sh
++
++# Expose ports: 80 for webapp, 61208 for glances
+ EXPOSE 80 61208
+ 
+-# Set environment variables
+-ENV FLASK_ENV=production
+-ENV PYTHONUNBUFFERED=1
+-
+-# Health check
+-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+-    CMD curl -f http://localhost/health || exit 1
+-
+-# Use supervisord to manage both processes
++# Use supervisord as entrypoint
+ ENTRYPOINT ["/scripts/entrypoint.sh"]
+-@@FILE:K8s::k8s/app-configmap.yaml
++@@FILE:K8s::k8s/configmap-services.yaml
+ apiVersion: v1
+ kind: ConfigMap
+ metadata:
+-  name: app-config
+-  labels:
+-    app: simple-webapp
+-    component: webapp
++  name: simple-webapp-config
+ data:
+   services.json: |
+     {
+       "services": [
+         {
+           "name": "test-redis",
+-          "host": "redis",
++          "host": "simple-webapp-redis",
+           "port": 6379,
+           "type": "tcp"
+         },
+         {
+           "name": "test-postgres",
+-          "host": "postgres",
++          "host": "simple-webapp-postgres",
+           "port": 5432,
+           "type": "tcp"
+         },
+@@ -79,14 +63,188 @@
+         }
+       ]
+     }
+-@@FILE:K8s::k8s/app-deployment.yaml
++@@FILE:K8s::k8s/ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: simple-webapp-ingress
++spec:
++  rules:
++  - host: simple-webapp.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: simple-webapp
++            port:
++              number: 80
++@@FILE:K8s::k8s/postgres-secret.yaml
++apiVersion: v1
++kind: Secret
++metadata:
++  name: postgres-secret
++type: Opaque
++data:
++  postgres-password: dGVzdHBhc3M=  # testpass
++@@FILE:K8s::k8s/postgres-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: simple-webapp-postgres
++spec:
++  selector:
++    app: simple-webapp
++    component: postgres
++  ports:
++  - port: 5432
++    targetPort: 5432
++  clusterIP: None
++@@FILE:K8s::k8s/postgres-statefulset.yaml
++apiVersion: apps/v1
++kind: StatefulSet
++metadata:
++  name: simple-webapp-postgres
++spec:
++  serviceName: simple-webapp-postgres
++  replicas: 1
++  selector:
++    matchLabels:
++      app: simple-webapp
++      component: postgres
++  template:
++    metadata:
++      labels:
++        app: simple-webapp
++        component: postgres
++    spec:
++      containers:
++      - name: postgres
++        image: postgres:15-alpine
++        ports:
++        - containerPort: 5432
++        env:
++        - name: POSTGRES_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-password
++        - name: POSTGRES_DB
++          value: simplewebapp
++        resources:
++          requests:
++            memory: "256Mi"
++            cpu: "250m"
++          limits:
++            memory: "512Mi"
++            cpu: "500m"
++        volumeMounts:
++        - name: postgres-data
++          mountPath: /var/lib/postgresql/data
++        readinessProbe:
++          tcpSocket:
++            port: 5432
++          initialDelaySeconds: 30
++          periodSeconds: 10
++        livenessProbe:
++          tcpSocket:
++            port: 5432
++          initialDelaySeconds: 60
++          periodSeconds: 20
++      volumes:
++      - name: postgres-data
++        persistentVolumeClaim:
++          claimName: postgres-pvc
++---
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: postgres-pvc
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++@@FILE:K8s::k8s/redis-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: simple-webapp-redis
++spec:
++  selector:
++    app: simple-webapp
++    component: redis
++  ports:
++  - port: 6379
++    targetPort: 6379
++  clusterIP: None
++@@FILE:K8s::k8s/redis-statefulset.yaml
++apiVersion: apps/v1
++kind: StatefulSet
++metadata:
++  name: simple-webapp-redis
++spec:
++  serviceName: simple-webapp-redis
++  replicas: 1
++  selector:
++    matchLabels:
++      app: simple-webapp
++      component: redis
++  template:
++    metadata:
++      labels:
++        app: simple-webapp
++        component: redis
++    spec:
++      containers:
++      - name: redis
++        image: redis:7-alpine
++        ports:
++        - containerPort: 6379
++        command: ["redis-server"]
++        args: ["--appendonly", "yes"]
++        resources:
++          requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
++            memory: "256Mi"
++            cpu: "250m"
++        volumeMounts:
++        - name: redis-data
++          mountPath: /data
++        readinessProbe:
++          tcpSocket:
++            port: 6379
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        livenessProbe:
++          tcpSocket:
++            port: 6379
++          initialDelaySeconds: 30
++          periodSeconds: 10
++      volumes:
++      - name: redis-data
++        persistentVolumeClaim:
++          claimName: redis-pvc
++---
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: redis-pvc
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++@@FILE:K8s::k8s/webapp-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: simple-webapp
+-  labels:
+-    app: simple-webapp
+-    component: webapp
+ spec:
+   replicas: 1
+   selector:
+@@ -111,12 +269,12 @@
+         env:
+         - name: FLASK_ENV
+           value: "production"
+-        - name: PYTHONUNBUFFERED
+-          value: "1"
++        - name: PORT
++          value: "80"
+         resources:
+           requests:
+             memory: "256Mi"
+-            cpu: "200m"
++            cpu: "250m"
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
+@@ -141,18 +299,15 @@
+       volumes:
+       - name: config-volume
+         configMap:
+-          name: app-config
++          name: simple-webapp-config
+           items:
+           - key: services.json
+             path: services.json
+-@@FILE:K8s::k8s/app-service.yaml
++@@FILE:K8s::k8s/webapp-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: simple-webapp
+-  labels:
+-    app: simple-webapp
+-    component: webapp
+ spec:
+   selector:
+     app: simple-webapp
+@@ -164,217 +319,3 @@
+   - port: 61208
+     targetPort: 61208
+     name: glances
+-@@FILE:K8s::k8s/ingress.yaml
+-apiVersion: networking.k8s.io/v1
+-kind: Ingress
+-metadata:
+-  name: simple-webapp-ingress
+-  labels:
+-    app: simple-webapp
+-spec:
+-  rules:
+-  - host: simple-webapp.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: simple-webapp
+-            port:
+-              number: 80
+-@@FILE:K8s::k8s/postgres-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: postgres-secret
+-  labels:
+-    app: simple-webapp
+-    component: postgres
+-type: Opaque
+-data:
+-  # Default password for test-postgres (testpass encoded in base64)
+-  postgres-password: dGVzdHBhc3M=
+-  postgres-user: cG9zdGdyZXM=
+-@@FILE:K8s::k8s/postgres-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: postgres
+-  labels:
+-    app: simple-webapp
+-    component: postgres
+-spec:
+-  selector:
+-    app: simple-webapp
+-    component: postgres
+-  ports:
+-  - port: 5432
+-    targetPort: 5432
+-    name: postgres
+-  clusterIP: None
+-@@FILE:K8s::k8s/postgres-statefulset.yaml
+-apiVersion: apps/v1
+-kind: StatefulSet
+-metadata:
+-  name: postgres
+-  labels:
+-    app: simple-webapp
+-    component: postgres
+-spec:
+-  serviceName: postgres
+-  replicas: 1
+-  selector:
+-    matchLabels:
+-      app: simple-webapp
+-      component: postgres
+-  template:
+-    metadata:
+-      labels:
+-        app: simple-webapp
+-        component: postgres
+-    spec:
+-      containers:
+-      - name: postgres
+-        image: postgres:15-alpine
+-        ports:
+-        - containerPort: 5432
+-          name: postgres
+-        env:
+-        - name: POSTGRES_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-password
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-user
+-        - name: POSTGRES_DB
+-          value: postgres
+-        resources:
+-          requests:
+-            memory: "256Mi"
+-            cpu: "200m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
+-        volumeMounts:
+-        - name: postgres-data
+-          mountPath: /var/lib/postgresql/data
+-        livenessProbe:
+-          exec:
+-            command:
+-            - pg_isready
+-            - -U
+-            - postgres
+-          initialDelaySeconds: 60
+-          periodSeconds: 10
+-        readinessProbe:
+-          exec:
+-            command:
+-            - pg_isready
+-            - -U
+-            - postgres
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+-  volumeClaimTemplates:
+-  - metadata:
+-      name: postgres-data
+-    spec:
+-      accessModes: [ "ReadWriteOnce" ]
+-      resources:
+-        requests:
+-          storage: 5Gi
+-@@FILE:K8s::k8s/redis-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: redis-secret
+-  labels:
+-    app: simple-webapp
+-    component: redis
+-type: Opaque
+-data:
+-  # Default password for test-redis (testpass encoded in base64)
+-  redis-password: dGVzdHBhc3M=
+-@@FILE:K8s::k8s/redis-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: redis
+-  labels:
+-    app: simple-webapp
+-    component: redis
+-spec:
+-  selector:
+-    app: simple-webapp
+-    component: redis
+-  ports:
+-  - port: 6379
+-    targetPort: 6379
+-    name: redis
+-  clusterIP: None
+-@@FILE:K8s::k8s/redis-statefulset.yaml
+-apiVersion: apps/v1
+-kind: StatefulSet
+-metadata:
+-  name: redis
+-  labels:
+-    app: simple-webapp
+-    component: redis
+-spec:
+-  serviceName: redis
+-  replicas: 1
+-  selector:
+-    matchLabels:
+-      app: simple-webapp
+-      component: redis
+-  template:
+-    metadata:
+-      labels:
+-        app: simple-webapp
+-        component: redis
+-    spec:
+-      containers:
+-      - name: redis
+-        image: redis:7-alpine
+-        ports:
+-        - containerPort: 6379
+-          name: redis
+-        env:
+-        - name: REDIS_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: redis-secret
+-              key: redis-password
+-        command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)"]
+-        resources:
+-          requests:
+-            memory: "64Mi"
+-            cpu: "100m"
+-          limits:
+-            memory: "128Mi"
+-            cpu: "200m"
+-        volumeMounts:
+-        - name: redis-data
+-          mountPath: /data
+-        livenessProbe:
+-          tcpSocket:
+-            port: 6379
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
+-        readinessProbe:
+-          tcpSocket:
+-            port: 6379
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+-  volumeClaimTemplates:
+-  - metadata:
+-      name: redis-data
+-    spec:
+-      accessModes: [ "ReadWriteOnce" ]
+-      resources:
+-        requests:
+-          storage: 1Gi

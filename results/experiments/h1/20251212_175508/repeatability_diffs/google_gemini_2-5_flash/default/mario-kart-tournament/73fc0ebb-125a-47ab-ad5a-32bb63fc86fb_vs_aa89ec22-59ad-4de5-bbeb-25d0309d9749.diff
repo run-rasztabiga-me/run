@@ -1,0 +1,132 @@
+--- 73fc0ebb-125a-47ab-ad5a-32bb63fc86fb
++++ aa89ec22-59ad-4de5-bbeb-25d0309d9749
+@@ -1,5 +1,4 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+ FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+@@ -11,8 +10,8 @@
+ 
+ EXPOSE 5000
+ 
+-CMD ["python", "main.py", "--port", "5000"]
+-@@FILE:K8s::k8s/deployment.yaml
++CMD ["python", "main.py"]
++@@FILE:K8s::k8s/mario-kart-tournament-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -30,61 +29,46 @@
+         app: mario-kart-tournament
+     spec:
+       containers:
+-      - name: mario-kart-tournament
+-        image: mario-kart-tournament
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 5000
+-        resources:
+-          requests:
+-            memory: "128Mi"
+-            cpu: "100m"
+-          limits:
+-            memory: "256Mi"
+-            cpu: "200m"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 5000
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 5000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+-        volumeMounts:
+-        - name: mario-kart-tournament-db-storage
+-          mountPath: /app/mario-kart-tournament.live.db
+-          subPath: mario-kart-tournament.live.db
++        - name: mario-kart-tournament
++          image: mario-kart-tournament
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 5000
++          volumeMounts:
++            - name: mario-kart-tournament-storage
++              mountPath: /app
++          resources:
++            requests:
++              memory: "64Mi"
++              cpu: "100m"
++            limits:
++              memory: "128Mi"
++              cpu: "200m"
+       volumes:
+-      - name: mario-kart-tournament-db-storage
+-        persistentVolumeClaim:
+-          claimName: mario-kart-tournament-pvc
+-@@FILE:K8s::k8s/ingress.yaml
++        - name: mario-kart-tournament-storage
++          persistentVolumeClaim:
++            claimName: mario-kart-tournament-pvc
++@@FILE:K8s::k8s/mario-kart-tournament-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: mario-kart-tournament-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
+-    nginx.ingress.kubernetes.io/rewrite-target: /$
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-  - host: mario-kart-tournament.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: mario-kart-tournament-service
+-            port:
+-              number: 5000
+-@@FILE:K8s::k8s/pvc.yaml
+-
++    - host: "mario-kart-tournament.rasztabiga.me"
++      http:
++        paths:
++          - path:
++              / 
++            pathType: Prefix
++            backend:
++              service:
++                name: mario-kart-tournament-service
++                port:
++                  number: 80
++@@FILE:K8s::k8s/mario-kart-tournament-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+@@ -95,8 +79,8 @@
+   resources:
+     requests:
+       storage: 1Gi
+-  # storageClassName: microk8s-hostpath # Uncomment if a specific storage class is needed, otherwise default will be used
+-@@FILE:K8s::k8s/service.yaml
++  storageClassName: microk8s-hostpath
++@@FILE:K8s::k8s/mario-kart-tournament-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -108,6 +92,6 @@
+     app: mario-kart-tournament
+   ports:
+     - protocol: TCP
+-      port: 5000
++      port: 80
+       targetPort: 5000
+   type: ClusterIP
