@@ -5,12 +5,9 @@ experiments:
       - https://github.com/sankeer28/Math-PDF-Generator-Web.git           # 6/6 = 100.0%
       - https://github.com/patrick204nqh/simple-webapp.git                # 3/6 = 50.0%
       - https://github.com/IamLRBA/Banner-Designer-WebApp.git             # 4/6 = 66.7%
-      - https://github.com/technicalguru/php-webapp.git                   # 1/6 = 16.7% (mega dlugo sie buduje; usunac?)
       - https://github.com/jan-bobrowski/lsfont.git                       # 4/6 = 66.7%
       - https://github.com/SoLiDinity/airwatch.git                        # 1/6 = 16.7%
-      - https://github.com/the-hideout/tarkov-data-manager.git            # 0/6 = 0.0% (mega dlugo sie buduje, przekracza limity openai; usunac?)
       - https://github.com/cgize/DiceOpt_kcd2.git                         # 6/6 = 100.0%
-      - https://github.com/agentvoiceresponse/avr-app.git                 # 0/6 = 0.0% (wyjebac? sprawdzic bledy)
       - https://github.com/SchoolTimer/ParklandSchoolTimer.git            # 6/6 = 100.0%
       - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git    # 4/6 = 66.7%
       - https://github.com/tschoffelen/csv-hero                           # 3/6 = 50.0%
@@ -29,9 +26,7 @@ experiments:
       - https://github.com/efsavage/hello-world-war                       # 3/6 = 50.0%
       - https://github.com/FullStackWithLawrence/openai-hello-world       # 3/6 = 50.0%
       - https://github.com/angelvicenteg/ToDo-List                        # 6/6 = 100.0%
-      - https://github.com/springframeworkguru/spring-7-webapp            # 0/6 = 0.0% (wyjebac? sprawdzic bledy)
       - https://github.com/mmumshad/simple-webapp-flask                   # 6/6 = 100.0%
-      - https://github.com/aburimaguro/todo-app-react-flask-mongo         # 1/6 = 16.7%
     models:
       - provider: google_genai
         name: gemini-2.5-flash
