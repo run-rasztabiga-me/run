@@ -1,0 +1,63 @@
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 118/150 & 78{,}7\% & 71{,}4\%--84{,}5\% \\
+        K8s apply & 115/148 & 77{,}7\% & 70{,}3\%--83{,}7\% \\
+        apply $|$ build & 115/118 & 97{,}5\% & 92{,}8\%--99{,}1\% \\
+        Runtime & 94/150 & 62{,}7\% & 54{,}7\%--70{,}0\% \\
+        runtime $|$ apply & 94/115 & 81{,}7\% & 73{,}7\%--87{,}7\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów w H1}
+    \label{tab:h1-stages}
+\end{table}
+
+\subsubsection{Rozbicie per model}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Model} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        gemini-2.5-flash & 31/50 & 62{,}0\% & 48{,}2\%--74{,}1\% \\
+        gpt-5-mini & 34/50 & 68{,}0\% & 54{,}2\%--79{,}2\% \\
+        deepseek-chat & 29/50 & 58{,}0\% & 44{,}2\%--70{,}6\% \\
+    \end{tabular}
+    \caption{Skuteczność per model w H1}
+    \label{tab:h1-models}
+\end{table}
+
+\subsubsection{Rozbicie per repozytorium}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Repozytorium} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        math-pdf-generator-web & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        simple-webapp & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        banner-designer-webapp & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        lsfont & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        airwatch & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        diceopt\_kcd2 & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        parklandschooltimer & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        realtime-chatting-webapp & 1/6 & 16{,}7\% & 3{,}0\%--56{,}4\% \\
+        csv-hero & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        metathief & 3/6 & 50{,}0\% & 18{,}8\%--81{,}2\% \\
+        deeplx-app & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        mtg-scryfall-randomizer & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        vesen & 3/6 & 50{,}0\% & 18{,}8\%--81{,}2\% \\
+        webclient & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        chessable & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        class-order-checker & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        adsensedetective & 1/6 & 16{,}7\% & 3{,}0\%--56{,}4\% \\
+        mario-kart-tournament & 1/6 & 16{,}7\% & 3{,}0\%--56{,}4\% \\
+        tempo-sync & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        attendence-calculator & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        scheme-seva & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        hello-world-war & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        openai-hello-world & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        todo-list & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        simple-webapp-flask & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność per repozytorium w H1}
+    \label{tab:h1-repos}
+\end{table}

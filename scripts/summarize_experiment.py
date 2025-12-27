@@ -12,18 +12,26 @@ import sys
 from typing import Dict, Iterable, Optional, Tuple
 
 
-def clopper_pearson(successes: int, total: int, alpha: float = 0.05) -> Tuple[float, float, str]:
+def wilson_score_interval(successes: int, total: int, alpha: float = 0.05) -> Tuple[float, float]:
     if total == 0:
-        return 0.0, 0.0, "clopper_pearson"
-    from scipy.stats import beta
+        return 0.0, 0.0
+    from scipy.stats import norm
 
-    lower = beta.ppf(alpha / 2, successes, total - successes + 1)
-    upper = beta.ppf(1 - alpha / 2, successes + 1, total - successes)
-    if successes == 0:
-        lower = 0.0
-    if successes == total:
-        upper = 1.0
-    return lower, upper, "clopper_pearson"
+    z = norm.ppf(1 - alpha / 2)
+    p_hat = successes / total
+
+    denominator = 1 + z**2 / total
+    center = (p_hat + z**2 / (2 * total)) / denominator
+    margin = z * ((p_hat * (1 - p_hat) / total + z**2 / (4 * total**2)) ** 0.5) / denominator
+
+    lower = center - margin
+    upper = center + margin
+
+    # Clamp to [0, 1]
+    lower = max(0.0, lower)
+    upper = min(1.0, upper)
+
+    return lower, upper
 
 
 def load_runs(base: pathlib.Path) -> Iterable[Dict]:
@@ -152,13 +160,12 @@ def compute_stats(base: pathlib.Path) -> Dict:
 
 def rate_and_ci(successes: int, total: int, alpha: float = 0.05) -> Dict:
     if total == 0:
-        return {"rate": None, "ci": None, "method": None}
+        return {"rate": None, "ci": None,}
     rate = successes / total
-    lower, upper, method = clopper_pearson(successes, total, alpha)
+    lower, upper = wilson_score_interval(successes, total, alpha)
     return {
         "rate": rate,
-        "ci": (lower, upper),
-        "method": method,
+        "ci": (lower, upper)
     }
 
 
@@ -166,6 +173,108 @@ def format_pct(x: Optional[float]) -> str:
     if x is None:
         return "n/a"
     return f"{x*100:.1f}%"
+
+
+def format_pct_latex(x: Optional[float]) -> str:
+    """Format percentage for LaTeX with comma as decimal separator."""
+    if x is None:
+        return "n/a"
+    return f"{x*100:.1f}".replace(".", "{,}") + r"\%"
+
+
+def format_ci_latex(ci: Optional[Tuple[float, float]]) -> str:
+    """Format confidence interval for LaTeX."""
+    if ci is None:
+        return "n/a"
+    low, high = ci
+    low_str = f"{low*100:.1f}".replace(".", "{,}")
+    high_str = f"{high*100:.1f}".replace(".", "{,}")
+    return f"{low_str}\\%--{high_str}\\%"
+
+
+def write_latex_results(output_file: pathlib.Path, stats: Dict, alpha: float) -> None:
+    """Write results in LaTeX table format."""
+    with open(output_file, "w") as f:
+        # Stages table
+        f.write(r"\begin{table}[h]" + "\n")
+        f.write(r"    \centering" + "\n")
+        f.write(r"    \begin{tabular}{lccc}" + "\n")
+        f.write(r"        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\" + "\n")
+
+        # Build stage
+        succ = stats["stage_success"].get("build", 0)
+        tot = stats["stage_counts"].get("build", 0)
+        ci_data = rate_and_ci(succ, tot, alpha)
+        f.write(f"        Build & {succ}/{tot} & {format_pct_latex(ci_data['rate'])} & {format_ci_latex(ci_data['ci'])} \\\\\n")
+
+        # Apply stage
+        succ = stats["stage_success"].get("apply", 0)
+        tot = stats["stage_counts"].get("apply", 0)
+        ci_data = rate_and_ci(succ, tot, alpha)
+        f.write(f"        K8s apply & {succ}/{tot} & {format_pct_latex(ci_data['rate'])} & {format_ci_latex(ci_data['ci'])} \\\\\n")
+
+        # Conditional apply | build
+        if "apply" in stats["stage_conditional_counts"]:
+            succ = stats["stage_conditional_success"].get("apply", 0)
+            tot = stats["stage_conditional_counts"].get("apply", 0)
+            ci_data = rate_and_ci(succ, tot, alpha)
+            f.write(f"        apply $|$ build & {succ}/{tot} & {format_pct_latex(ci_data['rate'])} & {format_ci_latex(ci_data['ci'])} \\\\\n")
+
+        # Runtime stage
+        succ = stats["stage_success"].get("runtime", 0)
+        tot = stats["stage_counts"].get("runtime", 0)
+        ci_data = rate_and_ci(succ, tot, alpha)
+        f.write(f"        Runtime & {succ}/{tot} & {format_pct_latex(ci_data['rate'])} & {format_ci_latex(ci_data['ci'])} \\\\\n")
+
+        # Conditional runtime | apply
+        if "runtime" in stats["stage_conditional_counts"]:
+            succ = stats["stage_conditional_success"].get("runtime", 0)
+            tot = stats["stage_conditional_counts"].get("runtime", 0)
+            ci_data = rate_and_ci(succ, tot, alpha)
+            f.write(f"        runtime $|$ apply & {succ}/{tot} & {format_pct_latex(ci_data['rate'])} & {format_ci_latex(ci_data['ci'])} \\\\\n")
+
+        f.write(r"    \end{tabular}" + "\n")
+        f.write(r"    \caption{Skuteczność etapów w H1}" + "\n")
+        f.write(r"    \label{tab:h1-stages}" + "\n")
+        f.write(r"\end{table}" + "\n\n")
+
+        # Per model section
+        f.write(r"\subsubsection{Rozbicie per model}" + "\n\n")
+        f.write(r"\begin{table}[h]" + "\n")
+        f.write(r"    \centering" + "\n")
+        f.write(r"    \begin{tabular}{lccc}" + "\n")
+        f.write(r"        \textbf{Model} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\" + "\n")
+
+        for model, cnt in stats["per_model_counts"].items():
+            succ = cnt["success"]
+            tot = cnt["total"]
+            ci_data = rate_and_ci(succ, tot, alpha)
+            f.write(f"        {model} & {succ}/{tot} & {format_pct_latex(ci_data['rate'])} & {format_ci_latex(ci_data['ci'])} \\\\\n")
+
+        f.write(r"    \end{tabular}" + "\n")
+        f.write(r"    \caption{Skuteczność per model w H1}" + "\n")
+        f.write(r"    \label{tab:h1-models}" + "\n")
+        f.write(r"\end{table}" + "\n\n")
+
+        # Per repo section
+        f.write(r"\subsubsection{Rozbicie per repozytorium}" + "\n\n")
+        f.write(r"\begin{table}[h]" + "\n")
+        f.write(r"    \centering" + "\n")
+        f.write(r"    \begin{tabular}{lccc}" + "\n")
+        f.write(r"        \textbf{Repozytorium} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\" + "\n")
+
+        for repo, cnt in stats["per_repo_counts"].items():
+            succ = cnt["success"]
+            tot = cnt["total"]
+            ci_data = rate_and_ci(succ, tot, alpha)
+            # Escape underscores for LaTeX
+            repo_latex = repo.replace("_", r"\_")
+            f.write(f"        {repo_latex} & {succ}/{tot} & {format_pct_latex(ci_data['rate'])} & {format_ci_latex(ci_data['ci'])} \\\\\n")
+
+        f.write(r"    \end{tabular}" + "\n")
+        f.write(r"    \caption{Skuteczność per repozytorium w H1}" + "\n")
+        f.write(r"    \label{tab:h1-repos}" + "\n")
+        f.write(r"\end{table}" + "\n")
 
 
 def main() -> int:
@@ -180,11 +289,6 @@ def main() -> int:
         default=0.05,
         help="Alpha for confidence intervals (default: 0.05 -> 95%% CI)",
     )
-    parser.add_argument(
-        "--json",
-        action="store_true",
-        help="Output JSON instead of human-readable summary",
-    )
     args = parser.parse_args()
 
     base = pathlib.Path(args.results_path)
@@ -195,109 +299,78 @@ def main() -> int:
     stats = compute_stats(base)
     overall = rate_and_ci(stats["total_success"], stats["total_runs"], args.alpha)
 
-    if args.json:
-        out = {
-            "base_path": str(base),
-            "total_runs": stats["total_runs"],
-            "total_success": stats["total_success"],
-            "overall": overall,
-            "stages": {},
-            "prompts": {},
-            "per_model": {},
-            "per_repo": {},
-        }
+    output_file = base / "results.txt"
+    with open(output_file, "w") as f:
+        print(f"Experiment path: {base}", file=f)
+        print(f"Runs: {stats['total_success']}/{stats['total_runs']} = {format_pct(overall['rate'])}", file=f)
+        if overall["ci"]:
+            low, high = overall["ci"]
+            print(f"  {int((1-args.alpha)*100)}% CI: {format_pct(low)}–{format_pct(high)}", file=f)
+
+        print("\nStages:", file=f)
         for stage in ("build", "apply", "runtime"):
-            stage_data = rate_and_ci(
-                stats["stage_success"].get(stage, 0),
-                stats["stage_counts"].get(stage, 0),
-                args.alpha,
-            )
-            # Add conditional stats for stages that depend on previous stage
+            succ = stats["stage_success"].get(stage, 0)
+            tot = stats["stage_counts"].get(stage, 0)
+            stage_ci = rate_and_ci(succ, tot, args.alpha)
+            print(f"  {stage}: {succ}/{tot} = {format_pct(stage_ci['rate'])}", end="", file=f)
+            if stage_ci["ci"]:
+                low, high = stage_ci["ci"]
+                print(f" (CI: {format_pct(low)}–{format_pct(high)})", end="", file=f)
+
+            # Show conditional rate for stages that depend on previous stage
             if stage in stats["stage_conditional_counts"]:
-                stage_data["conditional"] = rate_and_ci(
-                    stats["stage_conditional_success"].get(stage, 0),
-                    stats["stage_conditional_counts"].get(stage, 0),
-                    args.alpha,
-                )
-            out["stages"][stage] = stage_data
-        for prompt, total in stats["prompt_counts"].items():
-            succ = stats["prompt_success"].get(prompt, 0)
-            out["prompts"][prompt] = rate_and_ci(succ, total, args.alpha)
-            out["prompts"][prompt]["count"] = total
-            out["prompts"][prompt]["successes"] = succ
-        for model, cnt in stats["per_model_counts"].items():
-            out["per_model"][model] = rate_and_ci(cnt["success"], cnt["total"], args.alpha)
-            out["per_model"][model]["count"] = cnt["total"]
-            out["per_model"][model]["successes"] = cnt["success"]
-        for repo, cnt in stats["per_repo_counts"].items():
-            out["per_repo"][repo] = rate_and_ci(cnt["success"], cnt["total"], args.alpha)
-            out["per_repo"][repo]["count"] = cnt["total"]
-            out["per_repo"][repo]["successes"] = cnt["success"]
-        print(json.dumps(out, indent=2))
-        return 0
-
-    print(f"Experiment path: {base}")
-    print(f"Runs: {stats['total_success']}/{stats['total_runs']} = {format_pct(overall['rate'])}")
-    if overall["ci"]:
-        low, high = overall["ci"]
-        print(f"  {int((1-args.alpha)*100)}% CI: {format_pct(low)}–{format_pct(high)}")
-
-    print("\nStages:")
-    for stage in ("build", "apply", "runtime"):
-        succ = stats["stage_success"].get(stage, 0)
-        tot = stats["stage_counts"].get(stage, 0)
-        stage_ci = rate_and_ci(succ, tot, args.alpha)
-        print(f"  {stage}: {succ}/{tot} = {format_pct(stage_ci['rate'])}", end="")
-        if stage_ci["ci"]:
-            low, high = stage_ci["ci"]
-            print(f" (CI: {format_pct(low)}–{format_pct(high)})", end="")
-
-        # Show conditional rate for stages that depend on previous stage
-        if stage in stats["stage_conditional_counts"]:
-            cond_succ = stats["stage_conditional_success"].get(stage, 0)
-            cond_tot = stats["stage_conditional_counts"].get(stage, 0)
-            cond_ci = rate_and_ci(cond_succ, cond_tot, args.alpha)
-            prev_stage = "build" if stage == "apply" else "apply"
-            print(f"\n    └─ given {prev_stage} OK: {cond_succ}/{cond_tot} = {format_pct(cond_ci['rate'])}", end="")
-            if cond_ci["ci"]:
-                low, high = cond_ci["ci"]
-                print(f" (CI: {format_pct(low)}–{format_pct(high)})")
+                cond_succ = stats["stage_conditional_success"].get(stage, 0)
+                cond_tot = stats["stage_conditional_counts"].get(stage, 0)
+                cond_ci = rate_and_ci(cond_succ, cond_tot, args.alpha)
+                prev_stage = "build" if stage == "apply" else "apply"
+                print(f"\n    └─ given {prev_stage} OK: {cond_succ}/{cond_tot} = {format_pct(cond_ci['rate'])}", end="", file=f)
+                if cond_ci["ci"]:
+                    low, high = cond_ci["ci"]
+                    print(f" (CI: {format_pct(low)}–{format_pct(high)})", file=f)
+                else:
+                    print(file=f)
             else:
-                print()
-        else:
-            print()
+                print(file=f)
 
-    print("\nPrompts:")
-    for prompt, tot in stats["prompt_counts"].items():
-        succ = stats["prompt_success"].get(prompt, 0)
-        ci = rate_and_ci(succ, tot, args.alpha)
-        line = f"  {prompt}: {succ}/{tot} = {format_pct(ci['rate'])}"
-        if ci["ci"]:
-            low, high = ci["ci"]
-            line += f" (CI: {format_pct(low)}–{format_pct(high)})"
-        print(line)
+        print("\nPrompts:", file=f)
+        for prompt, tot in stats["prompt_counts"].items():
+            succ = stats["prompt_success"].get(prompt, 0)
+            ci = rate_and_ci(succ, tot, args.alpha)
+            line = f"  {prompt}: {succ}/{tot} = {format_pct(ci['rate'])}"
+            if ci["ci"]:
+                low, high = ci["ci"]
+                line += f" (CI: {format_pct(low)}–{format_pct(high)})"
+            print(line, file=f)
 
-    print("\nPer model:")
-    for model, cnt in stats["per_model_counts"].items():
-        succ = cnt["success"]
-        tot = cnt["total"]
-        ci = rate_and_ci(succ, tot, args.alpha)
-        line = f"  {model}: {succ}/{tot} = {format_pct(ci['rate'])}"
-        if ci["ci"]:
-            low, high = ci["ci"]
-            line += f" (CI: {format_pct(low)}–{format_pct(high)})"
-        print(line)
+        print("\nPer model:", file=f)
+        for model, cnt in stats["per_model_counts"].items():
+            succ = cnt["success"]
+            tot = cnt["total"]
+            ci = rate_and_ci(succ, tot, args.alpha)
+            line = f"  {model}: {succ}/{tot} = {format_pct(ci['rate'])}"
+            if ci["ci"]:
+                low, high = ci["ci"]
+                line += f" (CI: {format_pct(low)}–{format_pct(high)})"
+            print(line, file=f)
 
-    print("\nPer repo:")
-    for repo, cnt in stats["per_repo_counts"].items():
-        succ = cnt["success"]
-        tot = cnt["total"]
-        ci = rate_and_ci(succ, tot, args.alpha)
-        line = f"  {repo}: {succ}/{tot} = {format_pct(ci['rate'])}"
-        if ci["ci"]:
-            low, high = ci["ci"]
-            line += f" (CI: {format_pct(low)}–{format_pct(high)})"
-        print(line)
+        print("\nPer repo:", file=f)
+        for repo, cnt in stats["per_repo_counts"].items():
+            succ = cnt["success"]
+            tot = cnt["total"]
+            ci = rate_and_ci(succ, tot, args.alpha)
+            line = f"  {repo}: {succ}/{tot} = {format_pct(ci['rate'])}"
+            if ci["ci"]:
+                low, high = ci["ci"]
+                line += f" (CI: {format_pct(low)}–{format_pct(high)})"
+            print(line, file=f)
+
+    print(f"Results saved to {output_file}")
+
+    # Write LaTeX results
+    latex_output_file = base / "results.tex"
+    write_latex_results(latex_output_file, stats, args.alpha)
+    print(f"LaTeX results saved to {latex_output_file}")
+
     return 0
 
 
