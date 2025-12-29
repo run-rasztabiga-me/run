@@ -1,0 +1,177 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
+  "repo_name": "poc1-fastapi",
+  "evaluation_id": "7c287174-a507-449b-aa55-75f52e6fbf6f",
+  "status": "completed",
+  "start_time": "2025-12-29T22:31:50.285002",
+  "end_time": "2025-12-29T22:32:44.362365",
+  "total_evaluation_time": 54.077363,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
+    "repo_name": "poc1-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "fastapi-app",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/fastapi-deployment.yaml",
+      "k8s/fastapi-service.yaml",
+      "k8s/fastapi-ingress.yaml"
+    ],
+    "generation_time": 14.787966966629028,
+    "error_message": null,
+    "timestamp": "2025-12-29T22:32:12.011310",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-ca82697a-fd96-4dd2-af4f-a87058813056",
+    "run_id": "ca82697a-fd96-4dd2-af4f-a87058813056"
+  },
+  "execution_metrics": {
+    "total_time": 14.787966966629028,
+    "tool_calls_count": 8,
+    "tool_calls_breakdown": {
+      "write_file": 4,
+      "get_file_content": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 27345,
+    "input_tokens": 25474,
+    "output_tokens": 1871,
+    "error_count": 0,
+    "run_id": "ca82697a-fd96-4dd2-af4f-a87058813056",
+    "docker_build_metrics": [
+      {
+        "image_tag": "fastapi-app",
+        "build_time": 12.913114070892334,
+        "image_size_mb": 58.46,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 98.4,
+    "validation_issues": [
+      {
+        "file_path": "k8s/fastapi-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"fastapi-app\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/fastapi-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"fastapi-app\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 98.4,
+      "total_errors": 0,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-29T22:31:50.285021: Starting configuration generation",
+    "2025-12-29T22:32:12.011445: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-29T22:32:12.011455: Starting quality assessment",
+    "2025-12-29T22:32:44.362242: Built 1 Docker images (total: 58.5 MB, avg time: 12.9s)",
+    "2025-12-29T22:32:44.362291: Dockerfile validation: 0 errors, 2 warnings",
+    "2025-12-29T22:32:44.362305: K8s validation: 0 errors, 2 warnings",
+    "2025-12-29T22:32:44.362322: Deployed to namespace: poc1-fastapi-ca82697a-fd96-4dd2-af4f-a87058813056",
+    "2025-12-29T22:32:44.362328: Testing endpoint: /",
+    "2025-12-29T22:32:44.362339: Runtime validation passed: endpoint is healthy",
+    "2025-12-29T22:32:44.362344: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-ca82697a-fd96-4dd2-af4f-a87058813056",
+    "run_id": "ca82697a-fd96-4dd2-af4f-a87058813056"
+  }
+}

@@ -1,0 +1,42 @@
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 26/36 & 72{,}2\% & 56{,}0\%--84{,}2\% \\
+        K8s apply & 22/33 & 66{,}7\% & 49{,}6\%--80{,}2\% \\
+        apply $|$ build & 22/26 & 84{,}6\% & 66{,}5\%--93{,}8\% \\
+        Runtime & 20/36 & 55{,}6\% & 39{,}6\%--70{,}5\% \\
+        runtime $|$ apply & 20/22 & 90{,}9\% & 72{,}2\%--97{,}5\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów w H1}
+    \label{tab:h1-stages}
+\end{table}
+
+\subsubsection{Rozbicie per model}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Model} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        gemini-2.5-flash & 4/12 & 33{,}3\% & 13{,}8\%--60{,}9\% \\
+        gpt-5-mini & 8/12 & 66{,}7\% & 39{,}1\%--86{,}2\% \\
+        deepseek-chat & 8/12 & 66{,}7\% & 39{,}1\%--86{,}2\% \\
+    \end{tabular}
+    \caption{Skuteczność per model w H1}
+    \label{tab:h1-models}
+\end{table}
+
+\subsubsection{Rozbicie per repozytorium}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Repozytorium} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        poc1-fastapi & 9/9 & 100{,}0\% & 70{,}1\%--100{,}0\% \\
+        poc2-fastapi & 4/9 & 44{,}4\% & 18{,}9\%--73{,}3\% \\
+        poc3-fastapi & 4/9 & 44{,}4\% & 18{,}9\%--73{,}3\% \\
+        poc4-fastapi & 3/9 & 33{,}3\% & 12{,}1\%--64{,}6\% \\
+    \end{tabular}
+    \caption{Skuteczność per repozytorium w H1}
+    \label{tab:h1-repos}
+\end{table}

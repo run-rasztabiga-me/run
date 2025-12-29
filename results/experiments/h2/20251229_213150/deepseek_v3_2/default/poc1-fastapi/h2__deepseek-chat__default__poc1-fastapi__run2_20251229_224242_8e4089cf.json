@@ -1,0 +1,195 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
+  "repo_name": "poc1-fastapi",
+  "evaluation_id": "8e4089cf-c39c-42af-9dd8-f14d9edb774f",
+  "status": "completed",
+  "start_time": "2025-12-29T22:40:41.515888",
+  "end_time": "2025-12-29T22:42:42.524172",
+  "total_evaluation_time": 121.008284,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
+    "repo_name": "poc1-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "poc1-fastapi",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 97.41872596740723,
+    "error_message": null,
+    "timestamp": "2025-12-29T22:42:26.620832",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-6dc32216-94c2-45c6-8ac1-8a4c54953796",
+    "run_id": "6dc32216-94c2-45c6-8ac1-8a4c54953796"
+  },
+  "execution_metrics": {
+    "total_time": 97.41872596740723,
+    "tool_calls_count": 21,
+    "tool_calls_breakdown": {
+      "think": 3,
+      "get_file_content": 3,
+      "ls": 3,
+      "write_file": 4,
+      "find_files": 4,
+      "search_files": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 101693,
+    "input_tokens": 99306,
+    "output_tokens": 2387,
+    "error_count": 0,
+    "run_id": "6dc32216-94c2-45c6-8ac1-8a4c54953796",
+    "docker_build_metrics": [
+      {
+        "image_tag": "poc1-fastapi",
+        "build_time": 1.0808100700378418,
+        "image_size_mb": 133.18,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 96.0,
+    "overall_score": 97.7,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"fastapi\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"fastapi\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 3,
+    "info_count": 1,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 97.7,
+      "total_errors": 0,
+      "total_warnings": 3,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 80.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-29T22:40:41.515933: Starting configuration generation",
+    "2025-12-29T22:42:26.620986: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2025-12-29T22:42:26.620993: Starting quality assessment",
+    "2025-12-29T22:42:42.524049: Built 1 Docker images (total: 133.2 MB, avg time: 1.1s)",
+    "2025-12-29T22:42:42.524100: Dockerfile validation: 0 errors, 3 warnings",
+    "2025-12-29T22:42:42.524126: K8s validation: 0 errors, 2 warnings",
+    "2025-12-29T22:42:42.524148: Deployed to namespace: poc1-fastapi-6dc32216-94c2-45c6-8ac1-8a4c54953796",
+    "2025-12-29T22:42:42.524153: Testing endpoint: /",
+    "2025-12-29T22:42:42.524159: Runtime validation passed: endpoint is healthy",
+    "2025-12-29T22:42:42.524164: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-6dc32216-94c2-45c6-8ac1-8a4c54953796",
+    "run_id": "6dc32216-94c2-45c6-8ac1-8a4c54953796"
+  }
+}

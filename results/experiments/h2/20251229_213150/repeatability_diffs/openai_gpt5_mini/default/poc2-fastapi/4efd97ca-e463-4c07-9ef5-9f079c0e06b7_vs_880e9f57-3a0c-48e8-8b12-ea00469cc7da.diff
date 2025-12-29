@@ -1,0 +1,241 @@
+--- 4efd97ca-e463-4c07-9ef5-9f079c0e06b7
++++ 880e9f57-3a0c-48e8-8b12-ea00469cc7da
+@@ -1,57 +1,58 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Install system dependencies
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    libpq-dev \
+- && rm -rf /var/lib/apt/lists/*
++# Install required system packages
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
++    && rm -rf /var/lib/apt/lists/*
+ 
+ WORKDIR /app
+ 
+-# Copy requirements first to leverage Docker layer caching
++# Copy requirements and install
+ COPY requirements.txt /app/requirements.txt
+ RUN pip install --no-cache-dir -r /app/requirements.txt
+ 
+ # Copy application code
+ COPY app /app/app
+ 
+-EXPOSE 8000
++# Expose port and run
++EXPOSE 80
+ 
+-# Run the application
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/backend-deployment.yaml
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
++@@FILE:K8s::k8s/README.md
++Manifests for deploying poc2-fastapi FastAPI application and Postgres database.
++
++Apply in this order:
++  kubectl apply -f k8s/postgres-secret.yaml
++  kubectl apply -f k8s/postgres-statefulset.yaml
++  kubectl apply -f k8s/postgres-service.yaml
++  kubectl apply -f k8s/app-deployment.yaml
++  kubectl apply -f k8s/app-service.yaml
++  kubectl apply -f k8s/ingress.yaml
++@@FILE:K8s::k8s/app-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc2-fastapi-backend
++  name: poc2-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc2-fastapi-backend
++      app: poc2-fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc2-fastapi-backend
++        app: poc2-fastapi
+     spec:
+-      initContainers:
+-        - name: wait-for-postgres
+-          image: postgres:15
+-          command:
+-            - sh
+-            - -c
+-            - |
+-              until pg_isready -h poc2-fastapi-postgres -p 5432; do
+-                echo "waiting for postgres";
+-                sleep 1;
+-              done
+       containers:
+-        - name: backend
+-          image: backend:latest
++        - name: app
++          image: poc2-fastapi:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+-            - containerPort: 8000
++            - containerPort: 80
++          env:
++            - name: DATABASE_URL
++              value: "postgresql://user:password@postgres:5432/dbname"
+           resources:
+             requests:
+               cpu: "100m"
+@@ -59,33 +60,30 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          env:
+-            - name: DATABASE_URL
+-              value: postgresql://user:password@poc2-fastapi-postgres:5432/dbname
+           livenessProbe:
+             httpGet:
+               path: /
+-              port: 8000
++              port: 80
+             initialDelaySeconds: 10
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+-              port: 8000
++              port: 80
+             initialDelaySeconds: 5
+             periodSeconds: 5
+-@@FILE:K8s::k8s/backend-service.yaml
++@@FILE:K8s::k8s/app-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc2-fastapi-backend
++  name: poc2-fastapi
+ spec:
+   selector:
+-    app: poc2-fastapi-backend
++    app: poc2-fastapi
+   ports:
+     - protocol: TCP
+       port: 80
+-      targetPort: 8000
++      targetPort: 80
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -101,50 +99,61 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc2-fastapi-backend
++                name: poc2-fastapi
+                 port:
+                   number: 80
++@@FILE:K8s::k8s/postgres-pvc.yaml
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: postgres-pvc
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
+ @@FILE:K8s::k8s/postgres-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+-  name: poc2-fastapi-postgres-secret
++  name: postgres-secret
+ type: Opaque
+-data:
+-  POSTGRES_USER: dXNlcg==
+-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
+-  POSTGRES_DB: ZGJuYW1l
++stringData:
++  POSTGRES_USER: user
++  POSTGRES_PASSWORD: password
++  POSTGRES_DB: dbname
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc2-fastapi-postgres
++  name: postgres
+ spec:
+   ports:
+     - port: 5432
+       targetPort: 5432
++  selector:
++    app: postgres
+   clusterIP: None
+-  selector:
+-    app: poc2-fastapi-postgres
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: poc2-fastapi-postgres
++  name: postgres
+ spec:
+-  serviceName: "poc2-fastapi-postgres"
++  serviceName: "postgres"
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc2-fastapi-postgres
++      app: postgres
+   template:
+     metadata:
+       labels:
+-        app: poc2-fastapi-postgres
++        app: postgres
+     spec:
+       containers:
+         - name: postgres
+-          image: postgres:15
++          image: postgres:15-alpine
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 5432
+@@ -152,24 +161,31 @@
+             - name: POSTGRES_USER
+               valueFrom:
+                 secretKeyRef:
+-                  name: poc2-fastapi-postgres-secret
++                  name: postgres-secret
+                   key: POSTGRES_USER
+             - name: POSTGRES_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+-                  name: poc2-fastapi-postgres-secret
++                  name: postgres-secret
+                   key: POSTGRES_PASSWORD
+             - name: POSTGRES_DB
+               valueFrom:
+                 secretKeyRef:
+-                  name: poc2-fastapi-postgres-secret
++                  name: postgres-secret
+                   key: POSTGRES_DB
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "256Mi"
++            limits:
++              cpu: "500m"
++              memory: "1Gi"
+           volumeMounts:
+-            - name: postgres-data
++            - name: pgdata
+               mountPath: /var/lib/postgresql/data
+   volumeClaimTemplates:
+     - metadata:
+-        name: postgres-data
++        name: pgdata
+       spec:
+         accessModes: [ "ReadWriteOnce" ]
+         resources:

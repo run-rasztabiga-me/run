@@ -1,0 +1,252 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+  "repo_name": "poc4-fastapi",
+  "evaluation_id": "101cfa47-7d80-4a1f-8d14-b4e29b13e879",
+  "status": "completed",
+  "start_time": "2025-12-29T23:46:48.009611",
+  "end_time": "2025-12-29T23:53:24.123610",
+  "total_evaluation_time": 396.113999,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+    "repo_name": "poc4-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes-service",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users-service",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics-service",
+        "build_context": "backend/analytics_service"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/notes-db-secret.yaml",
+      "k8s/users-db-secret.yaml",
+      "k8s/analytics-db-secret.yaml",
+      "k8s/rabbitmq-secret.yaml",
+      "k8s/jwt-secret.yaml",
+      "k8s/notes-db-statefulset.yaml",
+      "k8s/users-db-statefulset.yaml",
+      "k8s/analytics-db-statefulset.yaml",
+      "k8s/rabbitmq-statefulset.yaml",
+      "k8s/notes-db-service.yaml",
+      "k8s/users-db-service.yaml",
+      "k8s/analytics-db-service.yaml",
+      "k8s/rabbitmq-service.yaml",
+      "k8s/notes-service-configmap.yaml",
+      "k8s/users-service-configmap.yaml",
+      "k8s/analytics-service-configmap.yaml",
+      "k8s/frontend-configmap.yaml",
+      "k8s/notes-service-deployment.yaml",
+      "k8s/users-service-deployment.yaml",
+      "k8s/analytics-service-deployment.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/notes-service-service.yaml",
+      "k8s/users-service-service.yaml",
+      "k8s/analytics-service-service.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 377.30252480506897,
+    "error_message": null,
+    "timestamp": "2025-12-29T23:53:13.706886",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-dc163bbc-584b-42fc-93f0-75806ffd9650",
+    "run_id": "dc163bbc-584b-42fc-93f0-75806ffd9650"
+  },
+  "execution_metrics": {
+    "total_time": 377.30252480506897,
+    "tool_calls_count": 56,
+    "tool_calls_breakdown": {
+      "think": 5,
+      "write_file": 30,
+      "search_files": 5,
+      "ls": 1,
+      "find_files": 1,
+      "get_file_content": 12,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 1318065,
+    "input_tokens": 1308300,
+    "output_tokens": 9765,
+    "error_count": 0,
+    "run_id": "dc163bbc-584b-42fc-93f0-75806ffd9650",
+    "docker_build_metrics": [
+      {
+        "image_tag": "frontend",
+        "build_time": 1.1627779006958008,
+        "image_size_mb": 22.01,
+        "layers_count": 10
+      },
+      {
+        "image_tag": "notes-service",
+        "build_time": 0.741161584854126,
+        "image_size_mb": 159.83,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "users-service",
+        "build_time": 0.8093960285186768,
+        "image_size_mb": 160.9,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "analytics-service",
+        "build_time": 0.681049108505249,
+        "image_size_mb": 158.45,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 94.0,
+    "k8s_manifests_score": 85.0,
+    "overall_score": 66.9,
+    "validation_issues": [
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "k8s/analytics-db-secret.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: Error from server (BadRequest): error when creating \"/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-dc163bbc-584b-42fc-93f0-75806ffd9650/k8s/analytics-db-secret.yaml\": Secret in version \"v1\" cannot be handled as a Secret: illegal base64 data at input byte 16",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 3,
+    "info_count": 3,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 66.9,
+      "total_errors": 1,
+      "total_warnings": 3,
+      "total_info": 3,
+      "docker": {
+        "weighted_score": 94.0,
+        "total_errors": 0,
+        "total_warnings": 3,
+        "total_info": 3,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 70.0,
+            "errors": 0,
+            "warnings": 3,
+            "info": 3
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 85.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 85.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-29T23:46:48.009797: Starting configuration generation",
+    "2025-12-29T23:53:13.707036: Generated 4 Dockerfiles and 26 K8s manifests",
+    "2025-12-29T23:53:13.707042: Starting quality assessment",
+    "2025-12-29T23:53:24.123580: Built 4 Docker images (total: 501.2 MB, avg time: 0.8s)",
+    "2025-12-29T23:53:24.123592: Dockerfile validation: 1 errors, 3 warnings",
+    "2025-12-29T23:53:24.123596: K8s validation: 1 errors, 0 warnings",
+    "2025-12-29T23:53:24.123603: Deployed to namespace: poc4-fastapi-dc163bbc-584b-42fc-93f0-75806ffd9650",
+    "2025-12-29T23:53:24.123608: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-dc163bbc-584b-42fc-93f0-75806ffd9650",
+    "run_id": "dc163bbc-584b-42fc-93f0-75806ffd9650"
+  }
+}

@@ -1,0 +1,106 @@
+--- 02e668b7-2bed-4d54-ba29-9cd34c752f0e
++++ b3cae231-84fc-4de4-9d7b-72fed370d5e8
+@@ -1,24 +1,36 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++# Set working directory
+ WORKDIR /app
+ 
+-# Install dependencies
++# Install build dependencies
++RUN apt-get update && apt-get install -y --no-install-recommends \
++    build-essential \
++    && rm -rf /var/lib/apt/lists/*
++
++# Copy requirements first to leverage Docker cache
+ COPY requirements.txt /app/requirements.txt
++
++# Install Python dependencies
+ RUN pip install --no-cache-dir -r /app/requirements.txt
+ 
+-# Copy application
++# Copy application code
+ COPY app /app/app
++
++# Environment
++ENV PYTHONUNBUFFERED=1
++ENV PORT=8000
+ 
+ EXPOSE 8000
+ 
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-deployment
++  name: poc1-fastapi
+   labels:
+     app: poc1-fastapi
+ spec:
+@@ -32,7 +44,7 @@
+         app: poc1-fastapi
+     spec:
+       containers:
+-        - name: poc1-fastapi
++        - name: app
+           image: poc1-fastapi:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -46,44 +58,40 @@
+               memory: "256Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
++              path: / 
+               port: 8000
+             initialDelaySeconds: 10
+             periodSeconds: 10
+-            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+-              path: /
++              path: / 
+               port: 8000
+-            initialDelaySeconds: 2
++            initialDelaySeconds: 5
+             periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi.rasztabiga.me
+       http:
+         paths:
+-          - path: /
+-            pathType: Prefix
++          - path: /(.*)
++            pathType: ImplementationSpecific
+             backend:
+               service:
+-                name: poc1-fastapi-service
++                name: poc1-fastapi
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-service
++  name: poc1-fastapi
+ spec:
+   selector:
+     app: poc1-fastapi

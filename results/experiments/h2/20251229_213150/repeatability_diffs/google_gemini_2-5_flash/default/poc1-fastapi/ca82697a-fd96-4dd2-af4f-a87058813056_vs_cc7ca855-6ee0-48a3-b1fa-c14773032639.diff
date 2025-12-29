@@ -1,0 +1,104 @@
+--- ca82697a-fd96-4dd2-af4f-a87058813056
++++ cc7ca855-6ee0-48a3-b1fa-c14773032639
+@@ -1,38 +1,45 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
++# Use an official Python runtime as a parent image
+ FROM python:3.9-slim-buster
+ 
++# Set the working directory in the container
+ WORKDIR /app
+ 
++# Copy the requirements file into the container at /app
+ COPY requirements.txt .
++
++# Install any needed packages specified in requirements.txt
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app/ ./app
++# Copy the rest of the application code into the container at /app
++COPY app/ ./app/
+ 
++# Expose port 8000 for the application
+ EXPOSE 8000
+ 
++# Run the application using uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/fastapi-deployment.yaml
+-
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app
++  name: poc1-fastapi-deployment
+   labels:
+-    app: fastapi-app
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc1-fastapi
+     spec:
+       containers:
+-      - name: fastapi-app
+-        image: fastapi-app:latest
++      - name: poc1-fastapi
++        image: poc1-fastapi
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+@@ -55,37 +62,34 @@
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-@@FILE:K8s::k8s/fastapi-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-ingress
++  name: poc1-fastapi-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    kubernetes.io/ingress.class: "nginx"
+ spec:
+-  ingressClassName: nginx
+   rules:
+-  - host: "poc1-fastapi.rasztabiga.me"
++  - host: poc1-fastapi.rasztabiga.me
+     http:
+       paths:
+       - path: /
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: poc1-fastapi-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/fastapi-service.yaml
+-
++@@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-service
+-  labels:
+-    app: fastapi-app
++  name: poc1-fastapi-service
+ spec:
+   selector:
+-    app: fastapi-app
++    app: poc1-fastapi
+   ports:
+     - protocol: TCP
+       port: 80

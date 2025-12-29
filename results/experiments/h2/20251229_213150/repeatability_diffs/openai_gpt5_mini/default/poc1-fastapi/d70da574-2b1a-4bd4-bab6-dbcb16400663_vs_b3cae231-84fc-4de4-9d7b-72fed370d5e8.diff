@@ -1,0 +1,88 @@
+--- d70da574-2b1a-4bd4-bab6-dbcb16400663
++++ b3cae231-84fc-4de4-9d7b-72fed370d5e8
+@@ -4,22 +4,27 @@
+ # Set working directory
+ WORKDIR /app
+ 
+-# Install system deps
++# Install build dependencies
+ RUN apt-get update && apt-get install -y --no-install-recommends \
+     build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install
++# Copy requirements first to leverage Docker cache
+ COPY requirements.txt /app/requirements.txt
++
++# Install Python dependencies
+ RUN pip install --no-cache-dir -r /app/requirements.txt
+ 
+ # Copy application code
+ COPY app /app/app
+ 
+-# Expose port
++# Environment
++ENV PYTHONUNBUFFERED=1
++ENV PORT=8000
++
+ EXPOSE 8000
+ 
+-# Default command
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -39,12 +44,11 @@
+         app: poc1-fastapi
+     spec:
+       containers:
+-        - name: poc1-fastapi
++        - name: app
+           image: poc1-fastapi:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+@@ -54,15 +58,15 @@
+               memory: "256Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
+-              port: http
+-            initialDelaySeconds: 5
++              path: / 
++              port: 8000
++            initialDelaySeconds: 10
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+-              path: /
+-              port: http
+-            initialDelaySeconds: 2
++              path: / 
++              port: 8000
++            initialDelaySeconds: 5
+             periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -70,14 +74,14 @@
+ metadata:
+   name: poc1-fastapi-ingress
+   annotations:
+-    kubernetes.io/ingress.class: nginx
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi.rasztabiga.me
+       http:
+         paths:
+-          - path: /
+-            pathType: Prefix
++          - path: /(.*)
++            pathType: ImplementationSpecific
+             backend:
+               service:
+                 name: poc1-fastapi

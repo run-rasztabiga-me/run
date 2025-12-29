@@ -1,0 +1,290 @@
+--- 3aba806c-2b40-4adc-91e4-630f2ee603fa
++++ 346ee0fb-a73d-43dd-a79a-e356c30804a4
+@@ -1,5 +1,6 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.10-slim-buster
++
++FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+ 
+@@ -12,10 +13,13 @@
+ 
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: fastapi-app
++  labels:
++    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+@@ -27,53 +31,74 @@
+         app: fastapi-app
+     spec:
+       containers:
+-      - name: fastapi-app
+-        image: poc2-fastapi:latest
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 8000
+-        env:
+-        - name: DATABASE_URL
+-          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/$(POSTGRES_DB)"
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: POSTGRES_USER
+-        - name: POSTGRES_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: POSTGRES_PASSWORD
+-        - name: POSTGRES_DB
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: POSTGRES_DB
+-        resources:
+-          requests:
+-            cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "500m"
+-            memory: "512Mi"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
++        - name: fastapi-app
++          image: poc2-fastapi
++          imagePullPolicy: IfNotPresent
++          env:
++            - name: DATABASE_URL
++              value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)
++            - name: POSTGRES_USER
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_USER
++            - name: POSTGRES_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_PASSWORD
++            - name: POSTGRES_DB
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_DB
++          ports:
++            - containerPort: 8000
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "128Mi"
++            limits:
++              cpu: "300m"
++              memory: "256Mi"
++          livenessProbe:
++            httpGet:
++              path: /docs
++              port: 8000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /docs
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
++@@FILE:K8s::k8s/fastapi-ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: fastapi-app-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
++spec:
++  rules:
++    - host: "poc2-fastapi.rasztabiga.me"
++      http:
++        paths:
++          - path:
++              / # Use a single slash for the root path
++            pathType: Prefix
++            backend:
++              service:
++                name: fastapi-app-service
++                port:
++                  number: 80
+ @@FILE:K8s::k8s/fastapi-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-service
++  name: fastapi-app-service
+ spec:
+   selector:
+     app: fastapi-app
+@@ -81,41 +106,22 @@
+     - protocol: TCP
+       port: 80
+       targetPort: 8000
+-  type: ClusterIP
+-@@FILE:K8s::k8s/ingress.yaml
+-apiVersion: networking.k8s.io/v1
+-kind: Ingress
+-metadata:
+-  name: fastapi-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+-spec:
+-  rules:
+-  - host: poc2-fastapi.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: fastapi-service
+-            port:
+-              number: 80
+ @@FILE:K8s::k8s/postgres-secret.yaml
++
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: postgres-secret
+-type: Opaque
+ data:
+   POSTGRES_USER: dXNlcg==
+   POSTGRES_PASSWORD: cGFzc3dvcmQ=
+   POSTGRES_DB: ZGJuYW1l
+ @@FILE:K8s::k8s/postgres-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: postgres-service
++  name: postgres
+ spec:
+   selector:
+     app: postgres
+@@ -123,62 +129,60 @@
+     - protocol: TCP
+       port: 5432
+       targetPort: 5432
+-  type: ClusterIP
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
++
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: postgres
+ spec:
++  serviceName: "postgres"
++  replicas: 1
+   selector:
+     matchLabels:
+       app: postgres
+-  serviceName: "postgres"
+-  replicas: 1
+   template:
+     metadata:
+       labels:
+         app: postgres
+     spec:
+       containers:
+-      - name: postgres
+-        image: postgres:13
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 5432
+-          name: postgres
+-        env:
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: POSTGRES_USER
+-        - name: POSTGRES_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: POSTGRES_PASSWORD
+-        - name: POSTGRES_DB
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: POSTGRES_DB
+-        volumeMounts:
+-        - name: postgres-data
+-          mountPath: /var/lib/postgresql/data
++        - name: postgres
++          image: postgres:13
++          env:
++            - name: POSTGRES_USER
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_USER
++            - name: POSTGRES_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_PASSWORD
++            - name: POSTGRES_DB
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_DB
++          ports:
++            - containerPort: 5432
++              name: postgres
++          volumeMounts:
++            - name: postgres-data
++              mountPath: /var/lib/postgresql/data
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "256Mi"
++            limits:
++              cpu: "500m"
++              memory: "512Mi"
++  volumeClaimTemplates:
++    - metadata:
++        name: postgres-data
++      spec:
++        accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+-            cpu: "100m"
+-            memory: "256Mi"
+-          limits:
+-            cpu: "500m"
+-            memory: "1Gi"
+-  volumeClaimTemplates:
+-  - metadata:
+-      name: postgres-data
+-    spec:
+-      accessModes: [ "ReadWriteOnce" ]
+-      storageClassName: "microk8s-hostpath"
+-      resources:
+-        requests:
+-          storage: 1Gi
++            storage: 1Gi

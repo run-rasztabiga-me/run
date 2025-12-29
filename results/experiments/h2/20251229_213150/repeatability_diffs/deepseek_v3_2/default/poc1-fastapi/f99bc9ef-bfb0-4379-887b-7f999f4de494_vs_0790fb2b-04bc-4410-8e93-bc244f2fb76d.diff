@@ -1,0 +1,49 @@
+--- f99bc9ef-bfb0-4379-887b-7f999f4de494
++++ 0790fb2b-04bc-4410-8e93-bc244f2fb76d
+@@ -4,7 +4,7 @@
+ WORKDIR /app
+ 
+ # Install system dependencies
+-RUN apt-get update && apt-get install -y \
++RUN apt-get update && apt-get install -y --no-install-recommends \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+@@ -13,12 +13,12 @@
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY app/ ./app/
++COPY ./app ./app
+ 
+-# Expose the port the app runs on
++# Expose port
+ EXPOSE 8000
+ 
+-# Command to run the application
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -66,16 +66,16 @@
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 5
+-          timeoutSeconds: 3
+-          failureThreshold: 1
++          periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++  labels:
++    app: poc1-fastapi
+ spec:
+   rules:
+   - host: poc1-fastapi.rasztabiga.me
