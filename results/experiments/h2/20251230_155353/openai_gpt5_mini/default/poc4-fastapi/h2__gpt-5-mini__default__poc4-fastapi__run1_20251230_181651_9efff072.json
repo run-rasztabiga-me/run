@@ -1,0 +1,54 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+  "repo_name": "poc4-fastapi",
+  "evaluation_id": "9efff072-98f4-44e6-805a-12e3a8adce07",
+  "status": "failed",
+  "start_time": "2025-12-30T18:14:01.329543",
+  "end_time": "2025-12-30T18:16:51.719654",
+  "total_evaluation_time": 170.390111,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+    "repo_name": "poc4-fastapi",
+    "success": false,
+    "docker_images": [],
+    "k8s_manifests": [],
+    "generation_time": 170.389014005661,
+    "error_message": "Failed to parse structured output for tool 'ConfigurationOutput': Native structured output expected valid JSON for ConfigurationOutput, but parsing failed: Extra data: line 2 column 1 (char 1045)..",
+    "timestamp": "2025-12-30T18:16:51.719606",
+    "workspace_dir": null,
+    "run_id": null
+  },
+  "execution_metrics": {
+    "total_time": 170.38895893096924,
+    "tool_calls_count": 0,
+    "tool_calls_breakdown": {},
+    "tokens_used": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "error_count": 1,
+    "run_id": null,
+    "docker_build_metrics": []
+  },
+  "quality_metrics": null,
+  "notes": [
+    "2025-12-30T18:14:01.330514: Starting configuration generation",
+    "2025-12-30T18:16:51.719674: Evaluation failed: Generation failed: Failed to parse structured output for tool 'ConfigurationOutput': Native structured output expected valid JSON for ConfigurationOutput, but parsing failed: Extra data: line 2 column 1 (char 1045).."
+  ],
+  "experiment_name": "h2",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt"
+  }
+}

@@ -12,18 +12,10 @@ experiments:
         name: gemini-2.5-flash
         label: google_gemini_2.5_flash
         temperature: 1.0
-#      - provider: openai
-#        name: gpt-5.2
-#        label: openai_gpt5_2
-#        temperature: 1.0
       - provider: openai
         name: gpt-5-mini
         label: openai_gpt5_mini
         temperature: 1.0
-#      - provider: anthropic
-#        name: claude-haiku-4-5-20251001
-#        label: anthropic_haiku_4.5
-#        temperature: 1.0
       - provider: deepseek
         name: deepseek-chat
         label: deepseek_v3_2

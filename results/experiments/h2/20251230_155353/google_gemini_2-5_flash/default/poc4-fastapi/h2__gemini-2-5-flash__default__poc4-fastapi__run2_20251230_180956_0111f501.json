@@ -1,0 +1,178 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+  "repo_name": "poc4-fastapi",
+  "evaluation_id": "0111f501-590a-4e45-bb82-0dff71ab6794",
+  "status": "completed",
+  "start_time": "2025-12-30T18:08:23.203619",
+  "end_time": "2025-12-30T18:09:56.339863",
+  "total_evaluation_time": 93.136244,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+    "repo_name": "poc4-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes-service",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users-service",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics-service",
+        "build_context": "backend/analytics_service"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/postgres-secret.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/rabbitmq-secret.yaml",
+      "k8s/rabbitmq-statefulset.yaml",
+      "k8s/rabbitmq-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/notes-service-deployment.yaml",
+      "k8s/notes-service-service.yaml",
+      "k8s/users-service-deployment.yaml",
+      "k8s/users-service-service.yaml",
+      "k8s/analytics-service-deployment.yaml",
+      "k8s/analytics-service-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 63.17026400566101,
+    "error_message": null,
+    "timestamp": "2025-12-30T18:09:33.517322",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-02269fcf-6557-4f79-99d6-659e4c0d0aab",
+    "run_id": "02269fcf-6557-4f79-99d6-659e4c0d0aab"
+  },
+  "execution_metrics": {
+    "total_time": 63.17026400566101,
+    "tool_calls_count": 26,
+    "tool_calls_breakdown": {
+      "write_file": 21,
+      "search_files": 1,
+      "base64_encode": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 191568,
+    "input_tokens": 182706,
+    "output_tokens": 8862,
+    "error_count": 0,
+    "run_id": "02269fcf-6557-4f79-99d6-659e4c0d0aab",
+    "docker_build_metrics": [
+      {
+        "image_tag": "frontend",
+        "build_time": 15.66901183128357,
+        "image_size_mb": 21.99,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 298B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/python:3.9-slim-buster\n#2 DONE 0.2s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [3/5] COPY backend/notes_service/requirements.txt .\n#5 CACHED\n\n#6 [4/5] RUN pip install --no-cache-dir -r requirements.txt\n#6 CACHED\n\n#7 [2/5] WORKDIR /app\n#7 CACHED\n\n#8 [5/5] COPY backend/notes_service/app ./app\n#8 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::3x7ts5venlbzq5ktcm0tp3sbw: \"/backend/notes_service/app\": not found\n\n#9 [1/5] FROM docker.io/library/python:3.9-slim-buster@sha256:320a7a4250aba4249f458872adecf92eea88dc6abd2d76dc5c0f01cac9b53990\n#9 resolve docker.io/library/python:3.9-slim-buster@sha256:320a7a4250aba4249f458872adecf92eea88dc6abd2d76dc5c0f01cac9b53990 0.0s done\n#9 CANCELED\n------\n > [5/5] COPY backend/notes_service/app ./app:\n------\nDockerfile:6\n--------------------\n   4 |     COPY backend/notes_service/requirements.txt .\n   5 |     RUN pip install --no-cache-dir -r requirements.txt\n   6 | >>> COPY backend/notes_service/app ./app\n   7 |     EXPOSE 8000\n   8 |     CMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::3x7ts5venlbzq5ktcm0tp3sbw: \"/backend/notes_service/app\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/wu649azg4yuy9uhn8zlxzwwrp",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 298B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/python:3.9-slim-buster\n#2 DONE 0.2s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [2/5] WORKDIR /app\n#5 CACHED\n\n#6 [3/5] COPY backend/users_service/requirements.txt .\n#6 CACHED\n\n#7 [4/5] RUN pip install --no-cache-dir -r requirements.txt\n#7 CACHED\n\n#8 [5/5] COPY backend/users_service/app ./app\n#8 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::z7ey90wb4syx805uuw736o0cb: \"/backend/users_service/app\": not found\n\n#9 [1/5] FROM docker.io/library/python:3.9-slim-buster@sha256:320a7a4250aba4249f458872adecf92eea88dc6abd2d76dc5c0f01cac9b53990\n#9 resolve docker.io/library/python:3.9-slim-buster@sha256:320a7a4250aba4249f458872adecf92eea88dc6abd2d76dc5c0f01cac9b53990 0.0s done\n#9 CANCELED\n------\n > [5/5] COPY backend/users_service/app ./app:\n------\nDockerfile:6\n--------------------\n   4 |     COPY backend/users_service/requirements.txt .\n   5 |     RUN pip install --no-cache-dir -r requirements.txt\n   6 | >>> COPY backend/users_service/app ./app\n   7 |     EXPOSE 8000\n   8 |     CMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::z7ey90wb4syx805uuw736o0cb: \"/backend/users_service/app\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/m4wblvrizhnuwgbi315cjnpxu",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 306B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/python:3.9-slim-buster\n#2 DONE 0.3s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [2/5] WORKDIR /app\n#5 CACHED\n\n#6 [3/5] COPY backend/analytics_service/requirements.txt .\n#6 CACHED\n\n#7 [4/5] RUN pip install --no-cache-dir -r requirements.txt\n#7 CACHED\n\n#8 [5/5] COPY backend/analytics_service/app ./app\n#8 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::edw4c0g57i87gotvx3o2lg3jn: \"/backend/analytics_service/app\": not found\n\n#9 [1/5] FROM docker.io/library/python:3.9-slim-buster@sha256:320a7a4250aba4249f458872adecf92eea88dc6abd2d76dc5c0f01cac9b53990\n#9 resolve docker.io/library/python:3.9-slim-buster@sha256:320a7a4250aba4249f458872adecf92eea88dc6abd2d76dc5c0f01cac9b53990 done\n#9 CANCELED\n------\n > [5/5] COPY backend/analytics_service/app ./app:\n------\nDockerfile:6\n--------------------\n   4 |     COPY backend/analytics_service/requirements.txt .\n   5 |     RUN pip install --no-cache-dir -r requirements.txt\n   6 | >>> COPY backend/analytics_service/app ./app\n   7 |     EXPOSE 8000\n   8 |     CMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::edw4c0g57i87gotvx3o2lg3jn: \"/backend/analytics_service/app\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/jm0f90brzc0r59vrgnh1isrq6",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 3,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 3,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 3,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 3,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T18:08:23.203700: Starting configuration generation",
+    "2025-12-30T18:09:33.517438: Generated 4 Dockerfiles and 15 K8s manifests",
+    "2025-12-30T18:09:33.517441: Starting quality assessment",
+    "2025-12-30T18:09:56.339785: Built 1 Docker images (total: 22.0 MB, avg time: 15.7s)",
+    "2025-12-30T18:09:56.339824: Dockerfile validation: 3 errors, 0 warnings",
+    "2025-12-30T18:09:56.339842: K8s validation: 0 errors, 0 warnings",
+    "2025-12-30T18:09:56.339849: Runtime validation skipped due to Docker build errors",
+    "2025-12-30T18:09:56.339852: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-02269fcf-6557-4f79-99d6-659e4c0d0aab",
+    "run_id": "02269fcf-6557-4f79-99d6-659e4c0d0aab"
+  }
+}

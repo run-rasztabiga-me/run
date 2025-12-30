@@ -99,6 +99,9 @@ def compute_stats(base: pathlib.Path) -> Dict:
     prompt_success: Dict[str, int] = {}
     per_repo_counts: Dict[str, Dict[str, int]] = {}
     per_model_counts: Dict[str, Dict[str, int]] = {}
+    # Per repo stage breakdown
+    per_repo_stage_counts: Dict[str, Dict[str, int]] = {}
+    per_repo_stage_success: Dict[str, Dict[str, int]] = {}
 
     total_runs = 0
     total_success = 0
@@ -114,6 +117,10 @@ def compute_stats(base: pathlib.Path) -> Dict:
         per_model_counts[model]["total"] += 1
         prompt_counts[prompt] = prompt_counts.get(prompt, 0) + 1
 
+        # Initialize per-repo stage tracking
+        per_repo_stage_counts.setdefault(repo, {"build": 0, "apply": 0, "runtime": 0})
+        per_repo_stage_success.setdefault(repo, {"build": 0, "apply": 0, "runtime": 0})
+
         build = stage_value(run, "build")
         apply_ok = stage_value(run, "apply")
         runtime = stage_value(run, "runtime")
@@ -124,6 +131,11 @@ def compute_stats(base: pathlib.Path) -> Dict:
             stage_counts[key] += 1
             if val:
                 stage_success[key] += 1
+
+            # Track per-repo stage stats
+            per_repo_stage_counts[repo][key] += 1
+            if val:
+                per_repo_stage_success[repo][key] += 1
 
         # Conditional statistics: apply given build succeeded
         if build is True and apply_ok is not None:
@@ -155,6 +167,8 @@ def compute_stats(base: pathlib.Path) -> Dict:
         "prompt_success": prompt_success,
         "per_repo_counts": per_repo_counts,
         "per_model_counts": per_model_counts,
+        "per_repo_stage_counts": per_repo_stage_counts,
+        "per_repo_stage_success": per_repo_stage_success,
     }
 
 
@@ -274,7 +288,34 @@ def write_latex_results(output_file: pathlib.Path, stats: Dict, alpha: float) ->
         f.write(r"    \end{tabular}" + "\n")
         f.write(r"    \caption{Skuteczność per repozytorium w H1}" + "\n")
         f.write(r"    \label{tab:h1-repos}" + "\n")
-        f.write(r"\end{table}" + "\n")
+        f.write(r"\end{table}" + "\n\n")
+
+        # Per repo stage breakdown section
+        f.write(r"\subsubsection{Rozbicie per repozytorium per etap}" + "\n\n")
+        for repo in sorted(stats["per_repo_counts"].keys()):
+            repo_latex = repo.replace("_", r"\_")
+            f.write(r"\begin{table}[h]" + "\n")
+            f.write(r"    \centering" + "\n")
+            f.write(r"    \begin{tabular}{lccc}" + "\n")
+            f.write(r"        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\" + "\n")
+
+            stage_counts = stats["per_repo_stage_counts"].get(repo, {})
+            stage_success = stats["per_repo_stage_success"].get(repo, {})
+
+            for stage in ("build", "apply", "runtime"):
+                stage_tot = stage_counts.get(stage, 0)
+                stage_succ = stage_success.get(stage, 0)
+                if stage_tot > 0:
+                    ci_data = rate_and_ci(stage_succ, stage_tot, alpha)
+                    stage_name = {"build": "Build", "apply": "K8s apply", "runtime": "Runtime"}[stage]
+                    f.write(f"        {stage_name} & {stage_succ}/{stage_tot} & {format_pct_latex(ci_data['rate'])} & {format_ci_latex(ci_data['ci'])} \\\\\n")
+
+            f.write(r"    \end{tabular}" + "\n")
+            f.write(f"    \\caption{{Skuteczność etapów dla {repo_latex}}}\n")
+            # Create safe label by replacing non-alphanumeric chars with dash
+            safe_label = repo.replace("_", "-").replace("/", "-").lower()
+            f.write(f"    \\label{{tab:h1-stages-{safe_label}}}\n")
+            f.write(r"\end{table}" + "\n\n")
 
 
 def main() -> int:
@@ -363,6 +404,22 @@ def main() -> int:
                 low, high = ci["ci"]
                 line += f" (CI: {format_pct(low)}–{format_pct(high)})"
             print(line, file=f)
+
+        print("\nPer repo stage breakdown:", file=f)
+        for repo in sorted(stats["per_repo_counts"].keys()):
+            print(f"  {repo}:", file=f)
+            stage_counts = stats["per_repo_stage_counts"].get(repo, {})
+            stage_success = stats["per_repo_stage_success"].get(repo, {})
+            for stage in ("build", "apply", "runtime"):
+                stage_tot = stage_counts.get(stage, 0)
+                stage_succ = stage_success.get(stage, 0)
+                if stage_tot > 0:
+                    stage_ci = rate_and_ci(stage_succ, stage_tot, args.alpha)
+                    line = f"    {stage}: {stage_succ}/{stage_tot} = {format_pct(stage_ci['rate'])}"
+                    if stage_ci["ci"]:
+                        low, high = stage_ci["ci"]
+                        line += f" (CI: {format_pct(low)}–{format_pct(high)})"
+                    print(line, file=f)
 
     print(f"Results saved to {output_file}")
 

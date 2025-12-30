@@ -1,0 +1,942 @@
+--- 1436d9ed-dd59-4333-9620-636fd0cf0570
++++ a18501cd-ebff-43bc-a45f-49f1f78b0ac3
+@@ -117,6 +117,20 @@
+ 
+ # Start nginx
+ CMD ["nginx", "-g", "daemon off;"]
++@@FILE:K8s::k8s/analytics-service-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: analytics-service-config
++data:
++  DATABASE_URL: "postgresql://analytics_user:analytics_password@analytics-db:5432/analytics_db"
++  RABBITMQ_URL: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++  JWT_SECRET: "your-secret-key-change-in-production"
++  JWT_ALGORITHM: "HS256"
++  JWT_EXPIRATION_MINUTES: "30"
++  USERS_SERVICE_URL: "http://users-service:8000"
++  NOTES_SERVICE_URL: "http://notes-service:8000"
++  ANALYTICS_SERVICE_URL: "http://analytics-service:8000"
+ @@FILE:K8s::k8s/analytics-service-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -134,86 +148,51 @@
+     spec:
+       containers:
+       - name: analytics-service
+-        image: analytics-service
++        image: analytics-service:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         env:
+         - name: DATABASE_URL
+-          value: "postgresql://analytics_user:analytics_password@postgres-analytics:5432/analytics_db"
++          valueFrom:
++            configMapKeyRef:
++              name: analytics-service-config
++              key: DATABASE_URL
+         - name: RABBITMQ_URL
+-          value: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++          valueFrom:
++            configMapKeyRef:
++              name: analytics-service-config
++              key: RABBITMQ_URL
+         - name: JWT_SECRET
+-          value: "your-secret-key-change-in-production"
++          valueFrom:
++            configMapKeyRef:
++              name: analytics-service-config
++              key: JWT_SECRET
+         - name: JWT_ALGORITHM
+-          value: "HS256"
++          valueFrom:
++            configMapKeyRef:
++              name: analytics-service-config
++              key: JWT_ALGORITHM
+         - name: JWT_EXPIRATION_MINUTES
+-          value: "30"
++          valueFrom:
++            configMapKeyRef:
++              name: analytics-service-config
++              key: JWT_EXPIRATION_MINUTES
+         - name: USERS_SERVICE_URL
+-          value: "http://users-service:8000"
++          valueFrom:
++            configMapKeyRef:
++              name: analytics-service-config
++              key: USERS_SERVICE_URL
+         - name: NOTES_SERVICE_URL
+-          value: "http://notes-service:8000"
++          valueFrom:
++            configMapKeyRef:
++              name: analytics-service-config
++              key: NOTES_SERVICE_URL
+         - name: ANALYTICS_SERVICE_URL
+-          value: "http://analytics-service:8000"
+-        resources:
+-          requests:
+-            memory: "256Mi"
+-            cpu: "250m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
+-        readinessProbe:
+-          httpGet:
+-            path: /health
+-            port: 8000
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
+-        livenessProbe:
+-          httpGet:
+-            path: /health
+-            port: 8000
+-          initialDelaySeconds: 30
+-          periodSeconds: 30
+-@@FILE:K8s::k8s/analytics-service-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: analytics-service
+-spec:
+-  selector:
+-    app: analytics-service
+-  ports:
+-  - port: 8000
+-    targetPort: 8000
+-    protocol: TCP
+-@@FILE:K8s::k8s/frontend-deployment.yaml
+-apiVersion: apps/v1
+-kind: Deployment
+-metadata:
+-  name: frontend
+-spec:
+-  replicas: 1
+-  selector:
+-    matchLabels:
+-      app: frontend
+-  template:
+-    metadata:
+-      labels:
+-        app: frontend
+-    spec:
+-      containers:
+-      - name: frontend
+-        image: frontend
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 80
+-        env:
+-        - name: VITE_USERS_API_URL
+-          value: "/api/users"
+-        - name: VITE_NOTES_API_URL
+-          value: "/api/notes"
+-        - name: VITE_ANALYTICS_API_URL
+-          value: "/api/analytics"
++          valueFrom:
++            configMapKeyRef:
++              name: analytics-service-config
++              key: ANALYTICS_SERVICE_URL
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -223,28 +202,105 @@
+             cpu: "200m"
+         readinessProbe:
+           httpGet:
++            path: /health
++            port: 8000
++          initialDelaySeconds: 30
++          periodSeconds: 10
++        livenessProbe:
++          httpGet:
++            path: /health
++            port: 8000
++          initialDelaySeconds: 60
++          periodSeconds: 20
++@@FILE:K8s::k8s/analytics-service-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: analytics-service
++spec:
++  selector:
++    app: analytics-service
++  ports:
++  - port: 8000
++    targetPort: 8000
++  type: ClusterIP
++@@FILE:K8s::k8s/frontend-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: frontend-config
++data:
++  VITE_USERS_API_URL: "/api/users"
++  VITE_NOTES_API_URL: "/api/notes"
++  VITE_ANALYTICS_API_URL: "/api/analytics"
++@@FILE:K8s::k8s/frontend-deployment.yaml
++apiVersion: apps/v1
++kind: Deployment
++metadata:
++  name: frontend
++spec:
++  replicas: 1
++  selector:
++    matchLabels:
++      app: frontend
++  template:
++    metadata:
++      labels:
++        app: frontend
++    spec:
++      containers:
++      - name: frontend
++        image: frontend:latest
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 80
++        env:
++        - name: VITE_USERS_API_URL
++          valueFrom:
++            configMapKeyRef:
++              name: frontend-config
++              key: VITE_USERS_API_URL
++        - name: VITE_NOTES_API_URL
++          valueFrom:
++            configMapKeyRef:
++              name: frontend-config
++              key: VITE_NOTES_API_URL
++        - name: VITE_ANALYTICS_API_URL
++          valueFrom:
++            configMapKeyRef:
++              name: frontend-config
++              key: VITE_ANALYTICS_API_URL
++        resources:
++          requests:
++            memory: "64Mi"
++            cpu: "50m"
++          limits:
++            memory: "128Mi"
++            cpu: "100m"
++        readinessProbe:
++          httpGet:
+             path: /
+             port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
++          initialDelaySeconds: 10
++          periodSeconds: 5
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 80
+-          initialDelaySeconds: 15
+-          periodSeconds: 20
++          initialDelaySeconds: 30
++          periodSeconds: 10
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: frontend-service
++  name: frontend
+ spec:
+   selector:
+     app: frontend
+   ports:
+   - port: 80
+     targetPort: 80
+-    protocol: TCP
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -255,6 +311,7 @@
+     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+     nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
++    nginx.ingress.kubernetes.io/enable-cors: "true"
+ spec:
+   rules:
+   - host: poc4-fastapi.rasztabiga.me
+@@ -264,21 +321,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: frontend-service
++            name: frontend
+             port:
+               number: 80
++      - path: /api/users(/|$)(.*)
++        pathType: ImplementationSpecific
++        backend:
++          service:
++            name: users-service
++            port:
++              number: 8000
+       - path: /api/notes(/|$)(.*)
+         pathType: ImplementationSpecific
+         backend:
+           service:
+             name: notes-service
+-            port:
+-              number: 8000
+-      - path: /api/users(/|$)(.*)
+-        pathType: ImplementationSpecific
+-        backend:
+-          service:
+-            name: users-service
+             port:
+               number: 8000
+       - path: /api/analytics(/|$)(.*)
+@@ -288,6 +345,20 @@
+             name: analytics-service
+             port:
+               number: 8000
++@@FILE:K8s::k8s/notes-service-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: notes-service-config
++data:
++  DATABASE_URL: "postgresql://notes_user:notes_password@notes-db:5432/notes_db"
++  RABBITMQ_URL: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++  JWT_SECRET: "your-secret-key-change-in-production"
++  JWT_ALGORITHM: "HS256"
++  JWT_EXPIRATION_MINUTES: "30"
++  USERS_SERVICE_URL: "http://users-service:8000"
++  NOTES_SERVICE_URL: "http://notes-service:8000"
++  ANALYTICS_SERVICE_URL: "http://analytics-service:8000"
+ @@FILE:K8s::k8s/notes-service-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -305,46 +376,70 @@
+     spec:
+       containers:
+       - name: notes-service
+-        image: notes-service
++        image: notes-service:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         env:
+         - name: DATABASE_URL
+-          value: "postgresql://notes_user:notes_password@postgres-notes:5432/notes_db"
++          valueFrom:
++            configMapKeyRef:
++              name: notes-service-config
++              key: DATABASE_URL
+         - name: RABBITMQ_URL
+-          value: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++          valueFrom:
++            configMapKeyRef:
++              name: notes-service-config
++              key: RABBITMQ_URL
+         - name: JWT_SECRET
+-          value: "your-secret-key-change-in-production"
++          valueFrom:
++            configMapKeyRef:
++              name: notes-service-config
++              key: JWT_SECRET
+         - name: JWT_ALGORITHM
+-          value: "HS256"
++          valueFrom:
++            configMapKeyRef:
++              name: notes-service-config
++              key: JWT_ALGORITHM
+         - name: JWT_EXPIRATION_MINUTES
+-          value: "30"
++          valueFrom:
++            configMapKeyRef:
++              name: notes-service-config
++              key: JWT_EXPIRATION_MINUTES
+         - name: USERS_SERVICE_URL
+-          value: "http://users-service:8000"
++          valueFrom:
++            configMapKeyRef:
++              name: notes-service-config
++              key: USERS_SERVICE_URL
+         - name: NOTES_SERVICE_URL
+-          value: "http://notes-service:8000"
++          valueFrom:
++            configMapKeyRef:
++              name: notes-service-config
++              key: NOTES_SERVICE_URL
+         - name: ANALYTICS_SERVICE_URL
+-          value: "http://analytics-service:8000"
++          valueFrom:
++            configMapKeyRef:
++              name: notes-service-config
++              key: ANALYTICS_SERVICE_URL
+         resources:
+           requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
+             memory: "256Mi"
+-            cpu: "250m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
++            cpu: "200m"
+         readinessProbe:
+           httpGet:
+             path: /health
+             port: 8000
+-          initialDelaySeconds: 10
++          initialDelaySeconds: 30
+           periodSeconds: 10
+         livenessProbe:
+           httpGet:
+             path: /health
+             port: 8000
+-          initialDelaySeconds: 30
+-          periodSeconds: 30
++          initialDelaySeconds: 60
++          periodSeconds: 20
+ @@FILE:K8s::k8s/notes-service-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -356,19 +451,7 @@
+   ports:
+   - port: 8000
+     targetPort: 8000
+-    protocol: TCP
+-@@FILE:K8s::k8s/postgres-analytics-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: postgres-analytics-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
++  type: ClusterIP
+ @@FILE:K8s::k8s/postgres-analytics-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -377,20 +460,20 @@
+ type: Opaque
+ data:
+   postgres-password: YW5hbHl0aWNzX3Bhc3N3b3Jk  # analytics_password
+-  postgres-user: YW5hbHl0aWNzX3VzZXI=         # analytics_user
+-  postgres-db: YW5hbHl0aWNzX2Ri               # analytics_db
++  postgres-user: YW5hbHl0aWNzX3VzZXI=  # analytics_user
++  postgres-db: YW5hbHl0aWNzX2Ri  # analytics_db
+ @@FILE:K8s::k8s/postgres-analytics-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: postgres-analytics
++  name: analytics-db
+ spec:
+   selector:
+     app: postgres-analytics
+   ports:
+   - port: 5432
+     targetPort: 5432
+-  clusterIP: None
++  type: ClusterIP
+ @@FILE:K8s::k8s/postgres-analytics-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -413,23 +496,23 @@
+         ports:
+         - containerPort: 5432
+         env:
++        - name: POSTGRES_DB
++          valueFrom:
++            secretKeyRef:
++              name: postgres-analytics-secret
++              key: postgres-db
++        - name: POSTGRES_USER
++          valueFrom:
++            secretKeyRef:
++              name: postgres-analytics-secret
++              key: postgres-user
+         - name: POSTGRES_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: postgres-analytics-secret
+               key: postgres-password
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-analytics-secret
+-              key: postgres-user
+-        - name: POSTGRES_DB
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-analytics-secret
+-              key: postgres-db
+         volumeMounts:
+-        - name: postgres-data
++        - name: data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -439,31 +522,33 @@
+             memory: "512Mi"
+             cpu: "500m"
+         readinessProbe:
+-          tcpSocket:
+-            port: 5432
+-          initialDelaySeconds: 5
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - analytics_user
++            - -d
++            - analytics_db
++          initialDelaySeconds: 30
+           periodSeconds: 10
+         livenessProbe:
+-          tcpSocket:
+-            port: 5432
+-          initialDelaySeconds: 15
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - analytics_user
++            - -d
++            - analytics_db
++          initialDelaySeconds: 60
+           periodSeconds: 20
+-      volumes:
+-      - name: postgres-data
+-        persistentVolumeClaim:
+-          claimName: postgres-analytics-pvc
+-@@FILE:K8s::k8s/postgres-notes-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: postgres-notes-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
++  volumeClaimTemplates:
++  - metadata:
++      name: data
++    spec:
++      accessModes: [ "ReadWriteOnce" ]
++      resources:
++        requests:
++          storage: 1Gi
+ @@FILE:K8s::k8s/postgres-notes-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -472,20 +557,20 @@
+ type: Opaque
+ data:
+   postgres-password: bm90ZXNfcGFzc3dvcmQ=  # notes_password
+-  postgres-user: bm90ZXNfdXNlcg==         # notes_user
+-  postgres-db: bm90ZXNfZGI=               # notes_db
++  postgres-user: bm90ZXNfdXNlcg==  # notes_user
++  postgres-db: bm90ZXNfZGI=  # notes_db
+ @@FILE:K8s::k8s/postgres-notes-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: postgres-notes
++  name: notes-db
+ spec:
+   selector:
+     app: postgres-notes
+   ports:
+   - port: 5432
+     targetPort: 5432
+-  clusterIP: None
++  type: ClusterIP
+ @@FILE:K8s::k8s/postgres-notes-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -508,23 +593,23 @@
+         ports:
+         - containerPort: 5432
+         env:
++        - name: POSTGRES_DB
++          valueFrom:
++            secretKeyRef:
++              name: postgres-notes-secret
++              key: postgres-db
++        - name: POSTGRES_USER
++          valueFrom:
++            secretKeyRef:
++              name: postgres-notes-secret
++              key: postgres-user
+         - name: POSTGRES_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: postgres-notes-secret
+               key: postgres-password
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-notes-secret
+-              key: postgres-user
+-        - name: POSTGRES_DB
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-notes-secret
+-              key: postgres-db
+         volumeMounts:
+-        - name: postgres-data
++        - name: data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -534,31 +619,33 @@
+             memory: "512Mi"
+             cpu: "500m"
+         readinessProbe:
+-          tcpSocket:
+-            port: 5432
+-          initialDelaySeconds: 5
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - notes_user
++            - -d
++            - notes_db
++          initialDelaySeconds: 30
+           periodSeconds: 10
+         livenessProbe:
+-          tcpSocket:
+-            port: 5432
+-          initialDelaySeconds: 15
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - notes_user
++            - -d
++            - notes_db
++          initialDelaySeconds: 60
+           periodSeconds: 20
+-      volumes:
+-      - name: postgres-data
+-        persistentVolumeClaim:
+-          claimName: postgres-notes-pvc
+-@@FILE:K8s::k8s/postgres-users-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: postgres-users-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
++  volumeClaimTemplates:
++  - metadata:
++      name: data
++    spec:
++      accessModes: [ "ReadWriteOnce" ]
++      resources:
++        requests:
++          storage: 1Gi
+ @@FILE:K8s::k8s/postgres-users-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -567,20 +654,20 @@
+ type: Opaque
+ data:
+   postgres-password: dXNlcnNfcGFzc3dvcmQ=  # users_password
+-  postgres-user: dXNlcnNfdXNlcg==         # users_user
+-  postgres-db: dXNlcnNfZGI=               # users_db
++  postgres-user: dXNlcnNfdXNlcg==  # users_user
++  postgres-db: dXNlcnNfZGI=  # users_db
+ @@FILE:K8s::k8s/postgres-users-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: postgres-users
++  name: users-db
+ spec:
+   selector:
+     app: postgres-users
+   ports:
+   - port: 5432
+     targetPort: 5432
+-  clusterIP: None
++  type: ClusterIP
+ @@FILE:K8s::k8s/postgres-users-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -603,23 +690,23 @@
+         ports:
+         - containerPort: 5432
+         env:
++        - name: POSTGRES_DB
++          valueFrom:
++            secretKeyRef:
++              name: postgres-users-secret
++              key: postgres-db
++        - name: POSTGRES_USER
++          valueFrom:
++            secretKeyRef:
++              name: postgres-users-secret
++              key: postgres-user
+         - name: POSTGRES_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: postgres-users-secret
+               key: postgres-password
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-users-secret
+-              key: postgres-user
+-        - name: POSTGRES_DB
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-users-secret
+-              key: postgres-db
+         volumeMounts:
+-        - name: postgres-data
++        - name: data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -629,31 +716,33 @@
+             memory: "512Mi"
+             cpu: "500m"
+         readinessProbe:
+-          tcpSocket:
+-            port: 5432
+-          initialDelaySeconds: 5
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - users_user
++            - -d
++            - users_db
++          initialDelaySeconds: 30
+           periodSeconds: 10
+         livenessProbe:
+-          tcpSocket:
+-            port: 5432
+-          initialDelaySeconds: 15
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - users_user
++            - -d
++            - users_db
++          initialDelaySeconds: 60
+           periodSeconds: 20
+-      volumes:
+-      - name: postgres-data
+-        persistentVolumeClaim:
+-          claimName: postgres-users-pvc
+-@@FILE:K8s::k8s/rabbitmq-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: rabbitmq-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
++  volumeClaimTemplates:
++  - metadata:
++      name: data
++    spec:
++      accessModes: [ "ReadWriteOnce" ]
++      resources:
++        requests:
++          storage: 1Gi
+ @@FILE:K8s::k8s/rabbitmq-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -662,7 +751,7 @@
+ type: Opaque
+ data:
+   rabbitmq-password: cmFiYml0bXE=  # rabbitmq
+-  rabbitmq-user: cmFiYml0bXE=      # rabbitmq
++  rabbitmq-user: cmFiYml0bXE=  # rabbitmq
+ @@FILE:K8s::k8s/rabbitmq-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -678,6 +767,7 @@
+   - port: 15672
+     targetPort: 15672
+     name: management
++  type: ClusterIP
+ @@FILE:K8s::k8s/rabbitmq-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -714,7 +804,7 @@
+               name: rabbitmq-secret
+               key: rabbitmq-password
+         volumeMounts:
+-        - name: rabbitmq-data
++        - name: data
+           mountPath: /var/lib/rabbitmq
+         resources:
+           requests:
+@@ -724,19 +814,41 @@
+             memory: "512Mi"
+             cpu: "500m"
+         readinessProbe:
+-          tcpSocket:
+-            port: 5672
+-          initialDelaySeconds: 10
++          exec:
++            command:
++            - rabbitmq-diagnostics
++            - ping
++          initialDelaySeconds: 30
+           periodSeconds: 10
+         livenessProbe:
+-          tcpSocket:
+-            port: 5672
+-          initialDelaySeconds: 30
+-          periodSeconds: 30
+-      volumes:
+-      - name: rabbitmq-data
+-        persistentVolumeClaim:
+-          claimName: rabbitmq-pvc
++          exec:
++            command:
++            - rabbitmq-diagnostics
++            - ping
++          initialDelaySeconds: 60
++          periodSeconds: 20
++  volumeClaimTemplates:
++  - metadata:
++      name: data
++    spec:
++      accessModes: [ "ReadWriteOnce" ]
++      resources:
++        requests:
++          storage: 1Gi
++@@FILE:K8s::k8s/users-service-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: users-service-config
++data:
++  DATABASE_URL: "postgresql://users_user:users_password@users-db:5432/users_db"
++  RABBITMQ_URL: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++  JWT_SECRET: "your-secret-key-change-in-production"
++  JWT_ALGORITHM: "HS256"
++  JWT_EXPIRATION_MINUTES: "30"
++  USERS_SERVICE_URL: "http://users-service:8000"
++  NOTES_SERVICE_URL: "http://notes-service:8000"
++  ANALYTICS_SERVICE_URL: "http://analytics-service:8000"
+ @@FILE:K8s::k8s/users-service-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -754,46 +866,70 @@
+     spec:
+       containers:
+       - name: users-service
+-        image: users-service
++        image: users-service:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         env:
+         - name: DATABASE_URL
+-          value: "postgresql://users_user:users_password@postgres-users:5432/users_db"
++          valueFrom:
++            configMapKeyRef:
++              name: users-service-config
++              key: DATABASE_URL
+         - name: RABBITMQ_URL
+-          value: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++          valueFrom:
++            configMapKeyRef:
++              name: users-service-config
++              key: RABBITMQ_URL
+         - name: JWT_SECRET
+-          value: "your-secret-key-change-in-production"
++          valueFrom:
++            configMapKeyRef:
++              name: users-service-config
++              key: JWT_SECRET
+         - name: JWT_ALGORITHM
+-          value: "HS256"
++          valueFrom:
++            configMapKeyRef:
++              name: users-service-config
++              key: JWT_ALGORITHM
+         - name: JWT_EXPIRATION_MINUTES
+-          value: "30"
++          valueFrom:
++            configMapKeyRef:
++              name: users-service-config
++              key: JWT_EXPIRATION_MINUTES
+         - name: USERS_SERVICE_URL
+-          value: "http://users-service:8000"
++          valueFrom:
++            configMapKeyRef:
++              name: users-service-config
++              key: USERS_SERVICE_URL
+         - name: NOTES_SERVICE_URL
+-          value: "http://notes-service:8000"
++          valueFrom:
++            configMapKeyRef:
++              name: users-service-config
++              key: NOTES_SERVICE_URL
+         - name: ANALYTICS_SERVICE_URL
+-          value: "http://analytics-service:8000"
++          valueFrom:
++            configMapKeyRef:
++              name: users-service-config
++              key: ANALYTICS_SERVICE_URL
+         resources:
+           requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
+             memory: "256Mi"
+-            cpu: "250m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
++            cpu: "200m"
+         readinessProbe:
+           httpGet:
+             path: /health
+             port: 8000
+-          initialDelaySeconds: 10
++          initialDelaySeconds: 30
+           periodSeconds: 10
+         livenessProbe:
+           httpGet:
+             path: /health
+             port: 8000
+-          initialDelaySeconds: 30
+-          periodSeconds: 30
++          initialDelaySeconds: 60
++          periodSeconds: 20
+ @@FILE:K8s::k8s/users-service-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -805,4 +941,4 @@
+   ports:
+   - port: 8000
+     targetPort: 8000
+-    protocol: TCP
++  type: ClusterIP

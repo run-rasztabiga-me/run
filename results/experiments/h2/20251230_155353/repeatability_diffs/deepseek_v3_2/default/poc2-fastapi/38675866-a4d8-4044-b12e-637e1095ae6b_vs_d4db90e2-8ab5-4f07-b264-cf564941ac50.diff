@@ -1,0 +1,211 @@
+--- 38675866-a4d8-4044-b12e-637e1095ae6b
++++ d4db90e2-8ab5-4f07-b264-cf564941ac50
+@@ -25,55 +25,68 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app
+-  namespace: default
++  name: fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: fastapi
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: fastapi
+     spec:
+       containers:
+-      - name: fastapi-app
+-        image: fastapi-app:latest
++      - name: fastapi
++        image: fastapi
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         env:
++        - name: POSTGRES_USER
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-user
++        - name: POSTGRES_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-password
++        - name: POSTGRES_DB
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-db
+         - name: DATABASE_URL
+-          value: "postgresql://postgres:postgrespassword@postgres:5432/poc2fastapi"
++          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
+         resources:
+           requests:
+-            memory: "128Mi"
+-            cpu: "100m"
++            memory: "256Mi"
++            cpu: "250m"
+           limits:
+-            memory: "256Mi"
+-            cpu: "200m"
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
++            memory: "512Mi"
++            cpu: "500m"
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 30
+-          periodSeconds: 30
++          periodSeconds: 10
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app
+-  namespace: default
++  name: fastapi
+ spec:
+   selector:
+-    app: fastapi-app
++    app: fastapi
+   ports:
+   - port: 80
+     targetPort: 8000
+@@ -83,7 +96,6 @@
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+-  namespace: default
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -92,37 +104,10 @@
+     http:
+       paths:
+       - path: /
+-      - path: /openapi.json
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app
+-            port:
+-              number: 80        pathType: Prefix
+-        backend:
+-          service:
+-            name: fastapi-app
+-            port:
+-              number: 80
+-      - path: /notes
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: fastapi-app
+-            port:
+-              number: 80
+-      - path: /hello
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: fastapi-app
+-            port:
+-              number: 80
+-      - path: /docs
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: fastapi-app
++            name: fastapi
+             port:
+               number: 80
+ @@FILE:K8s::k8s/postgres-pvc.yaml
+@@ -130,7 +115,6 @@
+ kind: PersistentVolumeClaim
+ metadata:
+   name: postgres-pvc
+-  namespace: default
+ spec:
+   accessModes:
+     - ReadWriteOnce
+@@ -143,18 +127,16 @@
+ kind: Secret
+ metadata:
+   name: postgres-secret
+-  namespace: default
+ type: Opaque
+ data:
+-  postgres-password: cG9zdGdyZXNwYXNzd29yZA==  # postgrespassword in base64
+-  postgres-user: cG9zdGdyZXM=  # postgres in base64
+-  postgres-db: cG9jMmZhc3RhcGk=  # poc2fastapi in base64
++  postgres-password: cGFzc3dvcmQ=  # password
++  postgres-user: dXNlcg==  # user
++  postgres-db: ZGJuYW1l  # dbname
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: postgres
+-  namespace: default
+ spec:
+   selector:
+     app: postgres
+@@ -167,7 +149,6 @@
+ kind: StatefulSet
+ metadata:
+   name: postgres
+-  namespace: default
+ spec:
+   serviceName: postgres
+   replicas: 1
+@@ -201,7 +182,7 @@
+               name: postgres-secret
+               key: postgres-db
+         volumeMounts:
+-        - name: postgres-data
++        - name: postgres-storage
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -210,23 +191,7 @@
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
+-        readinessProbe:
+-          exec:
+-            command:
+-            - pg_isready
+-            - -U
+-            - postgres
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-        livenessProbe:
+-          exec:
+-            command:
+-            - pg_isready
+-            - -U
+-            - postgres
+-          initialDelaySeconds: 30
+-          periodSeconds: 30
+       volumes:
+-      - name: postgres-data
++      - name: postgres-storage
+         persistentVolumeClaim:
+           claimName: postgres-pvc

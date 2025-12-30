@@ -1,0 +1,202 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+  "repo_name": "poc4-fastapi",
+  "evaluation_id": "1e1f51ea-660e-4702-840d-f9e25a68adaf",
+  "status": "completed",
+  "start_time": "2025-12-30T18:19:55.106011",
+  "end_time": "2025-12-30T18:26:18.932181",
+  "total_evaluation_time": 383.82617,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+    "repo_name": "poc4-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics",
+        "build_context": "backend/analytics_service"
+      },
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/users-deployment.yaml",
+      "k8s/users-service.yaml",
+      "k8s/notes-deployment.yaml",
+      "k8s/notes-service.yaml",
+      "k8s/analytics-deployment.yaml",
+      "k8s/analytics-service.yaml",
+      "k8s/rabbitmq-deployment.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/postgres-secret.yaml",
+      "k8s/postgres-pvc.yaml",
+      "k8s/postgres-init-configmap.yaml",
+      "k8s/postgres-secret-users.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 272.8253870010376,
+    "error_message": null,
+    "timestamp": "2025-12-30T18:24:37.447939",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-11bcd4f4-5ffd-4e9f-87a7-720b7362616a",
+    "run_id": "11bcd4f4-5ffd-4e9f-87a7-720b7362616a"
+  },
+  "execution_metrics": {
+    "total_time": 272.8253870010376,
+    "tool_calls_count": 73,
+    "tool_calls_breakdown": {
+      "think": 2,
+      "ls": 6,
+      "get_file_content": 23,
+      "write_file": 25,
+      "patch_file": 2,
+      "base64_encode": 1,
+      "find_files": 9,
+      "search_files": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 1293976,
+    "input_tokens": 1283140,
+    "output_tokens": 10836,
+    "error_count": 0,
+    "run_id": "11bcd4f4-5ffd-4e9f-87a7-720b7362616a",
+    "docker_build_metrics": [
+      {
+        "image_tag": "users",
+        "build_time": 16.553049087524414,
+        "image_size_mb": 76.06,
+        "layers_count": 8
+      },
+      {
+        "image_tag": "notes",
+        "build_time": 14.45856785774231,
+        "image_size_mb": 74.99,
+        "layers_count": 8
+      },
+      {
+        "image_tag": "analytics",
+        "build_time": 15.855738878250122,
+        "image_size_mb": 73.61,
+        "layers_count": 8
+      },
+      {
+        "image_tag": "frontend",
+        "build_time": 14.912333011627197,
+        "image_size_mb": 21.99,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 85.0,
+    "overall_score": 69.0,
+    "validation_issues": [
+      {
+        "file_path": "k8s/rabbitmq-deployment.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: The Service \"rabbitmq\" is invalid: \n* spec.ports[0].name: Required value\n* spec.ports[1].name: Required value",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 69.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 85.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 85.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T18:19:55.106603: Starting configuration generation",
+    "2025-12-30T18:24:37.448183: Generated 4 Dockerfiles and 16 K8s manifests",
+    "2025-12-30T18:24:37.448188: Starting quality assessment",
+    "2025-12-30T18:26:18.932122: Built 4 Docker images (total: 246.7 MB, avg time: 15.4s)",
+    "2025-12-30T18:26:18.932152: Dockerfile validation: 1 errors, 0 warnings",
+    "2025-12-30T18:26:18.932158: K8s validation: 1 errors, 0 warnings",
+    "2025-12-30T18:26:18.932168: Deployed to namespace: poc4-fastapi-11bcd4f4-5ffd-4e9f-87a7-720b7362616a",
+    "2025-12-30T18:26:18.932177: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 2,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-11bcd4f4-5ffd-4e9f-87a7-720b7362616a",
+    "run_id": "11bcd4f4-5ffd-4e9f-87a7-720b7362616a"
+  }
+}

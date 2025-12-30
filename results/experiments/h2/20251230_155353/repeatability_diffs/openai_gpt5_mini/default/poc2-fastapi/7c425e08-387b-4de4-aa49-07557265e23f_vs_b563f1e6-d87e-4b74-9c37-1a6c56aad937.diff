@@ -1,0 +1,251 @@
+--- 7c425e08-387b-4de4-aa49-07557265e23f
++++ b563f1e6-d87e-4b74-9c37-1a6c56aad937
+@@ -1,46 +1,66 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-WORKDIR /app
+-ENV PYTHONUNBUFFERED=1
+-
+-# system deps for psycopg2
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends gcc libpq-dev \
++# Install system dependencies needed for psycopg2 and building wheels
++RUN apt-get update && apt-get install -y --no-install-recommends \
++    build-essential \
++    libpq-dev \
++    gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# install python deps
+-COPY requirements.txt .
++WORKDIR /app
++
++# Copy dependencies first to leverage Docker cache
++COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# copy application code
++# Copy application code
+ COPY app ./app
+ 
+ EXPOSE 8000
+ 
+-# run the app
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/backend-deployment.yaml
++@@FILE:K8s::k8s/README.txt
++Kubernetes manifests for poc2-fastapi
++
++Files:
++- app-deployment.yaml
++- app-service.yaml
++- ingress.yaml
++- postgres-secret.yaml
++- postgres-service.yaml
++- postgres-statefulset.yaml
++
++The application Deployment expects a Secret named 'postgres-secret' with key 'database_url' containing the full DATABASE_URL (postgresql://user:password@postgres:5432/dbname). A provided postgres StatefulSet will create the database with POSTGRES_USER, POSTGRES_PASSWORD and POSTGRES_DB values sourced from the same secret keys.
++@@FILE:K8s::k8s/app-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc2-fastapi-backend
++  name: poc2-fastapi
++  labels:
++    app: poc2-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc2-fastapi-backend
++      app: poc2-fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc2-fastapi-backend
++        app: poc2-fastapi
+     spec:
+       containers:
+-        - name: backend
+-          image: backend:latest
++        - name: app
++          image: backend
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
++          env:
++            - name: DATABASE_URL
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: database_url
+           resources:
+             requests:
+               cpu: "100m"
+@@ -48,54 +68,49 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          env:
+-            - name: DATABASE_URL
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: database_url
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 3
++            periodSeconds: 5
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 10
+             periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/backend-service.yaml
++@@FILE:K8s::k8s/app-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc2-fastapi-backend
++  name: poc2-fastapi-service
++  labels:
++    app: poc2-fastapi
+ spec:
++  type: ClusterIP
+   selector:
+-    app: poc2-fastapi-backend
++    app: poc2-fastapi
+   ports:
+-    - protocol: TCP
+-      port: 80
++    - port: 80
+       targetPort: 8000
+-  type: ClusterIP
++      protocol: TCP
++      name: http
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc2-fastapi-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc2-fastapi.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
+-            pathType: ImplementationSpecific
++          - path: /
++            pathType: Prefix
+             backend:
+               service:
+-                name: poc2-fastapi-backend
++                name: poc2-fastapi-service
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/postgres-secret.yaml
+@@ -104,64 +119,74 @@
+ metadata:
+   name: postgres-secret
+ type: Opaque
+-stringData:
+-  username: user
+-  password: password
+-  database: dbname
+-  database_url: postgresql://user:password@poc2-postgres.default.svc.cluster.local:5432/dbname
++data:
++  database_url: cG9zdGdyZXNxbDovL3VzZXI6cGFzc3dvcmRAcG9zdGdyZXM6NTQzMi9kYm5hbWU=
++  POSTGRES_USER: dXNlcg==
++  POSTGRES_PASSWORD: cGFzc3dvcmQ=
++  POSTGRES_DB: ZGJuYW1l
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc2-postgres
++  name: postgres
++  labels:
++    app: postgres
+ spec:
+   ports:
+     - port: 5432
+       targetPort: 5432
+-  clusterIP: None
++      protocol: TCP
++      name: postgres
+   selector:
+-    app: poc2-postgres
++    app: postgres
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: poc2-postgres
++  name: postgres
+ spec:
+-  serviceName: "poc2-postgres"
++  serviceName: "postgres"
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc2-postgres
++      app: postgres
+   template:
+     metadata:
+       labels:
+-        app: poc2-postgres
++        app: postgres
+     spec:
+       containers:
+         - name: postgres
+-          image: postgres:15
+-          imagePullPolicy: IfNotPresent
++          image: postgres:15.4-alpine
+           ports:
+             - containerPort: 5432
++              name: postgres
+           env:
+             - name: POSTGRES_USER
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+-                  key: username
++                  key: POSTGRES_USER
+             - name: POSTGRES_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+-                  key: password
++                  key: POSTGRES_PASSWORD
+             - name: POSTGRES_DB
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+-                  key: database
++                  key: POSTGRES_DB
+           volumeMounts:
+             - name: postgres-data
+               mountPath: /var/lib/postgresql/data
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "256Mi"
++            limits:
++              cpu: "500m"
++              memory: "1Gi"
+   volumeClaimTemplates:
+     - metadata:
+         name: postgres-data

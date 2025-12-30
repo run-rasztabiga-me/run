@@ -1,0 +1,220 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+  "repo_name": "poc2-fastapi",
+  "evaluation_id": "7040ca68-962e-4334-a244-2b6e81d817fa",
+  "status": "completed",
+  "start_time": "2025-12-30T17:13:35.212917",
+  "end_time": "2025-12-30T17:16:05.273013",
+  "total_evaluation_time": 150.060096,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+    "repo_name": "poc2-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "poc2-fastapi",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/postgres-secret.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml"
+    ],
+    "generation_time": 78.00200605392456,
+    "error_message": null,
+    "timestamp": "2025-12-30T17:15:00.542643",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-09806201-08c8-4f7f-8dc7-dbfeccef7286",
+    "run_id": "09806201-08c8-4f7f-8dc7-dbfeccef7286"
+  },
+  "execution_metrics": {
+    "total_time": 78.00200605392456,
+    "tool_calls_count": 21,
+    "tool_calls_breakdown": {
+      "think": 1,
+      "search_files": 2,
+      "find_files": 1,
+      "write_file": 7,
+      "base64_encode": 1,
+      "get_file_content": 6,
+      "ls": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 95856,
+    "input_tokens": 92405,
+    "output_tokens": 3451,
+    "error_count": 0,
+    "run_id": "09806201-08c8-4f7f-8dc7-dbfeccef7286",
+    "docker_build_metrics": [
+      {
+        "image_tag": "poc2-fastapi",
+        "build_time": 29.933411121368408,
+        "image_size_mb": 142.83,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 88.0,
+    "overall_score": 94.5,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 4,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"app\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" has cpu request 0",
+        "rule_id": "unset-cpu-requirements"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" has memory limit 0",
+        "rule_id": "unset-memory-requirements"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 7,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 94.5,
+      "total_errors": 0,
+      "total_warnings": 7,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 88.0,
+        "total_errors": 0,
+        "total_warnings": 6,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 40.0,
+            "errors": 0,
+            "warnings": 6,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T17:13:35.212942: Starting configuration generation",
+    "2025-12-30T17:15:00.542792: Generated 1 Dockerfiles and 6 K8s manifests",
+    "2025-12-30T17:15:00.542806: Starting quality assessment",
+    "2025-12-30T17:16:05.272865: Built 1 Docker images (total: 142.8 MB, avg time: 29.9s)",
+    "2025-12-30T17:16:05.272916: Dockerfile validation: 0 errors, 7 warnings",
+    "2025-12-30T17:16:05.272942: K8s validation: 0 errors, 6 warnings",
+    "2025-12-30T17:16:05.272986: Deployed to namespace: poc2-fastapi-09806201-08c8-4f7f-8dc7-dbfeccef7286",
+    "2025-12-30T17:16:05.272990: Testing endpoints: /",
+    "2025-12-30T17:16:05.272995: Runtime validation passed: endpoint is healthy",
+    "2025-12-30T17:16:05.273003: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-09806201-08c8-4f7f-8dc7-dbfeccef7286",
+    "run_id": "09806201-08c8-4f7f-8dc7-dbfeccef7286"
+  }
+}

@@ -1,0 +1,39 @@
+--- 5e347c3a-a4d5-42e9-be72-9cec00c3d23b
++++ 9ab26bfc-e232-4021-9eb9-3a9bba6b24a5
+@@ -3,7 +3,7 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
++# Install system dependencies if needed
+ RUN apt-get update && apt-get install -y \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+@@ -43,6 +43,9 @@
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
++        env:
++        - name: PYTHONUNBUFFERED
++          value: "1"
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -56,12 +59,16 @@
+             port: 8000
+           initialDelaySeconds: 30
+           periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 5
++          periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

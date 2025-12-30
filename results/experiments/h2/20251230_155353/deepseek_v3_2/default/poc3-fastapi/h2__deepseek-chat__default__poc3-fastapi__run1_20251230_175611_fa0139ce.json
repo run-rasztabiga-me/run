@@ -1,0 +1,304 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+  "repo_name": "poc3-fastapi",
+  "evaluation_id": "fa0139ce-ad9a-4c13-9e6d-622afd0bf322",
+  "status": "completed",
+  "start_time": "2025-12-30T17:52:09.571797",
+  "end_time": "2025-12-30T17:56:11.862387",
+  "total_evaluation_time": 242.29059,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+    "repo_name": "poc3-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "backend/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "backend"
+      },
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/backend-config.yaml",
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/postgres-pvc.yaml",
+      "k8s/postgres-secret.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/postgres-statefulset.yaml"
+    ],
+    "generation_time": 226.96678614616394,
+    "error_message": null,
+    "timestamp": "2025-12-30T17:56:04.680918",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1",
+    "run_id": "d2b1a9fd-7cdb-4132-ada0-dcef71402fa1"
+  },
+  "execution_metrics": {
+    "total_time": 226.96678614616394,
+    "tool_calls_count": 41,
+    "tool_calls_breakdown": {
+      "think": 8,
+      "ls": 2,
+      "write_file": 13,
+      "base64_decode": 3,
+      "get_file_content": 9,
+      "patch_file": 1,
+      "search_files": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 934574,
+    "input_tokens": 929528,
+    "output_tokens": 5046,
+    "error_count": 0,
+    "run_id": "d2b1a9fd-7cdb-4132-ada0-dcef71402fa1",
+    "docker_build_metrics": [
+      {
+        "image_tag": "backend",
+        "build_time": 0.7308940887451172,
+        "image_size_mb": 160.91,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "frontend",
+        "build_time": 1.1838440895080566,
+        "image_size_mb": 21.99,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 0.0,
+    "overall_score": 34.3,
+    "validation_issues": [
+      {
+        "file_path": "backend/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/backend-config.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/backend-service.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/frontend-service.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/ingress.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/postgres-pvc.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/postgres-secret.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/postgres-service.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "kubectl apply failed: error: the namespace from the provided object \"default\" does not match the namespace \"poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1\". You must pass '--namespace=default' to perform this operation.",
+        "rule_id": "K8S_APPLY_FAILED"
+      }
+    ],
+    "error_count": 10,
+    "warning_count": 7,
+    "info_count": 1,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 34.3,
+      "total_errors": 10,
+      "total_warnings": 7,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 0.0,
+        "total_errors": 10,
+        "total_warnings": 6,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 6,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 0.0,
+            "errors": 10,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T17:52:09.572896: Starting configuration generation",
+    "2025-12-30T17:56:04.681022: Generated 2 Dockerfiles and 10 K8s manifests",
+    "2025-12-30T17:56:04.681026: Starting quality assessment",
+    "2025-12-30T17:56:11.862357: Built 2 Docker images (total: 182.9 MB, avg time: 1.0s)",
+    "2025-12-30T17:56:11.862372: Dockerfile validation: 10 errors, 7 warnings",
+    "2025-12-30T17:56:11.862378: K8s validation: 10 errors, 6 warnings",
+    "2025-12-30T17:56:11.862385: Deployed to namespace: poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1",
+    "2025-12-30T17:56:11.862386: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1",
+    "run_id": "d2b1a9fd-7cdb-4132-ada0-dcef71402fa1"
+  }
+}

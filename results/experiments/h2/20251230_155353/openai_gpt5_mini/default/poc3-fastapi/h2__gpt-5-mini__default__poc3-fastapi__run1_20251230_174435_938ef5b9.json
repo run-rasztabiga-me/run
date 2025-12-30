@@ -1,0 +1,265 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+  "repo_name": "poc3-fastapi",
+  "evaluation_id": "938ef5b9-935c-426c-8150-c87798edc991",
+  "status": "completed",
+  "start_time": "2025-12-30T17:40:46.486899",
+  "end_time": "2025-12-30T17:44:35.362333",
+  "total_evaluation_time": 228.875434,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+    "repo_name": "poc3-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "backend/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "backend"
+      },
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/backend-configmap.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-deployment-update.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/frontend-configmap.yaml",
+      "k8s/ingress.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/postgres-secret.yaml"
+    ],
+    "generation_time": 137.4909942150116,
+    "error_message": null,
+    "timestamp": "2025-12-30T17:43:12.648939",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-9eac812e-c578-4452-a100-54f1c108a61c",
+    "run_id": "9eac812e-c578-4452-a100-54f1c108a61c"
+  },
+  "execution_metrics": {
+    "total_time": 137.4909942150116,
+    "tool_calls_count": 50,
+    "tool_calls_breakdown": {
+      "get_file_content": 14,
+      "ls": 4,
+      "find_files": 3,
+      "write_file": 19,
+      "patch_file": 1,
+      "think": 1,
+      "search_files": 4,
+      "base64_encode": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 403660,
+    "input_tokens": 397820,
+    "output_tokens": 5840,
+    "error_count": 0,
+    "run_id": "9eac812e-c578-4452-a100-54f1c108a61c",
+    "docker_build_metrics": [
+      {
+        "image_tag": "backend",
+        "build_time": 45.11244297027588,
+        "image_size_mb": 180.61,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "frontend",
+        "build_time": 12.800042152404785,
+        "image_size_mb": 21.97,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 80.0,
+    "overall_score": 91.3,
+    "validation_issues": [
+      {
+        "file_path": "backend/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/backend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"backend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/frontend-deployment-update.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/frontend-deployment-update.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" has cpu request 0",
+        "rule_id": "unset-cpu-requirements"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" has memory limit 0",
+        "rule_id": "unset-memory-requirements"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 11,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 91.3,
+      "total_errors": 0,
+      "total_warnings": 11,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 80.0,
+        "total_errors": 0,
+        "total_warnings": 10,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 10,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 100.0,
+        "errors": 0,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T17:40:46.487219: Starting configuration generation",
+    "2025-12-30T17:43:12.649097: Generated 2 Dockerfiles and 11 K8s manifests",
+    "2025-12-30T17:43:12.649104: Starting quality assessment",
+    "2025-12-30T17:44:35.362251: Built 2 Docker images (total: 202.6 MB, avg time: 29.0s)",
+    "2025-12-30T17:44:35.362284: Dockerfile validation: 0 errors, 11 warnings",
+    "2025-12-30T17:44:35.362292: K8s validation: 0 errors, 10 warnings",
+    "2025-12-30T17:44:35.362315: Deployed to namespace: poc3-fastapi-9eac812e-c578-4452-a100-54f1c108a61c",
+    "2025-12-30T17:44:35.362318: Testing endpoints: /api/, /",
+    "2025-12-30T17:44:35.362321: Runtime validation passed: endpoint is healthy",
+    "2025-12-30T17:44:35.362327: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": true,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-9eac812e-c578-4452-a100-54f1c108a61c",
+    "run_id": "9eac812e-c578-4452-a100-54f1c108a61c"
+  }
+}

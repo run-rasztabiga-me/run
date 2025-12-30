@@ -1,0 +1,112 @@
+--- 0ee25f41-3dd6-4cd9-a599-e543d96b9990
++++ 9ab26bfc-e232-4021-9eb9-3a9bba6b24a5
+@@ -3,7 +3,7 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
++# Install system dependencies if needed
+ RUN apt-get update && apt-get install -y \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+@@ -15,31 +15,31 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose port
++# Expose the port the app runs on
+ EXPOSE 8000
+ 
+-# Run the application
++# Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/fastapi-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app
++  name: poc1-fastapi
+   labels:
+-    app: fastapi-app
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc1-fastapi
+     spec:
+       containers:
+-      - name: fastapi-app
+-        image: fastapi-app
++      - name: poc1-fastapi
++        image: poc1-fastapi
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+@@ -59,30 +59,21 @@
+             port: 8000
+           initialDelaySeconds: 30
+           periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 5
+-@@FILE:K8s::k8s/fastapi-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: fastapi-service
+-spec:
+-  selector:
+-    app: fastapi-app
+-  ports:
+-  - port: 80
+-    targetPort: 8000
+-    protocol: TCP
+-  type: ClusterIP
++          periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-ingress
++  name: poc1-fastapi
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -94,6 +85,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: poc1-fastapi
+             port:
+               number: 80
++@@FILE:K8s::k8s/service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: poc1-fastapi
++  labels:
++    app: poc1-fastapi
++spec:
++  selector:
++    app: poc1-fastapi
++  ports:
++  - port: 80
++    targetPort: 8000
++    protocol: TCP
++  type: ClusterIP

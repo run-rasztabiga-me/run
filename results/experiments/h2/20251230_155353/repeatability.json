@@ -1,0 +1,1948 @@
+{
+  "generated_at": "2025-12-30T19:03:33.564081+00:00",
+  "diff_threshold": 0.2,
+  "groups": [
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
+      "repo_name": "poc1-fastapi",
+      "model_identifier": "google_gemini_2-5_flash",
+      "model_name": "gemini-2.5-flash",
+      "model_provider": "google_genai",
+      "model_label": "google_gemini_2.5_flash",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.3652,
+      "max_diff_ratio": 0.4294,
+      "std_diff_ratio": 0.0467,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 8.3333,
+      "tool_steps_std": 0.4714,
+      "runs": [
+        {
+          "run_id": "fe211231-8120-44e5-ad23-50b352277887",
+          "repetition": "run1",
+          "report_path": "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run1_20251230_165443_95eb128e.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-fe211231-8120-44e5-ad23-50b352277887",
+          "tool_steps": 8,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/service.yaml"
+          ]
+        },
+        {
+          "run_id": "1d9b0d02-da79-4383-baec-e09c4bb086a9",
+          "repetition": "run2",
+          "report_path": "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run2_20251230_165519_aca86913.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-1d9b0d02-da79-4383-baec-e09c4bb086a9",
+          "tool_steps": 8,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/poc1-fastapi-deployment.yaml",
+            "K8s::k8s/poc1-fastapi-ingress.yaml",
+            "K8s::k8s/poc1-fastapi-service.yaml"
+          ]
+        },
+        {
+          "run_id": "28778901-fa78-415a-b476-42e42badd111",
+          "repetition": "run3",
+          "report_path": "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run3_20251230_165629_60cfa0f8.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-28778901-fa78-415a-b476-42e42badd111",
+          "tool_steps": 9,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/service.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "fe211231-8120-44e5-ad23-50b352277887",
+            "1d9b0d02-da79-4383-baec-e09c4bb086a9"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.3467,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run1_20251230_165443_95eb128e.json",
+            "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run2_20251230_165519_aca86913.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc1-fastapi/fe211231-8120-44e5-ad23-50b352277887_vs_1d9b0d02-da79-4383-baec-e09c4bb086a9.diff"
+        },
+        {
+          "run_ids": [
+            "fe211231-8120-44e5-ad23-50b352277887",
+            "28778901-fa78-415a-b476-42e42badd111"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.3195,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run1_20251230_165443_95eb128e.json",
+            "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run3_20251230_165629_60cfa0f8.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc1-fastapi/fe211231-8120-44e5-ad23-50b352277887_vs_28778901-fa78-415a-b476-42e42badd111.diff"
+        },
+        {
+          "run_ids": [
+            "1d9b0d02-da79-4383-baec-e09c4bb086a9",
+            "28778901-fa78-415a-b476-42e42badd111"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.4294,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run2_20251230_165519_aca86913.json",
+            "google_gemini_2-5_flash/default/poc1-fastapi/h2__gemini-2-5-flash__default__poc1-fastapi__run3_20251230_165629_60cfa0f8.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc1-fastapi/1d9b0d02-da79-4383-baec-e09c4bb086a9_vs_28778901-fa78-415a-b476-42e42badd111.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
+      "repo_name": "poc1-fastapi",
+      "model_identifier": "openai_gpt5_mini",
+      "model_name": "gpt-5-mini",
+      "model_provider": "openai",
+      "model_label": "openai_gpt5_mini",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.2961,
+      "max_diff_ratio": 0.3673,
+      "std_diff_ratio": 0.0564,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 13.3333,
+      "tool_steps_std": 1.6997,
+      "runs": [
+        {
+          "run_id": "a9d17240-6a9d-4a93-8a28-9d7e8dcec473",
+          "repetition": "run1",
+          "report_path": "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run1_20251230_165808_0f46718e.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-a9d17240-6a9d-4a93-8a28-9d7e8dcec473",
+          "tool_steps": 15,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/namespace.yaml",
+            "K8s::k8s/service.yaml"
+          ]
+        },
+        {
+          "run_id": "6480631d-4ff4-4616-9c79-3fa3e67a11d3",
+          "repetition": "run2",
+          "report_path": "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run2_20251230_170002_37409bed.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-6480631d-4ff4-4616-9c79-3fa3e67a11d3",
+          "tool_steps": 11,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/service.yaml"
+          ]
+        },
+        {
+          "run_id": "913d0c54-43e8-42b8-9c01-8653e8c62ee9",
+          "repetition": "run3",
+          "report_path": "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run3_20251230_170129_45269de5.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-913d0c54-43e8-42b8-9c01-8653e8c62ee9",
+          "tool_steps": 14,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/service.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "a9d17240-6a9d-4a93-8a28-9d7e8dcec473",
+            "6480631d-4ff4-4616-9c79-3fa3e67a11d3"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.2915,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run1_20251230_165808_0f46718e.json",
+            "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run2_20251230_170002_37409bed.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc1-fastapi/a9d17240-6a9d-4a93-8a28-9d7e8dcec473_vs_6480631d-4ff4-4616-9c79-3fa3e67a11d3.diff"
+        },
+        {
+          "run_ids": [
+            "a9d17240-6a9d-4a93-8a28-9d7e8dcec473",
+            "913d0c54-43e8-42b8-9c01-8653e8c62ee9"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.3673,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run1_20251230_165808_0f46718e.json",
+            "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run3_20251230_170129_45269de5.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc1-fastapi/a9d17240-6a9d-4a93-8a28-9d7e8dcec473_vs_913d0c54-43e8-42b8-9c01-8653e8c62ee9.diff"
+        },
+        {
+          "run_ids": [
+            "6480631d-4ff4-4616-9c79-3fa3e67a11d3",
+            "913d0c54-43e8-42b8-9c01-8653e8c62ee9"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.2295,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run2_20251230_170002_37409bed.json",
+            "openai_gpt5_mini/default/poc1-fastapi/h2__gpt-5-mini__default__poc1-fastapi__run3_20251230_170129_45269de5.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc1-fastapi/6480631d-4ff4-4616-9c79-3fa3e67a11d3_vs_913d0c54-43e8-42b8-9c01-8653e8c62ee9.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi.git",
+      "repo_name": "poc1-fastapi",
+      "model_identifier": "deepseek_v3_2",
+      "model_name": "deepseek-chat",
+      "model_provider": "deepseek",
+      "model_label": "deepseek_v3_2",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.405,
+      "max_diff_ratio": 0.5686,
+      "std_diff_ratio": 0.2101,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 2,
+      "tool_steps_mean": 21,
+      "tool_steps_std": 2.8284,
+      "runs": [
+        {
+          "run_id": "0ee25f41-3dd6-4cd9-a599-e543d96b9990",
+          "repetition": "run1",
+          "report_path": "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run1_20251230_170324_742d1a1f.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-0ee25f41-3dd6-4cd9-a599-e543d96b9990",
+          "tool_steps": 19,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/fastapi-deployment.yaml",
+            "K8s::k8s/fastapi-service.yaml",
+            "K8s::k8s/ingress.yaml"
+          ]
+        },
+        {
+          "run_id": "5e347c3a-a4d5-42e9-be72-9cec00c3d23b",
+          "repetition": "run2",
+          "report_path": "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run2_20251230_170545_af064055.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-5e347c3a-a4d5-42e9-be72-9cec00c3d23b",
+          "tool_steps": 25,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/service.yaml"
+          ]
+        },
+        {
+          "run_id": "9ab26bfc-e232-4021-9eb9-3a9bba6b24a5",
+          "repetition": "run3",
+          "report_path": "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run3_20251230_170747_3295e10f.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-9ab26bfc-e232-4021-9eb9-3a9bba6b24a5",
+          "tool_steps": 19,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/service.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "0ee25f41-3dd6-4cd9-a599-e543d96b9990",
+            "5e347c3a-a4d5-42e9-be72-9cec00c3d23b"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.5381,
+          "report_paths": [
+            "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run1_20251230_170324_742d1a1f.json",
+            "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run2_20251230_170545_af064055.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc1-fastapi/0ee25f41-3dd6-4cd9-a599-e543d96b9990_vs_5e347c3a-a4d5-42e9-be72-9cec00c3d23b.diff"
+        },
+        {
+          "run_ids": [
+            "0ee25f41-3dd6-4cd9-a599-e543d96b9990",
+            "9ab26bfc-e232-4021-9eb9-3a9bba6b24a5"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.5686,
+          "report_paths": [
+            "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run1_20251230_170324_742d1a1f.json",
+            "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run3_20251230_170747_3295e10f.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc1-fastapi/0ee25f41-3dd6-4cd9-a599-e543d96b9990_vs_9ab26bfc-e232-4021-9eb9-3a9bba6b24a5.diff"
+        },
+        {
+          "run_ids": [
+            "5e347c3a-a4d5-42e9-be72-9cec00c3d23b",
+            "9ab26bfc-e232-4021-9eb9-3a9bba6b24a5"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.1084,
+          "report_paths": [
+            "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run2_20251230_170545_af064055.json",
+            "deepseek_v3_2/default/poc1-fastapi/h2__deepseek-chat__default__poc1-fastapi__run3_20251230_170747_3295e10f.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc1-fastapi/5e347c3a-a4d5-42e9-be72-9cec00c3d23b_vs_9ab26bfc-e232-4021-9eb9-3a9bba6b24a5.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+      "repo_name": "poc2-fastapi",
+      "model_identifier": "google_gemini_2-5_flash",
+      "model_name": "gemini-2.5-flash",
+      "model_provider": "google_genai",
+      "model_label": "google_gemini_2.5_flash",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.988,
+      "max_diff_ratio": 1.2593,
+      "std_diff_ratio": 0.2558,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 14.6667,
+      "tool_steps_std": 0.4714,
+      "runs": [
+        {
+          "run_id": "79f230cc-6da5-420b-8a8e-1cc974ee996c",
+          "repetition": "run1",
+          "report_path": "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run1_20251230_171034_e4d41e63.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-79f230cc-6da5-420b-8a8e-1cc974ee996c",
+          "tool_steps": 15,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/fastapi-deployment.yaml",
+            "K8s::k8s/fastapi-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "a201d9a7-e394-4e05-808b-ef4b8ab60669",
+          "repetition": "run2",
+          "report_path": "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run2_20251230_171152_fb7217be.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-a201d9a7-e394-4e05-808b-ef4b8ab60669",
+          "tool_steps": 15,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/fastapi-deployment.yaml",
+            "K8s::k8s/fastapi-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "b0871279-8488-4534-8398-1085b0d1aafa",
+          "repetition": "run3",
+          "report_path": "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run3_20251230_171334_eb5508d3.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-b0871279-8488-4534-8398-1085b0d1aafa",
+          "tool_steps": 14,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/poc2-fastapi-deployment.yaml",
+            "K8s::k8s/poc2-fastapi-ingress.yaml",
+            "K8s::k8s/poc2-fastapi-service.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "79f230cc-6da5-420b-8a8e-1cc974ee996c",
+            "a201d9a7-e394-4e05-808b-ef4b8ab60669"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 1.0595,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run1_20251230_171034_e4d41e63.json",
+            "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run2_20251230_171152_fb7217be.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc2-fastapi/79f230cc-6da5-420b-8a8e-1cc974ee996c_vs_a201d9a7-e394-4e05-808b-ef4b8ab60669.diff"
+        },
+        {
+          "run_ids": [
+            "79f230cc-6da5-420b-8a8e-1cc974ee996c",
+            "b0871279-8488-4534-8398-1085b0d1aafa"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 1.2593,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run1_20251230_171034_e4d41e63.json",
+            "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run3_20251230_171334_eb5508d3.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc2-fastapi/79f230cc-6da5-420b-8a8e-1cc974ee996c_vs_b0871279-8488-4534-8398-1085b0d1aafa.diff"
+        },
+        {
+          "run_ids": [
+            "a201d9a7-e394-4e05-808b-ef4b8ab60669",
+            "b0871279-8488-4534-8398-1085b0d1aafa"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.6452,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run2_20251230_171152_fb7217be.json",
+            "google_gemini_2-5_flash/default/poc2-fastapi/h2__gemini-2-5-flash__default__poc2-fastapi__run3_20251230_171334_eb5508d3.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc2-fastapi/a201d9a7-e394-4e05-808b-ef4b8ab60669_vs_b0871279-8488-4534-8398-1085b0d1aafa.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+      "repo_name": "poc2-fastapi",
+      "model_identifier": "openai_gpt5_mini",
+      "model_name": "gpt-5-mini",
+      "model_provider": "openai",
+      "model_label": "openai_gpt5_mini",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 1.0803,
+      "max_diff_ratio": 1.2962,
+      "std_diff_ratio": 0.2351,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 25.6667,
+      "tool_steps_std": 5.9067,
+      "runs": [
+        {
+          "run_id": "09806201-08c8-4f7f-8dc7-dbfeccef7286",
+          "repetition": "run1",
+          "report_path": "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run1_20251230_171605_7040ca68.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-09806201-08c8-4f7f-8dc7-dbfeccef7286",
+          "tool_steps": 21,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/service.yaml"
+          ]
+        },
+        {
+          "run_id": "7c425e08-387b-4de4-aa49-07557265e23f",
+          "repetition": "run2",
+          "report_path": "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run2_20251230_172022_82f27e0d.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-7c425e08-387b-4de4-aa49-07557265e23f",
+          "tool_steps": 22,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "b563f1e6-d87e-4b74-9c37-1a6c56aad937",
+          "repetition": "run3",
+          "report_path": "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run3_20251230_172408_0ef7d303.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-b563f1e6-d87e-4b74-9c37-1a6c56aad937",
+          "tool_steps": 34,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/README.txt",
+            "K8s::k8s/app-deployment.yaml",
+            "K8s::k8s/app-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "09806201-08c8-4f7f-8dc7-dbfeccef7286",
+            "7c425e08-387b-4de4-aa49-07557265e23f"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 1.2962,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run1_20251230_171605_7040ca68.json",
+            "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run2_20251230_172022_82f27e0d.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc2-fastapi/09806201-08c8-4f7f-8dc7-dbfeccef7286_vs_7c425e08-387b-4de4-aa49-07557265e23f.diff"
+        },
+        {
+          "run_ids": [
+            "09806201-08c8-4f7f-8dc7-dbfeccef7286",
+            "b563f1e6-d87e-4b74-9c37-1a6c56aad937"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 1.1913,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run1_20251230_171605_7040ca68.json",
+            "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run3_20251230_172408_0ef7d303.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc2-fastapi/09806201-08c8-4f7f-8dc7-dbfeccef7286_vs_b563f1e6-d87e-4b74-9c37-1a6c56aad937.diff"
+        },
+        {
+          "run_ids": [
+            "7c425e08-387b-4de4-aa49-07557265e23f",
+            "b563f1e6-d87e-4b74-9c37-1a6c56aad937"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.7534,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run2_20251230_172022_82f27e0d.json",
+            "openai_gpt5_mini/default/poc2-fastapi/h2__gpt-5-mini__default__poc2-fastapi__run3_20251230_172408_0ef7d303.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc2-fastapi/7c425e08-387b-4de4-aa49-07557265e23f_vs_b563f1e6-d87e-4b74-9c37-1a6c56aad937.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+      "repo_name": "poc2-fastapi",
+      "model_identifier": "deepseek_v3_2",
+      "model_name": "deepseek-chat",
+      "model_provider": "deepseek",
+      "model_label": "deepseek_v3_2",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.5427,
+      "max_diff_ratio": 0.5956,
+      "std_diff_ratio": 0.0408,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 38.6667,
+      "tool_steps_std": 7.4087,
+      "runs": [
+        {
+          "run_id": "1239ec53-a708-4f48-9b8f-96a7e3568b13",
+          "repetition": "run1",
+          "report_path": "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run1_20251230_172655_b3ad3f24.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-1239ec53-a708-4f48-9b8f-96a7e3568b13",
+          "tool_steps": 32,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/fastapi-configmap.yaml",
+            "K8s::k8s/fastapi-deployment.yaml",
+            "K8s::k8s/fastapi-ingress.yaml",
+            "K8s::k8s/fastapi-service.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "38675866-a4d8-4044-b12e-637e1095ae6b",
+          "repetition": "run2",
+          "report_path": "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run2_20251230_173008_1fcf69b9.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-38675866-a4d8-4044-b12e-637e1095ae6b",
+          "tool_steps": 35,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/fastapi-deployment.yaml",
+            "K8s::k8s/fastapi-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "d4db90e2-8ab5-4f07-b264-cf564941ac50",
+          "repetition": "run3",
+          "report_path": "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run3_20251230_173440_6451c46e.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-d4db90e2-8ab5-4f07-b264-cf564941ac50",
+          "tool_steps": 49,
+          "files": [
+            "Dockerfile::Dockerfile",
+            "K8s::k8s/fastapi-deployment.yaml",
+            "K8s::k8s/fastapi-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "1239ec53-a708-4f48-9b8f-96a7e3568b13",
+            "38675866-a4d8-4044-b12e-637e1095ae6b"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.5956,
+          "report_paths": [
+            "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run1_20251230_172655_b3ad3f24.json",
+            "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run2_20251230_173008_1fcf69b9.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc2-fastapi/1239ec53-a708-4f48-9b8f-96a7e3568b13_vs_38675866-a4d8-4044-b12e-637e1095ae6b.diff"
+        },
+        {
+          "run_ids": [
+            "1239ec53-a708-4f48-9b8f-96a7e3568b13",
+            "d4db90e2-8ab5-4f07-b264-cf564941ac50"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.4964,
+          "report_paths": [
+            "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run1_20251230_172655_b3ad3f24.json",
+            "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run3_20251230_173440_6451c46e.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc2-fastapi/1239ec53-a708-4f48-9b8f-96a7e3568b13_vs_d4db90e2-8ab5-4f07-b264-cf564941ac50.diff"
+        },
+        {
+          "run_ids": [
+            "38675866-a4d8-4044-b12e-637e1095ae6b",
+            "d4db90e2-8ab5-4f07-b264-cf564941ac50"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.5361,
+          "report_paths": [
+            "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run2_20251230_173008_1fcf69b9.json",
+            "deepseek_v3_2/default/poc2-fastapi/h2__deepseek-chat__default__poc2-fastapi__run3_20251230_173440_6451c46e.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc2-fastapi/38675866-a4d8-4044-b12e-637e1095ae6b_vs_d4db90e2-8ab5-4f07-b264-cf564941ac50.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+      "repo_name": "poc3-fastapi",
+      "model_identifier": "google_gemini_2-5_flash",
+      "model_name": "gemini-2.5-flash",
+      "model_provider": "google_genai",
+      "model_label": "google_gemini_2.5_flash",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.6317,
+      "max_diff_ratio": 0.7126,
+      "std_diff_ratio": 0.0663,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 20,
+      "tool_steps_std": 0.8165,
+      "runs": [
+        {
+          "run_id": "96581775-1635-4c9e-9591-90aedcdc58ee",
+          "repetition": "run1",
+          "report_path": "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run1_20251230_173556_3e4357ac.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-96581775-1635-4c9e-9591-90aedcdc58ee",
+          "tool_steps": 20,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "612257d3-38f1-4919-9f9e-c372c23196e4",
+          "repetition": "run2",
+          "report_path": "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run2_20251230_173923_e1076cfc.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-612257d3-38f1-4919-9f9e-c372c23196e4",
+          "tool_steps": 19,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "bcc3383d-8f47-46b4-b556-09fdd396a8c6",
+          "repetition": "run3",
+          "report_path": "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run3_20251230_174045_2c6d2d02.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-bcc3383d-8f47-46b4-b556-09fdd396a8c6",
+          "tool_steps": 21,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "96581775-1635-4c9e-9591-90aedcdc58ee",
+            "612257d3-38f1-4919-9f9e-c372c23196e4"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.7126,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run1_20251230_173556_3e4357ac.json",
+            "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run2_20251230_173923_e1076cfc.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc3-fastapi/96581775-1635-4c9e-9591-90aedcdc58ee_vs_612257d3-38f1-4919-9f9e-c372c23196e4.diff"
+        },
+        {
+          "run_ids": [
+            "96581775-1635-4c9e-9591-90aedcdc58ee",
+            "bcc3383d-8f47-46b4-b556-09fdd396a8c6"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.6324,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run1_20251230_173556_3e4357ac.json",
+            "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run3_20251230_174045_2c6d2d02.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc3-fastapi/96581775-1635-4c9e-9591-90aedcdc58ee_vs_bcc3383d-8f47-46b4-b556-09fdd396a8c6.diff"
+        },
+        {
+          "run_ids": [
+            "612257d3-38f1-4919-9f9e-c372c23196e4",
+            "bcc3383d-8f47-46b4-b556-09fdd396a8c6"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.5502,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run2_20251230_173923_e1076cfc.json",
+            "google_gemini_2-5_flash/default/poc3-fastapi/h2__gemini-2-5-flash__default__poc3-fastapi__run3_20251230_174045_2c6d2d02.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc3-fastapi/612257d3-38f1-4919-9f9e-c372c23196e4_vs_bcc3383d-8f47-46b4-b556-09fdd396a8c6.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+      "repo_name": "poc3-fastapi",
+      "model_identifier": "openai_gpt5_mini",
+      "model_name": "gpt-5-mini",
+      "model_provider": "openai",
+      "model_label": "openai_gpt5_mini",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.5496,
+      "max_diff_ratio": 0.6041,
+      "std_diff_ratio": 0.0747,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 42,
+      "tool_steps_std": 6.9761,
+      "runs": [
+        {
+          "run_id": "9eac812e-c578-4452-a100-54f1c108a61c",
+          "repetition": "run1",
+          "report_path": "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run1_20251230_174435_938ef5b9.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-9eac812e-c578-4452-a100-54f1c108a61c",
+          "tool_steps": 50,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-configmap.yaml",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-configmap.yaml",
+            "K8s::k8s/frontend-deployment-update.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "78d21707-eb26-4649-922b-9ee422d22add",
+          "repetition": "run2",
+          "report_path": "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run2_20251230_174827_4ff5291b.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-78d21707-eb26-4649-922b-9ee422d22add",
+          "tool_steps": 43,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-configmap.yaml",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-configmap.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "3d08fe1e-831f-4b60-aedb-188854e1dd49",
+          "repetition": "run3",
+          "report_path": "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run3_20251230_175209_006522b8.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-3d08fe1e-831f-4b60-aedb-188854e1dd49",
+          "tool_steps": 33,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "9eac812e-c578-4452-a100-54f1c108a61c",
+            "78d21707-eb26-4649-922b-9ee422d22add"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.6007,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run1_20251230_174435_938ef5b9.json",
+            "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run2_20251230_174827_4ff5291b.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc3-fastapi/9eac812e-c578-4452-a100-54f1c108a61c_vs_78d21707-eb26-4649-922b-9ee422d22add.diff"
+        },
+        {
+          "run_ids": [
+            "9eac812e-c578-4452-a100-54f1c108a61c",
+            "3d08fe1e-831f-4b60-aedb-188854e1dd49"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.6041,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run1_20251230_174435_938ef5b9.json",
+            "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run3_20251230_175209_006522b8.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc3-fastapi/9eac812e-c578-4452-a100-54f1c108a61c_vs_3d08fe1e-831f-4b60-aedb-188854e1dd49.diff"
+        },
+        {
+          "run_ids": [
+            "78d21707-eb26-4649-922b-9ee422d22add",
+            "3d08fe1e-831f-4b60-aedb-188854e1dd49"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.444,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run2_20251230_174827_4ff5291b.json",
+            "openai_gpt5_mini/default/poc3-fastapi/h2__gpt-5-mini__default__poc3-fastapi__run3_20251230_175209_006522b8.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc3-fastapi/78d21707-eb26-4649-922b-9ee422d22add_vs_3d08fe1e-831f-4b60-aedb-188854e1dd49.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+      "repo_name": "poc3-fastapi",
+      "model_identifier": "deepseek_v3_2",
+      "model_name": "deepseek-chat",
+      "model_provider": "deepseek",
+      "model_label": "deepseek_v3_2",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.6494,
+      "max_diff_ratio": 0.8914,
+      "std_diff_ratio": 0.3069,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 36.3333,
+      "tool_steps_std": 3.3993,
+      "runs": [
+        {
+          "run_id": "d2b1a9fd-7cdb-4132-ada0-dcef71402fa1",
+          "repetition": "run1",
+          "report_path": "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run1_20251230_175611_fa0139ce.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-d2b1a9fd-7cdb-4132-ada0-dcef71402fa1",
+          "tool_steps": 41,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-config.yaml",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "a211fb7f-73e2-4fa5-b9d2-66d00e8ce692",
+          "repetition": "run2",
+          "report_path": "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run2_20251230_175938_1c6c7c90.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-a211fb7f-73e2-4fa5-b9d2-66d00e8ce692",
+          "tool_steps": 35,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-secret.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        },
+        {
+          "run_id": "6ed5f52c-ff18-40da-8131-6ce8c675ba21",
+          "repetition": "run3",
+          "report_path": "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run3_20251230_180322_2cd7a463.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-6ed5f52c-ff18-40da-8131-6ce8c675ba21",
+          "tool_steps": 33,
+          "files": [
+            "Dockerfile::backend/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/backend-configmap.yaml",
+            "K8s::k8s/backend-deployment.yaml",
+            "K8s::k8s/backend-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "d2b1a9fd-7cdb-4132-ada0-dcef71402fa1",
+            "a211fb7f-73e2-4fa5-b9d2-66d00e8ce692"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.2163,
+          "report_paths": [
+            "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run1_20251230_175611_fa0139ce.json",
+            "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run2_20251230_175938_1c6c7c90.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc3-fastapi/d2b1a9fd-7cdb-4132-ada0-dcef71402fa1_vs_a211fb7f-73e2-4fa5-b9d2-66d00e8ce692.diff"
+        },
+        {
+          "run_ids": [
+            "d2b1a9fd-7cdb-4132-ada0-dcef71402fa1",
+            "6ed5f52c-ff18-40da-8131-6ce8c675ba21"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.8404,
+          "report_paths": [
+            "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run1_20251230_175611_fa0139ce.json",
+            "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run3_20251230_180322_2cd7a463.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc3-fastapi/d2b1a9fd-7cdb-4132-ada0-dcef71402fa1_vs_6ed5f52c-ff18-40da-8131-6ce8c675ba21.diff"
+        },
+        {
+          "run_ids": [
+            "a211fb7f-73e2-4fa5-b9d2-66d00e8ce692",
+            "6ed5f52c-ff18-40da-8131-6ce8c675ba21"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.8914,
+          "report_paths": [
+            "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run2_20251230_175938_1c6c7c90.json",
+            "deepseek_v3_2/default/poc3-fastapi/h2__deepseek-chat__default__poc3-fastapi__run3_20251230_180322_2cd7a463.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc3-fastapi/a211fb7f-73e2-4fa5-b9d2-66d00e8ce692_vs_6ed5f52c-ff18-40da-8131-6ce8c675ba21.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+      "repo_name": "poc4-fastapi",
+      "model_identifier": "google_gemini_2-5_flash",
+      "model_name": "gemini-2.5-flash",
+      "model_provider": "google_genai",
+      "model_label": "google_gemini_2.5_flash",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.6642,
+      "max_diff_ratio": 0.6804,
+      "std_diff_ratio": 0.0119,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 28.3333,
+      "tool_steps_std": 2.6247,
+      "runs": [
+        {
+          "run_id": "0e9d95ba-20ab-447c-85cf-63ef6d2b704b",
+          "repetition": "run1",
+          "report_path": "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run1_20251230_180822_471fe1d3.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-0e9d95ba-20ab-447c-85cf-63ef6d2b704b",
+          "tool_steps": 32,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-deployment.yaml",
+            "K8s::k8s/analytics-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/jwt-secret.yaml",
+            "K8s::k8s/notes-deployment.yaml",
+            "K8s::k8s/notes-service.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/users-deployment.yaml",
+            "K8s::k8s/users-service.yaml"
+          ]
+        },
+        {
+          "run_id": "02269fcf-6557-4f79-99d6-659e4c0d0aab",
+          "repetition": "run2",
+          "report_path": "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run2_20251230_180956_0111f501.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-02269fcf-6557-4f79-99d6-659e4c0d0aab",
+          "tool_steps": 26,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        },
+        {
+          "run_id": "8f78eadc-68b9-4b38-b596-18798cb3d85f",
+          "repetition": "run3",
+          "report_path": "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run3_20251230_181400_3aca4b3b.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-8f78eadc-68b9-4b38-b596-18798cb3d85f",
+          "tool_steps": 27,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/jwt-secret.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "0e9d95ba-20ab-447c-85cf-63ef6d2b704b",
+            "02269fcf-6557-4f79-99d6-659e4c0d0aab"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.6804,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run1_20251230_180822_471fe1d3.json",
+            "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run2_20251230_180956_0111f501.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc4-fastapi/0e9d95ba-20ab-447c-85cf-63ef6d2b704b_vs_02269fcf-6557-4f79-99d6-659e4c0d0aab.diff"
+        },
+        {
+          "run_ids": [
+            "0e9d95ba-20ab-447c-85cf-63ef6d2b704b",
+            "8f78eadc-68b9-4b38-b596-18798cb3d85f"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.6601,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run1_20251230_180822_471fe1d3.json",
+            "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run3_20251230_181400_3aca4b3b.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc4-fastapi/0e9d95ba-20ab-447c-85cf-63ef6d2b704b_vs_8f78eadc-68b9-4b38-b596-18798cb3d85f.diff"
+        },
+        {
+          "run_ids": [
+            "02269fcf-6557-4f79-99d6-659e4c0d0aab",
+            "8f78eadc-68b9-4b38-b596-18798cb3d85f"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.652,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run2_20251230_180956_0111f501.json",
+            "google_gemini_2-5_flash/default/poc4-fastapi/h2__gemini-2-5-flash__default__poc4-fastapi__run3_20251230_181400_3aca4b3b.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc4-fastapi/02269fcf-6557-4f79-99d6-659e4c0d0aab_vs_8f78eadc-68b9-4b38-b596-18798cb3d85f.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+      "repo_name": "poc4-fastapi",
+      "model_identifier": "deepseek_v3_2",
+      "model_name": "deepseek-chat",
+      "model_provider": "deepseek",
+      "model_label": "deepseek_v3_2",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.9836,
+      "max_diff_ratio": 1.2127,
+      "std_diff_ratio": 0.1975,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 66.6667,
+      "tool_steps_std": 10.8423,
+      "runs": [
+        {
+          "run_id": "1436d9ed-dd59-4333-9620-636fd0cf0570",
+          "repetition": "run1",
+          "report_path": "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run1_20251230_183634_61f7291b.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-1436d9ed-dd59-4333-9620-636fd0cf0570",
+          "tool_steps": 59,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/postgres-analytics-pvc.yaml",
+            "K8s::k8s/postgres-analytics-secret.yaml",
+            "K8s::k8s/postgres-analytics-service.yaml",
+            "K8s::k8s/postgres-analytics-statefulset.yaml",
+            "K8s::k8s/postgres-notes-pvc.yaml",
+            "K8s::k8s/postgres-notes-secret.yaml",
+            "K8s::k8s/postgres-notes-service.yaml",
+            "K8s::k8s/postgres-notes-statefulset.yaml",
+            "K8s::k8s/postgres-users-pvc.yaml",
+            "K8s::k8s/postgres-users-secret.yaml",
+            "K8s::k8s/postgres-users-service.yaml",
+            "K8s::k8s/postgres-users-statefulset.yaml",
+            "K8s::k8s/rabbitmq-pvc.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        },
+        {
+          "run_id": "a18501cd-ebff-43bc-a45f-49f1f78b0ac3",
+          "repetition": "run2",
+          "report_path": "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run2_20251230_184716_30187de9.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-a18501cd-ebff-43bc-a45f-49f1f78b0ac3",
+          "tool_steps": 59,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-configmap.yaml",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/frontend-configmap.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/notes-service-configmap.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/postgres-analytics-secret.yaml",
+            "K8s::k8s/postgres-analytics-service.yaml",
+            "K8s::k8s/postgres-analytics-statefulset.yaml",
+            "K8s::k8s/postgres-notes-secret.yaml",
+            "K8s::k8s/postgres-notes-service.yaml",
+            "K8s::k8s/postgres-notes-statefulset.yaml",
+            "K8s::k8s/postgres-users-secret.yaml",
+            "K8s::k8s/postgres-users-service.yaml",
+            "K8s::k8s/postgres-users-statefulset.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/users-service-configmap.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        },
+        {
+          "run_id": "f4eaf003-f4f6-4bb8-80d3-7e369750c7a6",
+          "repetition": "run3",
+          "report_path": "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run3_20251230_185605_147baa7d.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-f4eaf003-f4f6-4bb8-80d3-7e369750c7a6",
+          "tool_steps": 82,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-db-pvc.yaml",
+            "K8s::k8s/analytics-db-secret.yaml",
+            "K8s::k8s/analytics-db-service.yaml",
+            "K8s::k8s/analytics-db-statefulset.yaml",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/jwt-secret.yaml",
+            "K8s::k8s/notes-db-pvc.yaml",
+            "K8s::k8s/notes-db-secret.yaml",
+            "K8s::k8s/notes-db-service.yaml",
+            "K8s::k8s/notes-db-statefulset.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/rabbitmq-pvc.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/users-db-pvc.yaml",
+            "K8s::k8s/users-db-secret.yaml",
+            "K8s::k8s/users-db-service.yaml",
+            "K8s::k8s/users-db-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "1436d9ed-dd59-4333-9620-636fd0cf0570",
+            "a18501cd-ebff-43bc-a45f-49f1f78b0ac3"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.7306,
+          "report_paths": [
+            "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run1_20251230_183634_61f7291b.json",
+            "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run2_20251230_184716_30187de9.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc4-fastapi/1436d9ed-dd59-4333-9620-636fd0cf0570_vs_a18501cd-ebff-43bc-a45f-49f1f78b0ac3.diff"
+        },
+        {
+          "run_ids": [
+            "1436d9ed-dd59-4333-9620-636fd0cf0570",
+            "f4eaf003-f4f6-4bb8-80d3-7e369750c7a6"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 1.0074,
+          "report_paths": [
+            "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run1_20251230_183634_61f7291b.json",
+            "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run3_20251230_185605_147baa7d.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc4-fastapi/1436d9ed-dd59-4333-9620-636fd0cf0570_vs_f4eaf003-f4f6-4bb8-80d3-7e369750c7a6.diff"
+        },
+        {
+          "run_ids": [
+            "a18501cd-ebff-43bc-a45f-49f1f78b0ac3",
+            "f4eaf003-f4f6-4bb8-80d3-7e369750c7a6"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 1.2127,
+          "report_paths": [
+            "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run2_20251230_184716_30187de9.json",
+            "deepseek_v3_2/default/poc4-fastapi/h2__deepseek-chat__default__poc4-fastapi__run3_20251230_185605_147baa7d.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc4-fastapi/a18501cd-ebff-43bc-a45f-49f1f78b0ac3_vs_f4eaf003-f4f6-4bb8-80d3-7e369750c7a6.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+      "repo_name": "poc5",
+      "model_identifier": "google_gemini_2-5_flash",
+      "model_name": "gemini-2.5-flash",
+      "model_provider": "google_genai",
+      "model_label": "google_gemini_2.5_flash",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.7686,
+      "max_diff_ratio": 0.7732,
+      "std_diff_ratio": 0.0063,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 54,
+      "tool_steps_std": 4.5461,
+      "runs": [
+        {
+          "run_id": "388b4f35-cffe-4ecc-b2f6-732f8529d3dc",
+          "repetition": "run1",
+          "report_path": "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run1_20251230_190923_a4abc8c7.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-388b4f35-cffe-4ecc-b2f6-732f8529d3dc",
+          "tool_steps": 53,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/audit_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/audit-service-deployment.yaml",
+            "K8s::k8s/audit-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/jwt-secret.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/postgres-pvc.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/rabbitmq-pvc.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/redis-pvc.yaml",
+            "K8s::k8s/redis-service.yaml",
+            "K8s::k8s/redis-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        },
+        {
+          "run_id": "85a17aec-d8dc-48dc-805e-14c0c2f72836",
+          "repetition": "run2",
+          "report_path": "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run2_20251230_191155_255c4fc9.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-85a17aec-d8dc-48dc-805e-14c0c2f72836",
+          "tool_steps": 60,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/audit_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-secret.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/audit-service-deployment.yaml",
+            "K8s::k8s/audit-service-secret.yaml",
+            "K8s::k8s/audit-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-secret.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/rabbitmq-deployment.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/redis-deployment.yaml",
+            "K8s::k8s/redis-service.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-secret.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        },
+        {
+          "run_id": "2a0b2e31-c5d2-47df-925a-45ae794713c8",
+          "repetition": "run3",
+          "report_path": "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run3_20251230_191342_1cc12a1e.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-2a0b2e31-c5d2-47df-925a-45ae794713c8",
+          "tool_steps": 49,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/audit_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/audit-service-deployment.yaml",
+            "K8s::k8s/audit-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/redis-service.yaml",
+            "K8s::k8s/redis-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "388b4f35-cffe-4ecc-b2f6-732f8529d3dc",
+            "85a17aec-d8dc-48dc-805e-14c0c2f72836"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.7732,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run1_20251230_190923_a4abc8c7.json",
+            "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run2_20251230_191155_255c4fc9.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc5/388b4f35-cffe-4ecc-b2f6-732f8529d3dc_vs_85a17aec-d8dc-48dc-805e-14c0c2f72836.diff"
+        },
+        {
+          "run_ids": [
+            "388b4f35-cffe-4ecc-b2f6-732f8529d3dc",
+            "2a0b2e31-c5d2-47df-925a-45ae794713c8"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.7597,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run1_20251230_190923_a4abc8c7.json",
+            "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run3_20251230_191342_1cc12a1e.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc5/388b4f35-cffe-4ecc-b2f6-732f8529d3dc_vs_2a0b2e31-c5d2-47df-925a-45ae794713c8.diff"
+        },
+        {
+          "run_ids": [
+            "85a17aec-d8dc-48dc-805e-14c0c2f72836",
+            "2a0b2e31-c5d2-47df-925a-45ae794713c8"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.7729,
+          "report_paths": [
+            "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run2_20251230_191155_255c4fc9.json",
+            "google_gemini_2-5_flash/default/poc5/h2__gemini-2-5-flash__default__poc5__run3_20251230_191342_1cc12a1e.json"
+          ],
+          "diff_path": "repeatability_diffs/google_gemini_2-5_flash/default/poc5/85a17aec-d8dc-48dc-805e-14c0c2f72836_vs_2a0b2e31-c5d2-47df-925a-45ae794713c8.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+      "repo_name": "poc5",
+      "model_identifier": "openai_gpt5_mini",
+      "model_name": "gpt-5-mini",
+      "model_provider": "openai",
+      "model_label": "openai_gpt5_mini",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 2,
+      "pair_count": 1,
+      "avg_diff_ratio": 0.7591,
+      "max_diff_ratio": 0.7591,
+      "std_diff_ratio": 0.0,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 1,
+      "tool_steps_mean": 75.5,
+      "tool_steps_std": 13.5,
+      "runs": [
+        {
+          "run_id": "8fe8cfe0-4933-4b38-9b2a-3969e378c14b",
+          "repetition": "run1",
+          "report_path": "openai_gpt5_mini/default/poc5/h2__gpt-5-mini__default__poc5__run1_20251230_192215_42bd5d1f.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-8fe8cfe0-4933-4b38-9b2a-3969e378c14b",
+          "tool_steps": 62,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/audit_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/README.txt",
+            "K8s::k8s/backend-analytics-deployment.yaml",
+            "K8s::k8s/backend-analytics-service.yaml",
+            "K8s::k8s/backend-audit-deployment.yaml",
+            "K8s::k8s/backend-audit-service.yaml",
+            "K8s::k8s/backend-notes-deployment.yaml",
+            "K8s::k8s/backend-notes-service.yaml",
+            "K8s::k8s/backend-users-deployment.yaml",
+            "K8s::k8s/backend-users-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/postgres-init-configmap.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/redis-secret.yaml",
+            "K8s::k8s/redis-service.yaml",
+            "K8s::k8s/redis-statefulset.yaml",
+            "K8s::k8s/secrets.yaml"
+          ]
+        },
+        {
+          "run_id": "12fc6389-cf9e-4aba-8122-c31fa6347a63",
+          "repetition": "run3",
+          "report_path": "openai_gpt5_mini/default/poc5/h2__gpt-5-mini__default__poc5__run3_20251230_193509_e20410ac.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-12fc6389-cf9e-4aba-8122-c31fa6347a63",
+          "tool_steps": 89,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/audit_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/README.txt",
+            "K8s::k8s/analytics-pvc.yaml",
+            "K8s::k8s/audit-pvc.yaml",
+            "K8s::k8s/backend-analytics-deployment.yaml",
+            "K8s::k8s/backend-analytics-service.yaml",
+            "K8s::k8s/backend-audit-deployment.yaml",
+            "K8s::k8s/backend-audit-service.yaml",
+            "K8s::k8s/backend-notes-deployment.yaml",
+            "K8s::k8s/backend-notes-service.yaml",
+            "K8s::k8s/backend-users-deployment.yaml",
+            "K8s::k8s/backend-users-service.yaml",
+            "K8s::k8s/build-and-deploy.sh",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress-ingressclass.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/notes-pvc.yaml",
+            "K8s::k8s/postgres-configmap.yaml",
+            "K8s::k8s/postgres-secret.yaml",
+            "K8s::k8s/postgres-service.yaml",
+            "K8s::k8s/postgres-statefulset.yaml",
+            "K8s::k8s/rabbitmq-deployment.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/redis-deployment.yaml",
+            "K8s::k8s/redis-service.yaml",
+            "K8s::k8s/users-pvc.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "8fe8cfe0-4933-4b38-9b2a-3969e378c14b",
+            "12fc6389-cf9e-4aba-8122-c31fa6347a63"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.7591,
+          "report_paths": [
+            "openai_gpt5_mini/default/poc5/h2__gpt-5-mini__default__poc5__run1_20251230_192215_42bd5d1f.json",
+            "openai_gpt5_mini/default/poc5/h2__gpt-5-mini__default__poc5__run3_20251230_193509_e20410ac.json"
+          ],
+          "diff_path": "repeatability_diffs/openai_gpt5_mini/default/poc5/8fe8cfe0-4933-4b38-9b2a-3969e378c14b_vs_12fc6389-cf9e-4aba-8122-c31fa6347a63.diff"
+        }
+      ]
+    },
+    {
+      "experiment": "h2",
+      "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+      "repo_name": "poc5",
+      "model_identifier": "deepseek_v3_2",
+      "model_name": "deepseek-chat",
+      "model_provider": "deepseek",
+      "model_label": "deepseek_v3_2",
+      "prompt_label": "default",
+      "prompt_description": "default-system-prompt",
+      "runs_recorded": 3,
+      "pair_count": 3,
+      "avg_diff_ratio": 0.7643,
+      "max_diff_ratio": 0.9581,
+      "std_diff_ratio": 0.2707,
+      "threshold": 0.2,
+      "threshold_exceeded_pairs": 3,
+      "tool_steps_mean": 68,
+      "tool_steps_std": 9.9331,
+      "runs": [
+        {
+          "run_id": "7dbb6a63-1cd5-4433-86b1-c2b323f3501b",
+          "repetition": "run1",
+          "report_path": "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run1_20251230_194439_9e84e01e.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-7dbb6a63-1cd5-4433-86b1-c2b323f3501b",
+          "tool_steps": 62,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/audit_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/audit-service-deployment.yaml",
+            "K8s::k8s/audit-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/postgres-analytics-secret.yaml",
+            "K8s::k8s/postgres-analytics-service.yaml",
+            "K8s::k8s/postgres-analytics-statefulset.yaml",
+            "K8s::k8s/postgres-audit-secret.yaml",
+            "K8s::k8s/postgres-audit-service.yaml",
+            "K8s::k8s/postgres-audit-statefulset.yaml",
+            "K8s::k8s/postgres-notes-secret.yaml",
+            "K8s::k8s/postgres-notes-service.yaml",
+            "K8s::k8s/postgres-notes-statefulset.yaml",
+            "K8s::k8s/postgres-users-secret.yaml",
+            "K8s::k8s/postgres-users-service.yaml",
+            "K8s::k8s/postgres-users-statefulset.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/redis-secret.yaml",
+            "K8s::k8s/redis-service.yaml",
+            "K8s::k8s/redis-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        },
+        {
+          "run_id": "37955e25-8560-4df0-91ff-a70f93c6a557",
+          "repetition": "run2",
+          "report_path": "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run2_20251230_195550_100afa77.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-37955e25-8560-4df0-91ff-a70f93c6a557",
+          "tool_steps": 82,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/audit_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/audit-service-deployment.yaml",
+            "K8s::k8s/audit-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/postgres-analytics-pvc.yaml",
+            "K8s::k8s/postgres-analytics-secret.yaml",
+            "K8s::k8s/postgres-analytics-service.yaml",
+            "K8s::k8s/postgres-analytics-statefulset.yaml",
+            "K8s::k8s/postgres-audit-pvc.yaml",
+            "K8s::k8s/postgres-audit-secret.yaml",
+            "K8s::k8s/postgres-audit-service.yaml",
+            "K8s::k8s/postgres-audit-statefulset.yaml",
+            "K8s::k8s/postgres-notes-pvc.yaml",
+            "K8s::k8s/postgres-notes-secret.yaml",
+            "K8s::k8s/postgres-notes-service.yaml",
+            "K8s::k8s/postgres-notes-statefulset.yaml",
+            "K8s::k8s/postgres-users-pvc.yaml",
+            "K8s::k8s/postgres-users-secret.yaml",
+            "K8s::k8s/postgres-users-service.yaml",
+            "K8s::k8s/postgres-users-statefulset.yaml",
+            "K8s::k8s/rabbitmq-pvc.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/redis-pvc.yaml",
+            "K8s::k8s/redis-service.yaml",
+            "K8s::k8s/redis-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        },
+        {
+          "run_id": "c6ea5dd1-9b71-43dd-9d8c-089abdc9736a",
+          "repetition": "run3",
+          "report_path": "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run3_20251230_200332_0cebbcec.json",
+          "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-c6ea5dd1-9b71-43dd-9d8c-089abdc9736a",
+          "tool_steps": 60,
+          "files": [
+            "Dockerfile::backend/analytics_service/Dockerfile",
+            "Dockerfile::backend/audit_service/Dockerfile",
+            "Dockerfile::backend/notes_service/Dockerfile",
+            "Dockerfile::backend/users_service/Dockerfile",
+            "Dockerfile::frontend/Dockerfile",
+            "K8s::k8s/analytics-db-secret.yaml",
+            "K8s::k8s/analytics-db-service.yaml",
+            "K8s::k8s/analytics-db-statefulset.yaml",
+            "K8s::k8s/analytics-service-deployment.yaml",
+            "K8s::k8s/analytics-service-service.yaml",
+            "K8s::k8s/audit-db-secret.yaml",
+            "K8s::k8s/audit-db-service.yaml",
+            "K8s::k8s/audit-db-statefulset.yaml",
+            "K8s::k8s/audit-service-deployment.yaml",
+            "K8s::k8s/audit-service-service.yaml",
+            "K8s::k8s/frontend-deployment.yaml",
+            "K8s::k8s/frontend-service.yaml",
+            "K8s::k8s/ingress.yaml",
+            "K8s::k8s/jwt-secret.yaml",
+            "K8s::k8s/notes-db-secret.yaml",
+            "K8s::k8s/notes-db-service.yaml",
+            "K8s::k8s/notes-db-statefulset.yaml",
+            "K8s::k8s/notes-service-deployment.yaml",
+            "K8s::k8s/notes-service-service.yaml",
+            "K8s::k8s/rabbitmq-secret.yaml",
+            "K8s::k8s/rabbitmq-service.yaml",
+            "K8s::k8s/rabbitmq-statefulset.yaml",
+            "K8s::k8s/redis-secret.yaml",
+            "K8s::k8s/redis-service.yaml",
+            "K8s::k8s/redis-statefulset.yaml",
+            "K8s::k8s/users-db-secret.yaml",
+            "K8s::k8s/users-db-service.yaml",
+            "K8s::k8s/users-db-statefulset.yaml",
+            "K8s::k8s/users-service-deployment.yaml",
+            "K8s::k8s/users-service-service.yaml"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "run_ids": [
+            "7dbb6a63-1cd5-4433-86b1-c2b323f3501b",
+            "37955e25-8560-4df0-91ff-a70f93c6a557"
+          ],
+          "repetitions": [
+            "run1",
+            "run2"
+          ],
+          "diff_ratio": 0.3815,
+          "report_paths": [
+            "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run1_20251230_194439_9e84e01e.json",
+            "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run2_20251230_195550_100afa77.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc5/7dbb6a63-1cd5-4433-86b1-c2b323f3501b_vs_37955e25-8560-4df0-91ff-a70f93c6a557.diff"
+        },
+        {
+          "run_ids": [
+            "7dbb6a63-1cd5-4433-86b1-c2b323f3501b",
+            "c6ea5dd1-9b71-43dd-9d8c-089abdc9736a"
+          ],
+          "repetitions": [
+            "run1",
+            "run3"
+          ],
+          "diff_ratio": 0.9581,
+          "report_paths": [
+            "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run1_20251230_194439_9e84e01e.json",
+            "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run3_20251230_200332_0cebbcec.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc5/7dbb6a63-1cd5-4433-86b1-c2b323f3501b_vs_c6ea5dd1-9b71-43dd-9d8c-089abdc9736a.diff"
+        },
+        {
+          "run_ids": [
+            "37955e25-8560-4df0-91ff-a70f93c6a557",
+            "c6ea5dd1-9b71-43dd-9d8c-089abdc9736a"
+          ],
+          "repetitions": [
+            "run2",
+            "run3"
+          ],
+          "diff_ratio": 0.9532,
+          "report_paths": [
+            "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run2_20251230_195550_100afa77.json",
+            "deepseek_v3_2/default/poc5/h2__deepseek-chat__default__poc5__run3_20251230_200332_0cebbcec.json"
+          ],
+          "diff_path": "repeatability_diffs/deepseek_v3_2/default/poc5/37955e25-8560-4df0-91ff-a70f93c6a557_vs_c6ea5dd1-9b71-43dd-9d8c-089abdc9736a.diff"
+        }
+      ]
+    }
+  ]
+}

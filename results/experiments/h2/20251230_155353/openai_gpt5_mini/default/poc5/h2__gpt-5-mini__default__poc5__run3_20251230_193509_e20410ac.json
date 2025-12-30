@@ -1,0 +1,271 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+  "repo_name": "poc5",
+  "evaluation_id": "e20410ac-b367-448d-b4ae-29c838a62085",
+  "status": "completed",
+  "start_time": "2025-12-30T19:25:49.336257",
+  "end_time": "2025-12-30T19:35:09.860848",
+  "total_evaluation_time": 560.524591,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+    "repo_name": "poc5",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users-service",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes-service",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics-service",
+        "build_context": "backend/analytics_service"
+      },
+      {
+        "dockerfile_path": "backend/audit_service/Dockerfile",
+        "image_tag": "audit-service",
+        "build_context": "backend/audit_service"
+      },
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/README.txt",
+      "k8s/backend-users-deployment.yaml",
+      "k8s/backend-users-service.yaml",
+      "k8s/backend-notes-deployment.yaml",
+      "k8s/backend-notes-service.yaml",
+      "k8s/backend-analytics-deployment.yaml",
+      "k8s/backend-analytics-service.yaml",
+      "k8s/backend-audit-deployment.yaml",
+      "k8s/backend-audit-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/ingress-ingressclass.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/postgres-secret.yaml",
+      "k8s/postgres-configmap.yaml",
+      "k8s/rabbitmq-deployment.yaml",
+      "k8s/rabbitmq-service.yaml",
+      "k8s/redis-deployment.yaml",
+      "k8s/redis-service.yaml",
+      "k8s/notes-pvc.yaml",
+      "k8s/users-pvc.yaml",
+      "k8s/analytics-pvc.yaml",
+      "k8s/audit-pvc.yaml",
+      "k8s/build-and-deploy.sh"
+    ],
+    "generation_time": 433.35064125061035,
+    "error_message": null,
+    "timestamp": "2025-12-30T19:33:12.812024",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-12fc6389-cf9e-4aba-8122-c31fa6347a63",
+    "run_id": "12fc6389-cf9e-4aba-8122-c31fa6347a63"
+  },
+  "execution_metrics": {
+    "total_time": 433.35064125061035,
+    "tool_calls_count": 89,
+    "tool_calls_breakdown": {
+      "write_file": 36,
+      "patch_file": 5,
+      "get_file_content": 26,
+      "search_files": 5,
+      "find_files": 7,
+      "ls": 7,
+      "base64_encode": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 1537204,
+    "input_tokens": 1514725,
+    "output_tokens": 22479,
+    "error_count": 0,
+    "run_id": "12fc6389-cf9e-4aba-8122-c31fa6347a63",
+    "docker_build_metrics": [
+      {
+        "image_tag": "users-service",
+        "build_time": 40.49376916885376,
+        "image_size_mb": 191.71,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "notes-service",
+        "build_time": 14.472921371459961,
+        "image_size_mb": 189.83,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "analytics-service",
+        "build_time": 13.266624212265015,
+        "image_size_mb": 188.45,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "audit-service",
+        "build_time": 8.582690000534058,
+        "image_size_mb": 49.33,
+        "layers_count": 8
+      },
+      {
+        "image_tag": "frontend",
+        "build_time": 29.57700514793396,
+        "image_size_mb": 21.99,
+        "layers_count": 12
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 90.0,
+    "k8s_manifests_score": 85.0,
+    "overall_score": 65.5,
+    "validation_issues": [
+      {
+        "file_path": "frontend/Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc5-12fc6389-cf9e-4aba-8122-c31fa6347a63/frontend/Dockerfile:1 1 | >>> FROM node:20-alpine as builder",
+        "rule_id": "FromAsCasing"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "k8s/rabbitmq-service.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: The Service \"rabbitmq\" is invalid: \n* spec.ports[0].name: Required value\n* spec.ports[1].name: Required value",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 4,
+    "info_count": 3,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 65.5,
+      "total_errors": 1,
+      "total_warnings": 4,
+      "total_info": 3,
+      "docker": {
+        "weighted_score": 90.0,
+        "total_errors": 0,
+        "total_warnings": 4,
+        "total_info": 3,
+        "phases": {
+          "docker_syntax": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 70.0,
+            "errors": 0,
+            "warnings": 3,
+            "info": 3
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 85.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 85.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T19:25:49.336286: Starting configuration generation",
+    "2025-12-30T19:33:12.813115: Generated 5 Dockerfiles and 26 K8s manifests",
+    "2025-12-30T19:33:12.813122: Starting quality assessment",
+    "2025-12-30T19:35:09.856115: Built 5 Docker images (total: 641.3 MB, avg time: 21.3s)",
+    "2025-12-30T19:35:09.858193: Dockerfile validation: 1 errors, 4 warnings",
+    "2025-12-30T19:35:09.858214: K8s validation: 1 errors, 0 warnings",
+    "2025-12-30T19:35:09.859506: Deployed to namespace: poc5-12fc6389-cf9e-4aba-8122-c31fa6347a63",
+    "2025-12-30T19:35:09.860122: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 2,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-12fc6389-cf9e-4aba-8122-c31fa6347a63",
+    "run_id": "12fc6389-cf9e-4aba-8122-c31fa6347a63"
+  }
+}

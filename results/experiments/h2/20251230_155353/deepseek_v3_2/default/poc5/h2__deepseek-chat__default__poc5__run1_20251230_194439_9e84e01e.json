@@ -1,0 +1,246 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+  "repo_name": "poc5",
+  "evaluation_id": "9e84e01e-098f-45d5-a6f3-45701415d95d",
+  "status": "completed",
+  "start_time": "2025-12-30T19:35:10.626423",
+  "end_time": "2025-12-30T19:44:39.609841",
+  "total_evaluation_time": 568.983418,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+    "repo_name": "poc5",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes-service",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users-service",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "backend/audit_service/Dockerfile",
+        "image_tag": "audit-service",
+        "build_context": "backend/audit_service"
+      },
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics-service",
+        "build_context": "backend/analytics_service"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/postgres-notes-secret.yaml",
+      "k8s/postgres-users-secret.yaml",
+      "k8s/postgres-analytics-secret.yaml",
+      "k8s/postgres-audit-secret.yaml",
+      "k8s/rabbitmq-secret.yaml",
+      "k8s/redis-secret.yaml",
+      "k8s/postgres-notes-statefulset.yaml",
+      "k8s/postgres-notes-service.yaml",
+      "k8s/postgres-users-statefulset.yaml",
+      "k8s/postgres-users-service.yaml",
+      "k8s/postgres-analytics-statefulset.yaml",
+      "k8s/postgres-analytics-service.yaml",
+      "k8s/postgres-audit-statefulset.yaml",
+      "k8s/postgres-audit-service.yaml",
+      "k8s/rabbitmq-statefulset.yaml",
+      "k8s/rabbitmq-service.yaml",
+      "k8s/redis-statefulset.yaml",
+      "k8s/redis-service.yaml",
+      "k8s/notes-service-deployment.yaml",
+      "k8s/notes-service-service.yaml",
+      "k8s/users-service-deployment.yaml",
+      "k8s/users-service-service.yaml",
+      "k8s/analytics-service-deployment.yaml",
+      "k8s/analytics-service-service.yaml",
+      "k8s/audit-service-deployment.yaml",
+      "k8s/audit-service-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 528.4343378543854,
+    "error_message": null,
+    "timestamp": "2025-12-30T19:44:09.543841",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-7dbb6a63-1cd5-4433-86b1-c2b323f3501b",
+    "run_id": "7dbb6a63-1cd5-4433-86b1-c2b323f3501b"
+  },
+  "execution_metrics": {
+    "total_time": 528.4343378543854,
+    "tool_calls_count": 62,
+    "tool_calls_breakdown": {
+      "think": 7,
+      "ls": 1,
+      "write_file": 34,
+      "get_file_content": 13,
+      "search_files": 5,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 2174852,
+    "input_tokens": 2164046,
+    "output_tokens": 10806,
+    "error_count": 0,
+    "run_id": "7dbb6a63-1cd5-4433-86b1-c2b323f3501b",
+    "docker_build_metrics": [
+      {
+        "image_tag": "notes-service",
+        "build_time": 0.9817779064178467,
+        "image_size_mb": 159.84,
+        "layers_count": 10
+      },
+      {
+        "image_tag": "users-service",
+        "build_time": 15.320740938186646,
+        "image_size_mb": 161.72,
+        "layers_count": 10
+      },
+      {
+        "image_tag": "analytics-service",
+        "build_time": 0.9317460060119629,
+        "image_size_mb": 158.46,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "frontend/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 644B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/nginx:alpine\n#2 DONE 0.3s\n\n#3 [internal] load metadata for docker.io/library/node:18-alpine\n#3 DONE 0.7s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [stage-1 1/5] FROM docker.io/library/nginx:alpine@sha256:8491795299c8e739b7fcc6285d531d9812ce2666e07bd3dd8db00020ad132295\n#5 resolve docker.io/library/nginx:alpine@sha256:8491795299c8e739b7fcc6285d531d9812ce2666e07bd3dd8db00020ad132295 0.0s done\n#5 DONE 0.0s\n\n#6 [internal] load build context\n#6 transferring context: 126.94kB done\n#6 DONE 0.0s\n\n#7 [build 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#7 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e done\n#7 sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 0B / 446B 0.2s\n#7 sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 0B / 1.26MB 0.3s\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 0B / 40.01MB 0.2s\n#7 sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 446B / 446B 0.3s done\n#7 sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 1.26MB / 1.26MB 0.5s done\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 4.19MB / 40.01MB 0.6s\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 14.68MB / 40.01MB 0.8s\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 28.31MB / 40.01MB 0.9s\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 40.01MB / 40.01MB 1.1s\n#7 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 40.01MB / 40.01MB 1.1s done\n#7 extracting sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e\n#7 extracting sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 0.4s done\n#7 DONE 1.5s\n\n#7 [build 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#7 extracting sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 0.0s done\n#7 extracting sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 done\n#7 DONE 1.5s\n\n#8 [build 2/6] WORKDIR /app\n#8 DONE 0.2s\n\n#9 [build 3/6] COPY package*.json ./\n#9 DONE 0.0s\n\n#10 [build 4/6] RUN npm ci --only=production\n#10 0.516 npm warn config only Use `--omit=dev` to omit dev dependencies from the install.\n#10 1.014 npm warn EBADENGINE Unsupported engine {\n#10 1.014 npm warn EBADENGINE   package: '@vitejs/plugin-react-swc@4.1.0',\n#10 1.014 npm warn EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },\n#10 1.014 npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }\n#10 1.014 npm warn EBADENGINE }\n#10 1.018 npm warn EBADENGINE Unsupported engine {\n#10 1.018 npm warn EBADENGINE   package: 'react-router@7.9.4',\n#10 1.018 npm warn EBADENGINE   required: { node: '>=20.0.0' },\n#10 1.018 npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }\n#10 1.018 npm warn EBADENGINE }\n#10 1.020 npm warn EBADENGINE Unsupported engine {\n#10 1.020 npm warn EBADENGINE   package: 'react-router-dom@7.9.4',\n#10 1.020 npm warn EBADENGINE   required: { node: '>=20.0.0' },\n#10 1.020 npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }\n#10 1.020 npm warn EBADENGINE }\n#10 1.022 npm warn EBADENGINE Unsupported engine {\n#10 1.022 npm warn EBADENGINE   package: 'vite@7.1.11',\n#10 1.022 npm warn EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },\n#10 1.022 npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }\n#10 1.022 npm warn EBADENGINE }\n#10 1.799 \n#10 1.799 added 7 packages, and audited 8 packages in 1s\n#10 1.799 \n#10 1.799 found 0 vulnerabilities\n#10 1.802 npm notice\n#10 1.802 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#10 1.802 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#10 1.802 npm notice To update run: npm install -g npm@11.7.0\n#10 1.802 npm notice\n#10 DONE 1.8s\n\n#11 [build 5/6] COPY . .\n#11 DONE 0.0s\n\n#12 [build 6/6] RUN npm run build\n#12 0.519 \n#12 0.519 > notes-frontend@0.0.0 build\n#12 0.519 > tsc -b && vite build\n#12 0.519 \n#12 0.529 sh: tsc: not found\n#12 ERROR: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127\n------\n > [build 6/6] RUN npm run build:\n0.519 \n0.519 > notes-frontend@0.0.0 build\n0.519 > tsc -b && vite build\n0.519 \n0.529 sh: tsc: not found\n------\nDockerfile:16\n--------------------\n  14 |     \n  15 |     # Build the application\n  16 | >>> RUN npm run build\n  17 |     \n  18 |     # Production stage\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/jwh0vi59kdvxiobm0ymsjlq0p",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      },
+      {
+        "file_path": "backend/audit_service/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 255B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 DONE 0.3s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 6.63kB done\n#4 DONE 0.0s\n\n#5 [1/5] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#5 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e done\n#5 DONE 0.0s\n\n#6 [2/5] WORKDIR /app\n#6 CACHED\n\n#7 [3/5] COPY package*.json ./\n#7 DONE 0.0s\n\n#8 [4/5] RUN npm ci --only=production\n#8 0.515 npm warn config only Use `--omit=dev` to omit dev dependencies from the install.\n#8 0.882 npm error code EUSAGE\n#8 0.882 npm error\n#8 0.882 npm error The `npm ci` command can only install with an existing package-lock.json or\n#8 0.882 npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or\n#8 0.882 npm error later to generate a package-lock.json file, then try again.\n#8 0.882 npm error\n#8 0.882 npm error Clean install a project\n#8 0.882 npm error\n#8 0.882 npm error Usage:\n#8 0.882 npm error npm ci\n#8 0.882 npm error\n#8 0.882 npm error Options:\n#8 0.882 npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]\n#8 0.882 npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]\n#8 0.882 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\n#8 0.882 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]\n#8 0.882 npm error [--no-bin-links] [--no-fund] [--dry-run]\n#8 0.882 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\n#8 0.882 npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]\n#8 0.882 npm error\n#8 0.882 npm error aliases: clean-install, ic, install-clean, isntall-clean\n#8 0.882 npm error\n#8 0.882 npm error Run \"npm help ci\" for more info\n#8 0.884 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-30T18_44_38_111Z-debug-0.log\n#8 ERROR: process \"/bin/sh -c npm ci --only=production\" did not complete successfully: exit code: 1\n------\n > [4/5] RUN npm ci --only=production:\n0.882 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\n0.882 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]\n0.882 npm error [--no-bin-links] [--no-fund] [--dry-run]\n0.882 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\n0.882 npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]\n0.882 npm error\n0.882 npm error aliases: clean-install, ic, install-clean, isntall-clean\n0.882 npm error\n0.882 npm error Run \"npm help ci\" for more info\n0.884 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-30T18_44_38_111Z-debug-0.log\n------\nDockerfile:9\n--------------------\n   7 |     \n   8 |     # Install dependencies\n   9 | >>> RUN npm ci --only=production\n  10 |     \n  11 |     # Copy source code\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm ci --only=production\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/r1qs8lz7itijk4e7hzc4e1f1p",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 2,
+    "warning_count": 3,
+    "info_count": 3,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 2,
+      "total_warnings": 3,
+      "total_info": 3,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 2,
+        "total_warnings": 3,
+        "total_info": 3,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 3,
+            "info": 3
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 2,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T19:35:10.627789: Starting configuration generation",
+    "2025-12-30T19:44:09.544058: Generated 5 Dockerfiles and 29 K8s manifests",
+    "2025-12-30T19:44:09.544064: Starting quality assessment",
+    "2025-12-30T19:44:39.609769: Built 3 Docker images (total: 480.0 MB, avg time: 5.7s)",
+    "2025-12-30T19:44:39.609804: Dockerfile validation: 2 errors, 3 warnings",
+    "2025-12-30T19:44:39.609818: K8s validation: 0 errors, 0 warnings",
+    "2025-12-30T19:44:39.609822: Runtime validation skipped due to Docker build errors",
+    "2025-12-30T19:44:39.609835: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-7dbb6a63-1cd5-4433-86b1-c2b323f3501b",
+    "run_id": "7dbb6a63-1cd5-4433-86b1-c2b323f3501b"
+  }
+}

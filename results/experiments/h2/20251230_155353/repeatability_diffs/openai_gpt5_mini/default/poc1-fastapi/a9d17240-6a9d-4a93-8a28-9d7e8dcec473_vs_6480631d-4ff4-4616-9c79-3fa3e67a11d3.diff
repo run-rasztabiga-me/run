@@ -1,0 +1,79 @@
+--- a9d17240-6a9d-4a93-8a28-9d7e8dcec473
++++ 6480631d-4ff4-4616-9c79-3fa3e67a11d3
+@@ -1,14 +1,7 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Install build dependencies
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    gcc \
+-    libffi-dev \
+-    libssl-dev \
+-    && rm -rf /var/lib/apt/lists/*
+-
++# Set working directory
+ WORKDIR /app
+ 
+ # Copy requirements and install
+@@ -18,8 +11,10 @@
+ # Copy application
+ COPY app ./app
+ 
++# Expose port used by uvicorn
+ EXPOSE 8000
+ 
++# Default command
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -46,32 +41,29 @@
+             - containerPort: 8000
+           resources:
+             requests:
+-              memory: "64Mi"
+               cpu: "100m"
++              memory: "128Mi"
+             limits:
++              cpu: "500m"
+               memory: "256Mi"
+-              cpu: "500m"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 10
++            initialDelaySeconds: 5
+             periodSeconds: 10
+-            timeoutSeconds: 5
++            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 2
+             periodSeconds: 5
+-            timeoutSeconds: 3
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-ingress
+-  annotations:
+-    kubernetes.io/ingress.class: "nginx"
+ spec:
+   rules:
+     - host: poc1-fastapi.rasztabiga.me
+@@ -84,11 +76,6 @@
+                 name: poc1-fastapi-service
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service

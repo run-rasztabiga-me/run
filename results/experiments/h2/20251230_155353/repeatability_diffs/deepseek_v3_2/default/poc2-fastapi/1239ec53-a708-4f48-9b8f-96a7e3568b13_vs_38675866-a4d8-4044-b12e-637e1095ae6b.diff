@@ -1,0 +1,231 @@
+--- 1239ec53-a708-4f48-9b8f-96a7e3568b13
++++ 38675866-a4d8-4044-b12e-637e1095ae6b
+@@ -9,7 +9,7 @@
+     postgresql-client \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install Python dependencies
++# Copy requirements first for better caching
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+@@ -21,64 +21,64 @@
+ 
+ # Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/fastapi-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: fastapi-config
+-  namespace: default
+-data:
+-  DATABASE_URL: "postgresql://postgres:password@postgres:5432/fastapi_db"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi
++  name: fastapi-app
+   namespace: default
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi
++      app: fastapi-app
+   template:
+     metadata:
+       labels:
+-        app: fastapi
++        app: fastapi-app
+     spec:
+       containers:
+-      - name: fastapi
+-        image: fastapi:latest
++      - name: fastapi-app
++        image: fastapi-app:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         env:
+         - name: DATABASE_URL
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: DATABASE_URL
++          value: "postgresql://postgres:postgrespassword@postgres:5432/poc2fastapi"
+         resources:
+           requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
+             memory: "256Mi"
+-            cpu: "250m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
++            cpu: "200m"
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 10
++          periodSeconds: 10
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 30
+-          periodSeconds: 10
+-          timeoutSeconds: 5
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+-          timeoutSeconds: 3
+-@@FILE:K8s::k8s/fastapi-ingress.yaml
++          periodSeconds: 30
++@@FILE:K8s::k8s/fastapi-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: fastapi-app
++  namespace: default
++spec:
++  selector:
++    app: fastapi-app
++  ports:
++  - port: 80
++    targetPort: 8000
++    protocol: TCP
++@@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -92,25 +92,39 @@
+     http:
+       paths:
+       - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: fastapi
+-            port:
+-              number: 80
+-@@FILE:K8s::k8s/fastapi-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: fastapi
+-  namespace: default
+-spec:
+-  selector:
+-    app: fastapi
+-  ports:
+-  - port: 80
+-    targetPort: 8000
+-    protocol: TCP
++      - path: /openapi.json
++        pathType: Prefix
++        backend:
++          service:
++            name: fastapi-app
++            port:
++              number: 80        pathType: Prefix
++        backend:
++          service:
++            name: fastapi-app
++            port:
++              number: 80
++      - path: /notes
++        pathType: Prefix
++        backend:
++          service:
++            name: fastapi-app
++            port:
++              number: 80
++      - path: /hello
++        pathType: Prefix
++        backend:
++          service:
++            name: fastapi-app
++            port:
++              number: 80
++      - path: /docs
++        pathType: Prefix
++        backend:
++          service:
++            name: fastapi-app
++            port:
++              number: 80
+ @@FILE:K8s::k8s/postgres-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+@@ -132,9 +146,9 @@
+   namespace: default
+ type: Opaque
+ data:
+-  POSTGRES_USER: cG9zdGdyZXM=
+-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
+-  POSTGRES_DB: ZmFzdGFwaV9kYg==
++  postgres-password: cG9zdGdyZXNwYXNzd29yZA==  # postgrespassword in base64
++  postgres-user: cG9zdGdyZXM=  # postgres in base64
++  postgres-db: cG9jMmZhc3RhcGk=  # poc2fastapi in base64
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -171,23 +185,23 @@
+         ports:
+         - containerPort: 5432
+         env:
++        - name: POSTGRES_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-password
+         - name: POSTGRES_USER
+           valueFrom:
+             secretKeyRef:
+               name: postgres-secret
+-              key: POSTGRES_USER
+-        - name: POSTGRES_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: POSTGRES_PASSWORD
++              key: postgres-user
+         - name: POSTGRES_DB
+           valueFrom:
+             secretKeyRef:
+               name: postgres-secret
+-              key: POSTGRES_DB
++              key: postgres-db
+         volumeMounts:
+-        - name: postgres-storage
++        - name: postgres-data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -203,7 +217,7 @@
+             - -U
+             - postgres
+           initialDelaySeconds: 5
+-          periodSeconds: 5
++          periodSeconds: 10
+         livenessProbe:
+           exec:
+             command:
+@@ -211,8 +225,8 @@
+             - -U
+             - postgres
+           initialDelaySeconds: 30
+-          periodSeconds: 10
++          periodSeconds: 30
+       volumes:
+-      - name: postgres-storage
++      - name: postgres-data
+         persistentVolumeClaim:
+           claimName: postgres-pvc

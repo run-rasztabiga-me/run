@@ -1,0 +1,135 @@
+--- d2b1a9fd-7cdb-4132-ada0-dcef71402fa1
++++ a211fb7f-73e2-4fa5-b9d2-66d00e8ce692
+@@ -53,14 +53,6 @@
+ 
+ # Start nginx
+ CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/backend-config.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: backend-config
+-  namespace: default
+-data:
+-  database-url: "postgresql://user:password@postgres:5432/dbname"
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -86,8 +78,8 @@
+         env:
+         - name: DATABASE_URL
+           valueFrom:
+-            configMapKeyRef:
+-              name: backend-config
++            secretKeyRef:
++              name: backend-secret
+               key: database-url
+         resources:
+           requests:
+@@ -96,18 +88,27 @@
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 10
+           periodSeconds: 5
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 15
++          periodSeconds: 10
++@@FILE:K8s::k8s/backend-secret.yaml
++apiVersion: v1
++kind: Secret
++metadata:
++  name: backend-secret
++  namespace: default
++type: Opaque
++data:
++  database-url: cG9zdGdyZXNxbDovL3VzZXI6cGFzc3dvcmRAcG9zdGdyZXM6NTQzMi9kYm5hbWU=
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -146,7 +147,7 @@
+         - containerPort: 80
+         env:
+         - name: VITE_API_URL
+-          value: "/api"
++          value: "http://backend:8000"
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -154,18 +155,18 @@
+           limits:
+             memory: "256Mi"
+             cpu: "250m"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 80
+           initialDelaySeconds: 5
+           periodSeconds: 5
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 10
++          periodSeconds: 10
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -188,7 +189,6 @@
+   namespace: default
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+ spec:
+   rules:
+   - host: poc3-fastapi.rasztabiga.me
+@@ -201,13 +201,6 @@
+             name: frontend
+             port:
+               number: 80
+-      - path: /api
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: backend
+-            port:
+-              number: 8000
+ @@FILE:K8s::k8s/postgres-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+@@ -293,6 +286,16 @@
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
++        readinessProbe:
++          tcpSocket:
++            port: 5432
++          initialDelaySeconds: 5
++          periodSeconds: 10
++        livenessProbe:
++          tcpSocket:
++            port: 5432
++          initialDelaySeconds: 15
++          periodSeconds: 20
+       volumes:
+       - name: postgres-storage
+         persistentVolumeClaim:

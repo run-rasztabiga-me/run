@@ -1,0 +1,157 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+  "repo_name": "poc3-fastapi",
+  "evaluation_id": "006522b8-5fd7-4c1d-a60f-63991588e19e",
+  "status": "completed",
+  "start_time": "2025-12-30T17:48:28.113900",
+  "end_time": "2025-12-30T17:52:09.066109",
+  "total_evaluation_time": 220.952209,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+    "repo_name": "poc3-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "backend/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "backend"
+      },
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/postgres-secret.yaml"
+    ],
+    "generation_time": 157.99393796920776,
+    "error_message": null,
+    "timestamp": "2025-12-30T17:51:13.515507",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-3d08fe1e-831f-4b60-aedb-188854e1dd49",
+    "run_id": "3d08fe1e-831f-4b60-aedb-188854e1dd49"
+  },
+  "execution_metrics": {
+    "total_time": 157.99393796920776,
+    "tool_calls_count": 33,
+    "tool_calls_breakdown": {
+      "think": 2,
+      "ls": 2,
+      "write_file": 12,
+      "search_files": 2,
+      "find_files": 2,
+      "get_file_content": 11,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 290509,
+    "input_tokens": 281222,
+    "output_tokens": 9287,
+    "error_count": 0,
+    "run_id": "3d08fe1e-831f-4b60-aedb-188854e1dd49",
+    "docker_build_metrics": [
+      {
+        "image_tag": "backend",
+        "build_time": 38.17206692695618,
+        "image_size_mb": 177.76,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "backend/Dockerfile",
+        "line_number": 8,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "frontend/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 453B done\n#1 DONE 0.0s\n\n#2 [auth] library/node:pull token for registry-1.docker.io\n#2 DONE 0.0s\n\n#3 [auth] library/nginx:pull token for registry-1.docker.io\n#3 DONE 0.0s\n\n#4 [internal] load metadata for docker.io/library/nginx:stable-alpine\n#4 DONE 1.2s\n\n#5 [internal] load metadata for docker.io/library/node:18-alpine\n#5 DONE 1.5s\n\n#6 [internal] load .dockerignore\n#6 transferring context: 2B done\n#6 DONE 0.0s\n\n#7 [stage-1 1/3] FROM docker.io/library/nginx:stable-alpine@sha256:1ce7f79aab3e1d651dce1ff05b1bcd471cd0d5086838a77961feab6b49fbc0b5\n#7 resolve docker.io/library/nginx:stable-alpine@sha256:1ce7f79aab3e1d651dce1ff05b1bcd471cd0d5086838a77961feab6b49fbc0b5 0.0s done\n#7 DONE 0.0s\n\n#8 [internal] load build context\n#8 transferring context: 57.39kB done\n#8 DONE 0.0s\n\n#9 [build 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#9 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e 0.0s done\n#9 sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 0B / 1.26MB 0.2s\n#9 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 0B / 40.01MB 0.2s\n#9 sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 0B / 446B 0.2s\n#9 sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 446B / 446B 0.3s done\n#9 sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 1.26MB / 1.26MB 0.6s done\n#9 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 15.73MB / 40.01MB 0.8s\n#9 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 27.26MB / 40.01MB 0.9s\n#9 sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 40.01MB / 40.01MB 1.1s done\n#9 DONE 1.1s\n\n#9 [build 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#9 extracting sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e\n#9 extracting sha256:dd71dde834b5c203d162902e6b8994cb2309ae049a0eabc4efea161b2b5a3d0e 1.4s done\n#9 DONE 2.5s\n\n#9 [build 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#9 extracting sha256:1e5a4c89cee5c0826c540ab06d4b6b491c96eda01837f430bd47f0d26702d6e3 0.0s done\n#9 extracting sha256:25ff2da83641908f65c3a74d80409d6b1b62ccfaab220b9ea70b80df5a2e0549 done\n#9 DONE 2.5s\n\n#10 [build 2/6] WORKDIR /app\n#10 DONE 0.1s\n\n#11 [build 3/6] COPY package.json package-lock.json ./\n#11 DONE 0.0s\n\n#12 [build 4/6] COPY tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts vite.config.js ./\n#12 DONE 0.0s\n\n#13 [build 5/6] COPY src ./src\n#13 DONE 0.0s\n\n#14 [build 6/6] RUN npm ci && npm run build\n#14 1.060 npm warn EBADENGINE Unsupported engine {\n#14 1.060 npm warn EBADENGINE   package: '@vitejs/plugin-react-swc@4.1.0',\n#14 1.060 npm warn EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },\n#14 1.060 npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }\n#14 1.060 npm warn EBADENGINE }\n#14 1.064 npm warn EBADENGINE Unsupported engine {\n#14 1.064 npm warn EBADENGINE   package: 'vite@7.1.11',\n#14 1.064 npm warn EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },\n#14 1.064 npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }\n#14 1.064 npm warn EBADENGINE }\n#14 4.906 \n#14 4.906 added 41 packages, and audited 42 packages in 4s\n#14 4.907 \n#14 4.907 6 packages are looking for funding\n#14 4.907   run `npm fund` for details\n#14 4.908 \n#14 4.908 found 0 vulnerabilities\n#14 4.911 npm notice\n#14 4.911 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#14 4.911 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#14 4.911 npm notice To update run: npm install -g npm@11.7.0\n#14 4.911 npm notice\n#14 5.370 \n#14 5.370 > notes-frontend@0.0.0 build\n#14 5.370 > tsc -b && vite build\n#14 5.370 \n#14 8.706 You are using Node.js 18.20.8. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.\n#14 9.194 vite v7.1.11 building for production...\n#14 9.228 \u2713 0 modules transformed.\n#14 9.231 \u2717 Build failed in 14ms\n#14 9.231 error during build:\n#14 9.231 Could not resolve entry module \"index.html\".\n#14 9.231     at getRollupError (file:///app/node_modules/vite/node_modules/rollup/dist/es/shared/parseAst.js:401:41)\n#14 9.231     at error (file:///app/node_modules/vite/node_modules/rollup/dist/es/shared/parseAst.js:397:42)\n#14 9.231     at ModuleLoader.loadEntryModule (file:///app/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:21586:20)\n#14 9.231     at async Promise.all (index 0)\n#14 ERROR: process \"/bin/sh -c npm ci && npm run build\" did not complete successfully: exit code: 1\n------\n > [build 6/6] RUN npm ci && npm run build:\n8.706 You are using Node.js 18.20.8. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.\n9.194 vite v7.1.11 building for production...\n9.228 \u2713 0 modules transformed.\n9.231 \u2717 Build failed in 14ms\n9.231 error during build:\n9.231 Could not resolve entry module \"index.html\".\n9.231     at getRollupError (file:///app/node_modules/vite/node_modules/rollup/dist/es/shared/parseAst.js:401:41)\n9.231     at error (file:///app/node_modules/vite/node_modules/rollup/dist/es/shared/parseAst.js:397:42)\n9.231     at ModuleLoader.loadEntryModule (file:///app/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:21586:20)\n9.231     at async Promise.all (index 0)\n------\nDockerfile:7\n--------------------\n   5 |     COPY tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts vite.config.js ./\n   6 |     COPY src ./src\n   7 | >>> RUN npm ci && npm run build\n   8 |     \n   9 |     # Production stage\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm ci && npm run build\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/1gdassga8eayygd5c11g45fcx",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T17:48:28.114414: Starting configuration generation",
+    "2025-12-30T17:51:13.515627: Generated 2 Dockerfiles and 8 K8s manifests",
+    "2025-12-30T17:51:13.515630: Starting quality assessment",
+    "2025-12-30T17:52:09.066014: Built 1 Docker images (total: 177.8 MB, avg time: 38.2s)",
+    "2025-12-30T17:52:09.066065: Dockerfile validation: 1 errors, 1 warnings",
+    "2025-12-30T17:52:09.066076: K8s validation: 0 errors, 0 warnings",
+    "2025-12-30T17:52:09.066084: Runtime validation skipped due to Docker build errors",
+    "2025-12-30T17:52:09.066100: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 2,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc3-fastapi-3d08fe1e-831f-4b60-aedb-188854e1dd49",
+    "run_id": "3d08fe1e-831f-4b60-aedb-188854e1dd49"
+  }
+}

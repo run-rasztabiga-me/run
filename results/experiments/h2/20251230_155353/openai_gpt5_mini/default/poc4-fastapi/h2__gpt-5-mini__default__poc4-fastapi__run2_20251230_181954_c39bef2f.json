@@ -1,0 +1,54 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+  "repo_name": "poc4-fastapi",
+  "evaluation_id": "c39bef2f-131b-4194-b9af-8f0cd9aef060",
+  "status": "failed",
+  "start_time": "2025-12-30T18:16:52.625356",
+  "end_time": "2025-12-30T18:19:54.694963",
+  "total_evaluation_time": 182.069607,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+    "repo_name": "poc4-fastapi",
+    "success": false,
+    "docker_images": [],
+    "k8s_manifests": [],
+    "generation_time": 182.06946420669556,
+    "error_message": "Error code: 400 - {'error': {'message': 'Invalid prompt: your prompt was flagged as potentially violating our usage policy. Please try again with a different prompt: https://platform.openai.com/docs/guides/reasoning#advice-on-prompting', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_prompt'}}",
+    "timestamp": "2025-12-30T18:19:54.694922",
+    "workspace_dir": null,
+    "run_id": null
+  },
+  "execution_metrics": {
+    "total_time": 182.06942129135132,
+    "tool_calls_count": 0,
+    "tool_calls_breakdown": {},
+    "tokens_used": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "error_count": 1,
+    "run_id": null,
+    "docker_build_metrics": []
+  },
+  "quality_metrics": null,
+  "notes": [
+    "2025-12-30T18:16:52.625428: Starting configuration generation",
+    "2025-12-30T18:19:54.694977: Evaluation failed: Generation failed: Error code: 400 - {'error': {'message': 'Invalid prompt: your prompt was flagged as potentially violating our usage policy. Please try again with a different prompt: https://platform.openai.com/docs/guides/reasoning#advice-on-prompting', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_prompt'}}"
+  ],
+  "experiment_name": "h2",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt"
+  }
+}

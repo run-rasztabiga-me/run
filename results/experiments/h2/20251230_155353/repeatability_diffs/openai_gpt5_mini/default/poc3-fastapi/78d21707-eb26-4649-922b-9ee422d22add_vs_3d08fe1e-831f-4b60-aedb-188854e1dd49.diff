@@ -1,0 +1,269 @@
+--- 78d21707-eb26-4649-922b-9ee422d22add
++++ 3d08fe1e-831f-4b60-aedb-188854e1dd49
+@@ -1,46 +1,39 @@
+ @@FILE:Dockerfile::backend/Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set working directory
+ WORKDIR /app
+-
+-# Install build dependencies
+-RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev build-essential && rm -rf /var/lib/apt/lists/*
+-
+-# Copy requirements and install
+-COPY requirements.txt ./
++ENV PYTHONDONTWRITEBYTECODE=1 \
++    PYTHONUNBUFFERED=1
++
++# Install system dependencies needed for psycopg2 and building packages
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential libpq-dev \
++    && rm -rf /var/lib/apt/lists/*
++
++COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY ./app ./app
+-
+-# Expose port used by uvicorn
++COPY . .
++
+ EXPOSE 8000
+ 
+-# Run the application with uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:Dockerfile::frontend/Dockerfile
+ # Build stage
+-FROM node:20-alpine AS build
++FROM node:18-alpine AS build
+ WORKDIR /app
+ COPY package.json package-lock.json ./
+-RUN npm ci
+-COPY . .
+-RUN npm run build
+-
+-# Production image with nginx
++COPY tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts vite.config.js ./
++COPY src ./src
++RUN npm ci && npm run build
++
++# Production stage
+ FROM nginx:stable-alpine
+ COPY --from=build /app/dist /usr/share/nginx/html
+ COPY nginx.conf /etc/nginx/conf.d/default.conf
+ EXPOSE 80
+ CMD ["nginx", "-g", "daemon off;"]
+-@@FILE:K8s::k8s/backend-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: backend-config
+-data:
+-  DATABASE_URL: postgresql://user:password@db:5432/dbname
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -62,12 +55,6 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
+-          env:
+-            - name: DATABASE_URL
+-              valueFrom:
+-                configMapKeyRef:
+-                  name: backend-config
+-                  key: DATABASE_URL
+           resources:
+             requests:
+               cpu: "100m"
+@@ -79,14 +66,20 @@
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 10
++            initialDelaySeconds: 5
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 2
+             periodSeconds: 5
++          env:
++            - name: DATABASE_URL
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: database_url
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -96,17 +89,11 @@
+   selector:
+     app: backend
+   ports:
+-    - protocol: TCP
+-      port: 8000
++    - port: 8000
+       targetPort: 8000
++      protocol: TCP
++      name: http
+   type: ClusterIP
+-@@FILE:K8s::k8s/frontend-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: frontend-config
+-data:
+-  VITE_API_URL: https://poc3-fastapi.rasztabiga.me/api
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -128,27 +115,24 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 80
+-          env:
+-            - name: VITE_API_URL
+-              value: "/api"
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+-              cpu: "500m"
+-              memory: "512Mi"
++              cpu: "300m"
++              memory: "256Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 80
+-            initialDelaySeconds: 10
++            initialDelaySeconds: 5
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 80
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 2
+             periodSeconds: 5
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+@@ -159,17 +143,18 @@
+   selector:
+     app: frontend
+   ports:
+-    - protocol: TCP
+-      port: 80
++    - port: 80
+       targetPort: 80
++      protocol: TCP
++      name: http
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: notes-ingress
++  name: poc3-fastapi-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$2
++    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+     nginx.ingress.kubernetes.io/use-regex: "true"
+ spec:
+   rules:
+@@ -183,8 +168,8 @@
+                 name: backend
+                 port:
+                   number: 8000
+-          - path: /(.*)
+-            pathType: ImplementationSpecific
++          - path: /
++            pathType: Prefix
+             backend:
+               service:
+                 name: frontend
+@@ -197,41 +182,43 @@
+   name: postgres-secret
+ type: Opaque
+ stringData:
+-  POSTGRES_USER: user
+-  POSTGRES_PASSWORD: password
+-  POSTGRES_DB: dbname
++  postgres_user: user
++  postgres_password: password
++  postgres_db: dbname
++  database_url: postgresql://user:password@postgres:5432/dbname
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: db
+-spec:
+-  selector:
+-    app: db
++  name: postgres
++spec:
++  selector:
++    app: postgres
+   ports:
+     - port: 5432
+       targetPort: 5432
++      protocol: TCP
++      name: postgres
+   clusterIP: None
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: db
+-spec:
++  name: postgres
++spec:
++  serviceName: "postgres"
++  replicas: 1
+   selector:
+     matchLabels:
+-      app: db
+-  serviceName: db
+-  replicas: 1
++      app: postgres
+   template:
+     metadata:
+       labels:
+-        app: db
++        app: postgres
+     spec:
+       containers:
+         - name: postgres
+-          image: postgres:15
+-          imagePullPolicy: IfNotPresent
++          image: postgres:15-alpine
+           ports:
+             - containerPort: 5432
+           env:
+@@ -239,17 +226,17 @@
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+-                  key: POSTGRES_USER
++                  key: postgres_user
+             - name: POSTGRES_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+-                  key: POSTGRES_PASSWORD
++                  key: postgres_password
+             - name: POSTGRES_DB
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-secret
+-                  key: POSTGRES_DB
++                  key: postgres_db
+           volumeMounts:
+             - name: postgres-data
+               mountPath: /var/lib/postgresql/data

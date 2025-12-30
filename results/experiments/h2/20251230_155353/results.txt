@@ -1,0 +1,47 @@
+Experiment path: /Users/rasztabigab/Studia/run/evaluation_reports/experiments/h2/20251230_155353
+Runs: 15/45 = 33.3%
+  95% CI: 21.4%–47.9%
+
+Stages:
+  build: 32/45 = 71.1% (CI: 56.6%–82.3%)
+  apply: 24/42 = 57.1% (CI: 42.2%–70.9%)
+    └─ given build OK: 24/32 = 75.0% (CI: 57.9%–86.7%)
+  runtime: 15/45 = 33.3% (CI: 21.4%–47.9%)
+    └─ given apply OK: 15/24 = 62.5% (CI: 42.7%–78.8%)
+
+Prompts:
+  default: 15/45 = 33.3% (CI: 21.4%–47.9%)
+
+Per model:
+  gemini-2.5-flash: 3/15 = 20.0% (CI: 7.0%–45.2%)
+  gpt-5-mini: 7/15 = 46.7% (CI: 24.8%–69.9%)
+  deepseek-chat: 5/15 = 33.3% (CI: 15.2%–58.3%)
+
+Per repo:
+  poc1-fastapi: 9/9 = 100.0% (CI: 70.1%–100.0%)
+  poc2-fastapi: 3/9 = 33.3% (CI: 12.1%–64.6%)
+  poc3-fastapi: 2/9 = 22.2% (CI: 6.3%–54.7%)
+  poc4-fastapi: 1/9 = 11.1% (CI: 2.0%–43.5%)
+  poc5: 0/9 = 0.0% (CI: 0.0%–29.9%)
+
+Per repo stage breakdown:
+  poc1-fastapi:
+    build: 9/9 = 100.0% (CI: 70.1%–100.0%)
+    apply: 9/9 = 100.0% (CI: 70.1%–100.0%)
+    runtime: 9/9 = 100.0% (CI: 70.1%–100.0%)
+  poc2-fastapi:
+    build: 9/9 = 100.0% (CI: 70.1%–100.0%)
+    apply: 7/9 = 77.8% (CI: 45.3%–93.7%)
+    runtime: 3/9 = 33.3% (CI: 12.1%–64.6%)
+  poc3-fastapi:
+    build: 6/9 = 66.7% (CI: 35.4%–87.9%)
+    apply: 3/9 = 33.3% (CI: 12.1%–64.6%)
+    runtime: 2/9 = 22.2% (CI: 6.3%–54.7%)
+  poc4-fastapi:
+    build: 6/9 = 66.7% (CI: 35.4%–87.9%)
+    apply: 4/7 = 57.1% (CI: 25.0%–84.2%)
+    runtime: 1/9 = 11.1% (CI: 2.0%–43.5%)
+  poc5:
+    build: 2/9 = 22.2% (CI: 6.3%–54.7%)
+    apply: 1/8 = 12.5% (CI: 2.2%–47.1%)
+    runtime: 0/9 = 0.0% (CI: 0.0%–29.9%)

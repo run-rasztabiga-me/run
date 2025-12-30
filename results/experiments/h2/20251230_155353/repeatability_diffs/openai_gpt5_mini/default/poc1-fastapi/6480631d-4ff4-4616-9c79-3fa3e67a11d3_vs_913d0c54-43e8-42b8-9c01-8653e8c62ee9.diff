@@ -1,0 +1,78 @@
+--- 6480631d-4ff4-4616-9c79-3fa3e67a11d3
++++ 913d0c54-43e8-42b8-9c01-8653e8c62ee9
+@@ -1,26 +1,24 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set working directory
++ENV PYTHONDONTWRITEBYTECODE=1
++ENV PYTHONUNBUFFERED=1
++
+ WORKDIR /app
+ 
+-# Copy requirements and install
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application
+ COPY app ./app
+ 
+-# Expose port used by uvicorn
+ EXPOSE 8000
+ 
+-# Default command
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-deployment
++  name: poc1-fastapi
+   labels:
+     app: poc1-fastapi
+ spec:
+@@ -34,7 +32,7 @@
+         app: poc1-fastapi
+     spec:
+       containers:
+-        - name: poc1-fastapi
++        - name: app
+           image: poc1-fastapi:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -52,7 +50,6 @@
+               port: 8000
+             initialDelaySeconds: 5
+             periodSeconds: 10
+-            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+               path: /
+@@ -64,6 +61,8 @@
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-ingress
++  annotations:
++    kubernetes.io/ingress.class: "nginx"
+ spec:
+   rules:
+     - host: poc1-fastapi.rasztabiga.me
+@@ -73,16 +72,14 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-service
++                name: poc1-fastapi
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-service
+-  labels:
+-    app: poc1-fastapi
++  name: poc1-fastapi
+ spec:
+   selector:
+     app: poc1-fastapi

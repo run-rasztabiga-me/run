@@ -1,0 +1,174 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+  "repo_name": "poc2-fastapi",
+  "evaluation_id": "1fcf69b9-b509-4637-ba62-9b7eb1f201a1",
+  "status": "completed",
+  "start_time": "2025-12-30T17:26:56.244420",
+  "end_time": "2025-12-30T17:30:08.807976",
+  "total_evaluation_time": 192.563556,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+    "repo_name": "poc2-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "fastapi-app",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/fastapi-deployment.yaml",
+      "k8s/fastapi-service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/postgres-pvc.yaml",
+      "k8s/postgres-secret.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/postgres-statefulset.yaml"
+    ],
+    "generation_time": 180.0901849269867,
+    "error_message": null,
+    "timestamp": "2025-12-30T17:30:05.344105",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-38675866-a4d8-4044-b12e-637e1095ae6b",
+    "run_id": "38675866-a4d8-4044-b12e-637e1095ae6b"
+  },
+  "execution_metrics": {
+    "total_time": 180.0901849269867,
+    "tool_calls_count": 35,
+    "tool_calls_breakdown": {
+      "think": 6,
+      "patch_file": 1,
+      "ls": 2,
+      "base64_decode": 3,
+      "write_file": 8,
+      "search_files": 4,
+      "find_files": 3,
+      "get_file_content": 6,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 249743,
+    "input_tokens": 245201,
+    "output_tokens": 4542,
+    "error_count": 0,
+    "run_id": "38675866-a4d8-4044-b12e-637e1095ae6b",
+    "docker_build_metrics": [
+      {
+        "image_tag": "fastapi-app",
+        "build_time": 0.7152221202850342,
+        "image_size_mb": 157.83,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 85.0,
+    "overall_score": 68.3,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "k8s/ingress.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: error: error parsing /Users/rasztabigab/Studia/run/tmp/poc2-fastapi-38675866-a4d8-4044-b12e-637e1095ae6b/k8s/ingress.yaml: error converting YAML to JSON: yaml: line 20: mapping values are not allowed in this context",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 1,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 68.3,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 85.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 85.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2025-12-30T17:26:56.244620: Starting configuration generation",
+    "2025-12-30T17:30:05.344404: Generated 1 Dockerfiles and 7 K8s manifests",
+    "2025-12-30T17:30:05.344411: Starting quality assessment",
+    "2025-12-30T17:30:08.807942: Built 1 Docker images (total: 157.8 MB, avg time: 0.7s)",
+    "2025-12-30T17:30:08.807956: Dockerfile validation: 1 errors, 1 warnings",
+    "2025-12-30T17:30:08.807961: K8s validation: 1 errors, 0 warnings",
+    "2025-12-30T17:30:08.807968: Deployed to namespace: poc2-fastapi-38675866-a4d8-4044-b12e-637e1095ae6b",
+    "2025-12-30T17:30:08.807971: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-38675866-a4d8-4044-b12e-637e1095ae6b",
+    "run_id": "38675866-a4d8-4044-b12e-637e1095ae6b"
+  }
+}

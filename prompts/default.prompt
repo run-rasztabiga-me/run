@@ -19,6 +19,13 @@ When creating Dockerfile(s):
 - Specify the command to run the application
 - If the application needs to run as non-root, add a USER directive, otherwise let it run as root (default)
 - For multi-service repos, place each Dockerfile in its service directory (e.g., backend/Dockerfile, frontend/Dockerfile)
+- IMPORTANT: When using build_context (e.g., "frontend"), all paths in the Dockerfile are relative to that directory. For example, if build_context is "frontend", then "COPY package.json ." copies from frontend/package.json, NOT from the repository root
+
+Python specific:
+- For Python applications: Check if the code uses relative imports (e.g., "from . import models"). If it does:
+  * For web frameworks (Flask/FastAPI/Django): Use a proper WSGI/ASGI server like uvicorn or gunicorn with module path syntax (e.g., "uvicorn app.main:app" or "gunicorn app.main:app")
+  * For scripts: Run as a module using "python -m package.module" instead of "python file.py"
+  * Ensure WORKDIR is set correctly so Python can find the package
 
 When creating Kubernetes manifests:
 - Create separate resources for each service (e.g., if there's a backend and frontend, create 2 Deployments and 2 Services)
@@ -78,8 +85,8 @@ After generating all files, respond with a JSON object in this format:
 Important notes for the output:
 - docker_images: Include one entry per service/Dockerfile. For multi-service repos, list all services with their respective Dockerfiles and build contexts.
 - kubernetes_files: List ALL generated manifest files, including those for discovered dependencies (databases, caches, etc.)
-- test_endpoints: List of paths that actually exist in the application code - verify before specifying. Include one endpoint per service (e.g., if you have backend and frontend services, provide 2 endpoints - one for each service). All endpoints will be tested and the score will be proportional to how many respond successfully.
-- build_context: Use "." for single-service repos, or the service directory (e.g., "backend/", "frontend/") for multi-service repos.
+- test_endpoints: List of paths that are accessible via Ingress routes - verify before specifying. ONLY include endpoints for services that have Ingress resources (i.e., web-accessible services). Do NOT include endpoints for internal services like databases or caches. Include one endpoint per web-accessible service (e.g., if you have backend and frontend services both with Ingress, provide 2 endpoints). All endpoints will be tested via HTTP and the score will be proportional to how many respond successfully.
+- build_context: Use "." for single-service repos, or the service directory (e.g., "backend", "frontend") for multi-service repos. Remember: when build_context is set to a subdirectory, Docker executes the build from that directory, so all COPY paths in the Dockerfile must be relative to that context (not the repo root).
 
 BEFORE submitting your final JSON output, verify:
 - All file paths referenced in COPY instructions actually exist in the repository
@@ -87,4 +94,7 @@ BEFORE submitting your final JSON output, verify:
 - All health check endpoints you specified actually exist in the application code
 - Security context settings match the Dockerfile USER directive (or omit if running as root)
 - All discovered dependencies have complete resources (StatefulSet, Service, Secret, PVC)
-- All test_endpoints are real endpoints that will return successful responses (2xx status codes)
+- All test_endpoints are real endpoints that:
+  * Exist in the application code
+  * Are accessible via the Ingress routes you created
+  * Will return successful responses (2xx status codes)

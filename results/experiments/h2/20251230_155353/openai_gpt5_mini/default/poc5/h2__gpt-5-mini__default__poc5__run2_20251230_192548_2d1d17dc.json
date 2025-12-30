@@ -1,0 +1,54 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+  "repo_name": "poc5",
+  "evaluation_id": "2d1d17dc-4bb5-4117-9e2e-272859ce683e",
+  "status": "failed",
+  "start_time": "2025-12-30T19:22:16.580159",
+  "end_time": "2025-12-30T19:25:48.950266",
+  "total_evaluation_time": 212.370107,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+    "repo_name": "poc5",
+    "success": false,
+    "docker_images": [],
+    "k8s_manifests": [],
+    "generation_time": 212.36993384361267,
+    "error_message": "Failed to parse structured output for tool 'ConfigurationOutput': Native structured output expected valid JSON for ConfigurationOutput, but parsing failed: Extra data: line 2 column 1 (char 1163)..",
+    "timestamp": "2025-12-30T19:25:48.950225",
+    "workspace_dir": null,
+    "run_id": null
+  },
+  "execution_metrics": {
+    "total_time": 212.36989283561707,
+    "tool_calls_count": 0,
+    "tool_calls_breakdown": {},
+    "tokens_used": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "error_count": 1,
+    "run_id": null,
+    "docker_build_metrics": []
+  },
+  "quality_metrics": null,
+  "notes": [
+    "2025-12-30T19:22:16.580252: Starting configuration generation",
+    "2025-12-30T19:25:48.950285: Evaluation failed: Generation failed: Failed to parse structured output for tool 'ConfigurationOutput': Native structured output expected valid JSON for ConfigurationOutput, but parsing failed: Extra data: line 2 column 1 (char 1163).."
+  ],
+  "experiment_name": "h2",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt"
+  }
+}
