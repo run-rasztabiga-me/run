@@ -121,8 +121,9 @@ class ConfigurationEvaluator:
             # Step 3: Runtime validation - test endpoint health
             # Skip if there were Docker build errors
             if assessment.runtime_issues is not None:
-                if generation_result.test_endpoint:
-                    report.add_note(f"Testing endpoint: {generation_result.test_endpoint}")
+                if generation_result.test_endpoints:
+                    endpoints_str = ", ".join(generation_result.test_endpoints)
+                    report.add_note(f"Testing endpoints: {endpoints_str}")
 
                 if assessment.runtime_issues:
                     error_count = count_errors(assessment.runtime_issues)
@@ -191,7 +192,7 @@ class ConfigurationEvaluator:
 
         assessment = assessor.assess(
             generation_result,
-            test_endpoint=generation_result.test_endpoint,
+            test_endpoints=generation_result.test_endpoints,
         )
         return assessment
 

@@ -67,7 +67,7 @@ class GeneratorIntegration:
                 success=success,
                 docker_images=config_output.docker_images,
                 k8s_manifests=config_output.kubernetes_files,
-                test_endpoint=config_output.test_endpoint,
+                test_endpoints=config_output.test_endpoints,
                 generation_time=generation_time,
                 run_context=run_context
             )

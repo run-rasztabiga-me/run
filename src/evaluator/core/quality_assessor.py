@@ -37,11 +37,11 @@ class QualityAssessor:
     def assess(
         self,
         generation_result: GenerationResult,
-        test_endpoint: Optional[str] = None,
+        test_endpoints: Optional[List[str]] = None,
     ) -> QualityAssessmentResult:
         pipeline_result = self.validator.run_steps(
             generation_result=generation_result,
-            test_endpoint=test_endpoint,
+            test_endpoints=test_endpoints,
         )
 
         quality_metrics = QualityMetrics()
@@ -56,6 +56,7 @@ class QualityAssessor:
         aggregated_score = self.scoring_model.calculate_scores(
             step_issues=step_issues,
             runtime_success=runtime_success,
+            step_metadata=step_metadata,
         )
 
         # Populate quality metrics with aggregated scores

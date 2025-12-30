@@ -201,6 +201,7 @@ class IssueAggregationModel:
         self,
         step_issues: Dict[str, List[ValidationIssue]],
         runtime_success: Optional[bool] = None,
+        step_metadata: Optional[Dict[str, Dict[str, object]]] = None,
     ) -> AggregatedScore:
         """
         Calculate comprehensive scores from validation issues.
@@ -208,6 +209,7 @@ class IssueAggregationModel:
         Args:
             step_issues: Dictionary mapping step names to their validation issues
             runtime_success: Whether runtime validation succeeded (None if not run)
+            step_metadata: Optional metadata from validation steps
 
         Returns:
             AggregatedScore with full breakdown
@@ -215,7 +217,7 @@ class IssueAggregationModel:
         # Calculate phase scores
         docker_phases = self._calculate_docker_scores(step_issues)
         k8s_phases = self._calculate_k8s_scores(step_issues)
-        runtime_phase = self._calculate_runtime_score(step_issues, runtime_success)
+        runtime_phase = self._calculate_runtime_score(step_issues, runtime_success, step_metadata)
 
         # If Docker build failed (has errors), set all Docker phase scores to 0
         docker_build_failed = self._has_errors_in_step(step_issues, ValidationPhase.DOCKER_BUILD.value)
@@ -344,8 +346,9 @@ class IssueAggregationModel:
         self,
         step_issues: Dict[str, List[ValidationIssue]],
         runtime_success: Optional[bool],
+        step_metadata: Optional[Dict[str, Dict[str, object]]] = None,
     ) -> Optional[PhaseScore]:
-        """Calculate runtime validation score."""
+        """Calculate runtime validation score with proportional support for multiple endpoints."""
         if runtime_success is None:
             return None
 
@@ -361,14 +364,25 @@ class IssueAggregationModel:
             elif issue.is_info():
                 score.info_count += 1
 
-        # Runtime is binary but warnings reduce score
-        if runtime_success:
-            score.final_score = self.config.RUNTIME_SUCCESS_SCORE
+        # Check if we have endpoint success rate metadata
+        runtime_metadata = step_metadata.get(ValidationPhase.RUNTIME.value, {}) if step_metadata else {}
+        success_rate = runtime_metadata.get("success_rate")
+
+        if success_rate is not None:
+            # Use proportional scoring based on endpoint success rate
+            score.final_score = self.config.RUNTIME_SUCCESS_SCORE * success_rate
             # Apply warning penalty
             warning_penalty = score.warning_count * self.config.RUNTIME_WARNING_PENALTY
             score.final_score = max(self.config.MIN_SCORE, score.final_score - warning_penalty)
         else:
-            score.final_score = self.config.RUNTIME_FAILURE_SCORE
+            # Fallback to binary scoring (backward compatibility)
+            if runtime_success:
+                score.final_score = self.config.RUNTIME_SUCCESS_SCORE
+                # Apply warning penalty
+                warning_penalty = score.warning_count * self.config.RUNTIME_WARNING_PENALTY
+                score.final_score = max(self.config.MIN_SCORE, score.final_score - warning_penalty)
+            else:
+                score.final_score = self.config.RUNTIME_FAILURE_SCORE
 
         return score
 

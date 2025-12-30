@@ -78,7 +78,7 @@ After generating all files, respond with a JSON object in this format:
 Important notes for the output:
 - docker_images: Include one entry per service/Dockerfile. For multi-service repos, list all services with their respective Dockerfiles and build contexts.
 - kubernetes_files: List ALL generated manifest files, including those for discovered dependencies (databases, caches, etc.)
-- test_endpoint: Must be a path that actually exists in the application code - verify before specifying.
+- test_endpoints: List of paths that actually exist in the application code - verify before specifying. Include one endpoint per service (e.g., if you have backend and frontend services, provide 2 endpoints - one for each service). All endpoints will be tested and the score will be proportional to how many respond successfully.
 - build_context: Use "." for single-service repos, or the service directory (e.g., "backend/", "frontend/") for multi-service repos.
 
 BEFORE submitting your final JSON output, verify:
@@ -87,4 +87,4 @@ BEFORE submitting your final JSON output, verify:
 - All health check endpoints you specified actually exist in the application code
 - Security context settings match the Dockerfile USER directive (or omit if running as root)
 - All discovered dependencies have complete resources (StatefulSet, Service, Secret, PVC)
-- The test_endpoint is a real endpoint that will return a successful response
+- All test_endpoints are real endpoints that will return successful responses (2xx status codes)

@@ -31,7 +31,7 @@ class ValidationState:
     dockerfiles: Sequence[str] = field(default_factory=tuple)
     manifests: Sequence[str] = field(default_factory=tuple)
     docker_images: Sequence["DockerImageInfo"] = field(default_factory=tuple)
-    test_endpoint: Optional[str] = None
+    test_endpoints: Optional[List[str]] = None
     issues: List[ValidationIssue] = field(default_factory=list)
     build_metrics: List[DockerBuildMetrics] = field(default_factory=list)
     runtime_success: Optional[bool] = None

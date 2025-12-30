@@ -6,7 +6,7 @@ experiments:
       - https://github.com/run-rasztabiga-me/poc2-fastapi.git
       - https://github.com/run-rasztabiga-me/poc3-fastapi.git
       - https://github.com/run-rasztabiga-me/poc4-fastapi.git
-      - https://github.com/run-rasztabiga-me/poc5-fastapi.git
+      - https://github.com/run-rasztabiga-me/poc5.git
     models:
       - provider: google_genai
         name: gemini-2.5-flash

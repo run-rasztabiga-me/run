@@ -48,14 +48,14 @@ class ConfigurationValidator:
     def run_steps(
         self,
         generation_result: GenerationResult,
-        test_endpoint: Optional[str] = None,
+        test_endpoints: Optional[List[str]] = None,
     ) -> ValidationPipelineResult:
         state = ValidationState(
             repo_name=self.run_context.repo_name,
             dockerfiles=tuple(generation_result.dockerfiles),
             manifests=tuple(generation_result.k8s_manifests),
             docker_images=tuple(generation_result.docker_images),
-            test_endpoint=test_endpoint,
+            test_endpoints=test_endpoints,
         )
 
         steps: list[ValidationStep] = []
@@ -83,7 +83,7 @@ class ConfigurationValidator:
             if self.config.enable_llm_judge:
                 steps.append(KubernetesLLMJudgeStep())
             steps.append(KubernetesApplyStep())
-            if test_endpoint:
+            if test_endpoints:
                 steps.append(RuntimeValidationStep())
 
         if not steps:

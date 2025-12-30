@@ -12,8 +12,8 @@ class RuntimeValidationStep:
     name = "runtime"
 
     def run(self, state: ValidationState, context: ValidationContext) -> ValidationStepResult:
-        if not state.test_endpoint:
-            # No test endpoint means we can't validate runtime, so it's a failure
+        if not state.test_endpoints:
+            # No test endpoints means we can't validate runtime, so it's a failure
             return ValidationStepResult(runtime_success=False)
 
         namespace = context.run_context.k8s_namespace
@@ -44,11 +44,19 @@ class RuntimeValidationStep:
             logger=context.logger,
         )
 
-        result = checker.check(namespace, state.test_endpoint)
+        result = checker.check_multiple(namespace, state.test_endpoints)
         issues.extend(runtime_issues_to_validation(result.issues, default_subject="runtime"))
         runtime_success = result.success
+
+        # Store endpoint success rate in metadata for proportional scoring
+        metadata = {
+            "total_endpoints": result.total_endpoints,
+            "successful_endpoints": result.successful_endpoints,
+            "success_rate": result.success_rate,
+        }
 
         return ValidationStepResult(
             issues=issues,
             runtime_success=runtime_success,
+            metadata=metadata,
         )

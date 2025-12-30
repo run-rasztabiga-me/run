@@ -18,7 +18,7 @@ class ConfigurationOutput(BaseModel):
     """Model for configuration generation output."""
     docker_images: List[DockerImageInfo] = Field(description="List of Docker images to build with their metadata")
     kubernetes_files: List[str] = Field(description="List of generated Kubernetes manifest paths")
-    test_endpoint: str = Field(description="Relative path to a test endpoint that should return 2xx status (e.g., '/', '/health', '/api/health')")
+    test_endpoints: List[str] = Field(description="List of relative paths to test endpoints that should return 2xx status (e.g., ['/', '/health', '/api/health'])")
 
     @property
     def dockerfiles(self) -> List[str]:

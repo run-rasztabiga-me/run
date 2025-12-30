@@ -24,10 +24,19 @@ class RuntimeCheckResult:
 
     issues: List[RuntimeIssue]
     ingress_url: Optional[str] = None
+    total_endpoints: int = 1
+    successful_endpoints: int = 0
 
     @property
     def success(self) -> bool:
         return not any(issue.is_error() for issue in self.issues)
+
+    @property
+    def success_rate(self) -> float:
+        """Return the proportion of successful endpoints (0.0 to 1.0)."""
+        if self.total_endpoints == 0:
+            return 0.0
+        return self.successful_endpoints / self.total_endpoints
 
 
 class IngressRuntimeChecker:
@@ -39,7 +48,14 @@ class IngressRuntimeChecker:
         self.logger = logger or logging.getLogger(__name__)
 
     def check(self, namespace: str, test_endpoint: str) -> RuntimeCheckResult:
+        """Check a single endpoint (backward compatibility)."""
+        return self.check_multiple(namespace, [test_endpoint])
+
+    def check_multiple(self, namespace: str, test_endpoints: List[str]) -> RuntimeCheckResult:
+        """Check multiple endpoints and return proportional success rate."""
         issues: List[RuntimeIssue] = []
+        total_endpoints = len(test_endpoints)
+        successful_endpoints = 0
 
         ingress_url = self._get_ingress_url(namespace)
         if not ingress_url:
@@ -51,7 +67,12 @@ class IngressRuntimeChecker:
                     subject=namespace,
                 )
             )
-            return RuntimeCheckResult(issues=issues, ingress_url=None)
+            return RuntimeCheckResult(
+                issues=issues,
+                ingress_url=None,
+                total_endpoints=total_endpoints,
+                successful_endpoints=0
+            )
 
         parsed_url = urlparse(ingress_url)
         hostname = parsed_url.hostname
@@ -64,15 +85,34 @@ class IngressRuntimeChecker:
                     subject=namespace,
                 )
             )
-            return RuntimeCheckResult(issues=issues, ingress_url=ingress_url)
+            return RuntimeCheckResult(
+                issues=issues,
+                ingress_url=ingress_url,
+                total_endpoints=total_endpoints,
+                successful_endpoints=0
+            )
 
         self._ensure_hosts_entry(hostname)
 
         self.logger.info("Waiting for ingress to be fully configured...")
         time.sleep(self.config.k8s_ingress_timeout)
 
-        issues.extend(self._check_endpoint_health(ingress_url, test_endpoint))
-        return RuntimeCheckResult(issues=issues, ingress_url=ingress_url)
+        # Check each endpoint
+        for endpoint in test_endpoints:
+            endpoint_issues = self._check_endpoint_health(ingress_url, endpoint)
+            if not endpoint_issues:
+                # Endpoint is healthy
+                successful_endpoints += 1
+            else:
+                # Endpoint failed - add issues
+                issues.extend(endpoint_issues)
+
+        return RuntimeCheckResult(
+            issues=issues,
+            ingress_url=ingress_url,
+            total_endpoints=total_endpoints,
+            successful_endpoints=successful_endpoints
+        )
 
     def _get_ingress_url(self, namespace: str) -> Optional[str]:
         result = self.command_runner.run(
