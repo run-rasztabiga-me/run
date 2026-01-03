@@ -7,26 +7,26 @@ experiments:
       - https://github.com/IamLRBA/Banner-Designer-WebApp.git
       - https://github.com/jan-bobrowski/lsfont.git
       - https://github.com/SoLiDinity/airwatch.git
-#      - https://github.com/cgize/DiceOpt_kcd2.git
-#      - https://github.com/SchoolTimer/ParklandSchoolTimer.git
-#      - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
-#      - https://github.com/tschoffelen/csv-hero
-#      - https://github.com/isixe/MetaThief
-#      - https://github.com/xixu-me/DeepLX-App
-#      - https://github.com/rafuwu/mtg-scryfall-randomizer
-#      - https://github.com/hsalvesen/vesen
-#      - https://github.com/AdaptChat/webclient.git
-#      - https://github.com/prathmesh-ka-github/Chessable
-#      - https://github.com/MindlessTruffle/Class-Order-Checker
-#      - https://github.com/isixe/AdSenseDetective.git
-#      - https://github.com/robweber/mario-kart-tournament
-#      - https://github.com/york9675/Tempo-Sync
-#      - https://github.com/bhavish00007/Attendence-Calculator
-#      - https://github.com/9582anupam/scheme-seva.git
-#      - https://github.com/efsavage/hello-world-war
-#      - https://github.com/FullStackWithLawrence/openai-hello-world
-#      - https://github.com/angelvicenteg/ToDo-List
-#      - https://github.com/mmumshad/simple-webapp-flask
+      - https://github.com/cgize/DiceOpt_kcd2.git
+      - https://github.com/SchoolTimer/ParklandSchoolTimer.git
+      - https://github.com/Mohit-Nathrani/Realtime-Chatting-WebApp.git
+      - https://github.com/tschoffelen/csv-hero
+      - https://github.com/isixe/MetaThief
+      - https://github.com/xixu-me/DeepLX-App
+      - https://github.com/rafuwu/mtg-scryfall-randomizer
+      - https://github.com/hsalvesen/vesen
+      - https://github.com/AdaptChat/webclient.git
+      - https://github.com/prathmesh-ka-github/Chessable
+      - https://github.com/MindlessTruffle/Class-Order-Checker
+      - https://github.com/isixe/AdSenseDetective.git
+      - https://github.com/robweber/mario-kart-tournament
+      - https://github.com/york9675/Tempo-Sync
+      - https://github.com/bhavish00007/Attendence-Calculator
+      - https://github.com/9582anupam/scheme-seva.git
+      - https://github.com/efsavage/hello-world-war
+      - https://github.com/FullStackWithLawrence/openai-hello-world
+      - https://github.com/angelvicenteg/ToDo-List
+      - https://github.com/mmumshad/simple-webapp-flask
     models:
       - provider: google_genai
         name: gemini-2.5-flash

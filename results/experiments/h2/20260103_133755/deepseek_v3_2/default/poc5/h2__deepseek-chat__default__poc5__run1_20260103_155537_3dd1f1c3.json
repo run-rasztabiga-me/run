@@ -1,0 +1,250 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+  "repo_name": "poc5",
+  "evaluation_id": "3dd1f1c3-fd3b-4b99-ad26-493d704c3c28",
+  "status": "completed",
+  "start_time": "2026-01-03T15:46:14.522835",
+  "end_time": "2026-01-03T15:55:37.812856",
+  "total_evaluation_time": 563.290021,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+    "repo_name": "poc5",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes-service",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users-service",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics-service",
+        "build_context": "backend/analytics_service"
+      },
+      {
+        "dockerfile_path": "backend/audit_service/Dockerfile",
+        "image_tag": "audit-service",
+        "build_context": "backend/audit_service"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/postgres-notes-secret.yaml",
+      "k8s/postgres-users-secret.yaml",
+      "k8s/postgres-analytics-secret.yaml",
+      "k8s/postgres-audit-secret.yaml",
+      "k8s/rabbitmq-secret.yaml",
+      "k8s/redis-secret.yaml",
+      "k8s/postgres-notes-statefulset.yaml",
+      "k8s/postgres-users-statefulset.yaml",
+      "k8s/postgres-analytics-statefulset.yaml",
+      "k8s/postgres-audit-statefulset.yaml",
+      "k8s/rabbitmq-statefulset.yaml",
+      "k8s/redis-statefulset.yaml",
+      "k8s/postgres-notes-service.yaml",
+      "k8s/postgres-users-service.yaml",
+      "k8s/postgres-analytics-service.yaml",
+      "k8s/postgres-audit-service.yaml",
+      "k8s/rabbitmq-service.yaml",
+      "k8s/redis-service.yaml",
+      "k8s/notes-service-configmap.yaml",
+      "k8s/users-service-configmap.yaml",
+      "k8s/analytics-service-configmap.yaml",
+      "k8s/audit-service-configmap.yaml",
+      "k8s/frontend-configmap.yaml",
+      "k8s/notes-service-deployment.yaml",
+      "k8s/notes-service-service.yaml",
+      "k8s/users-service-deployment.yaml",
+      "k8s/users-service-service.yaml",
+      "k8s/analytics-service-deployment.yaml",
+      "k8s/analytics-service-service.yaml",
+      "k8s/audit-service-deployment.yaml",
+      "k8s/audit-service-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 535.1649782657623,
+    "error_message": null,
+    "timestamp": "2026-01-03T15:55:18.816128",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-9514ea31-3cf7-40dd-b9e2-2b474a4a6a88",
+    "run_id": "9514ea31-3cf7-40dd-b9e2-2b474a4a6a88"
+  },
+  "execution_metrics": {
+    "total_time": 535.1649782657623,
+    "tool_calls_count": 63,
+    "tool_calls_breakdown": {
+      "think": 6,
+      "ls": 1,
+      "write_file": 39,
+      "search_files": 4,
+      "get_file_content": 11,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 2489397,
+    "input_tokens": 2477340,
+    "output_tokens": 12057,
+    "error_count": 0,
+    "run_id": "9514ea31-3cf7-40dd-b9e2-2b474a4a6a88",
+    "docker_build_metrics": [
+      {
+        "image_tag": "frontend",
+        "build_time": 9.434077024459839,
+        "image_size_mb": 22.01,
+        "layers_count": 12
+      },
+      {
+        "image_tag": "notes-service",
+        "build_time": 0.7724804878234863,
+        "image_size_mb": 159.83,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "users-service",
+        "build_time": 0.7448270320892334,
+        "image_size_mb": 161.71,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "analytics-service",
+        "build_time": 0.7573177814483643,
+        "image_size_mb": 158.45,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/notes_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/users_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/analytics_service/Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "backend/audit_service/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 268B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.2s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 6.64kB done\n#4 DONE 0.0s\n\n#5 [1/5] FROM docker.io/library/node:20-alpine@sha256:658d0f63e501824d6c23e06d4bb95c71e7d704537c9d9272f488ac03a370d448\n#5 resolve docker.io/library/node:20-alpine@sha256:658d0f63e501824d6c23e06d4bb95c71e7d704537c9d9272f488ac03a370d448 done\n#5 DONE 0.0s\n\n#6 [2/5] WORKDIR /app\n#6 CACHED\n\n#7 [3/5] COPY package*.json ./\n#7 CACHED\n\n#8 [4/5] RUN npm ci --only=production\n#8 0.447 npm warn config only Use `--omit=dev` to omit dev dependencies from the install.\n#8 0.785 npm error code EUSAGE\n#8 0.785 npm error\n#8 0.785 npm error The `npm ci` command can only install with an existing package-lock.json or\n#8 0.785 npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or\n#8 0.785 npm error later to generate a package-lock.json file, then try again.\n#8 0.785 npm error\n#8 0.785 npm error Clean install a project\n#8 0.785 npm error\n#8 0.785 npm error Usage:\n#8 0.785 npm error npm ci\n#8 0.785 npm error\n#8 0.785 npm error Options:\n#8 0.785 npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]\n#8 0.785 npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]\n#8 0.785 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\n#8 0.785 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]\n#8 0.785 npm error [--no-bin-links] [--no-fund] [--dry-run]\n#8 0.785 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\n#8 0.785 npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]\n#8 0.785 npm error\n#8 0.785 npm error aliases: clean-install, ic, install-clean, isntall-clean\n#8 0.785 npm error\n#8 0.785 npm error Run \"npm help ci\" for more info\n#8 0.786 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-01-03T14_55_37_348Z-debug-0.log\n#8 ERROR: process \"/bin/sh -c npm ci --only=production\" did not complete successfully: exit code: 1\n------\n > [4/5] RUN npm ci --only=production:\n0.785 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\n0.785 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]\n0.785 npm error [--no-bin-links] [--no-fund] [--dry-run]\n0.785 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\n0.785 npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]\n0.785 npm error\n0.785 npm error aliases: clean-install, ic, install-clean, isntall-clean\n0.785 npm error\n0.785 npm error Run \"npm help ci\" for more info\n0.786 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-01-03T14_55_37_348Z-debug-0.log\n------\nDockerfile:9\n--------------------\n   7 |     \n   8 |     # Install dependencies\n   9 | >>> RUN npm ci --only=production\n  10 |     \n  11 |     # Copy application code\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm ci --only=production\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/smdfoa5jdtamhk6evregaptmk",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 3,
+    "info_count": 3,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 3,
+      "total_info": 3,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 3,
+        "total_info": 3,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 3,
+            "info": 3
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-01-03T15:46:14.523060: Starting configuration generation",
+    "2026-01-03T15:55:18.816302: Generated 5 Dockerfiles and 34 K8s manifests",
+    "2026-01-03T15:55:18.816305: Starting quality assessment",
+    "2026-01-03T15:55:37.812793: Built 4 Docker images (total: 502.0 MB, avg time: 2.9s)",
+    "2026-01-03T15:55:37.812828: Dockerfile validation: 1 errors, 3 warnings",
+    "2026-01-03T15:55:37.812835: K8s validation: 0 errors, 0 warnings",
+    "2026-01-03T15:55:37.812845: Runtime validation skipped due to Docker build errors",
+    "2026-01-03T15:55:37.812847: Generating evaluation report"
+  ],
+  "experiment_name": "h2",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-9514ea31-3cf7-40dd-b9e2-2b474a4a6a88",
+    "run_id": "9514ea31-3cf7-40dd-b9e2-2b474a4a6a88"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "experiment": "h2",
+  "state": "completed",
+  "started_at": "2026-01-03T13:37:55.893031+00:00",
+  "repo_count": 5,
+  "model_count": 3,
+  "prompt_count": 1,
+  "repetitions": 1,
+  "runs_total": 15,
+  "runs_completed": 15,
+  "last_run_duration": 563.303,
+  "avg_run_duration": 310.795,
+  "eta_seconds": 0.0,
+  "estimated_completion": "2026-01-03T14:55:37.826210+00:00",
+  "updated_at": "2026-01-03T14:55:37.826210+00:00",
+  "finished_at": "2026-01-03T14:55:37.826210+00:00",
+  "runs_recorded": 15,
+  "summary_generated": true,
+  "summary_csv": "evaluation_reports/experiments/h2/20260103_133755/summary.csv",
+  "summary_json": "evaluation_reports/experiments/h2/20260103_133755/summary.json"
+}
