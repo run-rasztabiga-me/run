@@ -114,7 +114,11 @@ class ConfigurationEvaluator:
             report.build_success = None if not generation_result.docker_images else not assessment.build_failed
 
             # Add note about deployment (only if no build errors)
-            if generation_result.k8s_manifests and not assessment.build_failed:
+            if (
+                generation_result.k8s_manifests
+                and not assessment.build_failed
+                and self.generator_config.enable_runtime_validation
+            ):
                 namespace = generation_result.run_context.k8s_namespace
                 report.add_note(f"Deployed to namespace: {namespace}")
 
@@ -139,6 +143,9 @@ class ConfigurationEvaluator:
             elif assessment.build_failed:
                 report.add_note("Runtime validation skipped due to Docker build errors")
                 report.runtime_success = False
+            elif not self.generator_config.enable_runtime_validation:
+                report.add_note("Runtime validation skipped by configuration")
+                report.runtime_success = None
             else:
                 # Runtime validation was not executed (no test endpoint or no k8s manifests)
                 report.runtime_success = False

@@ -89,6 +89,59 @@ def stage_value(run: Dict, stage: str) -> Optional[bool]:
     return None
 
 
+def extract_linter_warnings(run: Dict) -> Tuple[int, int]:
+    qb = (run.get("quality_metrics") or {}).get("scoring_breakdown") or {}
+    docker = qb.get("docker") or {}
+    kubernetes = qb.get("kubernetes") or {}
+
+    docker_phases = docker.get("phases") or {}
+    k8s_phases = kubernetes.get("phases") or {}
+
+    if "docker_linters" in docker_phases:
+        docker_warnings = docker_phases["docker_linters"].get("warnings", 0) or 0
+    else:
+        docker_warnings = docker.get("total_warnings", 0) or 0
+
+    if "k8s_linters" in k8s_phases:
+        k8s_warnings = k8s_phases["k8s_linters"].get("warnings", 0) or 0
+    else:
+        k8s_warnings = kubernetes.get("total_warnings", 0) or 0
+
+    return int(docker_warnings), int(k8s_warnings)
+
+
+def classify_warning_path(file_path: Optional[str]) -> str:
+    if not file_path:
+        return "unknown"
+    path = file_path.lower()
+    if "dockerfile" in path:
+        return "docker"
+    if path.startswith("k8s/") or "/k8s/" in path or path.endswith((".yaml", ".yml")):
+        return "k8s"
+    return "unknown"
+
+
+def extract_warning_details(run: Dict) -> list:
+    issues = (run.get("quality_metrics") or {}).get("validation_issues") or []
+    details = []
+    for issue in issues:
+        if not isinstance(issue, dict):
+            continue
+        if str(issue.get("severity", "")).lower() != "warning":
+            continue
+        file_path = issue.get("file_path")
+        details.append(
+            {
+                "type": classify_warning_path(file_path),
+                "file_path": file_path,
+                "line_number": issue.get("line_number"),
+                "rule_id": issue.get("rule_id"),
+                "message": issue.get("message"),
+            }
+        )
+    return details
+
+
 def compute_stats(base: pathlib.Path) -> Dict:
     stage_counts = {"build": 0, "apply": 0, "runtime": 0}
     stage_success = {"build": 0, "apply": 0, "runtime": 0}
@@ -102,6 +155,9 @@ def compute_stats(base: pathlib.Path) -> Dict:
     # Per repo stage breakdown
     per_repo_stage_counts: Dict[str, Dict[str, int]] = {}
     per_repo_stage_success: Dict[str, Dict[str, int]] = {}
+    per_prompt_quality: Dict[str, Dict[str, int]] = {}
+    per_repo_quality: Dict[str, Dict[str, Dict[str, int]]] = {}
+    warning_details: Dict[str, list] = {"docker": [], "k8s": [], "unknown": []}
 
     total_runs = 0
     total_success = 0
@@ -120,6 +176,59 @@ def compute_stats(base: pathlib.Path) -> Dict:
         # Initialize per-repo stage tracking
         per_repo_stage_counts.setdefault(repo, {"build": 0, "apply": 0, "runtime": 0})
         per_repo_stage_success.setdefault(repo, {"build": 0, "apply": 0, "runtime": 0})
+
+        for detail in extract_warning_details(run):
+            detail.update(
+                {
+                    "repo": repo,
+                    "model": model,
+                    "prompt": prompt,
+                    "run_id": run.get("run_id"),
+                }
+            )
+            warning_details.setdefault(detail["type"], []).append(detail)
+
+        docker_warnings, k8s_warnings = extract_linter_warnings(run)
+        total_warnings = docker_warnings + k8s_warnings
+        per_prompt_quality.setdefault(
+            prompt,
+            {
+                "runs": 0,
+                "runs_with_warnings": 0,
+                "runs_without_warnings": 0,
+                "total_warnings": 0,
+                "docker_warnings": 0,
+                "k8s_warnings": 0,
+            },
+        )
+        per_prompt_quality[prompt]["runs"] += 1
+        per_prompt_quality[prompt]["total_warnings"] += total_warnings
+        per_prompt_quality[prompt]["docker_warnings"] += docker_warnings
+        per_prompt_quality[prompt]["k8s_warnings"] += k8s_warnings
+        if total_warnings > 0:
+            per_prompt_quality[prompt]["runs_with_warnings"] += 1
+        else:
+            per_prompt_quality[prompt]["runs_without_warnings"] += 1
+
+        per_repo_quality.setdefault(repo, {}).setdefault(
+            prompt,
+            {
+                "runs": 0,
+                "runs_with_warnings": 0,
+                "runs_without_warnings": 0,
+                "total_warnings": 0,
+                "docker_warnings": 0,
+                "k8s_warnings": 0,
+            },
+        )
+        per_repo_quality[repo][prompt]["runs"] += 1
+        per_repo_quality[repo][prompt]["total_warnings"] += total_warnings
+        per_repo_quality[repo][prompt]["docker_warnings"] += docker_warnings
+        per_repo_quality[repo][prompt]["k8s_warnings"] += k8s_warnings
+        if total_warnings > 0:
+            per_repo_quality[repo][prompt]["runs_with_warnings"] += 1
+        else:
+            per_repo_quality[repo][prompt]["runs_without_warnings"] += 1
 
         build = stage_value(run, "build")
         apply_ok = stage_value(run, "apply")
@@ -169,6 +278,11 @@ def compute_stats(base: pathlib.Path) -> Dict:
         "per_model_counts": per_model_counts,
         "per_repo_stage_counts": per_repo_stage_counts,
         "per_repo_stage_success": per_repo_stage_success,
+        "h3": {
+            "per_prompt_quality": per_prompt_quality,
+            "per_repo_quality": per_repo_quality,
+            "warning_details": warning_details,
+        },
     }
 
 
@@ -420,6 +534,82 @@ def main() -> int:
                         low, high = stage_ci["ci"]
                         line += f" (CI: {format_pct(low)}–{format_pct(high)})"
                     print(line, file=f)
+
+        h3 = stats.get("h3", {})
+        if h3.get("per_prompt_quality"):
+            print("\nH3 quality stats (linters):", file=f)
+            for prompt, data in h3["per_prompt_quality"].items():
+                runs = data["runs"]
+                with_warn = data["runs_with_warnings"]
+                without_warn = data["runs_without_warnings"]
+                total_warnings = data["total_warnings"]
+                docker_warnings = data["docker_warnings"]
+                k8s_warnings = data["k8s_warnings"]
+                pct_with = (with_warn / runs) if runs else None
+                pct_without = (without_warn / runs) if runs else None
+                avg_warnings = (total_warnings / runs) if runs else None
+                avg_str = f"{avg_warnings:.2f}" if avg_warnings is not None else "n/a"
+                line = (
+                    f"  {prompt}: warnings {with_warn}/{runs} = {format_pct(pct_with)}; "
+                    f"clean {without_warn}/{runs} = {format_pct(pct_without)}; "
+                    f"total {total_warnings} (docker {docker_warnings}, k8s {k8s_warnings}), "
+                    f"avg {avg_str}"
+                )
+                print(line, file=f)
+
+            print("\nH3 per repo stats (linters):", file=f)
+            for repo in sorted(h3.get("per_repo_quality", {}).keys()):
+                print(f"  {repo}:", file=f)
+                per_prompt = h3["per_repo_quality"][repo]
+                for prompt in sorted(per_prompt.keys()):
+                    data = per_prompt[prompt]
+                    runs = data["runs"]
+                    with_warn = data["runs_with_warnings"]
+                    without_warn = data["runs_without_warnings"]
+                    total_warnings = data["total_warnings"]
+                    docker_warnings = data["docker_warnings"]
+                    k8s_warnings = data["k8s_warnings"]
+                    pct_with = (with_warn / runs) if runs else None
+                    pct_without = (without_warn / runs) if runs else None
+                    avg_warnings = (total_warnings / runs) if runs else None
+                    avg_str = f"{avg_warnings:.2f}" if avg_warnings is not None else "n/a"
+                    line = (
+                        f"    {prompt}: warnings {with_warn}/{runs} = {format_pct(pct_with)}; "
+                        f"clean {without_warn}/{runs} = {format_pct(pct_without)}; "
+                        f"total {total_warnings} (docker {docker_warnings}, k8s {k8s_warnings}), "
+                        f"avg {avg_str}"
+                    )
+                    print(line, file=f)
+
+            warnings = h3.get("warning_details") or {}
+            if warnings:
+                print("\nH3 warnings debug (docker):", file=f)
+                for item in warnings.get("docker", []):
+                    line = (
+                        f"  {item.get('repo')} | {item.get('model')} | {item.get('prompt')} | "
+                        f"{item.get('file_path')}:{item.get('line_number')} | "
+                        f"{item.get('rule_id')} | {item.get('message')}"
+                    )
+                    print(line, file=f)
+
+                print("\nH3 warnings debug (k8s):", file=f)
+                for item in warnings.get("k8s", []):
+                    line = (
+                        f"  {item.get('repo')} | {item.get('model')} | {item.get('prompt')} | "
+                        f"{item.get('file_path')}:{item.get('line_number')} | "
+                        f"{item.get('rule_id')} | {item.get('message')}"
+                    )
+                    print(line, file=f)
+
+                if warnings.get("unknown"):
+                    print("\nH3 warnings debug (unknown):", file=f)
+                    for item in warnings.get("unknown", []):
+                        line = (
+                            f"  {item.get('repo')} | {item.get('model')} | {item.get('prompt')} | "
+                            f"{item.get('file_path')}:{item.get('line_number')} | "
+                            f"{item.get('rule_id')} | {item.get('message')}"
+                        )
+                        print(line, file=f)
 
     print(f"Results saved to {output_file}")
 

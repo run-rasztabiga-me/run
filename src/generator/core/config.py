@@ -28,6 +28,12 @@ class GeneratorConfig(BaseModel):
     llm_judge_model_provider: Optional[str] = Field(default=None, description="Override provider for LLM-as-a-judge evaluations.")
     llm_judge_temperature: float = Field(default=0.0, description="Sampling temperature for LLM-as-a-judge calls (defaults to 0.0 for determinism).")
 
+    # Validation toggles
+    enable_runtime_validation: bool = Field(
+        default=True,
+        description="Run Kubernetes apply and runtime checks during evaluator runs."
+    )
+
     # Agent settings
     recursion_limit: int = 200
 

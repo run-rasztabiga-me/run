@@ -1,4 +1,4 @@
-Experiment path: /Users/rasztabigab/Studia/run/evaluation_reports/experiments/h2/20251230_155353
+Experiment path: /Users/rasztabigab/Studia/run/results/experiments/h2/20251230_155353
 Runs: 15/45 = 33.3%
   95% CI: 21.4%–47.9%
 
@@ -45,3 +45,236 @@ Per repo stage breakdown:
     build: 2/9 = 22.2% (CI: 6.3%–54.7%)
     apply: 1/8 = 12.5% (CI: 2.2%–47.1%)
     runtime: 0/9 = 0.0% (CI: 0.0%–29.9%)
+
+H3 quality stats (linters):
+  default: warnings 36/45 = 80.0%; clean 9/45 = 20.0%; total 209 (docker 40, k8s 169), avg 4.64
+
+H3 per repo stats (linters):
+  poc1-fastapi:
+    default: warnings 9/9 = 100.0%; clean 0/9 = 0.0%; total 22 (docker 4, k8s 18), avg 2.44
+  poc2-fastapi:
+    default: warnings 9/9 = 100.0%; clean 0/9 = 0.0%; total 42 (docker 6, k8s 36), avg 4.67
+  poc3-fastapi:
+    default: warnings 7/9 = 77.8%; clean 2/9 = 22.2%; total 46 (docker 6, k8s 40), avg 5.11
+  poc4-fastapi:
+    default: warnings 5/9 = 55.6%; clean 4/9 = 44.4%; total 68 (docker 9, k8s 59), avg 7.56
+  poc5:
+    default: warnings 6/9 = 66.7%; clean 3/9 = 33.3%; total 31 (docker 15, k8s 16), avg 3.44
+
+H3 warnings debug (docker):
+  poc1-fastapi | gpt-5-mini | default | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc1-fastapi | deepseek-chat | default | Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc1-fastapi | deepseek-chat | default | Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc1-fastapi | deepseek-chat | default | Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc2-fastapi | gpt-5-mini | default | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc2-fastapi | gpt-5-mini | default | Dockerfile:7 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc2-fastapi | gpt-5-mini | default | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc2-fastapi | deepseek-chat | default | Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc2-fastapi | deepseek-chat | default | Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc2-fastapi | deepseek-chat | default | Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc3-fastapi | gemini-2.5-flash | default | frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc3-fastapi-96581775-1635-4c9e-9591-90aedcdc58ee/frontend/Dockerfile:3 1 |
+  poc3-fastapi | gpt-5-mini | default | backend/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc3-fastapi | gpt-5-mini | default | backend/Dockerfile:7 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc3-fastapi | gpt-5-mini | default | backend/Dockerfile:8 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc3-fastapi | deepseek-chat | default | backend/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc3-fastapi | deepseek-chat | default | backend/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc3-fastapi | deepseek-chat | default | backend/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | gemini-2.5-flash | default | frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc4-fastapi-8f78eadc-68b9-4b38-b596-18798cb3d85f/frontend/Dockerfile:3 1 |
+  poc4-fastapi | deepseek-chat | default | backend/notes_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | deepseek-chat | default | backend/users_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | deepseek-chat | default | backend/analytics_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | deepseek-chat | default | backend/notes_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | deepseek-chat | default | backend/users_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | deepseek-chat | default | backend/analytics_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | deepseek-chat | default | backend/notes_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | deepseek-chat | default | backend/users_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc4-fastapi | deepseek-chat | default | backend/analytics_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | gemini-2.5-flash | default | frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc5-388b4f35-cffe-4ecc-b2f6-732f8529d3dc/frontend/Dockerfile:3 1 |
+  poc5 | gemini-2.5-flash | default | frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc5-2a0b2e31-c5d2-47df-925a-45ae794713c8/frontend/Dockerfile:1 1 | >>> FROM node:18-alpine as builder
+  poc5 | gpt-5-mini | default | backend/notes_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | gpt-5-mini | default | backend/users_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | gpt-5-mini | default | backend/analytics_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | gpt-5-mini | default | frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc5-12fc6389-cf9e-4aba-8122-c31fa6347a63/frontend/Dockerfile:1 1 | >>> FROM node:20-alpine as builder
+  poc5 | gpt-5-mini | default | backend/users_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | gpt-5-mini | default | backend/notes_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | gpt-5-mini | default | backend/analytics_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/notes_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/users_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/analytics_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/notes_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/users_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/analytics_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/notes_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/users_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  poc5 | deepseek-chat | default | backend/analytics_service/Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+
+H3 warnings debug (k8s):
+  poc1-fastapi | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "poc1-fastapi" does not have a read-only root file system
+  poc1-fastapi | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "poc1-fastapi" is not set to runAsNonRoot
+  poc1-fastapi | gemini-2.5-flash | default | k8s/poc1-fastapi-deployment.yaml:None | no-read-only-root-fs | container "poc1-fastapi" does not have a read-only root file system
+  poc1-fastapi | gemini-2.5-flash | default | k8s/poc1-fastapi-deployment.yaml:None | run-as-non-root | container "poc1-fastapi" is not set to runAsNonRoot
+  poc1-fastapi | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "poc1-fastapi" does not have a read-only root file system
+  poc1-fastapi | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "poc1-fastapi" is not set to runAsNonRoot
+  poc1-fastapi | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "poc1-fastapi" does not have a read-only root file system
+  poc1-fastapi | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "poc1-fastapi" is not set to runAsNonRoot
+  poc1-fastapi | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "poc1-fastapi" does not have a read-only root file system
+  poc1-fastapi | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "poc1-fastapi" is not set to runAsNonRoot
+  poc1-fastapi | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "app" does not have a read-only root file system
+  poc1-fastapi | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "app" is not set to runAsNonRoot
+  poc1-fastapi | deepseek-chat | default | k8s/fastapi-deployment.yaml:None | no-read-only-root-fs | container "fastapi-app" does not have a read-only root file system
+  poc1-fastapi | deepseek-chat | default | k8s/fastapi-deployment.yaml:None | run-as-non-root | container "fastapi-app" is not set to runAsNonRoot
+  poc1-fastapi | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "poc1-fastapi" does not have a read-only root file system
+  poc1-fastapi | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "poc1-fastapi" is not set to runAsNonRoot
+  poc1-fastapi | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "poc1-fastapi" does not have a read-only root file system
+  poc1-fastapi | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "poc1-fastapi" is not set to runAsNonRoot
+  poc2-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc2-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc2-fastapi | gemini-2.5-flash | default | k8s/fastapi-deployment.yaml:None | no-read-only-root-fs | container "fastapi-app" does not have a read-only root file system
+  poc2-fastapi | gemini-2.5-flash | default | k8s/fastapi-deployment.yaml:None | run-as-non-root | container "fastapi-app" is not set to runAsNonRoot
+  poc2-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc2-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc2-fastapi | gemini-2.5-flash | default | k8s/fastapi-deployment.yaml:None | no-read-only-root-fs | container "fastapi-app" does not have a read-only root file system
+  poc2-fastapi | gemini-2.5-flash | default | k8s/fastapi-deployment.yaml:None | run-as-non-root | container "fastapi-app" is not set to runAsNonRoot
+  poc2-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc2-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc2-fastapi | gemini-2.5-flash | default | k8s/poc2-fastapi-deployment.yaml:None | no-read-only-root-fs | container "poc2-fastapi" does not have a read-only root file system
+  poc2-fastapi | gemini-2.5-flash | default | k8s/poc2-fastapi-deployment.yaml:None | run-as-non-root | container "poc2-fastapi" is not set to runAsNonRoot
+  poc2-fastapi | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "app" does not have a read-only root file system
+  poc2-fastapi | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "app" is not set to runAsNonRoot
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | unset-cpu-requirements | container "postgres" has cpu request 0
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | unset-memory-requirements | container "postgres" has memory limit 0
+  poc2-fastapi | gpt-5-mini | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  poc2-fastapi | gpt-5-mini | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | unset-cpu-requirements | container "postgres" has cpu request 0
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | unset-memory-requirements | container "postgres" has memory limit 0
+  poc2-fastapi | gpt-5-mini | default | k8s/app-deployment.yaml:None | no-read-only-root-fs | container "app" does not have a read-only root file system
+  poc2-fastapi | gpt-5-mini | default | k8s/app-deployment.yaml:None | run-as-non-root | container "app" is not set to runAsNonRoot
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc2-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc2-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc2-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc2-fastapi | deepseek-chat | default | k8s/fastapi-deployment.yaml:None | no-read-only-root-fs | container "fastapi" does not have a read-only root file system
+  poc2-fastapi | deepseek-chat | default | k8s/fastapi-deployment.yaml:None | run-as-non-root | container "fastapi" is not set to runAsNonRoot
+  poc2-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc2-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc2-fastapi | deepseek-chat | default | k8s/fastapi-deployment.yaml:None | no-read-only-root-fs | container "fastapi" does not have a read-only root file system
+  poc2-fastapi | deepseek-chat | default | k8s/fastapi-deployment.yaml:None | run-as-non-root | container "fastapi" is not set to runAsNonRoot
+  poc3-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc3-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc3-fastapi | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  poc3-fastapi | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  poc3-fastapi | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc3-fastapi | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc3-fastapi | gpt-5-mini | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  poc3-fastapi | gpt-5-mini | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  poc3-fastapi | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc3-fastapi | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc3-fastapi | gpt-5-mini | default | k8s/frontend-deployment-update.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc3-fastapi | gpt-5-mini | default | k8s/frontend-deployment-update.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc3-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc3-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc3-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | unset-cpu-requirements | container "postgres" has cpu request 0
+  poc3-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | unset-memory-requirements | container "postgres" has memory limit 0
+  poc3-fastapi | gpt-5-mini | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  poc3-fastapi | gpt-5-mini | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  poc3-fastapi | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc3-fastapi | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc3-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc3-fastapi | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  poc3-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc3-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/rabbitmq-statefulset.yaml:None | no-read-only-root-fs | container "rabbitmq" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/rabbitmq-statefulset.yaml:None | run-as-non-root | container "rabbitmq" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/notes-deployment.yaml:None | no-read-only-root-fs | container "notes-service" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/notes-deployment.yaml:None | run-as-non-root | container "notes-service" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/users-deployment.yaml:None | no-read-only-root-fs | container "users-service" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/users-deployment.yaml:None | run-as-non-root | container "users-service" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/analytics-deployment.yaml:None | no-read-only-root-fs | container "analytics-service" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/analytics-deployment.yaml:None | run-as-non-root | container "analytics-service" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/rabbitmq-statefulset.yaml:None | no-read-only-root-fs | container "rabbitmq" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/rabbitmq-statefulset.yaml:None | run-as-non-root | container "rabbitmq" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/notes-service-deployment.yaml:None | no-read-only-root-fs | container "notes-service" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/notes-service-deployment.yaml:None | run-as-non-root | container "notes-service" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/users-service-deployment.yaml:None | no-read-only-root-fs | container "users-service" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/users-service-deployment.yaml:None | run-as-non-root | container "users-service" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/analytics-service-deployment.yaml:None | no-read-only-root-fs | container "analytics-service" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/analytics-service-deployment.yaml:None | run-as-non-root | container "analytics-service" is not set to runAsNonRoot
+  poc4-fastapi | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc4-fastapi | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-notes-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-notes-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-users-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-users-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-analytics-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-analytics-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/rabbitmq-statefulset.yaml:None | no-read-only-root-fs | container "rabbitmq" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/rabbitmq-statefulset.yaml:None | run-as-non-root | container "rabbitmq" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/notes-service-deployment.yaml:None | env-var-secret | environment variable JWT_SECRET in container "notes-service" found
+  poc4-fastapi | deepseek-chat | default | k8s/notes-service-deployment.yaml:None | no-read-only-root-fs | container "notes-service" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/notes-service-deployment.yaml:None | run-as-non-root | container "notes-service" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/users-service-deployment.yaml:None | env-var-secret | environment variable JWT_SECRET in container "users-service" found
+  poc4-fastapi | deepseek-chat | default | k8s/users-service-deployment.yaml:None | no-read-only-root-fs | container "users-service" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/users-service-deployment.yaml:None | run-as-non-root | container "users-service" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/analytics-service-deployment.yaml:None | env-var-secret | environment variable JWT_SECRET in container "analytics-service" found
+  poc4-fastapi | deepseek-chat | default | k8s/analytics-service-deployment.yaml:None | no-read-only-root-fs | container "analytics-service" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/analytics-service-deployment.yaml:None | run-as-non-root | container "analytics-service" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-notes-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-notes-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-users-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-users-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-analytics-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/postgres-analytics-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/rabbitmq-statefulset.yaml:None | no-read-only-root-fs | container "rabbitmq" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/rabbitmq-statefulset.yaml:None | run-as-non-root | container "rabbitmq" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/notes-service-deployment.yaml:None | no-read-only-root-fs | container "notes-service" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/notes-service-deployment.yaml:None | run-as-non-root | container "notes-service" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/users-service-deployment.yaml:None | no-read-only-root-fs | container "users-service" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/users-service-deployment.yaml:None | run-as-non-root | container "users-service" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/analytics-service-deployment.yaml:None | no-read-only-root-fs | container "analytics-service" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/analytics-service-deployment.yaml:None | run-as-non-root | container "analytics-service" is not set to runAsNonRoot
+  poc4-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc4-fastapi | deepseek-chat | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc5 | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  poc5 | gemini-2.5-flash | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  poc5 | gemini-2.5-flash | default | k8s/rabbitmq-statefulset.yaml:None | no-read-only-root-fs | container "rabbitmq" does not have a read-only root file system
+  poc5 | gemini-2.5-flash | default | k8s/rabbitmq-statefulset.yaml:None | run-as-non-root | container "rabbitmq" is not set to runAsNonRoot
+  poc5 | gemini-2.5-flash | default | k8s/redis-statefulset.yaml:None | no-read-only-root-fs | container "redis" does not have a read-only root file system
+  poc5 | gemini-2.5-flash | default | k8s/redis-statefulset.yaml:None | run-as-non-root | container "redis" is not set to runAsNonRoot
+  poc5 | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  poc5 | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  poc5 | gemini-2.5-flash | default | k8s/users-service-deployment.yaml:None | no-read-only-root-fs | container "users-service" does not have a read-only root file system
+  poc5 | gemini-2.5-flash | default | k8s/users-service-deployment.yaml:None | run-as-non-root | container "users-service" is not set to runAsNonRoot
+  poc5 | gemini-2.5-flash | default | k8s/notes-service-deployment.yaml:None | no-read-only-root-fs | container "notes-service" does not have a read-only root file system
+  poc5 | gemini-2.5-flash | default | k8s/notes-service-deployment.yaml:None | run-as-non-root | container "notes-service" is not set to runAsNonRoot
+  poc5 | gemini-2.5-flash | default | k8s/analytics-service-deployment.yaml:None | no-read-only-root-fs | container "analytics-service" does not have a read-only root file system
+  poc5 | gemini-2.5-flash | default | k8s/analytics-service-deployment.yaml:None | run-as-non-root | container "analytics-service" is not set to runAsNonRoot
+  poc5 | gemini-2.5-flash | default | k8s/audit-service-deployment.yaml:None | no-read-only-root-fs | container "audit-service" does not have a read-only root file system
+  poc5 | gemini-2.5-flash | default | k8s/audit-service-deployment.yaml:None | run-as-non-root | container "audit-service" is not set to runAsNonRoot

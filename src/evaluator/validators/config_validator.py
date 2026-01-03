@@ -82,9 +82,10 @@ class ConfigurationValidator:
             )
             if self.config.enable_llm_judge:
                 steps.append(KubernetesLLMJudgeStep())
-            steps.append(KubernetesApplyStep())
-            if test_endpoints:
-                steps.append(RuntimeValidationStep())
+            if self.config.enable_runtime_validation:
+                steps.append(KubernetesApplyStep())
+                if test_endpoints:
+                    steps.append(RuntimeValidationStep())
 
         if not steps:
             self.logger.debug("No validation steps scheduled for repository %s", self.run_context.repo_name)
