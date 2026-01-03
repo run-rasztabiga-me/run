@@ -49,5 +49,5 @@ experiments:
       - id: best_practices
         description: Best-practices prompt
         system_prompt_path: prompts/best_practices.prompt
-    repetitions: 2
+    repetitions: 1
     cleanup: per_run

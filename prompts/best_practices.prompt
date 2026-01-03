@@ -40,7 +40,7 @@ When creating Kubernetes manifests:
 - Include resource requests and limits for all containers
 - Add health checks if the service has a health endpoint
 - For security context: default to non-root when possible; if the Dockerfile sets USER or the base image is known to be non-root, set runAsNonRoot: true (and runAsUser when known)
-- Use readOnlyRootFilesystem: true and add writable volume mounts (e.g., emptyDir for /tmp or app-specific write paths) when the app needs write access
+- Always set readOnlyRootFilesystem: true for containers by default. If the app needs to write, add explicit writable volume mounts (e.g., emptyDir for /tmp or app-specific write paths) and keep the root filesystem read-only.
 - When non-root/read-only would break the app, document the reason and fall back to root with minimal permissions
 
 IMPORTANT - Discovering External Dependencies:
