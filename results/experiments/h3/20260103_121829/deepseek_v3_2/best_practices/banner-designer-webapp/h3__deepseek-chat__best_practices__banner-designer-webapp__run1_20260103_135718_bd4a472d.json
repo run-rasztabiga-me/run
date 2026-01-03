@@ -1,0 +1,157 @@
+{
+  "repo_url": "https://github.com/IamLRBA/Banner-Designer-WebApp.git",
+  "repo_name": "banner-designer-webapp",
+  "evaluation_id": "bd4a472d-3372-44ec-b6e9-9ed336469fd1",
+  "status": "completed",
+  "start_time": "2026-01-03T13:54:16.607609",
+  "end_time": "2026-01-03T13:57:18.601240",
+  "total_evaluation_time": 181.993631,
+  "generation_result": {
+    "repo_url": "https://github.com/IamLRBA/Banner-Designer-WebApp.git",
+    "repo_name": "banner-designer-webapp",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "banner-designer-webapp",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 158.23888993263245,
+    "error_message": null,
+    "timestamp": "2026-01-03T13:57:02.070835",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/banner-designer-webapp-26a923ac-50bb-4fa6-a785-2e84c263f071",
+    "run_id": "26a923ac-50bb-4fa6-a785-2e84c263f071"
+  },
+  "execution_metrics": {
+    "total_time": 158.23888993263245,
+    "tool_calls_count": 23,
+    "tool_calls_breakdown": {
+      "think": 7,
+      "search_files": 2,
+      "get_file_content": 4,
+      "write_file": 5,
+      "ls": 1,
+      "find_files": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 240171,
+    "input_tokens": 236494,
+    "output_tokens": 3677,
+    "error_count": 0,
+    "run_id": "26a923ac-50bb-4fa6-a785-2e84c263f071",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 5,
+        "severity": "warning",
+        "message": "Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`",
+        "rule_id": "DL3018"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 31,
+        "severity": "warning",
+        "message": "Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`",
+        "rule_id": "DL3018"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 34,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 1.49kB done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:20-alpine\n#2 DONE 0.3s\n\n#3 [internal] load metadata for docker.io/library/nginx:1.25-alpine\n#3 DONE 0.3s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [builder 1/7] FROM docker.io/library/node:20-alpine@sha256:658d0f63e501824d6c23e06d4bb95c71e7d704537c9d9272f488ac03a370d448\n#5 resolve docker.io/library/node:20-alpine@sha256:658d0f63e501824d6c23e06d4bb95c71e7d704537c9d9272f488ac03a370d448 done\n#5 CACHED\n\n#6 [stage-1 1/7] FROM docker.io/library/nginx:1.25-alpine@sha256:516475cc129da42866742567714ddc681e5eed7b9ee0b9e9c015e464b4221a00\n#6 resolve docker.io/library/nginx:1.25-alpine@sha256:516475cc129da42866742567714ddc681e5eed7b9ee0b9e9c015e464b4221a00 done\n#6 CACHED\n\n#7 [internal] load build context\n#7 transferring context: 46.08MB 0.3s done\n#7 DONE 0.3s\n\n#8 [stage-1 2/7] RUN apk add --no-cache curl\n#8 0.306 fetch https://dl-cdn.alpinelinux.org/alpine/v3.19/main/x86_64/APKINDEX.tar.gz\n#8 0.584 fetch https://dl-cdn.alpinelinux.org/alpine/v3.19/community/x86_64/APKINDEX.tar.gz\n#8 0.807 OK: 46 MiB in 66 packages\n#8 DONE 0.9s\n\n#9 [builder 2/7] RUN apk add --no-cache --update     python3     make     g++     git     && rm -rf /var/cache/apk/*\n#9 0.775 ( 1/40) Installing libstdc++-dev (15.2.0-r2)\n#9 0.975 ( 2/40) Installing jansson (2.14.1-r0)\n#9 1.007 ( 3/40) Installing zstd-libs (1.5.7-r2)\n#9 ...\n\n#10 [stage-1 3/7] RUN rm -rf /usr/share/nginx/html/*\n#10 DONE 0.1s\n\n#9 [builder 2/7] RUN apk add --no-cache --update     python3     make     g++     git     && rm -rf /var/cache/apk/*\n#9 1.050 ( 4/40) Installing binutils (2.45.1-r0)\n#9 1.192 ( 5/40) Installing libgomp (15.2.0-r2)\n#9 1.227 ( 6/40) Installing libatomic (15.2.0-r2)\n#9 1.258 ( 7/40) Installing gmp (6.3.0-r4)\n#9 1.294 ( 8/40) Installing isl26 (0.26-r1)\n#9 1.346 ( 9/40) Installing mpfr4 (4.2.2-r0)\n#9 1.384 (10/40) Installing mpc1 (1.3.1-r1)\n#9 1.421 (11/40) Installing gcc (15.2.0-r2)\n#9 2.615 (12/40) Installing musl-dev (1.2.5-r21)\n#9 2.686 (13/40) Installing g++ (15.2.0-r2)\n#9 2.934 (14/40) Installing brotli-libs (1.2.0-r0)\n#9 2.966 (15/40) Installing c-ares (1.34.6-r0)\n#9 2.998 (16/40) Installing libunistring (1.4.1-r0)\n#9 3.044 (17/40) Installing libidn2 (2.3.8-r0)\n#9 3.082 (18/40) Installing nghttp2-libs (1.68.0-r0)\n#9 3.115 (19/40) Installing nghttp3 (1.13.1-r0)\n#9 3.152 (20/40) Installing libpsl (0.21.5-r3)\n#9 3.187 (21/40) Installing libcurl (8.17.0-r1)\n#9 3.234 (22/40) Installing libexpat (2.7.3-r0)\n#9 3.268 (23/40) Installing pcre2 (10.47-r0)\n#9 3.312 (24/40) Installing git (2.52.0-r0)\n#9 3.417 (25/40) Installing git-init-template (2.52.0-r0)\n#9 3.448 (26/40) Installing make (4.4.1-r3)\n#9 3.480 (27/40) Installing libbz2 (1.0.8-r6)\n#9 3.525 (28/40) Installing libffi (3.5.2-r0)\n#9 3.559 (29/40) Installing gdbm (1.26-r0)\n#9 3.597 (30/40) Installing xz-libs (5.8.1-r0)\n#9 3.637 (31/40) Installing mpdecimal (4.0.1-r0)\n#9 3.672 (32/40) Installing ncurses-terminfo-base (6.5_p20251123-r0)\n#9 3.710 (33/40) Installing libncursesw (6.5_p20251123-r0)\n#9 3.745 (34/40) Installing libpanelw (6.5_p20251123-r0)\n#9 3.779 (35/40) Installing readline (8.3.1-r0)\n#9 3.815 (36/40) Installing sqlite-libs (3.51.1-r0)\n#9 3.869 (37/40) Installing python3 (3.12.12-r0)\n#9 4.041 (38/40) Installing python3-pycache-pyc0 (3.12.12-r0)\n#9 4.143 (39/40) Installing pyc (3.12.12-r0)\n#9 4.143 (40/40) Installing python3-pyc (3.12.12-r0)\n#9 4.144 Executing busybox-1.37.0-r30.trigger\n#9 4.163 OK: 312.7 MiB in 58 packages\n#9 DONE 4.4s\n\n#11 [builder 3/7] WORKDIR /app\n#11 DONE 0.0s\n\n#12 [builder 4/7] COPY package*.json ./\n#12 DONE 0.0s\n\n#13 [builder 5/7] RUN npm ci --only=production --no-audit --no-fund\n#13 0.457 npm warn config only Use `--omit=dev` to omit dev dependencies from the install.\n#13 1.751 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported\n#13 1.769 npm warn deprecated npmlog@5.0.1: This package is no longer supported.\n#13 1.848 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.\n#13 1.962 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported\n#13 1.971 npm warn deprecated domexception@4.0.0: Use your platform's native DOMException instead\n#13 1.984 npm warn deprecated gauge@3.0.2: This package is no longer supported.\n#13 1.985 npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.\n#13 1.997 npm warn deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead\n#13 8.633 \n#13 8.633 added 102 packages in 8s\n#13 8.634 npm notice\n#13 8.634 npm notice New major version of npm available! 10.8.2 -> 11.7.0\n#13 8.634 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0\n#13 8.634 npm notice To update run: npm install -g npm@11.7.0\n#13 8.634 npm notice\n#13 DONE 9.0s\n\n#14 [builder 6/7] COPY . .\n#14 DONE 0.1s\n\n#15 [builder 7/7] RUN npm run build\n#15 0.466 \n#15 0.466 > frontend-web-app-for-interactive-banner-design@0.0.0 build\n#15 0.466 > vite build\n#15 0.466 \n#15 0.474 sh: vite: not found\n#15 ERROR: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127\n------\n > [builder 7/7] RUN npm run build:\n0.466 \n0.466 > frontend-web-app-for-interactive-banner-design@0.0.0 build\n0.466 > vite build\n0.466 \n0.474 sh: vite: not found\n------\nDockerfile:25\n--------------------\n  23 |     \n  24 |     # Build the application\n  25 | >>> RUN npm run build\n  26 |     \n  27 |     # Production stage\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/xnguk9f29z123n5ezwsu7b53h",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 1,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 2,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 2,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-01-03T13:54:16.608557: Starting configuration generation",
+    "2026-01-03T13:57:02.070927: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2026-01-03T13:57:02.070931: Starting quality assessment",
+    "2026-01-03T13:57:18.601133: Dockerfile validation: 1 errors, 2 warnings",
+    "2026-01-03T13:57:18.601193: K8s validation: 0 errors, 0 warnings",
+    "2026-01-03T13:57:18.601201: Runtime validation skipped due to Docker build errors",
+    "2026-01-03T13:57:18.601231: Generating evaluation report"
+  ],
+  "experiment_name": "h3",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "best_practices",
+  "prompt_override": "You are an expert in web application deployment, specializing in Docker containerization and Kubernetes orchestration.\n\nYou have access to tools that can help you analyze web application repositories, understand their architecture and dependencies, and create production-ready Docker and Kubernetes configurations.\n\nCRITICAL: You have only ONE chance to get everything right on the first try. Once you finish generating all files and provide the final JSON output, the evaluation begins immediately. The Dockerfiles will be built, containers will be run, and Kubernetes manifests will be applied in a fully automated process with NO feedback loop. Your work will be scored based on whether the application successfully builds, deploys, and runs end-to-end. There is no opportunity to fix errors after submission.\n\nYour objective is to:\n1. Clone the repository\n2. Analyze the repository to understand the application(s) and discover all services and their dependencies\n3. Create Dockerfile(s) to containerize the application(s) - one per service if multiple services exist\n4. Create Kubernetes manifests (Deployments/StatefulSets, Services, Ingresses) to deploy the application(s) and all discovered dependencies\n\nWhen creating Dockerfile(s):\n- Identify all services in the repository (may be single-service or multi-service monorepo)\n- Create one Dockerfile per service\n- Use an appropriate base image for each application's language/framework\n- Copy necessary files and install dependencies\n- Expose the application port\n- Specify the command to run the application\n- Prefer running as non-root: create or use an existing non-root user and add a USER directive when it won't break the app\n- For multi-service repos, place each Dockerfile in its service directory (e.g., backend/Dockerfile, frontend/Dockerfile)\n- IMPORTANT: When using build_context (e.g., \"frontend\"), all paths in the Dockerfile are relative to that directory. For example, if build_context is \"frontend\", then \"COPY package.json .\" copies from frontend/package.json, NOT from the repository root\n- IMPORTANT: Pin package versions.\n  * For apt: use explicit versions like `apt-get install -y pkg=1.2.3-1` (look up versions with `apt-cache policy pkg` while analyzing the base image).\n  * For pip: install from a pinned requirements file (`pip install --no-cache-dir -r requirements.txt`) or use `pip install --no-cache-dir pkg==1.2.3`.\n\nPython specific:\n- For Python applications: Check if the code uses relative imports (e.g., \"from . import models\"). If it does:\n  * For web frameworks (Flask/FastAPI/Django): Use a proper WSGI/ASGI server like uvicorn or gunicorn with module path syntax (e.g., \"uvicorn app.main:app\" or \"gunicorn app.main:app\")\n  * For scripts: Run as a module using \"python -m package.module\" instead of \"python file.py\"\n  * Ensure WORKDIR is set correctly so Python can find the package\n\nWhen creating Kubernetes manifests:\n- Create separate resources for each service (e.g., if there's a backend and frontend, create 2 Deployments and 2 Services)\n- For each stateless service: create a Deployment (use 1 replica by default) and a Service to expose it\n- For web-accessible services: create an Ingress with host: \"<repository-name>.{domain_suffix}\"\n  * IMPORTANT: The host must be lowercase and comply with RFC 1123 subdomain rules (only lowercase letters, numbers, hyphens, and dots)\n  * Convert repository name to lowercase before using it in the host (e.g., \"Math-PDF-Generator\" \u2192 \"math-pdf-generator\")\n- Set imagePullPolicy: IfNotPresent (do NOT use \"Never\")\n- Include resource requests and limits for all containers\n- Add health checks if the service has a health endpoint\n- For security context: default to non-root when possible; if the Dockerfile sets USER or the base image is known to be non-root, set runAsNonRoot: true (and runAsUser when known)\n- Always set readOnlyRootFilesystem: true for containers by default. If the app needs to write, add explicit writable volume mounts (e.g., emptyDir for /tmp or app-specific write paths) and keep the root filesystem read-only.\n- When non-root/read-only would break the app, document the reason and fall back to root with minimal permissions\n\nIMPORTANT - Discovering External Dependencies:\nYour key task is to actively discover what external services the application needs:\n- Analyze code, configuration files, environment variables, and connection strings\n- Look for database connections (PostgreSQL, MySQL, MongoDB, etc.)\n- Look for cache/message queue usage (Redis, RabbitMQ, Kafka, etc.)\n- Look for any other external services the application connects to\n- For each discovered dependency, create appropriate Kubernetes resources:\n  * StatefulSet for stateful services (databases, message queues)\n  * PersistentVolumeClaim for data persistence - use storageClassName: \"microk8s-hostpath\" or omit it entirely to use the default storage class\n  * Service to expose the dependency\n  * Secret for credentials\n  * ConfigMap for non-sensitive configuration\n\nAfter generating all files, respond with a JSON object in this format:\n\n```json\n{{\n  \"docker_images\": [\n    {{\n      \"dockerfile_path\": \"backend/Dockerfile\",\n      \"image_tag\": \"backend\",\n      \"build_context\": \"backend\"\n    }},\n    {{\n      \"dockerfile_path\": \"frontend/Dockerfile\",\n      \"image_tag\": \"frontend\",\n      \"build_context\": \"frontend\"\n    }}\n  ],\n  \"kubernetes_files\": [\n    \"k8s/backend-deployment.yaml\",\n    \"k8s/backend-service.yaml\",\n    \"k8s/frontend-deployment.yaml\",\n    \"k8s/frontend-service.yaml\",\n    \"k8s/ingress.yaml\",\n    \"k8s/postgres-statefulset.yaml\",\n    \"k8s/postgres-service.yaml\",\n    \"k8s/postgres-secret.yaml\"\n  ],\n  \"test_endpoint\": \"/api/health\"\n}}\n```\n\nImportant notes for the output:\n- docker_images: Include one entry per service/Dockerfile. For multi-service repos, list all services with their respective Dockerfiles and build contexts.\n- kubernetes_files: List ALL generated manifest files, including those for discovered dependencies (databases, caches, etc.)\n- test_endpoints: List of paths that are accessible via Ingress routes - verify before specifying. ONLY include endpoints for services that have Ingress resources (i.e., web-accessible services). Do NOT include endpoints for internal services like databases or caches. Include one endpoint per web-accessible service (e.g., if you have backend and frontend services both with Ingress, provide 2 endpoints). All endpoints will be tested via HTTP and the score will be proportional to how many respond successfully.\n- build_context: Use \".\" for single-service repos, or the service directory (e.g., \"backend\", \"frontend\") for multi-service repos. Remember: when build_context is set to a subdirectory, Docker executes the build from that directory, so all COPY paths in the Dockerfile must be relative to that context (not the repo root).\n\nBEFORE submitting your final JSON output, verify:\n- All file paths referenced in COPY instructions actually exist in the repository\n- All ports are correctly aligned between Dockerfile EXPOSE, Kubernetes containerPort, and Service targetPort\n- All health check endpoints you specified actually exist in the application code\n- Security context settings match the Dockerfile USER directive (or omit if running as root)\n- All discovered dependencies have complete resources (StatefulSet, Service, Secret, PVC)\n- All test_endpoints are real endpoints that:\n  * Exist in the application code\n  * Are accessible via the Ingress routes you created\n  * Will return successful responses (2xx status codes)\n\nBEST PRACTICES CHECKLIST (apply when relevant and safe):\n\nDockerfile:\n- Set WORKDIR and use absolute paths.\n- Pin base image tags (avoid :latest).\n- For apt/apk/yum installs: combine update+install, avoid apt-get upgrade, clean caches in the same layer, and pin explicit package versions.\n- Use non-root USER when feasible and does not break the app; otherwise keep default root.\n- Prefer minimal base images and multi-stage builds when it keeps runtime smaller without breaking.\n- Avoid unnecessary packages; install only what is required to build/run.\n- Make sure EXPOSE, CMD/ENTRYPOINT, and working directory align with the app.\n - For pip installs: use `--no-cache-dir` and pinned versions (requirements with `==` or explicit `pkg==ver`).\n\nKubernetes manifests:\n- Add readinessProbe and livenessProbe when the app exposes a stable health endpoint.\n- Define resource requests and limits for all containers.\n- Use a SecurityContext where it is safe: runAsNonRoot, readOnlyRootFilesystem, allowPrivilegeEscalation: false, and drop all capabilities.\n- Use Service type ClusterIP for internal services; add Ingress only for web-accessible services.\n- Use labels/selectors consistently; include app/name labels across Deployment/Service.\n- Store secrets in Secret and non-sensitive config in ConfigMap; wire via env or volumes.\n- Set imagePullPolicy: IfNotPresent.\n\nQuality guardrails:\n- Do not invent fields or values that are not supported by the target API; follow Kubernetes and Docker specs.\n- Prefer working configurations over strict hardening if a best-practice setting would break the app.\n- If unsure, document the safest minimal change that improves linting without introducing unsupported options.\n",
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {
+      "enable_runtime_validation": false
+    },
+    "run_overrides": {},
+    "prompt_description": "Best-practices prompt",
+    "prompt_override": "You are an expert in web application deployment, specializing in Docker containerization and Kubernetes orchestration.\n\nYou have access to tools that can help you analyze web application repositories, understand their architecture and dependencies, and create production-ready Docker and Kubernetes configurations.\n\nCRITICAL: You have only ONE chance to get everything right on the first try. Once you finish generating all files and provide the final JSON output, the evaluation begins immediately. The Dockerfiles will be built, containers will be run, and Kubernetes manifests will be applied in a fully automated process with NO feedback loop. Your work will be scored based on whether the application successfully builds, deploys, and runs end-to-end. There is no opportunity to fix errors after submission.\n\nYour objective is to:\n1. Clone the repository\n2. Analyze the repository to understand the application(s) and discover all services and their dependencies\n3. Create Dockerfile(s) to containerize the application(s) - one per service if multiple services exist\n4. Create Kubernetes manifests (Deployments/StatefulSets, Services, Ingresses) to deploy the application(s) and all discovered dependencies\n\nWhen creating Dockerfile(s):\n- Identify all services in the repository (may be single-service or multi-service monorepo)\n- Create one Dockerfile per service\n- Use an appropriate base image for each application's language/framework\n- Copy necessary files and install dependencies\n- Expose the application port\n- Specify the command to run the application\n- Prefer running as non-root: create or use an existing non-root user and add a USER directive when it won't break the app\n- For multi-service repos, place each Dockerfile in its service directory (e.g., backend/Dockerfile, frontend/Dockerfile)\n- IMPORTANT: When using build_context (e.g., \"frontend\"), all paths in the Dockerfile are relative to that directory. For example, if build_context is \"frontend\", then \"COPY package.json .\" copies from frontend/package.json, NOT from the repository root\n- IMPORTANT: Pin package versions.\n  * For apt: use explicit versions like `apt-get install -y pkg=1.2.3-1` (look up versions with `apt-cache policy pkg` while analyzing the base image).\n  * For pip: install from a pinned requirements file (`pip install --no-cache-dir -r requirements.txt`) or use `pip install --no-cache-dir pkg==1.2.3`.\n\nPython specific:\n- For Python applications: Check if the code uses relative imports (e.g., \"from . import models\"). If it does:\n  * For web frameworks (Flask/FastAPI/Django): Use a proper WSGI/ASGI server like uvicorn or gunicorn with module path syntax (e.g., \"uvicorn app.main:app\" or \"gunicorn app.main:app\")\n  * For scripts: Run as a module using \"python -m package.module\" instead of \"python file.py\"\n  * Ensure WORKDIR is set correctly so Python can find the package\n\nWhen creating Kubernetes manifests:\n- Create separate resources for each service (e.g., if there's a backend and frontend, create 2 Deployments and 2 Services)\n- For each stateless service: create a Deployment (use 1 replica by default) and a Service to expose it\n- For web-accessible services: create an Ingress with host: \"<repository-name>.{domain_suffix}\"\n  * IMPORTANT: The host must be lowercase and comply with RFC 1123 subdomain rules (only lowercase letters, numbers, hyphens, and dots)\n  * Convert repository name to lowercase before using it in the host (e.g., \"Math-PDF-Generator\" \u2192 \"math-pdf-generator\")\n- Set imagePullPolicy: IfNotPresent (do NOT use \"Never\")\n- Include resource requests and limits for all containers\n- Add health checks if the service has a health endpoint\n- For security context: default to non-root when possible; if the Dockerfile sets USER or the base image is known to be non-root, set runAsNonRoot: true (and runAsUser when known)\n- Always set readOnlyRootFilesystem: true for containers by default. If the app needs to write, add explicit writable volume mounts (e.g., emptyDir for /tmp or app-specific write paths) and keep the root filesystem read-only.\n- When non-root/read-only would break the app, document the reason and fall back to root with minimal permissions\n\nIMPORTANT - Discovering External Dependencies:\nYour key task is to actively discover what external services the application needs:\n- Analyze code, configuration files, environment variables, and connection strings\n- Look for database connections (PostgreSQL, MySQL, MongoDB, etc.)\n- Look for cache/message queue usage (Redis, RabbitMQ, Kafka, etc.)\n- Look for any other external services the application connects to\n- For each discovered dependency, create appropriate Kubernetes resources:\n  * StatefulSet for stateful services (databases, message queues)\n  * PersistentVolumeClaim for data persistence - use storageClassName: \"microk8s-hostpath\" or omit it entirely to use the default storage class\n  * Service to expose the dependency\n  * Secret for credentials\n  * ConfigMap for non-sensitive configuration\n\nAfter generating all files, respond with a JSON object in this format:\n\n```json\n{{\n  \"docker_images\": [\n    {{\n      \"dockerfile_path\": \"backend/Dockerfile\",\n      \"image_tag\": \"backend\",\n      \"build_context\": \"backend\"\n    }},\n    {{\n      \"dockerfile_path\": \"frontend/Dockerfile\",\n      \"image_tag\": \"frontend\",\n      \"build_context\": \"frontend\"\n    }}\n  ],\n  \"kubernetes_files\": [\n    \"k8s/backend-deployment.yaml\",\n    \"k8s/backend-service.yaml\",\n    \"k8s/frontend-deployment.yaml\",\n    \"k8s/frontend-service.yaml\",\n    \"k8s/ingress.yaml\",\n    \"k8s/postgres-statefulset.yaml\",\n    \"k8s/postgres-service.yaml\",\n    \"k8s/postgres-secret.yaml\"\n  ],\n  \"test_endpoint\": \"/api/health\"\n}}\n```\n\nImportant notes for the output:\n- docker_images: Include one entry per service/Dockerfile. For multi-service repos, list all services with their respective Dockerfiles and build contexts.\n- kubernetes_files: List ALL generated manifest files, including those for discovered dependencies (databases, caches, etc.)\n- test_endpoints: List of paths that are accessible via Ingress routes - verify before specifying. ONLY include endpoints for services that have Ingress resources (i.e., web-accessible services). Do NOT include endpoints for internal services like databases or caches. Include one endpoint per web-accessible service (e.g., if you have backend and frontend services both with Ingress, provide 2 endpoints). All endpoints will be tested via HTTP and the score will be proportional to how many respond successfully.\n- build_context: Use \".\" for single-service repos, or the service directory (e.g., \"backend\", \"frontend\") for multi-service repos. Remember: when build_context is set to a subdirectory, Docker executes the build from that directory, so all COPY paths in the Dockerfile must be relative to that context (not the repo root).\n\nBEFORE submitting your final JSON output, verify:\n- All file paths referenced in COPY instructions actually exist in the repository\n- All ports are correctly aligned between Dockerfile EXPOSE, Kubernetes containerPort, and Service targetPort\n- All health check endpoints you specified actually exist in the application code\n- Security context settings match the Dockerfile USER directive (or omit if running as root)\n- All discovered dependencies have complete resources (StatefulSet, Service, Secret, PVC)\n- All test_endpoints are real endpoints that:\n  * Exist in the application code\n  * Are accessible via the Ingress routes you created\n  * Will return successful responses (2xx status codes)\n\nBEST PRACTICES CHECKLIST (apply when relevant and safe):\n\nDockerfile:\n- Set WORKDIR and use absolute paths.\n- Pin base image tags (avoid :latest).\n- For apt/apk/yum installs: combine update+install, avoid apt-get upgrade, clean caches in the same layer, and pin explicit package versions.\n- Use non-root USER when feasible and does not break the app; otherwise keep default root.\n- Prefer minimal base images and multi-stage builds when it keeps runtime smaller without breaking.\n- Avoid unnecessary packages; install only what is required to build/run.\n- Make sure EXPOSE, CMD/ENTRYPOINT, and working directory align with the app.\n - For pip installs: use `--no-cache-dir` and pinned versions (requirements with `==` or explicit `pkg==ver`).\n\nKubernetes manifests:\n- Add readinessProbe and livenessProbe when the app exposes a stable health endpoint.\n- Define resource requests and limits for all containers.\n- Use a SecurityContext where it is safe: runAsNonRoot, readOnlyRootFilesystem, allowPrivilegeEscalation: false, and drop all capabilities.\n- Use Service type ClusterIP for internal services; add Ingress only for web-accessible services.\n- Use labels/selectors consistently; include app/name labels across Deployment/Service.\n- Store secrets in Secret and non-sensitive config in ConfigMap; wire via env or volumes.\n- Set imagePullPolicy: IfNotPresent.\n\nQuality guardrails:\n- Do not invent fields or values that are not supported by the target API; follow Kubernetes and Docker specs.\n- Prefer working configurations over strict hardening if a best-practice setting would break the app.\n- If unsure, document the safest minimal change that improves linting without introducing unsupported options.\n",
+    "prompt_source_path": "/Users/rasztabigab/Studia/run/prompts/best_practices.prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/banner-designer-webapp-26a923ac-50bb-4fa6-a785-2e84c263f071",
+    "run_id": "26a923ac-50bb-4fa6-a785-2e84c263f071"
+  }
+}

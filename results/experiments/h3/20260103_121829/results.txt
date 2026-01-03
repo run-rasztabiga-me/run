@@ -1,0 +1,116 @@
+Experiment path: /Users/rasztabigab/Studia/run/evaluation_reports/experiments/h3/20260103_121829
+Runs: 0/30 = 0.0%
+  95% CI: 0.0%–11.4%
+
+Stages:
+  build: 17/30 = 56.7% (CI: 39.2%–72.6%)
+  apply: 16/29 = 55.2% (CI: 37.5%–71.6%)
+    └─ given build OK: 16/17 = 94.1% (CI: 73.0%–99.0%)
+  runtime: 0/30 = 0.0% (CI: 0.0%–11.4%)
+    └─ given apply OK: 0/16 = 0.0% (CI: 0.0%–19.4%)
+
+Prompts:
+  base: 0/15 = 0.0% (CI: 0.0%–20.4%)
+  best_practices: 0/15 = 0.0% (CI: 0.0%–20.4%)
+
+Per model:
+  gemini-2.5-flash: 0/10 = 0.0% (CI: 0.0%–27.8%)
+  gpt-5-mini: 0/10 = 0.0% (CI: 0.0%–27.8%)
+  deepseek-chat: 0/10 = 0.0% (CI: 0.0%–27.8%)
+
+Per repo:
+  math-pdf-generator-web: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  simple-webapp: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  banner-designer-webapp: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  lsfont: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  airwatch: 0/6 = 0.0% (CI: 0.0%–39.0%)
+
+Per repo stage breakdown:
+  airwatch:
+    build: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    apply: 2/5 = 40.0% (CI: 11.8%–76.9%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  banner-designer-webapp:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  lsfont:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  math-pdf-generator-web:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  simple-webapp:
+    build: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    apply: 1/6 = 16.7% (CI: 3.0%–56.4%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+
+H3 quality stats (linters):
+  base: warnings 12/15 = 80.0%; clean 3/15 = 20.0%; total 25 (docker 3, k8s 22), avg 1.67
+  best_practices: warnings 5/15 = 33.3%; clean 10/15 = 66.7%; total 10 (docker 4, k8s 6), avg 0.67
+
+H3 per repo stats (linters):
+  airwatch:
+    base: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 2 (docker 0, k8s 2), avg 0.67
+  banner-designer-webapp:
+    base: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 4 (docker 0, k8s 4), avg 1.33
+    best_practices: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 3 (docker 2, k8s 1), avg 1.00
+  lsfont:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 1, k8s 0), avg 0.33
+  math-pdf-generator-web:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  simple-webapp:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 3 (docker 3, k8s 0), avg 1.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 4 (docker 1, k8s 3), avg 1.33
+
+H3 warnings debug (docker):
+  simple-webapp | gemini-2.5-flash | base | Dockerfile:10 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  simple-webapp | gpt-5-mini | base | Dockerfile:5 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | gpt-5-mini | best_practices | Dockerfile:8 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | deepseek-chat | base | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  banner-designer-webapp | gemini-2.5-flash | base | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/banner-designer-webapp-af341adf-9c00-42ee-8326-c76aa476bd1c/Dockerfile:3 1 |
+  banner-designer-webapp | deepseek-chat | best_practices | Dockerfile:5 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  banner-designer-webapp | deepseek-chat | best_practices | Dockerfile:31 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  lsfont | deepseek-chat | best_practices | Dockerfile:5 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  airwatch | gpt-5-mini | best_practices | back-end/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/airwatch-d88f126a-4cdd-4168-88b0-1ab60b24da32/back-end/Dockerfile:2 1 |     # backend/Dockerfile
+  airwatch | gpt-5-mini | best_practices | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/airwatch-d88f126a-4cdd-4168-88b0-1ab60b24da32/Dockerfile:2 1 |     # frontend Dockerfile for building static site
+  airwatch | deepseek-chat | base | Dockerfile:None | SecretsUsedInArgOrEnv | https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/ Do not use ARG or ENV instructions for sensitive data (ARG "WAQI_API_KEY") /Users/rasztabigab/Studia/run/tmp/airwatch-7f1450f1-f314-408b-b760-aea226579cac/Dockerfile:20 18 |     # Build the application with environment variables
+  airwatch | deepseek-chat | base | Dockerfile:None | SecretsUsedInArgOrEnv | https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/ Do not use ARG or ENV instructions for sensitive data (ENV "WAQI_API_KEY") /Users/rasztabigab/Studia/run/tmp/airwatch-7f1450f1-f314-408b-b760-aea226579cac/Dockerfile:22 20 |     ARG WAQI_API_KEY=demo
+  airwatch | deepseek-chat | best_practices | Dockerfile:None | UndefinedVar | https://docs.docker.com/go/dockerfile/rule/undefined-var/ Usage of undefined variable '$WAQI_API_KEY' /Users/rasztabigab/Studia/run/tmp/airwatch-dd667450-bb88-4f72-9c8c-17704361d757/Dockerfile:12 10 |
+  airwatch | deepseek-chat | best_practices | Dockerfile:None | SecretsUsedInArgOrEnv | https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/ Do not use ARG or ENV instructions for sensitive data (ENV "WAQI_API_KEY") /Users/rasztabigab/Studia/run/tmp/airwatch-dd667450-bb88-4f72-9c8c-17704361d757/Dockerfile:12 10 |
+  airwatch | deepseek-chat | best_practices | Dockerfile:None | UndefinedVar | https://docs.docker.com/go/dockerfile/rule/undefined-var/ Usage of undefined variable '$BACKEND_API_URL' /Users/rasztabigab/Studia/run/tmp/airwatch-dd667450-bb88-4f72-9c8c-17704361d757/Dockerfile:13 11 |     # Set environment variables for build
+
+H3 warnings debug (k8s):
+  math-pdf-generator-web | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "math-pdf-generator-web" does not have a read-only root file system
+  math-pdf-generator-web | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "math-pdf-generator-web" is not set to runAsNonRoot
+  math-pdf-generator-web | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  math-pdf-generator-web | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  math-pdf-generator-web | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "math-pdf-generator-web" does not have a read-only root file system
+  math-pdf-generator-web | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "math-pdf-generator-web" is not set to runAsNonRoot
+  simple-webapp | gpt-5-mini | best_practices | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  simple-webapp | gpt-5-mini | best_practices | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  simple-webapp | gpt-5-mini | best_practices | k8s/redis-deployment.yaml:None | run-as-non-root | container "redis" is not set to runAsNonRoot
+  banner-designer-webapp | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "banner-designer-webapp" does not have a read-only root file system
+  banner-designer-webapp | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "banner-designer-webapp" is not set to runAsNonRoot
+  banner-designer-webapp | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  banner-designer-webapp | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  banner-designer-webapp | gpt-5-mini | best_practices | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  lsfont | gemini-2.5-flash | base | k8s/lsfont-deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | gemini-2.5-flash | base | k8s/lsfont-deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  lsfont | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  lsfont | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  airwatch | gemini-2.5-flash | best_practices | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongo" does not have a read-only root file system
+  airwatch | gemini-2.5-flash | best_practices | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongo" is not set to runAsNonRoot
+  airwatch | deepseek-chat | base | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  airwatch | deepseek-chat | base | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  airwatch | deepseek-chat | base | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  airwatch | deepseek-chat | base | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  airwatch | deepseek-chat | base | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  airwatch | deepseek-chat | base | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot

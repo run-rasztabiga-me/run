@@ -20,5 +20,5 @@ experiments:
         name: deepseek-chat
         label: deepseek_v3_2
         temperature: 1.0
-    repetitions: 3
-    cleanup: per_run
+    repetitions: 1
+    cleanup: never
