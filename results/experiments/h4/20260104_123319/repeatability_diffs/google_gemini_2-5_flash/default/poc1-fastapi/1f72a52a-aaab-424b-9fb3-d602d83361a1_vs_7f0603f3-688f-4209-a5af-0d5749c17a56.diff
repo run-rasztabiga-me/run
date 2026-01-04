@@ -1,0 +1,48 @@
+--- 1f72a52a-aaab-424b-9fb3-d602d83361a1
++++ 7f0603f3-688f-4209-a5af-0d5749c17a56
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.10-slim-buster
++FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+ 
+@@ -11,7 +11,7 @@
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/poc1-fastapi-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -41,7 +41,19 @@
+           limits:
+             memory: "128Mi"
+             cpu: "200m"
+-@@FILE:K8s::k8s/poc1-fastapi-ingress.yaml
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
++@@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -61,7 +73,7 @@
+             name: poc1-fastapi-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/poc1-fastapi-service.yaml
++@@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:

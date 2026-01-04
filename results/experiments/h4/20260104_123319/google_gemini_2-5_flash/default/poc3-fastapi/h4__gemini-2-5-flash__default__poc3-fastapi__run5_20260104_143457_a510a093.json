@@ -1,0 +1,54 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+  "repo_name": "poc3-fastapi",
+  "evaluation_id": "a510a093-8246-4eae-be60-b8e2b16d64f4",
+  "status": "failed",
+  "start_time": "2026-01-04T14:30:42.849767",
+  "end_time": "2026-01-04T14:34:57.266635",
+  "total_evaluation_time": 254.416868,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc3-fastapi.git",
+    "repo_name": "poc3-fastapi",
+    "success": false,
+    "docker_images": [],
+    "k8s_manifests": [],
+    "generation_time": 254.41525197029114,
+    "error_message": "'structured_response'",
+    "timestamp": "2026-01-04T14:34:57.266024",
+    "workspace_dir": null,
+    "run_id": null
+  },
+  "execution_metrics": {
+    "total_time": 254.41520285606384,
+    "tool_calls_count": 0,
+    "tool_calls_breakdown": {},
+    "tokens_used": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "error_count": 1,
+    "run_id": null,
+    "docker_build_metrics": []
+  },
+  "quality_metrics": null,
+  "notes": [
+    "2026-01-04T14:30:42.850688: Starting configuration generation",
+    "2026-01-04T14:34:57.266704: Evaluation failed: Generation failed: 'structured_response'"
+  ],
+  "experiment_name": "h4",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 0.0,
+    "seed": 42
+  },
+  "repetition_index": 4,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt"
+  }
+}

@@ -1,0 +1,165 @@
+--- 9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2
++++ 0013933c-afee-4cf7-9e00-06e4f82413c9
+@@ -7,11 +7,11 @@
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app .
++COPY ./app /app
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ 
+ apiVersion: apps/v1
+@@ -30,28 +30,25 @@
+     spec:
+       containers:
+         - name: fastapi-app
+-          image: fastapi-app
++          image: poc2-fastapi
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
+           env:
+-            - name: POSTGRES_USER
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_USER
+-            - name: POSTGRES_PASSWORD
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_PASSWORD
+-            - name: POSTGRES_DB
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_DB
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: postgresql://user:password@postgres:5432/dbname
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+           resources:
+             requests:
+               cpu: "100m"
+@@ -59,24 +56,12 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 10
+-            periodSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 3
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ 
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app
++  name: fastapi-service
+ spec:
+   selector:
+     app: fastapi-app
+@@ -84,6 +69,7 @@
+     - protocol: TCP
+       port: 80
+       targetPort: 8000
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ 
+ apiVersion: networking.k8s.io/v1
+@@ -93,7 +79,6 @@
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: public
+   rules:
+     - host: poc2-fastapi.rasztabiga.me
+       http:
+@@ -102,22 +87,9 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: fastapi-app
++                name: fastapi-service
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/postgres-pvc.yaml
+-
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: postgres-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/postgres-secret.yaml
+ 
+ apiVersion: v1
+@@ -128,7 +100,7 @@
+ data:
+   POSTGRES_USER: dXNlcg==
+   POSTGRES_PASSWORD: cGFzc3dvcmQ=
+-  POSTGRES_DB: dbname
++  POSTGRES_DB: ZGJuYW1l
+ @@FILE:K8s::k8s/postgres-service.yaml
+ 
+ apiVersion: v1
+@@ -142,6 +114,7 @@
+     - protocol: TCP
+       port: 5432
+       targetPort: 5432
++  type: ClusterIP
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ 
+ apiVersion: apps/v1
+@@ -170,7 +143,7 @@
+             - secretRef:
+                 name: postgres-secret
+           volumeMounts:
+-            - name: postgres-storage
++            - name: postgres-data
+               mountPath: /var/lib/postgresql/data
+           resources:
+             requests:
+@@ -181,11 +154,9 @@
+               memory: "512Mi"
+   volumeClaimTemplates:
+     - metadata:
+-        name: postgres-storage
++        name: postgres-data
+       spec:
+-        accessModes:
+-          - ReadWriteOnce
++        accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 1Gi
+-        storageClassName: microk8s-hostpath

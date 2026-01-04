@@ -1,0 +1,194 @@
+--- 18f3c30e-4a18-4b9e-b8c2-886ec6bafc22
++++ 00eda38c-84b4-4f30-9d92-c7d2452f7f91
+@@ -14,7 +14,7 @@
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY app ./app
++COPY app/ ./app/
+ 
+ # Expose port
+ EXPOSE 8000
+@@ -36,17 +36,16 @@
+ # Copy source code
+ COPY . .
+ 
+-# Build the application with API URL set to /api
+-ENV VITE_API_URL=/api
++# Build the application
+ RUN npm run build
+ 
+-# Production stage
++# Runtime stage
+ FROM nginx:alpine
+ 
+ # Copy nginx configuration
+ COPY nginx.conf /etc/nginx/conf.d/default.conf
+ 
+-# Copy built files from build stage
++# Copy built application from build stage
+ COPY --from=build /app/dist /usr/share/nginx/html
+ 
+ # Expose port
+@@ -59,6 +58,7 @@
+ kind: ConfigMap
+ metadata:
+   name: backend-config
++  namespace: default
+ data:
+   DATABASE_URL: "postgresql://user:password@postgres:5432/dbname"
+ @@FILE:K8s::k8s/backend-deployment.yaml
+@@ -66,6 +66,7 @@
+ kind: Deployment
+ metadata:
+   name: backend
++  namespace: default
+ spec:
+   replicas: 1
+   selector:
+@@ -105,13 +106,14 @@
+           httpGet:
+             path: /
+             port: 8000
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
++          initialDelaySeconds: 15
++          periodSeconds: 20
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: backend
++  namespace: default
+ spec:
+   selector:
+     app: backend
+@@ -125,14 +127,15 @@
+ kind: ConfigMap
+ metadata:
+   name: frontend-config
++  namespace: default
+ data:
+-  # No environment variables needed for frontend runtime
+-  # VITE_API_URL is set at build time in Dockerfile
++  VITE_API_URL: "/api"
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: frontend
++  namespace: default
+ spec:
+   replicas: 1
+   selector:
+@@ -149,13 +152,19 @@
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 80
++        env:
++        - name: VITE_API_URL
++          valueFrom:
++            configMapKeyRef:
++              name: frontend-config
++              key: VITE_API_URL
+         resources:
+           requests:
+             memory: "128Mi"
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "250m"
++            cpu: "200m"
+         readinessProbe:
+           httpGet:
+             path: /
+@@ -166,13 +175,14 @@
+           httpGet:
+             path: /
+             port: 80
+-          initialDelaySeconds: 30
++          initialDelaySeconds: 10
+           periodSeconds: 10
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: frontend
++  namespace: default
+ spec:
+   selector:
+     app: frontend
+@@ -185,10 +195,10 @@
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: app-ingress
++  name: poc3-fastapi-ingress
++  namespace: default
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+ spec:
+   rules:
+   - host: poc3-fastapi.rasztabiga.me
+@@ -213,6 +223,7 @@
+ kind: PersistentVolumeClaim
+ metadata:
+   name: postgres-pvc
++  namespace: default
+ spec:
+   accessModes:
+     - ReadWriteOnce
+@@ -225,6 +236,7 @@
+ kind: Secret
+ metadata:
+   name: postgres-secret
++  namespace: default
+ type: Opaque
+ data:
+   postgres-password: cGFzc3dvcmQ=  # password
+@@ -235,6 +247,7 @@
+ kind: Service
+ metadata:
+   name: postgres
++  namespace: default
+ spec:
+   selector:
+     app: postgres
+@@ -247,6 +260,7 @@
+ kind: StatefulSet
+ metadata:
+   name: postgres
++  namespace: default
+ spec:
+   serviceName: postgres
+   replicas: 1
+@@ -290,21 +304,15 @@
+             memory: "512Mi"
+             cpu: "500m"
+         readinessProbe:
+-          exec:
+-            command:
+-            - pg_isready
+-            - -U
+-            - user
++          tcpSocket:
++            port: 5432
+           initialDelaySeconds: 5
+-          periodSeconds: 5
++          periodSeconds: 10
+         livenessProbe:
+-          exec:
+-            command:
+-            - pg_isready
+-            - -U
+-            - user
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
++          tcpSocket:
++            port: 5432
++          initialDelaySeconds: 15
++          periodSeconds: 20
+       volumes:
+       - name: postgres-storage
+         persistentVolumeClaim:

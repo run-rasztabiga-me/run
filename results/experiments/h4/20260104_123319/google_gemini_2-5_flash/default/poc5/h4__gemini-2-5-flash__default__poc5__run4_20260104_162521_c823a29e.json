@@ -1,0 +1,201 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+  "repo_name": "poc5",
+  "evaluation_id": "c823a29e-cdde-472e-8782-d921460d987e",
+  "status": "completed",
+  "start_time": "2026-01-04T16:23:22.230717",
+  "end_time": "2026-01-04T16:25:21.367766",
+  "total_evaluation_time": 119.137049,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+    "repo_name": "poc5",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes-service",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users-service",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics-service",
+        "build_context": "backend/analytics_service"
+      },
+      {
+        "dockerfile_path": "backend/audit_service/Dockerfile",
+        "image_tag": "audit-service",
+        "build_context": "backend/audit_service"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/postgresql-secret.yaml",
+      "k8s/postgresql-statefulset.yaml",
+      "k8s/postgresql-service.yaml",
+      "k8s/rabbitmq-secret.yaml",
+      "k8s/rabbitmq-statefulset.yaml",
+      "k8s/rabbitmq-service.yaml",
+      "k8s/redis-statefulset.yaml",
+      "k8s/redis-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/frontend-ingress.yaml",
+      "k8s/notes-service-deployment.yaml",
+      "k8s/notes-service.yaml",
+      "k8s/notes-service-ingress.yaml",
+      "k8s/users-service-deployment.yaml",
+      "k8s/users-service.yaml",
+      "k8s/users-service-ingress.yaml",
+      "k8s/analytics-service-deployment.yaml",
+      "k8s/analytics-service.yaml",
+      "k8s/analytics-service-ingress.yaml",
+      "k8s/audit-service-deployment.yaml",
+      "k8s/audit-service.yaml",
+      "k8s/audit-service-ingress.yaml"
+    ],
+    "generation_time": 95.51615571975708,
+    "error_message": null,
+    "timestamp": "2026-01-04T16:25:06.308696",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-db0c8ffc-9c1c-495b-9ddb-2a1062bfd18c",
+    "run_id": "db0c8ffc-9c1c-495b-9ddb-2a1062bfd18c"
+  },
+  "execution_metrics": {
+    "total_time": 95.51615571975708,
+    "tool_calls_count": 38,
+    "tool_calls_breakdown": {
+      "get_file_content": 7,
+      "write_file": 29,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 391215,
+    "input_tokens": 375212,
+    "output_tokens": 16003,
+    "error_count": 0,
+    "run_id": "db0c8ffc-9c1c-495b-9ddb-2a1062bfd18c",
+    "docker_build_metrics": [
+      {
+        "image_tag": "notes-service",
+        "build_time": 0.8966076374053955,
+        "image_size_mb": 69.52,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "users-service",
+        "build_time": 0.8438088893890381,
+        "image_size_mb": 71.02,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "analytics-service",
+        "build_time": 0.7812981605529785,
+        "image_size_mb": 68.36,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "audit-service",
+        "build_time": 6.876357793807983,
+        "image_size_mb": 46.48,
+        "layers_count": 8
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "frontend/Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc5-db0c8ffc-9c1c-495b-9ddb-2a1062bfd18c/frontend/Dockerfile:3 1 |",
+        "rule_id": "FromAsCasing"
+      },
+      {
+        "file_path": "frontend/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 522B done\n#1 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 3)\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#2 DONE 0.2s\n\n#3 [internal] load metadata for docker.io/library/nginx:stable-alpine\n#3 DONE 0.2s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [builder 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e\n#5 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e done\n#5 DONE 0.0s\n\n#6 [stage-1 1/5] FROM docker.io/library/nginx:stable-alpine@sha256:1ce7f79aab3e1d651dce1ff05b1bcd471cd0d5086838a77961feab6b49fbc0b5\n#6 resolve docker.io/library/nginx:stable-alpine@sha256:1ce7f79aab3e1d651dce1ff05b1bcd471cd0d5086838a77961feab6b49fbc0b5 done\n#6 DONE 0.0s\n\n#7 [internal] load build context\n#7 transferring context: 126.82kB done\n#7 DONE 0.0s\n\n#8 [stage-1 2/5] COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf\n#8 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::pzi8huonv4cpmokrm0y47klum: \"/frontend/nginx.conf\": not found\n\n#9 [stage-1 3/5] COPY frontend/entrypoint.sh /docker-entrypoint.sh\n#9 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::pzi8huonv4cpmokrm0y47klum: \"/frontend/entrypoint.sh\": not found\n------\n > [stage-1 2/5] COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf:\n------\n------\n > [stage-1 3/5] COPY frontend/entrypoint.sh /docker-entrypoint.sh:\n------\n\n \u001b[33m1 warning found (use docker --debug to expand):\n\u001b[0m - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 3)\nDockerfile:16\n--------------------\n  14 |     FROM nginx:stable-alpine\n  15 |     \n  16 | >>> COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf\n  17 |     COPY frontend/entrypoint.sh /docker-entrypoint.sh\n  18 |     RUN chmod +x /docker-entrypoint.sh\n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::pzi8huonv4cpmokrm0y47klum: \"/frontend/nginx.conf\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/nvwwg7thh32nu1j9d6imuax2q",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-01-04T16:23:22.231303: Starting configuration generation",
+    "2026-01-04T16:25:06.308806: Generated 5 Dockerfiles and 23 K8s manifests",
+    "2026-01-04T16:25:06.308814: Starting quality assessment",
+    "2026-01-04T16:25:21.367714: Built 4 Docker images (total: 255.4 MB, avg time: 2.3s)",
+    "2026-01-04T16:25:21.367740: Dockerfile validation: 1 errors, 1 warnings",
+    "2026-01-04T16:25:21.367749: K8s validation: 0 errors, 0 warnings",
+    "2026-01-04T16:25:21.367758: Runtime validation skipped due to Docker build errors",
+    "2026-01-04T16:25:21.367761: Generating evaluation report"
+  ],
+  "experiment_name": "h4",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 0.0,
+    "seed": 42
+  },
+  "repetition_index": 3,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-db0c8ffc-9c1c-495b-9ddb-2a1062bfd18c",
+    "run_id": "db0c8ffc-9c1c-495b-9ddb-2a1062bfd18c"
+  }
+}

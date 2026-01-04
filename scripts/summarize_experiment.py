@@ -9,6 +9,7 @@ import argparse
 import json
 import pathlib
 import sys
+from statistics import mean, pstdev
 from typing import Dict, Iterable, Optional, Tuple
 
 
@@ -140,6 +141,18 @@ def extract_warning_details(run: Dict) -> list:
             }
         )
     return details
+
+
+def load_repeatability_stats(base: pathlib.Path) -> Optional[Dict]:
+    """Load repeatability statistics from repeatability.json if it exists."""
+    repeatability_file = base / "repeatability.json"
+    if not repeatability_file.exists():
+        return None
+    try:
+        data = json.loads(repeatability_file.read_text())
+        return data
+    except Exception:
+        return None
 
 
 def compute_stats(base: pathlib.Path) -> Dict:
@@ -454,6 +467,9 @@ def main() -> int:
     stats = compute_stats(base)
     overall = rate_and_ci(stats["total_success"], stats["total_runs"], args.alpha)
 
+    # Load H4 repeatability statistics if available
+    repeatability_stats = load_repeatability_stats(base)
+
     output_file = base / "results.txt"
     with open(output_file, "w") as f:
         print(f"Experiment path: {base}", file=f)
@@ -610,6 +626,249 @@ def main() -> int:
                             f"{item.get('rule_id')} | {item.get('message')}"
                         )
                         print(line, file=f)
+
+        # H4 repeatability stats
+        if repeatability_stats:
+            print("\n" + "="*80, file=f)
+            print("H4 REPEATABILITY ANALYSIS", file=f)
+            print("="*80, file=f)
+
+            groups = repeatability_stats.get("groups", [])
+            if groups:
+                print(f"\nTotal groups analyzed: {len(groups)}", file=f)
+                print(f"Diff threshold: {repeatability_stats.get('diff_threshold', 0.4)}", file=f)
+
+                for group in groups:
+                    model_name = group.get("model_name", "unknown")
+                    model_label = group.get("model_label", "unknown")
+                    repo_name = group.get("repo_name", "unknown")
+                    runs_recorded = group.get("runs_recorded", 0)
+
+                    print(f"\n{'─'*80}", file=f)
+                    print(f"Model: {model_name} ({model_label})", file=f)
+                    print(f"Repository: {repo_name}", file=f)
+                    print(f"Runs recorded: {runs_recorded}", file=f)
+
+                    # File similarity metrics
+                    print(f"\n  File Similarity:", file=f)
+                    avg_diff = group.get("avg_diff_ratio")
+                    std_diff = group.get("std_diff_ratio")
+                    max_diff = group.get("max_diff_ratio")
+                    threshold_exceeded = group.get("threshold_exceeded_pairs", 0)
+                    pair_count = group.get("pair_count", 0)
+
+                    if avg_diff is not None:
+                        print(f"    Average diff ratio: {avg_diff:.4f} ({avg_diff*100:.2f}%)", file=f)
+                    if std_diff is not None:
+                        print(f"    Std dev diff ratio: {std_diff:.4f}", file=f)
+                    if max_diff is not None:
+                        print(f"    Max diff ratio: {max_diff:.4f} ({max_diff*100:.2f}%)", file=f)
+                    if pair_count > 0:
+                        print(f"    Pairs exceeding threshold: {threshold_exceeded}/{pair_count}", file=f)
+
+                    # Success metrics
+                    print(f"\n  Success Rates:", file=f)
+                    gen_success = group.get("generation_success_rate")
+                    build_success = group.get("build_success_rate")
+                    runtime_success = group.get("runtime_success_rate")
+                    success_variance = group.get("success_variance")
+
+                    if gen_success is not None:
+                        print(f"    Generation success: {format_pct(gen_success)}", file=f)
+                    if build_success is not None:
+                        print(f"    Build success: {format_pct(build_success)}", file=f)
+                    if runtime_success is not None:
+                        print(f"    Runtime success: {format_pct(runtime_success)}", file=f)
+                    if success_variance is not None:
+                        variance_str = "YES (inconsistent!)" if success_variance else "NO (consistent)"
+                        print(f"    Success variance: {variance_str}", file=f)
+
+                    # Score metrics
+                    print(f"\n  Overall Score Statistics:", file=f)
+                    score_mean = group.get("overall_score_mean")
+                    score_std = group.get("overall_score_std")
+                    score_min = group.get("overall_score_min")
+                    score_max = group.get("overall_score_max")
+                    score_range = group.get("overall_score_range")
+
+                    if score_mean is not None:
+                        print(f"    Mean: {score_mean:.2f}", file=f)
+                    if score_std is not None:
+                        print(f"    Std dev: {score_std:.2f}", file=f)
+                    if score_min is not None and score_max is not None:
+                        print(f"    Range: {score_min:.2f} - {score_max:.2f}", file=f)
+                    if score_range is not None:
+                        print(f"    Range (max-min): {score_range:.2f}", file=f)
+
+                    # Component scores
+                    dockerfile_mean = group.get("dockerfile_score_mean")
+                    dockerfile_std = group.get("dockerfile_score_std")
+                    k8s_mean = group.get("k8s_score_mean")
+                    k8s_std = group.get("k8s_score_std")
+                    runtime_mean = group.get("runtime_score_mean")
+                    runtime_std = group.get("runtime_score_std")
+
+                    if any(x is not None for x in [dockerfile_mean, k8s_mean, runtime_mean]):
+                        print(f"\n  Component Scores (mean ± std):", file=f)
+                        if dockerfile_mean is not None:
+                            print(f"    Dockerfile: {dockerfile_mean:.2f} ± {dockerfile_std or 0:.2f}", file=f)
+                        if k8s_mean is not None:
+                            print(f"    Kubernetes: {k8s_mean:.2f} ± {k8s_std or 0:.2f}", file=f)
+                        if runtime_mean is not None:
+                            print(f"    Runtime: {runtime_mean:.2f} ± {runtime_std or 0:.2f}", file=f)
+
+                    # Validation metrics
+                    error_mean = group.get("error_count_mean")
+                    error_std = group.get("error_count_std")
+                    warning_mean = group.get("warning_count_mean")
+                    warning_std = group.get("warning_count_std")
+
+                    if any(x is not None for x in [error_mean, warning_mean]):
+                        print(f"\n  Validation Issues (mean ± std):", file=f)
+                        if error_mean is not None:
+                            print(f"    Errors: {error_mean:.2f} ± {error_std or 0:.2f}", file=f)
+                        if warning_mean is not None:
+                            print(f"    Warnings: {warning_mean:.2f} ± {warning_std or 0:.2f}", file=f)
+
+                    # Tool usage
+                    tool_mean = group.get("tool_steps_mean")
+                    tool_std = group.get("tool_steps_std")
+                    if tool_mean is not None:
+                        print(f"\n  Tool Steps: {tool_mean:.2f} ± {tool_std or 0:.2f}", file=f)
+
+                # Aggregate statistics per model
+                print(f"\n{'='*80}", file=f)
+                print("AGGREGATE STATISTICS PER MODEL:", file=f)
+                print(f"{'='*80}", file=f)
+
+                # Group by model
+                model_groups = {}
+                for group in groups:
+                    model = group.get("model_label", "unknown")
+                    if model not in model_groups:
+                        model_groups[model] = []
+                    model_groups[model].append(group)
+
+                for model, model_group_list in model_groups.items():
+                    print(f"\nModel: {model}", file=f)
+
+                    # Collect metrics across all repos for this model
+                    diff_ratios = [g.get("avg_diff_ratio") for g in model_group_list if g.get("avg_diff_ratio") is not None]
+                    score_stds = [g.get("overall_score_std") for g in model_group_list if g.get("overall_score_std") is not None]
+                    score_means = [g.get("overall_score_mean") for g in model_group_list if g.get("overall_score_mean") is not None]
+                    gen_success = [g.get("generation_success_rate") for g in model_group_list if g.get("generation_success_rate") is not None]
+                    build_success = [g.get("build_success_rate") for g in model_group_list if g.get("build_success_rate") is not None]
+                    runtime_success = [g.get("runtime_success_rate") for g in model_group_list if g.get("runtime_success_rate") is not None]
+                    tool_steps_means = [g.get("tool_steps_mean") for g in model_group_list if g.get("tool_steps_mean") is not None]
+                    tool_steps_stds = [g.get("tool_steps_std") for g in model_group_list if g.get("tool_steps_std") is not None]
+
+                    print(f"  Repos analyzed: {len(model_group_list)}", file=f)
+
+                    # Diff ratio - mean ± std makes sense (variability of file changes across repos)
+                    if diff_ratios:
+                        m = mean(diff_ratios)
+                        s = pstdev(diff_ratios) if len(diff_ratios) > 1 else 0.0
+                        print(f"  Avg diff ratio: {m:.4f} ± {s:.4f} ({m*100:.2f}%)", file=f)
+
+                    # Score std - only mean makes sense (average instability of scores)
+                    if score_stds:
+                        m = mean(score_stds)
+                        print(f"  Avg score std (instability): {m:.2f}", file=f)
+
+                    # Score mean - mean ± std makes sense (average score and its variability across repos)
+                    if score_means:
+                        m = mean(score_means)
+                        s = pstdev(score_means) if len(score_means) > 1 else 0.0
+                        print(f"  Avg overall score: {m:.2f} ± {s:.2f}", file=f)
+
+                    # Success rates - mean ± std makes sense (average success and its variability)
+                    if gen_success:
+                        m = mean(gen_success)
+                        s = pstdev(gen_success) if len(gen_success) > 1 else 0.0
+                        print(f"  Avg generation success: {format_pct(m)} ± {format_pct(s)}", file=f)
+                    if build_success:
+                        m = mean(build_success)
+                        s = pstdev(build_success) if len(build_success) > 1 else 0.0
+                        print(f"  Avg build success: {format_pct(m)} ± {format_pct(s)}", file=f)
+                    if runtime_success:
+                        m = mean(runtime_success)
+                        s = pstdev(runtime_success) if len(runtime_success) > 1 else 0.0
+                        print(f"  Avg runtime success: {format_pct(m)} ± {format_pct(s)}", file=f)
+
+                    # Tool steps - mean ± std makes sense (average steps and variability across repos)
+                    if tool_steps_means:
+                        m = mean(tool_steps_means)
+                        s = pstdev(tool_steps_means) if len(tool_steps_means) > 1 else 0.0
+                        print(f"  Avg tool steps: {m:.2f} ± {s:.2f}", file=f)
+
+                    # Tool steps std - only mean makes sense (average instability of tool steps)
+                    if tool_steps_stds:
+                        m = mean(tool_steps_stds)
+                        print(f"  Avg tool steps std (instability): {m:.2f}", file=f)
+
+                # Overall aggregate
+                print(f"\n{'='*80}", file=f)
+                print("OVERALL AGGREGATE (ALL MODELS):", file=f)
+                print(f"{'='*80}", file=f)
+
+                all_diff_ratios = [g.get("avg_diff_ratio") for g in groups if g.get("avg_diff_ratio") is not None]
+                all_score_stds = [g.get("overall_score_std") for g in groups if g.get("overall_score_std") is not None]
+                all_score_means = [g.get("overall_score_mean") for g in groups if g.get("overall_score_mean") is not None]
+                all_gen_success = [g.get("generation_success_rate") for g in groups if g.get("generation_success_rate") is not None]
+                all_build_success = [g.get("build_success_rate") for g in groups if g.get("build_success_rate") is not None]
+                all_runtime_success = [g.get("runtime_success_rate") for g in groups if g.get("runtime_success_rate") is not None]
+                all_tool_steps_means = [g.get("tool_steps_mean") for g in groups if g.get("tool_steps_mean") is not None]
+                all_tool_steps_stds = [g.get("tool_steps_std") for g in groups if g.get("tool_steps_std") is not None]
+
+                print(f"Total groups analyzed: {len(groups)}", file=f)
+
+                # Diff ratio statistics
+                if all_diff_ratios:
+                    m = mean(all_diff_ratios)
+                    s = pstdev(all_diff_ratios) if len(all_diff_ratios) > 1 else 0.0
+                    med = sorted(all_diff_ratios)[len(all_diff_ratios)//2]
+                    print(f"Avg diff ratio: {m:.4f} ± {s:.4f} ({m*100:.2f}%)", file=f)
+                    print(f"Median diff ratio: {med:.4f} ({med*100:.2f}%)", file=f)
+
+                # Score std - average instability
+                if all_score_stds:
+                    m = mean(all_score_stds)
+                    med = sorted(all_score_stds)[len(all_score_stds)//2]
+                    print(f"Avg score std (instability): {m:.2f}", file=f)
+                    print(f"Median score std: {med:.2f}", file=f)
+
+                # Score mean statistics
+                if all_score_means:
+                    m = mean(all_score_means)
+                    s = pstdev(all_score_means) if len(all_score_means) > 1 else 0.0
+                    print(f"Avg overall score: {m:.2f} ± {s:.2f}", file=f)
+
+                # Success rate statistics
+                if all_gen_success:
+                    m = mean(all_gen_success)
+                    s = pstdev(all_gen_success) if len(all_gen_success) > 1 else 0.0
+                    print(f"Avg generation success: {format_pct(m)} ± {format_pct(s)}", file=f)
+                if all_build_success:
+                    m = mean(all_build_success)
+                    s = pstdev(all_build_success) if len(all_build_success) > 1 else 0.0
+                    print(f"Avg build success: {format_pct(m)} ± {format_pct(s)}", file=f)
+                if all_runtime_success:
+                    m = mean(all_runtime_success)
+                    s = pstdev(all_runtime_success) if len(all_runtime_success) > 1 else 0.0
+                    print(f"Avg runtime success: {format_pct(m)} ± {format_pct(s)}", file=f)
+
+                # Tool steps statistics
+                if all_tool_steps_means:
+                    m = mean(all_tool_steps_means)
+                    s = pstdev(all_tool_steps_means) if len(all_tool_steps_means) > 1 else 0.0
+                    print(f"Avg tool steps: {m:.2f} ± {s:.2f}", file=f)
+
+                # Tool steps std - average instability
+                if all_tool_steps_stds:
+                    m = mean(all_tool_steps_stds)
+                    med = sorted(all_tool_steps_stds)[len(all_tool_steps_stds)//2]
+                    print(f"Avg tool steps std (instability): {m:.2f}", file=f)
+                    print(f"Median tool steps std: {med:.2f}", file=f)
 
     print(f"Results saved to {output_file}")
 

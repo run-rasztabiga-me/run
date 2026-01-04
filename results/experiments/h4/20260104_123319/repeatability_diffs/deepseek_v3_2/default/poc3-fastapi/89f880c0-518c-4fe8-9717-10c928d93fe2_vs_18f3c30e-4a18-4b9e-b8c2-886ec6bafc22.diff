@@ -1,0 +1,417 @@
+--- 89f880c0-518c-4fe8-9717-10c928d93fe2
++++ 18f3c30e-4a18-4b9e-b8c2-886ec6bafc22
+@@ -14,7 +14,7 @@
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY app/ ./app/
++COPY app ./app
+ 
+ # Expose port
+ EXPOSE 8000
+@@ -36,7 +36,8 @@
+ # Copy source code
+ COPY . .
+ 
+-# Build the application
++# Build the application with API URL set to /api
++ENV VITE_API_URL=/api
+ RUN npm run build
+ 
+ # Production stage
+@@ -53,13 +54,18 @@
+ 
+ # Start nginx
+ CMD ["nginx", "-g", "daemon off;"]
++@@FILE:K8s::k8s/backend-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: backend-config
++data:
++  DATABASE_URL: "postgresql://user:password@postgres:5432/dbname"
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: backend-deployment
+-  labels:
+-    app: backend
++  name: backend
+ spec:
+   replicas: 1
+   selector:
+@@ -71,55 +77,62 @@
+         app: backend
+     spec:
+       containers:
+-        - name: backend
+-          image: backend
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 8000
+-          env:
+-            - name: DATABASE_URL
+-              value: "postgresql://user:password@postgres-service:5432/dbname"
+-          resources:
+-            requests:
+-              memory: "256Mi"
+-              cpu: "250m"
+-            limits:
+-              memory: "512Mi"
+-              cpu: "500m"
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 10
+-            periodSeconds: 5
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 30
+-            periodSeconds: 10
++      - name: backend
++        image: backend
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 8000
++        env:
++        - name: DATABASE_URL
++          valueFrom:
++            configMapKeyRef:
++              name: backend-config
++              key: DATABASE_URL
++        resources:
++          requests:
++            memory: "256Mi"
++            cpu: "250m"
++          limits:
++            memory: "512Mi"
++            cpu: "500m"
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 10
++          periodSeconds: 5
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 30
++          periodSeconds: 10
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: backend-service
+-  labels:
+-    app: backend
++  name: backend
+ spec:
+   selector:
+     app: backend
+   ports:
+-    - port: 8000
+-      targetPort: 8000
+-      protocol: TCP
+-      name: http
++  - port: 8000
++    targetPort: 8000
++    protocol: TCP
++    name: http
++@@FILE:K8s::k8s/frontend-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: frontend-config
++data:
++  # No environment variables needed for frontend runtime
++  # VITE_API_URL is set at build time in Dockerfile
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: frontend-deployment
+-  labels:
+-    app: frontend
++  name: frontend
+ spec:
+   replicas: 1
+   selector:
+@@ -131,48 +144,43 @@
+         app: frontend
+     spec:
+       containers:
+-        - name: frontend
+-          image: frontend
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 80
+-          env:
+-            - name: VITE_API_URL
+-              value: "/api"
+-          resources:
+-            requests:
+-              memory: "128Mi"
+-              cpu: "100m"
+-            limits:
+-              memory: "256Mi"
+-              cpu: "250m"
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 10
+-            periodSeconds: 5
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 30
+-            periodSeconds: 10
++      - name: frontend
++        image: frontend
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 80
++        resources:
++          requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
++            memory: "256Mi"
++            cpu: "250m"
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 30
++          periodSeconds: 10
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: frontend-service
+-  labels:
+-    app: frontend
++  name: frontend
+ spec:
+   selector:
+     app: frontend
+   ports:
+-    - port: 80
+-      targetPort: 80
+-      protocol: TCP
+-      name: http
++  - port: 80
++    targetPort: 80
++    protocol: TCP
++    name: http
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -183,30 +191,28 @@
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+ spec:
+   rules:
+-    - host: poc3-fastapi.rasztabiga.me
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: frontend-service
+-                port:
+-                  number: 80
+-          - path: /api
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: backend-service
+-                port:
+-                  number: 8000
++  - host: poc3-fastapi.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: frontend
++            port:
++              number: 80
++      - path: /api
++        pathType: Prefix
++        backend:
++          service:
++            name: backend
++            port:
++              number: 8000
+ @@FILE:K8s::k8s/postgres-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+   name: postgres-pvc
+-  labels:
+-    app: postgres
+ spec:
+   accessModes:
+     - ReadWriteOnce
+@@ -219,8 +225,6 @@
+ kind: Secret
+ metadata:
+   name: postgres-secret
+-  labels:
+-    app: postgres
+ type: Opaque
+ data:
+   postgres-password: cGFzc3dvcmQ=  # password
+@@ -230,25 +234,21 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: postgres-service
+-  labels:
+-    app: postgres
++  name: postgres
+ spec:
+   selector:
+     app: postgres
+   ports:
+-    - port: 5432
+-      targetPort: 5432
++  - port: 5432
++    targetPort: 5432
+   clusterIP: None
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: postgres-statefulset
+-  labels:
+-    app: postgres
+-spec:
+-  serviceName: postgres-service
++  name: postgres
++spec:
++  serviceName: postgres
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -259,57 +259,53 @@
+         app: postgres
+     spec:
+       containers:
+-        - name: postgres
+-          image: postgres:15-alpine
+-          ports:
+-            - containerPort: 5432
+-          env:
+-            - name: POSTGRES_PASSWORD
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: postgres-password
+-            - name: POSTGRES_USER
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: postgres-user
+-            - name: POSTGRES_DB
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: postgres-db
+-          volumeMounts:
+-            - name: postgres-storage
+-              mountPath: /var/lib/postgresql/data
+-          resources:
+-            requests:
+-              memory: "256Mi"
+-              cpu: "250m"
+-            limits:
+-              memory: "512Mi"
+-              cpu: "500m"
+-          readinessProbe:
+-            exec:
+-              command:
+-                - pg_isready
+-                - -U
+-                - user
+-                - -d
+-                - dbname
+-            initialDelaySeconds: 10
+-            periodSeconds: 5
+-          livenessProbe:
+-            exec:
+-              command:
+-                - pg_isready
+-                - -U
+-                - user
+-                - -d
+-                - dbname
+-            initialDelaySeconds: 30
+-            periodSeconds: 10
++      - name: postgres
++        image: postgres:15-alpine
++        ports:
++        - containerPort: 5432
++        env:
++        - name: POSTGRES_DB
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-db
++        - name: POSTGRES_USER
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-user
++        - name: POSTGRES_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-password
++        volumeMounts:
++        - name: postgres-storage
++          mountPath: /var/lib/postgresql/data
++        resources:
++          requests:
++            memory: "256Mi"
++            cpu: "250m"
++          limits:
++            memory: "512Mi"
++            cpu: "500m"
++        readinessProbe:
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - user
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        livenessProbe:
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - user
++          initialDelaySeconds: 30
++          periodSeconds: 10
+       volumes:
+-        - name: postgres-storage
+-          persistentVolumeClaim:
+-            claimName: postgres-pvc
++      - name: postgres-storage
++        persistentVolumeClaim:
++          claimName: postgres-pvc

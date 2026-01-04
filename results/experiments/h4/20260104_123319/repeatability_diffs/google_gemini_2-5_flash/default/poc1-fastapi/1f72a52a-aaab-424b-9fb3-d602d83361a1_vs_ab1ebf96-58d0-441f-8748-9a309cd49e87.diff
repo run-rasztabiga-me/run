@@ -1,0 +1,29 @@
+--- 1f72a52a-aaab-424b-9fb3-d602d83361a1
++++ ab1ebf96-58d0-441f-8748-9a309cd49e87
+@@ -11,7 +11,7 @@
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/poc1-fastapi-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -41,7 +41,7 @@
+           limits:
+             memory: "128Mi"
+             cpu: "200m"
+-@@FILE:K8s::k8s/poc1-fastapi-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -61,7 +61,7 @@
+             name: poc1-fastapi-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/poc1-fastapi-service.yaml
++@@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:

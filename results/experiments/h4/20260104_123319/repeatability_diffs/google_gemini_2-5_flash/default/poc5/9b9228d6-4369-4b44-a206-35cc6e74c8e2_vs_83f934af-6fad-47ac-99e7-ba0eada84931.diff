@@ -1,0 +1,703 @@
+--- 9b9228d6-4369-4b44-a206-35cc6e74c8e2
++++ 83f934af-6fad-47ac-99e7-ba0eada84931
+@@ -3,14 +3,14 @@
+ WORKDIR /app
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-COPY . .
++COPY app ./app
+ EXPOSE 8000
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:Dockerfile::backend/audit_service/Dockerfile
+-FROM node:16-alpine
++FROM node:18-alpine
+ WORKDIR /app
+-COPY package.json package-lock.json ./
+-RUN npm install --production
++COPY package.json ./ 
++RUN npm install
+ COPY src ./src
+ EXPOSE 8000
+ CMD ["node", "src/index.js"]
+@@ -19,7 +19,7 @@
+ WORKDIR /app
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-COPY . .
++COPY app ./app
+ EXPOSE 8000
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:Dockerfile::backend/users_service/Dockerfile
+@@ -27,22 +27,22 @@
+ WORKDIR /app
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-COPY . .
++COPY app ./app
+ EXPOSE 8000
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:Dockerfile::frontend/Dockerfile
+ # Stage 1: Build the React application
+-FROM node:18-alpine as builder
++FROM node:18-alpine as build-stage
+ WORKDIR /app
+-COPY package.json package-lock.json ./ 
++COPY package.json package-lock.json ./
+ RUN npm install
+-COPY . . 
++COPY . ./ 
+ RUN npm run build
+ 
+-# Stage 2: Serve with Nginx
+-FROM nginx:stable-alpine
+-COPY --from=builder /app/dist /usr/share/nginx/html
+-COPY nginx.conf /etc/nginx/nginx.conf
++# Stage 2: Serve the application with Nginx
++FROM nginx:alpine
++COPY --from=build-stage /app/dist /usr/share/nginx/html
++COPY nginx.conf /etc/nginx/conf.d/default.conf
+ EXPOSE 80
+ CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/analytics-deployment.yaml
+@@ -68,37 +68,31 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: "postgresql://poc5_user:poc5_password@postgresql-service:5432/poc5_db"
+             - name: RABBITMQ_URL
+-              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672"
++              value: "amqp://rabbitmq_user:rabbitmq_password@rabbitmq-service:5672/"
+           envFrom:
+             - secretRef:
+-                name: postgres-secret
+-            - secretRef:
+-                name: rabbitmq-secret
+-            - secretRef:
+                 name: jwt-secret
+           resources:
+             requests:
++              memory: "128Mi"
+               cpu: "100m"
++            limits:
+               memory: "256Mi"
+-            limits:
+-              cpu: "500m"
+-              memory: "512Mi"
++              cpu: "200m"
+           livenessProbe:
+             httpGet:
+               path: /health
+               port: 8000
+             initialDelaySeconds: 30
+             periodSeconds: 10
+-            timeoutSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /health
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
++          readinessProbe:
++            httpGet:
++              path: /health
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/analytics-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -133,38 +127,33 @@
+           ports:
+             - containerPort: 8000
+           env:
++            - name: PORT
++              value: "8000"
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: "postgresql://poc5_user:poc5_password@postgresql-service:5432/poc5_db"
+             - name: RABBITMQ_URL
+-              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672"
++              value: "amqp://rabbitmq_user:rabbitmq_password@rabbitmq-service:5672/"
+             - name: REDIS_URL
+-              value: "redis://redis:6379"
+-          envFrom:
+-            - secretRef:
+-                name: postgres-secret
+-            - secretRef:
+-                name: rabbitmq-secret
+-          resources:
+-            requests:
++              value: "redis://redis-service:6379"
++          resources:
++            requests:
++              memory: "128Mi"
+               cpu: "100m"
++            limits:
+               memory: "256Mi"
+-            limits:
+-              cpu: "500m"
+-              memory: "512Mi"
++              cpu: "200m"
+           livenessProbe:
+             httpGet:
+               path: /health
+               port: 8000
+             initialDelaySeconds: 30
+             periodSeconds: 10
+-            timeoutSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /health
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
++          readinessProbe:
++            httpGet:
++              path: /health
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/audit-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -200,30 +189,28 @@
+             - containerPort: 80
+           resources:
+             requests:
++              memory: "64Mi"
+               cpu: "50m"
++            limits:
+               memory: "128Mi"
+-            limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              cpu: "100m"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 80
+             initialDelaySeconds: 10
+             periodSeconds: 10
+-            timeoutSeconds: 5
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 80
+             initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: frontend
++  name: frontend-service
+ spec:
+   selector:
+     app: frontend
+@@ -239,46 +226,45 @@
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /$2
+ spec:
+-  ingressClassName: nginx
+   rules:
+     - host: poc5.rasztabiga.me
+       http:
+         paths:
+-          - path: /api/notes(/|$)(.*)
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: frontend-service
++                port:
++                  number: 80
++          - path: /users(/|$)(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: users-service
++                port:
++                  number: 8000
++          - path: /notes(/|$)(.*)
+             pathType: Prefix
+             backend:
+               service:
+                 name: notes-service
+                 port:
+                   number: 8000
+-          - path: /api/users(/|$)(.*)
++          - path: /analytics(/|$)(.*)
+             pathType: Prefix
+             backend:
+               service:
+-                name: users-service
++                name: analytics-service
+                 port:
+                   number: 8000
+-          - path: /api/audit(/|$)(.*)
++          - path: /audit(/|$)(.*)
+             pathType: Prefix
+             backend:
+               service:
+                 name: audit-service
+                 port:
+                   number: 8000
+-          - path: /api/analytics(/|$)(.*)
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: analytics-service
+-                port:
+-                  number: 8000
+-          - path: /(/|$)(.*)
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: frontend
+-                port:
+-                  number: 80
+ @@FILE:K8s::k8s/jwt-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -286,7 +272,7 @@
+   name: jwt-secret
+ type: Opaque
+ data:
+-  JWT_SECRET_KEY: c3VwZXJzZWNyZXRqd3RrZXk=
++  JWT_SECRET: c3VwZXJzZWNyZXRqd3RrZXk=
+ @@FILE:K8s::k8s/notes-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -310,37 +296,31 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: "postgresql://poc5_user:poc5_password@postgresql-service:5432/poc5_db"
+             - name: RABBITMQ_URL
+-              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672"
++              value: "amqp://rabbitmq_user:rabbitmq_password@rabbitmq-service:5672/"
+           envFrom:
+             - secretRef:
+-                name: postgres-secret
+-            - secretRef:
+-                name: rabbitmq-secret
+-            - secretRef:
+                 name: jwt-secret
+           resources:
+             requests:
++              memory: "128Mi"
+               cpu: "100m"
++            limits:
+               memory: "256Mi"
+-            limits:
+-              cpu: "500m"
+-              memory: "512Mi"
++              cpu: "200m"
+           livenessProbe:
+             httpGet:
+               path: /health
+               port: 8000
+             initialDelaySeconds: 30
+             periodSeconds: 10
+-            timeoutSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /health
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
++          readinessProbe:
++            httpGet:
++              path: /health
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/notes-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -353,17 +333,6 @@
+     - protocol: TCP
+       port: 8000
+       targetPort: 8000
+-@@FILE:K8s::k8s/postgres-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: postgres-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+ @@FILE:K8s::k8s/postgres-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -371,14 +340,14 @@
+   name: postgres-secret
+ type: Opaque
+ data:
+-  POSTGRES_USER: dXNlcg==
+-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
+-  POSTGRES_DB: YXBwZGI=
++  POSTGRES_USER: cG9jNV91c2Vy
++  POSTGRES_PASSWORD: cG9jNV9wYXNzd29yZA==
++  POSTGRES_DB: cG9jNV9kYg==
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: postgres
++  name: postgresql-service
+ spec:
+   selector:
+     app: postgres
+@@ -386,13 +355,14 @@
+     - protocol: TCP
+       port: 5432
+       targetPort: 5432
++  clusterIP: None # Headless service for StatefulSet
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: postgres
+ spec:
+-  serviceName: "postgres"
++  serviceName: "postgresql-service"
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -404,7 +374,7 @@
+     spec:
+       containers:
+         - name: postgres
+-          image: postgres:13
++          image: postgres:13-alpine
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 5432
+@@ -417,29 +387,25 @@
+               mountPath: /var/lib/postgresql/data
+           resources:
+             requests:
+-              cpu: "100m"
+               memory: "256Mi"
+-            limits:
++              cpu: "200m"
++            limits:
++              memory: "512Mi"
+               cpu: "500m"
+-              memory: "512Mi"
+           livenessProbe:
+             exec:
+-              command:
+-                - pg_isready
+-                - -U
+-                - $(POSTGRES_USER)
++              command: ["pg_isready", "-U", "poc5_user"]
+             initialDelaySeconds: 30
+             periodSeconds: 10
+             timeoutSeconds: 5
++            failureThreshold: 6
+           readinessProbe:
+             exec:
+-              command:
+-                - pg_isready
+-                - -U
+-                - $(POSTGRES_USER)
++              command: ["pg_isready", "-U", "poc5_user"]
+             initialDelaySeconds: 5
+             periodSeconds: 10
+             timeoutSeconds: 5
++            failureThreshold: 6
+   volumeClaimTemplates:
+     - metadata:
+         name: postgres-data
+@@ -448,17 +414,6 @@
+         resources:
+           requests:
+             storage: 1Gi
+-@@FILE:K8s::k8s/rabbitmq-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: rabbitmq-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+ @@FILE:K8s::k8s/rabbitmq-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -466,32 +421,33 @@
+   name: rabbitmq-secret
+ type: Opaque
+ data:
+-  RABBITMQ_DEFAULT_USER: Z3Vlc3Q=
+-  RABBITMQ_DEFAULT_PASS: Z3Vlc3Q=
++  RABBITMQ_DEFAULT_USER: cmFiYml0bXFfdXNlcg==
++  RABBITMQ_DEFAULT_PASS: cmFiYml0bXFfcGFzc3dvcmQ=
+ @@FILE:K8s::k8s/rabbitmq-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: rabbitmq
++  name: rabbitmq-service
+ spec:
+   selector:
+     app: rabbitmq
+   ports:
+-    - protocol: TCP
++    - name: amqp
++      protocol: TCP
+       port: 5672
+       targetPort: 5672
+-      name: amqp
+-    - protocol: TCP
++    - name: management
++      protocol: TCP
+       port: 15672
+       targetPort: 15672
+-      name: management
++  clusterIP: None # Headless service for StatefulSet
+ @@FILE:K8s::k8s/rabbitmq-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: rabbitmq
+ spec:
+-  serviceName: "rabbitmq"
++  serviceName: "rabbitmq-service"
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -518,29 +474,29 @@
+               mountPath: /var/lib/rabbitmq
+           resources:
+             requests:
+-              cpu: "100m"
+               memory: "256Mi"
+-            limits:
++              cpu: "200m"
++            limits:
++              memory: "512Mi"
+               cpu: "500m"
+-              memory: "512Mi"
+-          livenessProbe:
+-            exec:
+-              command:
+-                - rabbitmq-diagnostics
+-                - -q
+-                - ping
++          livenessProbe:
++            httpGet:
++              path: /api/healthchecks/node
++              port: 15672
++              scheme: HTTP
+             initialDelaySeconds: 30
+             periodSeconds: 10
+             timeoutSeconds: 5
+-          readinessProbe:
+-            exec:
+-              command:
+-                - rabbitmq-diagnostics
+-                - -q
+-                - ping
++            failureThreshold: 6
++          readinessProbe:
++            httpGet:
++              path: /api/healthchecks/node
++              port: 15672
++              scheme: HTTP
+             initialDelaySeconds: 5
+             periodSeconds: 10
+             timeoutSeconds: 5
++            failureThreshold: 6
+   volumeClaimTemplates:
+     - metadata:
+         name: rabbitmq-data
+@@ -549,22 +505,49 @@
+         resources:
+           requests:
+             storage: 1Gi
+-@@FILE:K8s::k8s/redis-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: redis-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 500Mi
++@@FILE:K8s::k8s/redis-deployment.yaml
++apiVersion: apps/v1
++kind: Deployment
++metadata:
++  name: redis
++spec:
++  replicas: 1
++  selector:
++    matchLabels:
++      app: redis
++  template:
++    metadata:
++      labels:
++        app: redis
++    spec:
++      containers:
++        - name: redis
++          image: redis:alpine
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 6379
++          resources:
++            requests:
++              memory: "128Mi"
++              cpu: "100m"
++            limits:
++              memory: "256Mi"
++              cpu: "200m"
++          livenessProbe:
++            tcpSocket:
++              port: 6379
++            initialDelaySeconds: 15
++            periodSeconds: 20
++          readinessProbe:
++            tcpSocket:
++              port: 6379
++            initialDelaySeconds: 5
++            periodSeconds: 10
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: redis
++  name: redis-service
+ spec:
+   selector:
+     app: redis
+@@ -572,63 +555,6 @@
+     - protocol: TCP
+       port: 6379
+       targetPort: 6379
+-@@FILE:K8s::k8s/redis-statefulset.yaml
+-apiVersion: apps/v1
+-kind: StatefulSet
+-metadata:
+-  name: redis
+-spec:
+-  serviceName: "redis"
+-  replicas: 1
+-  selector:
+-    matchLabels:
+-      app: redis
+-  template:
+-    metadata:
+-      labels:
+-        app: redis
+-    spec:
+-      containers:
+-        - name: redis
+-          image: redis:6-alpine
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 6379
+-              name: redis
+-          volumeMounts:
+-            - name: redis-data
+-              mountPath: /data
+-          resources:
+-            requests:
+-              cpu: "50m"
+-              memory: "128Mi"
+-            limits:
+-              cpu: "200m"
+-              memory: "256Mi"
+-          livenessProbe:
+-            exec:
+-              command:
+-                - redis-cli
+-                - ping
+-            initialDelaySeconds: 10
+-            periodSeconds: 5
+-            timeoutSeconds: 3
+-          readinessProbe:
+-            exec:
+-              command:
+-                - redis-cli
+-                - ping
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+-            timeoutSeconds: 3
+-  volumeClaimTemplates:
+-    - metadata:
+-        name: redis-data
+-      spec:
+-        accessModes: ["ReadWriteOnce"]
+-        resources:
+-          requests:
+-            storage: 500Mi
+ @@FILE:K8s::k8s/users-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -652,37 +578,31 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: "postgresql://poc5_user:poc5_password@postgresql-service:5432/poc5_db"
+             - name: RABBITMQ_URL
+-              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672"
++              value: "amqp://rabbitmq_user:rabbitmq_password@rabbitmq-service:5672/"
+           envFrom:
+             - secretRef:
+-                name: postgres-secret
+-            - secretRef:
+-                name: rabbitmq-secret
+-            - secretRef:
+                 name: jwt-secret
+           resources:
+             requests:
++              memory: "128Mi"
+               cpu: "100m"
++            limits:
+               memory: "256Mi"
+-            limits:
+-              cpu: "500m"
+-              memory: "512Mi"
++              cpu: "200m"
+           livenessProbe:
+             httpGet:
+               path: /health
+               port: 8000
+             initialDelaySeconds: 30
+             periodSeconds: 10
+-            timeoutSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /health
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
++          readinessProbe:
++            httpGet:
++              path: /health
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/users-service.yaml
+ apiVersion: v1
+ kind: Service

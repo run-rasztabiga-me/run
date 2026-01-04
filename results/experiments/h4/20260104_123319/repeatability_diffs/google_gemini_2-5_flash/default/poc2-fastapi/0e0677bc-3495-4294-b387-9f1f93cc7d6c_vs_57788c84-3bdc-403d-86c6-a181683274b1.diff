@@ -1,0 +1,133 @@
+--- 0e0677bc-3495-4294-b387-9f1f93cc7d6c
++++ 57788c84-3bdc-403d-86c6-a181683274b1
+@@ -1,17 +1,19 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.9-slim-buster
++
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY ./app .
++COPY ./app /app/app
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -28,7 +30,7 @@
+     spec:
+       containers:
+         - name: fastapi-app
+-          image: fastapi-app
++          image: fastapi-app:latest # This will be replaced by the actual image tag during deployment
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
+@@ -55,25 +57,22 @@
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+-              cpu: "300m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 8000
+             initialDelaySeconds: 10
+             periodSeconds: 10
+-            timeoutSeconds: 5
+-            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+             initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
+-            failureThreshold: 3
++            periodSeconds: 5
+ @@FILE:K8s::k8s/fastapi-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -86,6 +85,7 @@
+       port: 80
+       targetPort: 8000
+ @@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -106,6 +106,7 @@
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/postgres-secret.yaml
++
+ apiVersion: v1
+ kind: Secret
+ metadata:
+@@ -116,6 +117,7 @@
+   POSTGRES_PASSWORD: cGFzc3dvcmQ=
+   POSTGRES_DB: ZGJuYW1l
+ @@FILE:K8s::k8s/postgres-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -127,8 +129,8 @@
+     - protocol: TCP
+       port: 5432
+       targetPort: 5432
+-  clusterIP: None
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
++
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+@@ -147,6 +149,7 @@
+       containers:
+         - name: postgres
+           image: postgres:13
++          imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 5432
+           env:
+@@ -175,26 +178,6 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          livenessProbe:
+-            exec:
+-              command:
+-                - pg_isready
+-                - -U
+-                - $(POSTGRES_USER)
+-            initialDelaySeconds: 30
+-            periodSeconds: 10
+-            timeoutSeconds: 5
+-            failureThreshold: 6
+-          readinessProbe:
+-            exec:
+-              command:
+-                - pg_isready
+-                - -U
+-                - $(POSTGRES_USER)
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 5
+-            failureThreshold: 6
+   volumeClaimTemplates:
+     - metadata:
+         name: postgres-data

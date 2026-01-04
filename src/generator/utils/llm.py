@@ -88,7 +88,11 @@ def build_llm_kwargs(
             "temperature": temperature,
         }
 
-        if seed is not None and provider == "openai":
-            llm_kwargs["seed"] = seed
+        if seed is not None:
+            # Google GenAI requires seed in model_kwargs, not as direct parameter
+            if provider == "google_genai":
+                llm_kwargs["model_kwargs"] = {"seed": seed}
+            else:
+                llm_kwargs["seed"] = seed
 
     return llm_kwargs

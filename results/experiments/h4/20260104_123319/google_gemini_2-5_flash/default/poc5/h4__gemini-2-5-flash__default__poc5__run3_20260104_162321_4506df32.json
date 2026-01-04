@@ -1,0 +1,202 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+  "repo_name": "poc5",
+  "evaluation_id": "4506df32-ff73-4b6a-9d80-10b00d8862bb",
+  "status": "completed",
+  "start_time": "2026-01-04T16:21:36.305276",
+  "end_time": "2026-01-04T16:23:21.285850",
+  "total_evaluation_time": 104.980574,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc5.git",
+    "repo_name": "poc5",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes-service",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users-service",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics-service",
+        "build_context": "backend/analytics_service"
+      },
+      {
+        "dockerfile_path": "backend/audit_service/Dockerfile",
+        "image_tag": "audit-service",
+        "build_context": "backend/audit_service"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/postgres-secret.yaml",
+      "k8s/rabbitmq-secret.yaml",
+      "k8s/jwt-secret.yaml",
+      "k8s/postgres-pvc.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/rabbitmq-pvc.yaml",
+      "k8s/rabbitmq-statefulset.yaml",
+      "k8s/rabbitmq-service.yaml",
+      "k8s/redis-pvc.yaml",
+      "k8s/redis-statefulset.yaml",
+      "k8s/redis-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/notes-deployment.yaml",
+      "k8s/notes-service.yaml",
+      "k8s/users-deployment.yaml",
+      "k8s/users-service.yaml",
+      "k8s/analytics-deployment.yaml",
+      "k8s/analytics-service.yaml",
+      "k8s/audit-deployment.yaml",
+      "k8s/audit-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 77.10744500160217,
+    "error_message": null,
+    "timestamp": "2026-01-04T16:23:01.120397",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-9b9228d6-4369-4b44-a206-35cc6e74c8e2",
+    "run_id": "9b9228d6-4369-4b44-a206-35cc6e74c8e2"
+  },
+  "execution_metrics": {
+    "total_time": 77.10744500160217,
+    "tool_calls_count": 38,
+    "tool_calls_breakdown": {
+      "write_file": 28,
+      "base64_encode": 5,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 361746,
+    "input_tokens": 350237,
+    "output_tokens": 11509,
+    "error_count": 0,
+    "run_id": "9b9228d6-4369-4b44-a206-35cc6e74c8e2",
+    "docker_build_metrics": [
+      {
+        "image_tag": "frontend",
+        "build_time": 11.137657403945923,
+        "image_size_mb": 21.99,
+        "layers_count": 10
+      },
+      {
+        "image_tag": "notes-service",
+        "build_time": 0.7549512386322021,
+        "image_size_mb": 69.52,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "users-service",
+        "build_time": 0.715980052947998,
+        "image_size_mb": 71.02,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "analytics-service",
+        "build_time": 0.7427759170532227,
+        "image_size_mb": 68.36,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "frontend/Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc5-9b9228d6-4369-4b44-a206-35cc6e74c8e2/frontend/Dockerfile:2 1 |     # Stage 1: Build the React application",
+        "rule_id": "FromAsCasing"
+      },
+      {
+        "file_path": "backend/audit_service/Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 195B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:16-alpine\n#2 DONE 0.2s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 6.37kB done\n#4 DONE 0.0s\n\n#5 [1/5] FROM docker.io/library/node:16-alpine@sha256:a1f9d027912b58a7c75be7716c97cfbc6d3099f3a97ed84aa490be9dee20e787\n#5 resolve docker.io/library/node:16-alpine@sha256:a1f9d027912b58a7c75be7716c97cfbc6d3099f3a97ed84aa490be9dee20e787 done\n#5 DONE 0.0s\n\n#6 [2/5] WORKDIR /app\n#6 CACHED\n\n#7 [3/5] COPY package.json package-lock.json ./\n#7 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::ynimtkizt05o1lb36chm1d160: \"/package-lock.json\": not found\n------\n > [3/5] COPY package.json package-lock.json ./:\n------\nDockerfile:3\n--------------------\n   1 |     FROM node:16-alpine\n   2 |     WORKDIR /app\n   3 | >>> COPY package.json package-lock.json ./\n   4 |     RUN npm install --production\n   5 |     COPY src ./src\n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::ynimtkizt05o1lb36chm1d160: \"/package-lock.json\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ith5c3oiqmv5c2gsm5mvrvscm",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 1,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 1,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-01-04T16:21:36.305372: Starting configuration generation",
+    "2026-01-04T16:23:01.120566: Generated 5 Dockerfiles and 23 K8s manifests",
+    "2026-01-04T16:23:01.120574: Starting quality assessment",
+    "2026-01-04T16:23:21.285785: Built 4 Docker images (total: 230.9 MB, avg time: 3.3s)",
+    "2026-01-04T16:23:21.285812: Dockerfile validation: 1 errors, 1 warnings",
+    "2026-01-04T16:23:21.285826: K8s validation: 0 errors, 0 warnings",
+    "2026-01-04T16:23:21.285835: Runtime validation skipped due to Docker build errors",
+    "2026-01-04T16:23:21.285841: Generating evaluation report"
+  ],
+  "experiment_name": "h4",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 0.0,
+    "seed": 42
+  },
+  "repetition_index": 2,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc5-9b9228d6-4369-4b44-a206-35cc6e74c8e2",
+    "run_id": "9b9228d6-4369-4b44-a206-35cc6e74c8e2"
+  }
+}

@@ -1,0 +1,11 @@
+--- bb80a3c0-898b-4ca3-874b-41825badb16d
++++ 218671d9-a96a-4008-a0f8-1e7b688ab34d
+@@ -18,7 +18,7 @@
+ # Expose the port the app runs on
+ EXPOSE 8000
+ 
+-# Command to run the application
++# Run the application with uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1

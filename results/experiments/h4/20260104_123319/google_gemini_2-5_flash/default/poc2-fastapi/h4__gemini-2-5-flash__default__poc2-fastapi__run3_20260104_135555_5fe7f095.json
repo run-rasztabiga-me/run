@@ -1,0 +1,156 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+  "repo_name": "poc2-fastapi",
+  "evaluation_id": "5fe7f095-3807-4e3a-b89e-28e7406a59c7",
+  "status": "completed",
+  "start_time": "2026-01-04T13:55:12.879080",
+  "end_time": "2026-01-04T13:55:55.381289",
+  "total_evaluation_time": 42.502209,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc2-fastapi.git",
+    "repo_name": "poc2-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "fastapi-app",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/postgres-secret.yaml",
+      "k8s/postgres-pvc.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/fastapi-deployment.yaml",
+      "k8s/fastapi-service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 32.086520195007324,
+    "error_message": null,
+    "timestamp": "2026-01-04T13:55:52.060060",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2",
+    "run_id": "9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2"
+  },
+  "execution_metrics": {
+    "total_time": 32.086520195007324,
+    "tool_calls_count": 16,
+    "tool_calls_breakdown": {
+      "write_file": 9,
+      "patch_file": 1,
+      "get_file_content": 3,
+      "base64_encode": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 81925,
+    "input_tokens": 77092,
+    "output_tokens": 4833,
+    "error_count": 0,
+    "run_id": "9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2",
+    "docker_build_metrics": [
+      {
+        "image_tag": "fastapi-app",
+        "build_time": 0.7173089981079102,
+        "image_size_mb": 67.1,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 85.0,
+    "overall_score": 69.0,
+    "validation_issues": [
+      {
+        "file_path": "k8s/postgres-secret.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: Error from server (BadRequest): error when creating \"/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2/k8s/postgres-secret.yaml\": Secret in version \"v1\" cannot be handled as a Secret: illegal base64 data at input byte 4",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 69.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 85.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 85.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-01-04T13:55:12.880002: Starting configuration generation",
+    "2026-01-04T13:55:52.060303: Generated 1 Dockerfiles and 7 K8s manifests",
+    "2026-01-04T13:55:52.060312: Starting quality assessment",
+    "2026-01-04T13:55:55.381235: Built 1 Docker images (total: 67.1 MB, avg time: 0.7s)",
+    "2026-01-04T13:55:55.381257: Dockerfile validation: 1 errors, 0 warnings",
+    "2026-01-04T13:55:55.381260: K8s validation: 1 errors, 0 warnings",
+    "2026-01-04T13:55:55.381276: Deployed to namespace: poc2-fastapi-9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2",
+    "2026-01-04T13:55:55.381287: Generating evaluation report"
+  ],
+  "experiment_name": "h4",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 0.0,
+    "seed": 42
+  },
+  "repetition_index": 2,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc2-fastapi-9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2",
+    "run_id": "9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2"
+  }
+}

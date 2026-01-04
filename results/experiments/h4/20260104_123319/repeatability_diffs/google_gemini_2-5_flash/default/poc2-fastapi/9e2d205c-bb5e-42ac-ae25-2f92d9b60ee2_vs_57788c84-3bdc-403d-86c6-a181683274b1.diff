@@ -1,0 +1,145 @@
+--- 9e2d205c-bb5e-42ac-ae25-2f92d9b60ee2
++++ 57788c84-3bdc-403d-86c6-a181683274b1
+@@ -1,17 +1,17 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-FROM python:3.9-slim-buster
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app .
++COPY ./app /app/app
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ 
+ apiVersion: apps/v1
+@@ -30,11 +30,13 @@
+     spec:
+       containers:
+         - name: fastapi-app
+-          image: fastapi-app
++          image: fastapi-app:latest # This will be replaced by the actual image tag during deployment
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
+           env:
++            - name: DATABASE_URL
++              value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)
+             - name: POSTGRES_USER
+               valueFrom:
+                 secretKeyRef:
+@@ -50,8 +52,6 @@
+                 secretKeyRef:
+                   name: postgres-secret
+                   key: POSTGRES_DB
+-            - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
+           resources:
+             requests:
+               cpu: "100m"
+@@ -64,13 +64,13 @@
+               path: /
+               port: 8000
+             initialDelaySeconds: 10
+-            periodSeconds: 5
++            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+             initialDelaySeconds: 5
+-            periodSeconds: 3
++            periodSeconds: 5
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ 
+ apiVersion: v1
+@@ -93,7 +93,7 @@
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: public
++  ingressClassName: nginx
+   rules:
+     - host: poc2-fastapi.rasztabiga.me
+       http:
+@@ -105,19 +105,6 @@
+                 name: fastapi-app
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/postgres-pvc.yaml
+-
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: postgres-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/postgres-secret.yaml
+ 
+ apiVersion: v1
+@@ -128,7 +115,7 @@
+ data:
+   POSTGRES_USER: dXNlcg==
+   POSTGRES_PASSWORD: cGFzc3dvcmQ=
+-  POSTGRES_DB: dbname
++  POSTGRES_DB: ZGJuYW1l
+ @@FILE:K8s::k8s/postgres-service.yaml
+ 
+ apiVersion: v1
+@@ -165,12 +152,24 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 5432
+-              name: postgres
+-          envFrom:
+-            - secretRef:
+-                name: postgres-secret
++          env:
++            - name: POSTGRES_USER
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_USER
++            - name: POSTGRES_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_PASSWORD
++            - name: POSTGRES_DB
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_DB
+           volumeMounts:
+-            - name: postgres-storage
++            - name: postgres-data
+               mountPath: /var/lib/postgresql/data
+           resources:
+             requests:
+@@ -181,11 +180,9 @@
+               memory: "512Mi"
+   volumeClaimTemplates:
+     - metadata:
+-        name: postgres-storage
++        name: postgres-data
+       spec:
+-        accessModes:
+-          - ReadWriteOnce
++        accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 1Gi
+-        storageClassName: microk8s-hostpath

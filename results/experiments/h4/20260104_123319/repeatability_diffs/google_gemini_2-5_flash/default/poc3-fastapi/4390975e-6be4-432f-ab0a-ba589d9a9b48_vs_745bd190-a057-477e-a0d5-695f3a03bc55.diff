@@ -1,0 +1,245 @@
+--- 4390975e-6be4-432f-ab0a-ba589d9a9b48
++++ 745bd190-a057-477e-a0d5-695f3a03bc55
+@@ -1,42 +1,36 @@
+ @@FILE:Dockerfile::backend/Dockerfile
+-
+-FROM python:3.10-slim-buster
++FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app/ ./app/
++COPY app ./app
+ 
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:Dockerfile::frontend/Dockerfile
+-
+-# Stage 1: Build the React application
+-FROM node:20-alpine as builder
++FROM node:16-alpine as build-stage
+ 
+ WORKDIR /app
+ 
+-COPY package.json package-lock.json ./
++COPY package*.json ./
+ RUN npm install
+ 
+ COPY . .
+ RUN npm run build
+ 
+-# Stage 2: Serve the application with Nginx
+-FROM nginx:stable-alpine
++FROM nginx:stable-alpine as production-stage
+ 
+ COPY nginx.conf /etc/nginx/conf.d/default.conf
+-
+-COPY --from=builder /app/dist /usr/share/nginx/html
++COPY --from=build-stage /app/dist /usr/share/nginx/html
+ 
+ EXPOSE 80
+ 
+ CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -59,12 +53,7 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)"
+-            - name: POSTGRES_DB
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_DB
++              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
+             - name: POSTGRES_USER
+               valueFrom:
+                 secretKeyRef:
+@@ -75,13 +64,18 @@
+                 secretKeyRef:
+                   name: postgres-secret
+                   key: POSTGRES_PASSWORD
++            - name: POSTGRES_DB
++              valueFrom:
++                secretKeyRef:
++                  name: postgres-secret
++                  key: POSTGRES_DB
+           resources:
+             requests:
++              memory: "128Mi"
+               cpu: "100m"
+-              memory: "128Mi"
+             limits:
+-              cpu: "500m"
+-              memory: "512Mi"
++              memory: "256Mi"
++              cpu: "200m"
+           livenessProbe:
+             httpGet:
+               path: /
+@@ -94,8 +88,7 @@
+               port: 8000
+             initialDelaySeconds: 5
+             periodSeconds: 5
+-@@FILE:K8s::k8s/backend-service.yaml
+-
++---
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -108,7 +101,6 @@
+       port: 8000
+       targetPort: 8000
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -131,11 +123,11 @@
+             - containerPort: 80
+           resources:
+             requests:
++              memory: "64Mi"
+               cpu: "50m"
+-              memory: "64Mi"
+             limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              memory: "128Mi"
++              cpu: "100m"
+           livenessProbe:
+             httpGet:
+               path: /
+@@ -148,8 +140,7 @@
+               port: 80
+             initialDelaySeconds: 5
+             periodSeconds: 5
+-@@FILE:K8s::k8s/frontend-service.yaml
+-
++---
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -162,14 +153,14 @@
+       port: 80
+       targetPort: 80
+ @@FILE:K8s::k8s/ingress.yaml
+-
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc3-fastapi-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+-spec:
++    nginx.ingress.kubernetes.io/rewrite-target: /$2
++spec:
++  ingressClassName: nginx
+   rules:
+     - host: poc3-fastapi.rasztabiga.me
+       http:
+@@ -181,32 +172,24 @@
+                 name: frontend
+                 port:
+                   number: 80
++          - path: /api(/|$)(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: backend
++                port:
++                  number: 8000
+ @@FILE:K8s::k8s/postgres-secret.yaml
+-
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: postgres-secret
+ type: Opaque
+ data:
+-  POSTGRES_DB: ZGJuYW1l
+-  POSTGRES_USER: dXNlcg==
+-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
+-@@FILE:K8s::k8s/postgres-service.yaml
+-
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: db
+-spec:
+-  selector:
+-    app: postgres
+-  ports:
+-    - protocol: TCP
+-      port: 5432
+-      targetPort: 5432
++  POSTGRES_USER: cG9zdGdyZXN1c2Vy
++  POSTGRES_PASSWORD: cG9zdGdyZXNwYXNzd29yZA==
++  POSTGRES_DB: bm90ZXNkYg==
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+-
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+@@ -227,32 +210,19 @@
+           image: postgres:13
+           ports:
+             - containerPort: 5432
+-          env:
+-            - name: POSTGRES_DB
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_DB
+-            - name: POSTGRES_USER
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_USER
+-            - name: POSTGRES_PASSWORD
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_PASSWORD
++          envFrom:
++            - secretRef:
++                name: postgres-secret
+           volumeMounts:
+             - name: postgres-data
+               mountPath: /var/lib/postgresql/data
+           resources:
+             requests:
+-              cpu: "100m"
+               memory: "256Mi"
++              cpu: "250m"
+             limits:
++              memory: "512Mi"
+               cpu: "500m"
+-              memory: "512Mi"
+   volumeClaimTemplates:
+     - metadata:
+         name: postgres-data
+@@ -261,3 +231,15 @@
+         resources:
+           requests:
+             storage: 1Gi
++---
++apiVersion: v1
++kind: Service
++metadata:
++  name: postgres
++spec:
++  selector:
++    app: postgres
++  ports:
++    - protocol: TCP
++      port: 5432
++      targetPort: 5432

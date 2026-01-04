@@ -1,0 +1,162 @@
+--- d44e3410-d51b-42d5-9a9f-d9b435422bfb
++++ 00eda38c-84b4-4f30-9d92-c7d2452f7f91
+@@ -14,7 +14,7 @@
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY app ./app
++COPY app/ ./app/
+ 
+ # Expose port
+ EXPOSE 8000
+@@ -39,7 +39,7 @@
+ # Build the application
+ RUN npm run build
+ 
+-# Production stage
++# Runtime stage
+ FROM nginx:alpine
+ 
+ # Copy nginx configuration
+@@ -96,18 +96,18 @@
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 10
++          periodSeconds: 5
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8000
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
++          initialDelaySeconds: 15
++          periodSeconds: 20
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -118,9 +118,10 @@
+   selector:
+     app: backend
+   ports:
+-    - port: 8000
+-      targetPort: 8000
+-      protocol: TCP
++  - port: 8000
++    targetPort: 8000
++    protocol: TCP
++    name: http
+ @@FILE:K8s::k8s/frontend-configmap.yaml
+ apiVersion: v1
+ kind: ConfigMap
+@@ -163,19 +164,19 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "250m"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
++            cpu: "200m"
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 80
+           initialDelaySeconds: 5
+           periodSeconds: 5
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 10
++          periodSeconds: 10
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -186,9 +187,10 @@
+   selector:
+     app: frontend
+   ports:
+-    - port: 80
+-      targetPort: 80
+-      protocol: TCP
++  - port: 80
++    targetPort: 80
++    protocol: TCP
++    name: http
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -250,8 +252,8 @@
+   selector:
+     app: postgres
+   ports:
+-    - port: 5432
+-      targetPort: 5432
++  - port: 5432
++    targetPort: 5432
+   clusterIP: None
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+@@ -276,21 +278,21 @@
+         ports:
+         - containerPort: 5432
+         env:
++        - name: POSTGRES_DB
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-db
++        - name: POSTGRES_USER
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-user
+         - name: POSTGRES_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: postgres-secret
+               key: postgres-password
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-user
+-        - name: POSTGRES_DB
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-db
+         volumeMounts:
+         - name: postgres-storage
+           mountPath: /var/lib/postgresql/data
+@@ -301,6 +303,16 @@
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
++        readinessProbe:
++          tcpSocket:
++            port: 5432
++          initialDelaySeconds: 5
++          periodSeconds: 10
++        livenessProbe:
++          tcpSocket:
++            port: 5432
++          initialDelaySeconds: 15
++          periodSeconds: 20
+       volumes:
+       - name: postgres-storage
+         persistentVolumeClaim:

@@ -1,0 +1,20 @@
+--- 3fbf7b48-b6b8-4e0a-91f6-26a697b89b7d
++++ 0878434c-69ad-4ac9-b458-0b92b292ee3a
+@@ -15,7 +15,7 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port the app runs on
++# Expose port
+ EXPOSE 8000
+ 
+ # Run the application
+@@ -38,7 +38,7 @@
+         app: poc1-fastapi
+     spec:
+       containers:
+-      - name: fastapi
++      - name: poc1-fastapi
+         image: poc1-fastapi
+         imagePullPolicy: IfNotPresent
+         ports:

@@ -1,0 +1,366 @@
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 106/150 & 70{,}7\% & 62{,}9\%--77{,}4\% \\
+        K8s apply & 97/143 & 67{,}8\% & 59{,}8\%--74{,}9\% \\
+        apply $|$ build & 97/106 & 91{,}5\% & 84{,}6\%--95{,}5\% \\
+        Runtime & 0/150 & 0{,}0\% & 0{,}0\%--2{,}5\% \\
+        runtime $|$ apply & 0/97 & 0{,}0\% & 0{,}0\%--3{,}8\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów w H1}
+    \label{tab:h1-stages}
+\end{table}
+
+\subsubsection{Rozbicie per model}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Model} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        gemini-2.5-flash & 0/50 & 0{,}0\% & 0{,}0\%--7{,}1\% \\
+        gpt-5-mini & 0/50 & 0{,}0\% & 0{,}0\%--7{,}1\% \\
+        deepseek-chat & 0/50 & 0{,}0\% & 0{,}0\%--7{,}1\% \\
+    \end{tabular}
+    \caption{Skuteczność per model w H1}
+    \label{tab:h1-models}
+\end{table}
+
+\subsubsection{Rozbicie per repozytorium}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Repozytorium} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        math-pdf-generator-web & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        simple-webapp & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        banner-designer-webapp & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        lsfont & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        airwatch & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        diceopt\_kcd2 & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        parklandschooltimer & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        realtime-chatting-webapp & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        csv-hero & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        metathief & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        deeplx-app & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        mtg-scryfall-randomizer & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        vesen & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        webclient & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        chessable & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        class-order-checker & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        adsensedetective & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        mario-kart-tournament & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        tempo-sync & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        attendence-calculator & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        scheme-seva & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        hello-world-war & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        openai-hello-world & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        todo-list & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+        simple-webapp-flask & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność per repozytorium w H1}
+    \label{tab:h1-repos}
+\end{table}
+
+\subsubsection{Rozbicie per repozytorium per etap}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        K8s apply & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla adsensedetective}
+    \label{tab:h1-stages-adsensedetective}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 3/6 & 50{,}0\% & 18{,}8\%--81{,}2\% \\
+        K8s apply & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla airwatch}
+    \label{tab:h1-stages-airwatch}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 5/5 & 100{,}0\% & 56{,}6\%--100{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla attendence-calculator}
+    \label{tab:h1-stages-attendence-calculator}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        K8s apply & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla banner-designer-webapp}
+    \label{tab:h1-stages-banner-designer-webapp}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 3/5 & 60{,}0\% & 23{,}1\%--88{,}2\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla chessable}
+    \label{tab:h1-stages-chessable}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla class-order-checker}
+    \label{tab:h1-stages-class-order-checker}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        K8s apply & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla csv-hero}
+    \label{tab:h1-stages-csv-hero}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        K8s apply & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla deeplx-app}
+    \label{tab:h1-stages-deeplx-app}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        K8s apply & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla diceopt\_kcd2}
+    \label{tab:h1-stages-diceopt-kcd2}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        K8s apply & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla hello-world-war}
+    \label{tab:h1-stages-hello-world-war}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        K8s apply & 4/5 & 80{,}0\% & 37{,}6\%--96{,}4\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla lsfont}
+    \label{tab:h1-stages-lsfont}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        K8s apply & 4/4 & 100{,}0\% & 51{,}0\%--100{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla mario-kart-tournament}
+    \label{tab:h1-stages-mario-kart-tournament}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla math-pdf-generator-web}
+    \label{tab:h1-stages-math-pdf-generator-web}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        K8s apply & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla metathief}
+    \label{tab:h1-stages-metathief}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla mtg-scryfall-randomizer}
+    \label{tab:h1-stages-mtg-scryfall-randomizer}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 3/5 & 60{,}0\% & 23{,}1\%--88{,}2\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla openai-hello-world}
+    \label{tab:h1-stages-openai-hello-world}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla parklandschooltimer}
+    \label{tab:h1-stages-parklandschooltimer}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        K8s apply & 3/6 & 50{,}0\% & 18{,}8\%--81{,}2\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla realtime-chatting-webapp}
+    \label{tab:h1-stages-realtime-chatting-webapp}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 4/6 & 66{,}7\% & 30{,}0\%--90{,}3\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla scheme-seva}
+    \label{tab:h1-stages-scheme-seva}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 1/6 & 16{,}7\% & 3{,}0\%--56{,}4\% \\
+        K8s apply & 1/5 & 20{,}0\% & 3{,}6\%--62{,}4\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla simple-webapp}
+    \label{tab:h1-stages-simple-webapp}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        K8s apply & 6/6 & 100{,}0\% & 61{,}0\%--100{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla simple-webapp-flask}
+    \label{tab:h1-stages-simple-webapp-flask}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla tempo-sync}
+    \label{tab:h1-stages-tempo-sync}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        K8s apply & 5/6 & 83{,}3\% & 43{,}6\%--97{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla todo-list}
+    \label{tab:h1-stages-todo-list}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        K8s apply & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla vesen}
+    \label{tab:h1-stages-vesen}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        K8s apply & 2/6 & 33{,}3\% & 9{,}7\%--70{,}0\% \\
+        Runtime & 0/6 & 0{,}0\% & 0{,}0\%--39{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla webclient}
+    \label{tab:h1-stages-webclient}
+\end{table}
+

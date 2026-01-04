@@ -46,6 +46,15 @@ class _RunRecord:
     tool_steps: Optional[int]
     file_labels: List[str]
     snapshot_text: str
+    generation_success: Optional[bool] = None
+    build_success: Optional[bool] = None
+    runtime_success: Optional[bool] = None
+    overall_score: Optional[float] = None
+    dockerfile_score: Optional[float] = None
+    k8s_score: Optional[float] = None
+    runtime_score: Optional[float] = None
+    error_count: Optional[int] = None
+    warning_count: Optional[int] = None
 
     @property
     def repetition_label(self) -> Optional[str]:
@@ -63,7 +72,7 @@ class _Snapshot:
 class RunRepeatabilityAnalyzer:
     """Compute run-to-run diff ratios and related repeatability metrics."""
 
-    def __init__(self, diff_threshold: float = 0.2):
+    def __init__(self, diff_threshold: float = 0.4):
         self.logger = logging.getLogger(__name__)
         self.diff_threshold = diff_threshold
         self._groups: Dict[_GroupKey, Dict[str, object]] = {}
@@ -128,6 +137,15 @@ class RunRepeatabilityAnalyzer:
             tool_steps=report.execution_metrics.tool_calls_count if report.execution_metrics else None,
             file_labels=snapshot.file_labels,
             snapshot_text=snapshot.text,
+            generation_success=generation_result.success if generation_result else None,
+            build_success=report.build_success,
+            runtime_success=report.runtime_success,
+            overall_score=report.quality_metrics.overall_score if report.quality_metrics else None,
+            dockerfile_score=report.quality_metrics.dockerfile_score if report.quality_metrics else None,
+            k8s_score=report.quality_metrics.k8s_manifests_score if report.quality_metrics else None,
+            runtime_score=report.quality_metrics.runtime_score if report.quality_metrics else None,
+            error_count=report.quality_metrics.error_count if report.quality_metrics else None,
+            warning_count=report.quality_metrics.warning_count if report.quality_metrics else None,
         )
         group["records"].append(record)
 
@@ -169,6 +187,21 @@ class RunRepeatabilityAnalyzer:
             diff_values = [entry["diff_ratio"] for entry in pair_entries]
             tool_counts = [record.tool_steps for record in records if record.tool_steps is not None]
 
+            # Collect success metrics
+            gen_successes = [r.generation_success for r in records if r.generation_success is not None]
+            build_successes = [r.build_success for r in records if r.build_success is not None]
+            runtime_successes = [r.runtime_success for r in records if r.runtime_success is not None]
+
+            # Collect score metrics
+            overall_scores = [r.overall_score for r in records if r.overall_score is not None]
+            dockerfile_scores = [r.dockerfile_score for r in records if r.dockerfile_score is not None]
+            k8s_scores = [r.k8s_score for r in records if r.k8s_score is not None]
+            runtime_scores = [r.runtime_score for r in records if r.runtime_score is not None]
+
+            # Collect validation metrics
+            error_counts = [r.error_count for r in records if r.error_count is not None]
+            warning_counts = [r.warning_count for r in records if r.warning_count is not None]
+
             group_payload = {
                 "experiment": key.experiment,
                 "repo_url": key.repo_url,
@@ -188,6 +221,31 @@ class RunRepeatabilityAnalyzer:
                 "threshold_exceeded_pairs": sum(1 for value in diff_values if value > self.diff_threshold),
                 "tool_steps_mean": self._round(mean(tool_counts)) if tool_counts else None,
                 "tool_steps_std": self._round(pstdev(tool_counts)) if len(tool_counts) > 1 else None,
+                # Success metrics
+                "generation_success_rate": self._round(sum(gen_successes) / len(gen_successes)) if gen_successes else None,
+                "build_success_rate": self._round(sum(build_successes) / len(build_successes)) if build_successes else None,
+                "runtime_success_rate": self._round(sum(runtime_successes) / len(runtime_successes)) if runtime_successes else None,
+                "success_variance": len(set(gen_successes)) > 1 if len(gen_successes) > 1 else None,
+                # Overall score metrics
+                "overall_score_mean": self._round(mean(overall_scores)) if overall_scores else None,
+                "overall_score_std": self._round(pstdev(overall_scores)) if len(overall_scores) > 1 else None,
+                "overall_score_min": self._round(min(overall_scores)) if overall_scores else None,
+                "overall_score_max": self._round(max(overall_scores)) if overall_scores else None,
+                "overall_score_range": self._round(max(overall_scores) - min(overall_scores)) if len(overall_scores) > 1 else None,
+                # Dockerfile score metrics
+                "dockerfile_score_mean": self._round(mean(dockerfile_scores)) if dockerfile_scores else None,
+                "dockerfile_score_std": self._round(pstdev(dockerfile_scores)) if len(dockerfile_scores) > 1 else None,
+                # K8s score metrics
+                "k8s_score_mean": self._round(mean(k8s_scores)) if k8s_scores else None,
+                "k8s_score_std": self._round(pstdev(k8s_scores)) if len(k8s_scores) > 1 else None,
+                # Runtime score metrics
+                "runtime_score_mean": self._round(mean(runtime_scores)) if runtime_scores else None,
+                "runtime_score_std": self._round(pstdev(runtime_scores)) if len(runtime_scores) > 1 else None,
+                # Validation metrics
+                "error_count_mean": self._round(mean(error_counts)) if error_counts else None,
+                "error_count_std": self._round(pstdev(error_counts)) if len(error_counts) > 1 else None,
+                "warning_count_mean": self._round(mean(warning_counts)) if warning_counts else None,
+                "warning_count_std": self._round(pstdev(warning_counts)) if len(warning_counts) > 1 else None,
                 "runs": [
                     self._serialize_run_record(record, relative_base)
                     for record in records
@@ -253,6 +311,15 @@ class RunRepeatabilityAnalyzer:
             "workspace_dir": record.workspace_dir,
             "tool_steps": record.tool_steps,
             "files": record.file_labels,
+            "generation_success": record.generation_success,
+            "build_success": record.build_success,
+            "runtime_success": record.runtime_success,
+            "overall_score": record.overall_score,
+            "dockerfile_score": record.dockerfile_score,
+            "k8s_score": record.k8s_score,
+            "runtime_score": record.runtime_score,
+            "error_count": record.error_count,
+            "warning_count": record.warning_count,
         }
 
     def _build_snapshot(self, generation_result: GenerationResult) -> Optional[_Snapshot]:

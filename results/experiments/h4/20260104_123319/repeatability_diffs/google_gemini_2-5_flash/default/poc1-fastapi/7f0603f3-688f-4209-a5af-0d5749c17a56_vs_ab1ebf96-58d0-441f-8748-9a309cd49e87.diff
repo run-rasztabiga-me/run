@@ -1,0 +1,28 @@
+--- 7f0603f3-688f-4209-a5af-0d5749c17a56
++++ ab1ebf96-58d0-441f-8748-9a309cd49e87
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.9-slim-buster
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+@@ -41,18 +41,6 @@
+           limits:
+             memory: "128Mi"
+             cpu: "200m"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

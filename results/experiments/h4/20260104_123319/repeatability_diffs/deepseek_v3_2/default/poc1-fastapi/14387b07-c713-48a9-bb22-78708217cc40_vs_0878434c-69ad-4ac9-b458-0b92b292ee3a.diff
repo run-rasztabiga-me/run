@@ -1,0 +1,28 @@
+--- 14387b07-c713-48a9-bb22-78708217cc40
++++ 0878434c-69ad-4ac9-b458-0b92b292ee3a
+@@ -15,10 +15,10 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port the app runs on
++# Expose port
+ EXPOSE 8000
+ 
+-# Command to run the application
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -66,9 +66,9 @@
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 5
+-          timeoutSeconds: 3
+-          failureThreshold: 1
++          periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

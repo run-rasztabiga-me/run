@@ -1,0 +1,105 @@
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 37/50 & 74{,}0\% & 60{,}4\%--84{,}1\% \\
+        K8s apply & 27/47 & 57{,}4\% & 43{,}3\%--70{,}5\% \\
+        apply $|$ build & 27/37 & 73{,}0\% & 57{,}0\%--84{,}6\% \\
+        Runtime & 16/50 & 32{,}0\% & 20{,}8\%--45{,}8\% \\
+        runtime $|$ apply & 16/27 & 59{,}3\% & 40{,}7\%--75{,}5\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów w H1}
+    \label{tab:h1-stages}
+\end{table}
+
+\subsubsection{Rozbicie per model}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Model} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        gemini-2.5-flash & 5/25 & 20{,}0\% & 8{,}9\%--39{,}1\% \\
+        deepseek-chat & 11/25 & 44{,}0\% & 26{,}7\%--62{,}9\% \\
+    \end{tabular}
+    \caption{Skuteczność per model w H1}
+    \label{tab:h1-models}
+\end{table}
+
+\subsubsection{Rozbicie per repozytorium}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Repozytorium} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        poc1-fastapi & 10/10 & 100{,}0\% & 72{,}2\%--100{,}0\% \\
+        poc2-fastapi & 2/10 & 20{,}0\% & 5{,}7\%--51{,}0\% \\
+        poc3-fastapi & 2/10 & 20{,}0\% & 5{,}7\%--51{,}0\% \\
+        poc4-fastapi & 2/10 & 20{,}0\% & 5{,}7\%--51{,}0\% \\
+        poc5 & 0/10 & 0{,}0\% & 0{,}0\%--27{,}8\% \\
+    \end{tabular}
+    \caption{Skuteczność per repozytorium w H1}
+    \label{tab:h1-repos}
+\end{table}
+
+\subsubsection{Rozbicie per repozytorium per etap}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 10/10 & 100{,}0\% & 72{,}2\%--100{,}0\% \\
+        K8s apply & 10/10 & 100{,}0\% & 72{,}2\%--100{,}0\% \\
+        Runtime & 10/10 & 100{,}0\% & 72{,}2\%--100{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla poc1-fastapi}
+    \label{tab:h1-stages-poc1-fastapi}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 9/10 & 90{,}0\% & 59{,}6\%--98{,}2\% \\
+        K8s apply & 5/9 & 55{,}6\% & 26{,}7\%--81{,}1\% \\
+        Runtime & 2/10 & 20{,}0\% & 5{,}7\%--51{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla poc2-fastapi}
+    \label{tab:h1-stages-poc2-fastapi}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 7/10 & 70{,}0\% & 39{,}7\%--89{,}2\% \\
+        K8s apply & 4/9 & 44{,}4\% & 18{,}9\%--73{,}3\% \\
+        Runtime & 2/10 & 20{,}0\% & 5{,}7\%--51{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla poc3-fastapi}
+    \label{tab:h1-stages-poc3-fastapi}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 10/10 & 100{,}0\% & 72{,}2\%--100{,}0\% \\
+        K8s apply & 7/10 & 70{,}0\% & 39{,}7\%--89{,}2\% \\
+        Runtime & 2/10 & 20{,}0\% & 5{,}7\%--51{,}0\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla poc4-fastapi}
+    \label{tab:h1-stages-poc4-fastapi}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \textbf{Etap} & \textbf{Sukcesy} & \textbf{Skuteczność} & \textbf{95\% CI} \\
+        Build & 1/10 & 10{,}0\% & 1{,}8\%--40{,}4\% \\
+        K8s apply & 1/9 & 11{,}1\% & 2{,}0\%--43{,}5\% \\
+        Runtime & 0/10 & 0{,}0\% & 0{,}0\%--27{,}8\% \\
+    \end{tabular}
+    \caption{Skuteczność etapów dla poc5}
+    \label{tab:h1-stages-poc5}
+\end{table}
+

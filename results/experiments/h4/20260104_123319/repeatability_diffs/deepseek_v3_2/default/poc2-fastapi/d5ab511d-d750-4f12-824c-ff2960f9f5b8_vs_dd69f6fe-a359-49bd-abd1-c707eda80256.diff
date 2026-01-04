@@ -1,0 +1,291 @@
+--- d5ab511d-d750-4f12-824c-ff2960f9f5b8
++++ dd69f6fe-a359-49bd-abd1-c707eda80256
+@@ -9,61 +9,76 @@
+     postgresql-client \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements first for better caching
++# Create non-root user
++RUN useradd -m -u 1000 fastapi
++RUN chown -R fastapi:fastapi /app
++
++# Copy requirements and install Python dependencies
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY app/ .
++COPY app/ ./app/
++
++# Switch to non-root user
++USER fastapi
+ 
+ # Expose port
+ EXPOSE 8000
+ 
+-# Run the application with uvicorn
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/fastapi-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: fastapi-config
+-  namespace: default
+-data:
+-  database-url: "postgresql://user:password@postgres:5432/dbname"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app
+-  namespace: default
++  name: fastapi
++  labels:
++    app: poc2-fastapi
++    component: api
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc2-fastapi
++      component: api
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc2-fastapi
++        component: api
+     spec:
++      initContainers:
++      - name: wait-for-postgres
++        image: postgres:15-alpine
++        command: ['sh', '-c', 'until pg_isready -h postgres -p 5432 -U user; do echo waiting for database; sleep 2; done;']
++        env:
++        - name: PGPASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-password
++      securityContext:
++        runAsUser: 1000
++        runAsGroup: 1000
++        fsGroup: 1000
+       containers:
+-      - name: fastapi-app
+-        image: fastapi-app
++      - name: fastapi
++        image: fastapi
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
++          name: http
+         env:
+         - name: DATABASE_URL
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: database-url
++          value: "postgresql://user:password@postgres:5432/dbname"
+         resources:
+           requests:
+-            memory: "128Mi"
+-            cpu: "100m"
+-          limits:
+             memory: "256Mi"
+             cpu: "250m"
++          limits:
++            memory: "512Mi"
++            cpu: "500m"
+         readinessProbe:
+           httpGet:
+             path: /
+@@ -74,27 +89,32 @@
+           httpGet:
+             path: /
+             port: 8000
+-          initialDelaySeconds: 15
++          initialDelaySeconds: 30
+           periodSeconds: 10
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app
+-  namespace: default
+-spec:
+-  selector:
+-    app: fastapi-app
++  name: fastapi
++  labels:
++    app: poc2-fastapi
++    component: api
++spec:
++  selector:
++    app: poc2-fastapi
++    component: api
+   ports:
+   - port: 80
+     targetPort: 8000
++    name: http
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+-  namespace: default
++  labels:
++    app: poc2-fastapi
+ spec:
+   rules:
+   - host: poc2-fastapi.rasztabiga.me
+@@ -104,7 +124,7 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app
++            name: fastapi
+             port:
+               number: 80
+ @@FILE:K8s::k8s/postgres-pvc.yaml
+@@ -112,7 +132,9 @@
+ kind: PersistentVolumeClaim
+ metadata:
+   name: postgres-pvc
+-  namespace: default
++  labels:
++    app: poc2-fastapi
++    component: postgres
+ spec:
+   accessModes:
+     - ReadWriteOnce
+@@ -125,7 +147,9 @@
+ kind: Secret
+ metadata:
+   name: postgres-secret
+-  namespace: default
++  labels:
++    app: poc2-fastapi
++    component: postgres
+ type: Opaque
+ data:
+   postgres-password: cGFzc3dvcmQ=  # password
+@@ -136,54 +160,63 @@
+ kind: Service
+ metadata:
+   name: postgres
+-  namespace: default
+-spec:
+-  selector:
+-    app: postgres
++  labels:
++    app: poc2-fastapi
++    component: postgres
++spec:
++  selector:
++    app: poc2-fastapi
++    component: postgres
+   ports:
+   - port: 5432
+     targetPort: 5432
++    name: postgres
+   clusterIP: None
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: postgres
+-  namespace: default
++  labels:
++    app: poc2-fastapi
++    component: postgres
+ spec:
+   serviceName: postgres
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: postgres
++      app: poc2-fastapi
++      component: postgres
+   template:
+     metadata:
+       labels:
+-        app: postgres
++        app: poc2-fastapi
++        component: postgres
+     spec:
+       containers:
+       - name: postgres
+         image: postgres:15-alpine
+         ports:
+         - containerPort: 5432
++          name: postgres
+         env:
++        - name: POSTGRES_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-password
++        - name: POSTGRES_USER
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-user
+         - name: POSTGRES_DB
+           valueFrom:
+             secretKeyRef:
+               name: postgres-secret
+               key: postgres-db
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-user
+-        - name: POSTGRES_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-password
+         volumeMounts:
+-        - name: postgres-storage
++        - name: postgres-data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -193,16 +226,26 @@
+             memory: "512Mi"
+             cpu: "500m"
+         readinessProbe:
+-          tcpSocket:
+-            port: 5432
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - user
++            - -h
++            - localhost
+           initialDelaySeconds: 5
++          periodSeconds: 5
++        livenessProbe:
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - user
++            - -h
++            - localhost
++          initialDelaySeconds: 30
+           periodSeconds: 10
+-        livenessProbe:
+-          tcpSocket:
+-            port: 5432
+-          initialDelaySeconds: 15
+-          periodSeconds: 20
+       volumes:
+-      - name: postgres-storage
++      - name: postgres-data
+         persistentVolumeClaim:
+           claimName: postgres-pvc

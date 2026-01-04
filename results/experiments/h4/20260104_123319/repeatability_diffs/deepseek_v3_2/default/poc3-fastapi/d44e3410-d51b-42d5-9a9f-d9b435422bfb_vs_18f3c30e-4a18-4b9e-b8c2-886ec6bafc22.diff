@@ -1,0 +1,254 @@
+--- d44e3410-d51b-42d5-9a9f-d9b435422bfb
++++ 18f3c30e-4a18-4b9e-b8c2-886ec6bafc22
+@@ -36,7 +36,8 @@
+ # Copy source code
+ COPY . .
+ 
+-# Build the application
++# Build the application with API URL set to /api
++ENV VITE_API_URL=/api
+ RUN npm run build
+ 
+ # Production stage
+@@ -45,7 +46,7 @@
+ # Copy nginx configuration
+ COPY nginx.conf /etc/nginx/conf.d/default.conf
+ 
+-# Copy built application from build stage
++# Copy built files from build stage
+ COPY --from=build /app/dist /usr/share/nginx/html
+ 
+ # Expose port
+@@ -58,7 +59,6 @@
+ kind: ConfigMap
+ metadata:
+   name: backend-config
+-  namespace: default
+ data:
+   DATABASE_URL: "postgresql://user:password@postgres:5432/dbname"
+ @@FILE:K8s::k8s/backend-deployment.yaml
+@@ -66,7 +66,6 @@
+ kind: Deployment
+ metadata:
+   name: backend
+-  namespace: default
+ spec:
+   replicas: 1
+   selector:
+@@ -96,45 +95,44 @@
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 10
++          periodSeconds: 5
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: backend
+-  namespace: default
+ spec:
+   selector:
+     app: backend
+   ports:
+-    - port: 8000
+-      targetPort: 8000
+-      protocol: TCP
++  - port: 8000
++    targetPort: 8000
++    protocol: TCP
++    name: http
+ @@FILE:K8s::k8s/frontend-configmap.yaml
+ apiVersion: v1
+ kind: ConfigMap
+ metadata:
+   name: frontend-config
+-  namespace: default
+ data:
+-  VITE_API_URL: "/api"
++  # No environment variables needed for frontend runtime
++  # VITE_API_URL is set at build time in Dockerfile
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: frontend
+-  namespace: default
+ spec:
+   replicas: 1
+   selector:
+@@ -151,12 +149,6 @@
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 80
+-        env:
+-        - name: VITE_API_URL
+-          valueFrom:
+-            configMapKeyRef:
+-              name: frontend-config
+-              key: VITE_API_URL
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -164,39 +156,39 @@
+           limits:
+             memory: "256Mi"
+             cpu: "250m"
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 80
++          initialDelaySeconds: 5
++          periodSeconds: 5
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 80
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 80
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: frontend
+-  namespace: default
+ spec:
+   selector:
+     app: frontend
+   ports:
+-    - port: 80
+-      targetPort: 80
+-      protocol: TCP
++  - port: 80
++    targetPort: 80
++    protocol: TCP
++    name: http
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc3-fastapi-ingress
+-  namespace: default
++  name: app-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+ spec:
+   rules:
+   - host: poc3-fastapi.rasztabiga.me
+@@ -221,7 +213,6 @@
+ kind: PersistentVolumeClaim
+ metadata:
+   name: postgres-pvc
+-  namespace: default
+ spec:
+   accessModes:
+     - ReadWriteOnce
+@@ -234,7 +225,6 @@
+ kind: Secret
+ metadata:
+   name: postgres-secret
+-  namespace: default
+ type: Opaque
+ data:
+   postgres-password: cGFzc3dvcmQ=  # password
+@@ -245,20 +235,18 @@
+ kind: Service
+ metadata:
+   name: postgres
+-  namespace: default
+ spec:
+   selector:
+     app: postgres
+   ports:
+-    - port: 5432
+-      targetPort: 5432
++  - port: 5432
++    targetPort: 5432
+   clusterIP: None
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: postgres
+-  namespace: default
+ spec:
+   serviceName: postgres
+   replicas: 1
+@@ -276,21 +264,21 @@
+         ports:
+         - containerPort: 5432
+         env:
++        - name: POSTGRES_DB
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-db
++        - name: POSTGRES_USER
++          valueFrom:
++            secretKeyRef:
++              name: postgres-secret
++              key: postgres-user
+         - name: POSTGRES_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: postgres-secret
+               key: postgres-password
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-user
+-        - name: POSTGRES_DB
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-db
+         volumeMounts:
+         - name: postgres-storage
+           mountPath: /var/lib/postgresql/data
+@@ -301,6 +289,22 @@
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
++        readinessProbe:
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - user
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        livenessProbe:
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - user
++          initialDelaySeconds: 30
++          periodSeconds: 10
+       volumes:
+       - name: postgres-storage
+         persistentVolumeClaim:

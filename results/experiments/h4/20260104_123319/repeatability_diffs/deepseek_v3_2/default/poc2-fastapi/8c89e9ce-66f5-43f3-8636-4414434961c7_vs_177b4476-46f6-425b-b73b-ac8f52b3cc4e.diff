@@ -1,0 +1,170 @@
+--- 8c89e9ce-66f5-43f3-8636-4414434961c7
++++ 177b4476-46f6-425b-b73b-ac8f52b3cc4e
+@@ -28,12 +28,12 @@
+   name: fastapi-config
+   namespace: default
+ data:
+-  database-host: "postgres-service"
++  DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/postgres"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-deployment
++  name: fastapi
+   namespace: default
+ spec:
+   replicas: 1
+@@ -47,34 +47,23 @@
+     spec:
+       containers:
+       - name: fastapi
+-        image: fastapi-app
++        image: fastapi:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         env:
+-        - name: POSTGRES_USER
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-user
+-        - name: POSTGRES_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-password
+-        - name: POSTGRES_DB
+-          valueFrom:
+-            secretKeyRef:
+-              name: postgres-secret
+-              key: postgres-db
+-        - name: POSTGRES_HOST
++        - name: DATABASE_URL
+           valueFrom:
+             configMapKeyRef:
+               name: fastapi-config
+-              key: database-host
+-        - name: DATABASE_URL
+-          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):5432/$(POSTGRES_DB)"
+-        # Health check using the root endpoint
++              key: DATABASE_URL
++        resources:
++          requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
++            memory: "256Mi"
++            cpu: "200m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -87,18 +76,11 @@
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-        resources:
+-          requests:
+-            memory: "256Mi"
+-            cpu: "250m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-service
++  name: fastapi
+   namespace: default
+ spec:
+   selector:
+@@ -106,15 +88,13 @@
+   ports:
+   - port: 80
+     targetPort: 8000
+-    protocol: TCP
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+   namespace: default
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc2-fastapi.rasztabiga.me
+@@ -124,7 +104,7 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: fastapi
+             port:
+               number: 80
+ @@FILE:K8s::k8s/postgres-pvc.yaml
+@@ -148,22 +128,22 @@
+   namespace: default
+ type: Opaque
+ data:
+-  postgres-password: cGFzc3dvcmQ=  # password
+-  postgres-user: dXNlcg==          # user
+-  postgres-db: ZGJuYW1l            # dbname
++  postgres-password: cG9zdGdyZXM=  # postgres in base64
++  postgres-user: cG9zdGdyZXM=     # postgres in base64
++  postgres-db: cG9zdGdyZXM=       # postgres in base64
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: postgres-service
++  name: postgres
+   namespace: default
+ spec:
+   selector:
+     app: postgres
+   ports:
+-    - port: 5432
+-      targetPort: 5432
+-  clusterIP: None
++  - port: 5432
++    targetPort: 5432
++  type: ClusterIP
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -171,7 +151,7 @@
+   name: postgres
+   namespace: default
+ spec:
+-  serviceName: postgres-service
++  serviceName: postgres
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -212,6 +192,22 @@
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
++        livenessProbe:
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - postgres
++          initialDelaySeconds: 30
++          periodSeconds: 10
++        readinessProbe:
++          exec:
++            command:
++            - pg_isready
++            - -U
++            - postgres
++          initialDelaySeconds: 5
++          periodSeconds: 5
+       volumes:
+       - name: postgres-storage
+         persistentVolumeClaim:

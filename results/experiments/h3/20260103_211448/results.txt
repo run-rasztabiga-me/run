@@ -1,0 +1,427 @@
+Experiment path: /Users/rasztabigab/Studia/run/results/experiments/h3/20260103_211448
+Runs: 0/150 = 0.0%
+  95% CI: 0.0%–2.5%
+
+Stages:
+  build: 106/150 = 70.7% (CI: 62.9%–77.4%)
+  apply: 97/143 = 67.8% (CI: 59.8%–74.9%)
+    └─ given build OK: 97/106 = 91.5% (CI: 84.6%–95.5%)
+  runtime: 0/150 = 0.0% (CI: 0.0%–2.5%)
+    └─ given apply OK: 0/97 = 0.0% (CI: 0.0%–3.8%)
+
+Prompts:
+  base: 0/75 = 0.0% (CI: 0.0%–4.9%)
+  best_practices: 0/75 = 0.0% (CI: 0.0%–4.9%)
+
+Per model:
+  gemini-2.5-flash: 0/50 = 0.0% (CI: 0.0%–7.1%)
+  gpt-5-mini: 0/50 = 0.0% (CI: 0.0%–7.1%)
+  deepseek-chat: 0/50 = 0.0% (CI: 0.0%–7.1%)
+
+Per repo:
+  math-pdf-generator-web: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  simple-webapp: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  banner-designer-webapp: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  lsfont: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  airwatch: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  diceopt_kcd2: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  parklandschooltimer: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  realtime-chatting-webapp: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  csv-hero: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  metathief: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  deeplx-app: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  mtg-scryfall-randomizer: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  vesen: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  webclient: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  chessable: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  class-order-checker: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  adsensedetective: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  mario-kart-tournament: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  tempo-sync: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  attendence-calculator: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  scheme-seva: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  hello-world-war: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  openai-hello-world: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  todo-list: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  simple-webapp-flask: 0/6 = 0.0% (CI: 0.0%–39.0%)
+
+Per repo stage breakdown:
+  adsensedetective:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  airwatch:
+    build: 3/6 = 50.0% (CI: 18.8%–81.2%)
+    apply: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  attendence-calculator:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/5 = 100.0% (CI: 56.6%–100.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  banner-designer-webapp:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  chessable:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 3/5 = 60.0% (CI: 23.1%–88.2%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  class-order-checker:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  csv-hero:
+    build: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    apply: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  deeplx-app:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  diceopt_kcd2:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  hello-world-war:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  lsfont:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 4/5 = 80.0% (CI: 37.6%–96.4%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  mario-kart-tournament:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 4/4 = 100.0% (CI: 51.0%–100.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  math-pdf-generator-web:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  metathief:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  mtg-scryfall-randomizer:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  openai-hello-world:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 3/5 = 60.0% (CI: 23.1%–88.2%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  parklandschooltimer:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  realtime-chatting-webapp:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 3/6 = 50.0% (CI: 18.8%–81.2%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  scheme-seva:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  simple-webapp:
+    build: 1/6 = 16.7% (CI: 3.0%–56.4%)
+    apply: 1/5 = 20.0% (CI: 3.6%–62.4%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  simple-webapp-flask:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  tempo-sync:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  todo-list:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  vesen:
+    build: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    apply: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  webclient:
+    build: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    apply: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+
+H3 quality stats (linters):
+  base: warnings 62/75 = 82.7%; clean 13/75 = 17.3%; total 147 (docker 17, k8s 130), avg 1.96
+  best_practices: warnings 19/75 = 25.3%; clean 56/75 = 74.7%; total 30 (docker 8, k8s 22), avg 0.40
+
+H3 per repo stats (linters):
+  adsensedetective:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 8 (docker 4, k8s 4), avg 2.67
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  airwatch:
+    base: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 7 (docker 1, k8s 6), avg 2.33
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 0, k8s 1), avg 0.33
+  attendence-calculator:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 5 (docker 0, k8s 5), avg 1.67
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  banner-designer-webapp:
+    base: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 4 (docker 0, k8s 4), avg 1.33
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 0, k8s 1), avg 0.33
+  chessable:
+    base: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 0, k8s 1), avg 0.33
+  class-order-checker:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 2 (docker 0, k8s 2), avg 0.67
+  csv-hero:
+    base: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 2 (docker 0, k8s 2), avg 0.67
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  deeplx-app:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 0, k8s 1), avg 0.33
+  diceopt_kcd2:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  hello-world-war:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  lsfont:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  mario-kart-tournament:
+    base: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 4 (docker 0, k8s 4), avg 1.33
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 5 (docker 0, k8s 5), avg 1.67
+  math-pdf-generator-web:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  metathief:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 7 (docker 3, k8s 4), avg 2.33
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  mtg-scryfall-randomizer:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 0, k8s 1), avg 0.33
+  openai-hello-world:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 7 (docker 2, k8s 5), avg 2.33
+    best_practices: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 3 (docker 3, k8s 0), avg 1.00
+  parklandschooltimer:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  realtime-chatting-webapp:
+    base: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 11 (docker 1, k8s 10), avg 3.67
+    best_practices: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 4 (docker 2, k8s 2), avg 1.33
+  scheme-seva:
+    base: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 12 (docker 0, k8s 12), avg 4.00
+    best_practices: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 4 (docker 0, k8s 4), avg 1.33
+  simple-webapp:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 9 (docker 3, k8s 6), avg 3.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 1, k8s 0), avg 0.33
+  simple-webapp-flask:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 7 (docker 2, k8s 5), avg 2.33
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 1, k8s 0), avg 0.33
+  tempo-sync:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 5 (docker 0, k8s 5), avg 1.67
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 2 (docker 0, k8s 2), avg 0.67
+  todo-list:
+    base: warnings 3/3 = 100.0%; clean 0/3 = 0.0%; total 6 (docker 0, k8s 6), avg 2.00
+    best_practices: warnings 0/3 = 0.0%; clean 3/3 = 100.0%; total 0 (docker 0, k8s 0), avg 0.00
+  vesen:
+    base: warnings 2/3 = 66.7%; clean 1/3 = 33.3%; total 3 (docker 1, k8s 2), avg 1.00
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 1 (docker 0, k8s 1), avg 0.33
+  webclient:
+    base: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 2 (docker 0, k8s 2), avg 0.67
+    best_practices: warnings 1/3 = 33.3%; clean 2/3 = 66.7%; total 2 (docker 1, k8s 1), avg 0.67
+
+H3 warnings debug (docker):
+  simple-webapp | gemini-2.5-flash | base | Dockerfile:9 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | gemini-2.5-flash | best_practices | Dockerfile:9 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | gpt-5-mini | base | Dockerfile:8 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | deepseek-chat | base | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  airwatch | gemini-2.5-flash | base | Dockerfile.frontend:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/airwatch-2a365557-c025-4a0d-a324-ffdcb7cb9494/Dockerfile.frontend:2 1 |     # Stage 1: Build the frontend
+  airwatch | gemini-2.5-flash | base | Dockerfile.frontend:19 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  airwatch | gemini-2.5-flash | best_practices | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/airwatch-0d83a9a3-035e-445a-aac5-bfa6625718ca/Dockerfile:2 1 |     # Stage 1: Build the frontend
+  airwatch | gpt-5-mini | best_practices | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/airwatch-bd0deffd-f42a-426c-a30e-809fe19da4ba/Dockerfile:2 1 |     # Frontend Dockerfile - builds static site and serves with http-server
+  airwatch | deepseek-chat | best_practices | Dockerfile:None | SecretsUsedInArgOrEnv | https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/ Do not use ARG or ENV instructions for sensitive data (ARG "WAQI_API_KEY") /Users/rasztabigab/Studia/run/tmp/airwatch-34066f38-b6bb-49a1-8af0-d7b46c94ab5b/Dockerfile:24 22 |     # Build the application with environment variables
+  airwatch | deepseek-chat | best_practices | Dockerfile:None | SecretsUsedInArgOrEnv | https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/ Do not use ARG or ENV instructions for sensitive data (ENV "WAQI_API_KEY") /Users/rasztabigab/Studia/run/tmp/airwatch-34066f38-b6bb-49a1-8af0-d7b46c94ab5b/Dockerfile:26 24 |     ARG WAQI_API_KEY
+  realtime-chatting-webapp | gemini-2.5-flash | base | client/Dockerfile.frontend:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-96034f42-68c6-4517-8df8-e5f2523dcfbe/client/Dockerfile.frontend:2 1 |     # --- Build Stage ---
+  realtime-chatting-webapp | gpt-5-mini | base | Dockerfile:20 | DL3003 | Use WORKDIR to switch to a directory
+  realtime-chatting-webapp | gpt-5-mini | best_practices | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-92357c11-af66-45e5-8852-dd50e9e718f2/Dockerfile:2 1 |     # Multi-stage build
+  realtime-chatting-webapp | gpt-5-mini | best_practices | Dockerfile:11 | DL3003 | Use WORKDIR to switch to a directory
+  realtime-chatting-webapp | deepseek-chat | best_practices | Dockerfile:22 | DL3003 | Use WORKDIR to switch to a directory
+  csv-hero | gemini-2.5-flash | base | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/csv-hero-8ecb44a2-6d62-4995-be50-b6a263b953db/Dockerfile:1 1 | >>> FROM node:20-alpine as builder
+  metathief | gemini-2.5-flash | base | Dockerfile:None | LegacyKeyValueFormat | https://docs.docker.com/go/dockerfile/rule/legacy-key-value-format/ "ENV key=value" should be used instead of legacy "ENV key value" format /Users/rasztabigab/Studia/run/tmp/metathief-d131af28-4c78-4adc-ad79-4d426347f958/Dockerfile:22 20 |     FROM base AS runner
+  metathief | gemini-2.5-flash | base | Dockerfile:None | LegacyKeyValueFormat | https://docs.docker.com/go/dockerfile/rule/legacy-key-value-format/ "ENV key=value" should be used instead of legacy "ENV key value" format /Users/rasztabigab/Studia/run/tmp/metathief-d131af28-4c78-4adc-ad79-4d426347f958/Dockerfile:37 35 |     EXPOSE 3000
+  metathief | gemini-2.5-flash | base | Dockerfile:5 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  metathief | gemini-2.5-flash | best_practices | Dockerfile:None | LegacyKeyValueFormat | https://docs.docker.com/go/dockerfile/rule/legacy-key-value-format/ "ENV key=value" should be used instead of legacy "ENV key value" format /Users/rasztabigab/Studia/run/tmp/metathief-c04ca9f4-f8ba-486c-8771-b8ef587cd8ff/Dockerfile:28 26 |
+  metathief | gpt-5-mini | base | Dockerfile:5 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  metathief | deepseek-chat | base | Dockerfile:5 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  vesen | gemini-2.5-flash | base | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/vesen-582e7ac3-3abd-48e7-90e1-a4f54efbb0f0/Dockerfile:3 1 |
+  vesen | gpt-5-mini | base | Dockerfile:5 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  webclient | gemini-2.5-flash | base | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/webclient-9e761004-3a2a-4996-800c-a5d4991799df/Dockerfile:3 1 |
+  webclient | gpt-5-mini | best_practices | Dockerfile:10 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  adsensedetective | gemini-2.5-flash | base | Dockerfile:9 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  adsensedetective | gemini-2.5-flash | base | Dockerfile:29 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  adsensedetective | deepseek-chat | base | Dockerfile:5 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  adsensedetective | deepseek-chat | base | Dockerfile:26 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  scheme-seva | gemini-2.5-flash | base | Frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/scheme-seva-91784517-fbe0-44b5-94d3-9e9704e7f8ef/Frontend/Dockerfile:1 1 | >>> FROM node:20-alpine as builder
+  scheme-seva | gpt-5-mini | best_practices | Frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/scheme-seva-6134228f-35ea-49fe-9aa0-60d7b2c5a4a9/Frontend/Dockerfile:2 1 |     # Frontend Dockerfile
+  scheme-seva | deepseek-chat | base | Frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/scheme-seva-4c1acd69-b4b7-44de-868d-2b8fcf181600/Frontend/Dockerfile:1 1 | >>> FROM node:18-alpine as build
+  openai-hello-world | gemini-2.5-flash | base | Dockerfile:None | SecretsUsedInArgOrEnv | https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/ Do not use ARG or ENV instructions for sensitive data (ENV "OPENAI_API_KEY") /Users/rasztabigab/Studia/run/tmp/openai-hello-world-0279b1a1-3d6f-4ac6-b747-af89f378c98e/Dockerfile:11 9 |     COPY app/ ./app/
+  openai-hello-world | gpt-5-mini | best_practices | Dockerfile:11 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  openai-hello-world | deepseek-chat | base | Dockerfile:13 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  openai-hello-world | deepseek-chat | base | Dockerfile:21 | DL3013 | Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
+  openai-hello-world | deepseek-chat | best_practices | Dockerfile:10 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  openai-hello-world | deepseek-chat | best_practices | Dockerfile:22 | DL3013 | Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
+  simple-webapp-flask | deepseek-chat | base | Dockerfile:11 | DL3013 | Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
+  simple-webapp-flask | deepseek-chat | base | Dockerfile:11 | DL3042 | Avoid use of cache directory with pip. Use `pip install --no-cache-dir <package>`
+  simple-webapp-flask | deepseek-chat | best_practices | Dockerfile:16 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+
+H3 warnings debug (k8s):
+  math-pdf-generator-web | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "math-pdf-generator-web" does not have a read-only root file system
+  math-pdf-generator-web | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "math-pdf-generator-web" is not set to runAsNonRoot
+  math-pdf-generator-web | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  math-pdf-generator-web | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  math-pdf-generator-web | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  math-pdf-generator-web | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  simple-webapp | deepseek-chat | base | k8s/simple-webapp-deployment.yaml:None | no-read-only-root-fs | container "simple-webapp" does not have a read-only root file system
+  simple-webapp | deepseek-chat | base | k8s/simple-webapp-deployment.yaml:None | run-as-non-root | container "simple-webapp" is not set to runAsNonRoot
+  simple-webapp | deepseek-chat | base | k8s/redis-statefulset.yaml:None | no-read-only-root-fs | container "redis" does not have a read-only root file system
+  simple-webapp | deepseek-chat | base | k8s/redis-statefulset.yaml:None | run-as-non-root | container "redis" is not set to runAsNonRoot
+  simple-webapp | deepseek-chat | base | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  simple-webapp | deepseek-chat | base | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  banner-designer-webapp | gemini-2.5-flash | base | k8s/banner-designer-webapp-deployment.yaml:None | no-read-only-root-fs | container "banner-designer-webapp" does not have a read-only root file system
+  banner-designer-webapp | gemini-2.5-flash | base | k8s/banner-designer-webapp-deployment.yaml:None | run-as-non-root | container "banner-designer-webapp" is not set to runAsNonRoot
+  banner-designer-webapp | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  banner-designer-webapp | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  banner-designer-webapp | gpt-5-mini | best_practices | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  lsfont | gemini-2.5-flash | base | k8s/lsfont-deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | gemini-2.5-flash | base | k8s/lsfont-deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  lsfont | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  lsfont | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  airwatch | gemini-2.5-flash | best_practices | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  airwatch | gpt-5-mini | base | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  airwatch | gpt-5-mini | base | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  airwatch | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  airwatch | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  airwatch | gpt-5-mini | base | k8s/mongo-statefulset.yaml:None | no-read-only-root-fs | container "mongo" does not have a read-only root file system
+  airwatch | gpt-5-mini | base | k8s/mongo-statefulset.yaml:None | run-as-non-root | container "mongo" is not set to runAsNonRoot
+  diceopt_kcd2 | gemini-2.5-flash | base | k8s/diceopt-deployment.yaml:None | no-read-only-root-fs | container "diceopt" does not have a read-only root file system
+  diceopt_kcd2 | gemini-2.5-flash | base | k8s/diceopt-deployment.yaml:None | run-as-non-root | container "diceopt" is not set to runAsNonRoot
+  diceopt_kcd2 | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  diceopt_kcd2 | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  diceopt_kcd2 | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "diceopt-kcd2" does not have a read-only root file system
+  diceopt_kcd2 | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "diceopt-kcd2" is not set to runAsNonRoot
+  parklandschooltimer | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "parklandschooltimer" does not have a read-only root file system
+  parklandschooltimer | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "parklandschooltimer" is not set to runAsNonRoot
+  parklandschooltimer | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  parklandschooltimer | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  parklandschooltimer | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "parklandschooltimer" does not have a read-only root file system
+  parklandschooltimer | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "parklandschooltimer" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | base | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | base | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | base | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | base | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | base | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | base | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | best_practices | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | best_practices | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  realtime-chatting-webapp | gpt-5-mini | base | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  realtime-chatting-webapp | gpt-5-mini | base | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  realtime-chatting-webapp | gpt-5-mini | base | k8s/mongo-statefulset.yaml:None | no-read-only-root-fs | container "mongo" does not have a read-only root file system
+  realtime-chatting-webapp | gpt-5-mini | base | k8s/mongo-statefulset.yaml:None | run-as-non-root | container "mongo" is not set to runAsNonRoot
+  csv-hero | gemini-2.5-flash | base | k8s/csv-hero-deployment.yaml:None | no-read-only-root-fs | container "csv-hero" does not have a read-only root file system
+  csv-hero | gemini-2.5-flash | base | k8s/csv-hero-deployment.yaml:None | run-as-non-root | container "csv-hero" is not set to runAsNonRoot
+  metathief | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "metathief" does not have a read-only root file system
+  metathief | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "metathief" is not set to runAsNonRoot
+  metathief | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "metathief" does not have a read-only root file system
+  metathief | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "metathief" is not set to runAsNonRoot
+  deeplx-app | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "deeplx-app" does not have a read-only root file system
+  deeplx-app | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  deeplx-app | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "deeplx-app" does not have a read-only root file system
+  deeplx-app | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  deeplx-app | gpt-5-mini | best_practices | k8s/deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  deeplx-app | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "deeplx-app" does not have a read-only root file system
+  deeplx-app | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "mtg-scryfall-randomizer" does not have a read-only root file system
+  mtg-scryfall-randomizer | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "mtg-scryfall-randomizer" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  mtg-scryfall-randomizer | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | gpt-5-mini | best_practices | k8s/deployment.yaml:None | run-as-non-root | container "mtg-scryfall-randomizer" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "mtg-scryfall-randomizer" does not have a read-only root file system
+  mtg-scryfall-randomizer | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "mtg-scryfall-randomizer" is not set to runAsNonRoot
+  vesen | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "vesen" does not have a read-only root file system
+  vesen | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "vesen" is not set to runAsNonRoot
+  vesen | gpt-5-mini | best_practices | k8s/deployment.yaml:None | run-as-non-root | container "vesen" is not set to runAsNonRoot
+  webclient | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "webclient" does not have a read-only root file system
+  webclient | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "webclient" is not set to runAsNonRoot
+  webclient | gpt-5-mini | best_practices | k8s/frontend-deployment.yaml:None | run-as-non-root | container "webclient" is not set to runAsNonRoot
+  chessable | deepseek-chat | best_practices | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  class-order-checker | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "class-order-checker" does not have a read-only root file system
+  class-order-checker | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "class-order-checker" is not set to runAsNonRoot
+  class-order-checker | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  class-order-checker | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  class-order-checker | gpt-5-mini | best_practices | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  class-order-checker | gpt-5-mini | best_practices | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  class-order-checker | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "class-order-checker" does not have a read-only root file system
+  class-order-checker | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "class-order-checker" is not set to runAsNonRoot
+  adsensedetective | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "adsensedetective" does not have a read-only root file system
+  adsensedetective | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "adsensedetective" is not set to runAsNonRoot
+  adsensedetective | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "adsensedetective" does not have a read-only root file system
+  adsensedetective | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "adsensedetective" is not set to runAsNonRoot
+  mario-kart-tournament | gemini-2.5-flash | base | k8s/mario-kart-tournament-deployment.yaml:None | no-read-only-root-fs | container "mario-kart-tournament" does not have a read-only root file system
+  mario-kart-tournament | gemini-2.5-flash | base | k8s/mario-kart-tournament-deployment.yaml:None | run-as-non-root | container "mario-kart-tournament" is not set to runAsNonRoot
+  mario-kart-tournament | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "mario-kart" does not have a read-only root file system
+  mario-kart-tournament | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "mario-kart" is not set to runAsNonRoot
+  mario-kart-tournament | gpt-5-mini | best_practices | k8s/backend-deployment.yaml:None | non-existent-service-account | serviceAccount "mario-kart-sa" not found
+  mario-kart-tournament | gpt-5-mini | best_practices | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "placeholder" does not have a read-only root file system
+  mario-kart-tournament | gpt-5-mini | best_practices | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "placeholder" is not set to runAsNonRoot
+  mario-kart-tournament | gpt-5-mini | best_practices | k8s/postgres-statefulset.yaml:None | unset-cpu-requirements | container "placeholder" has cpu request 0
+  mario-kart-tournament | gpt-5-mini | best_practices | k8s/postgres-statefulset.yaml:None | unset-memory-requirements | container "placeholder" has memory limit 0
+  tempo-sync | gemini-2.5-flash | base | k8s/tempo-sync-deployment.yaml:None | no-read-only-root-fs | container "tempo-sync" does not have a read-only root file system
+  tempo-sync | gemini-2.5-flash | base | k8s/tempo-sync-deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  tempo-sync | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "tempo-sync" does not have a read-only root file system
+  tempo-sync | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  tempo-sync | gpt-5-mini | best_practices | k8s/deployment.yaml:None | no-read-only-root-fs | container "tempo-sync" does not have a read-only root file system
+  tempo-sync | gpt-5-mini | best_practices | k8s/deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  tempo-sync | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  attendence-calculator | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "attendence-calculator" does not have a read-only root file system
+  attendence-calculator | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "attendence-calculator" is not set to runAsNonRoot
+  attendence-calculator | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "attendence-calculator" does not have a read-only root file system
+  attendence-calculator | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "attendence-calculator" is not set to runAsNonRoot
+  attendence-calculator | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "attendance-calculator" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | base | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | base | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  scheme-seva | gemini-2.5-flash | base | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | base | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  scheme-seva | gemini-2.5-flash | base | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | base | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | base | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  scheme-seva | gpt-5-mini | base | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  scheme-seva | gpt-5-mini | base | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | base | k8s/mongo-statefulset.yaml:None | no-read-only-root-fs | container "mongo" does not have a read-only root file system
+  scheme-seva | gpt-5-mini | base | k8s/mongo-statefulset.yaml:None | run-as-non-root | container "mongo" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | best_practices | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  scheme-seva | gpt-5-mini | best_practices | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | best_practices | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  scheme-seva | deepseek-chat | best_practices | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  hello-world-war | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "hello-world-war" does not have a read-only root file system
+  hello-world-war | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "hello-world-war" is not set to runAsNonRoot
+  hello-world-war | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "hello-world" does not have a read-only root file system
+  hello-world-war | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "hello-world" is not set to runAsNonRoot
+  hello-world-war | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "hello-world-war" does not have a read-only root file system
+  hello-world-war | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "hello-world-war" is not set to runAsNonRoot
+  openai-hello-world | gemini-2.5-flash | base | k8s/openai-hello-world-deployment.yaml:None | no-read-only-root-fs | container "openai-hello-world" does not have a read-only root file system
+  openai-hello-world | gemini-2.5-flash | base | k8s/openai-hello-world-deployment.yaml:None | run-as-non-root | container "openai-hello-world" is not set to runAsNonRoot
+  openai-hello-world | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "openai-hello-world" does not have a read-only root file system
+  openai-hello-world | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "openai-hello-world" is not set to runAsNonRoot
+  openai-hello-world | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "openai-hello-world" does not have a read-only root file system
+  todo-list | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "todo-list" does not have a read-only root file system
+  todo-list | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "todo-list" is not set to runAsNonRoot
+  todo-list | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "todo-list" does not have a read-only root file system
+  todo-list | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "todo-list" is not set to runAsNonRoot
+  todo-list | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "todo-list" does not have a read-only root file system
+  todo-list | deepseek-chat | base | k8s/deployment.yaml:None | run-as-non-root | container "todo-list" is not set to runAsNonRoot
+  simple-webapp-flask | gemini-2.5-flash | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "simple-webapp-flask" does not have a read-only root file system
+  simple-webapp-flask | gemini-2.5-flash | base | k8s/deployment.yaml:None | run-as-non-root | container "simple-webapp-flask" is not set to runAsNonRoot
+  simple-webapp-flask | gpt-5-mini | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "simple-webapp-flask" does not have a read-only root file system
+  simple-webapp-flask | gpt-5-mini | base | k8s/deployment.yaml:None | run-as-non-root | container "simple-webapp-flask" is not set to runAsNonRoot
+  simple-webapp-flask | deepseek-chat | base | k8s/deployment.yaml:None | no-read-only-root-fs | container "webapp" does not have a read-only root file system

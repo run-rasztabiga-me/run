@@ -1,0 +1,805 @@
+--- ea0d36c4-6e65-4fc4-95fb-3920964112de
++++ db0c8ffc-9c1c-495b-9ddb-2a1062bfd18c
+@@ -1,4 +1,5 @@
+ @@FILE:Dockerfile::backend/analytics_service/Dockerfile
++
+ FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+@@ -6,7 +7,7 @@
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app ./app
++COPY . .
+ 
+ EXPOSE 8000
+ 
+@@ -17,8 +18,8 @@
+ 
+ WORKDIR /app
+ 
+-COPY package.json package-lock.json ./
+-RUN npm install --production
++COPY package.json ./
++RUN npm install
+ 
+ COPY src ./src
+ 
+@@ -26,6 +27,7 @@
+ 
+ CMD ["node", "src/index.js"]
+ @@FILE:Dockerfile::backend/notes_service/Dockerfile
++
+ FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+@@ -33,12 +35,13 @@
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app ./app
++COPY . .
+ 
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:Dockerfile::backend/users_service/Dockerfile
++
+ FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+@@ -46,7 +49,7 @@
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app ./app
++COPY . .
+ 
+ EXPOSE 8000
+ 
+@@ -65,19 +68,17 @@
+ RUN npm run build
+ 
+ # Stage 2: Serve the application with Nginx
+-FROM nginx:alpine
+-
+-WORKDIR /etc/nginx/conf.d
+-COPY nginx.conf .
+-
+-WORKDIR /usr/share/nginx/html
+-COPY --from=builder /app/dist .
+-
+-COPY entrypoint.sh /docker-entrypoint.sh
++FROM nginx:stable-alpine
++
++COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
++COPY frontend/entrypoint.sh /docker-entrypoint.sh
+ RUN chmod +x /docker-entrypoint.sh
++
++COPY --from=builder /app/dist /usr/share/nginx/html
++
++EXPOSE 80
++
+ ENTRYPOINT ["/docker-entrypoint.sh"]
+-
+-EXPOSE 80
+ @@FILE:K8s::k8s/analytics-service-deployment.yaml
+ 
+ apiVersion: apps/v1
+@@ -102,37 +103,73 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: "postgresql://$(ANALYTICS_DB_USER):$(ANALYTICS_DB_PASSWORD)@postgresql:5432/analytics_db"
++            - name: ANALYTICS_DB_USER
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: ANALYTICS_DB_USER
++            - name: ANALYTICS_DB_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: ANALYTICS_DB_PASSWORD
+             - name: RABBITMQ_URL
+-              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672/"
+-            - name: JWT_SECRET
+-              value: "supersecretjwtkey"
+-          envFrom:
+-            - secretRef:
+-                name: postgres-secret
+-            - secretRef:
+-                name: rabbitmq-secret
++              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672"
++            - name: RABBITMQ_DEFAULT_USER
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_USER
++            - name: RABBITMQ_DEFAULT_PASS
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_PASS
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "128Mi"
++              cpu: "100m"
++              memory: "256Mi"
+             limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
++              path: /health
+               port: 8000
+             initialDelaySeconds: 15
+             periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+-              path: /
++              path: /health
+               port: 8000
+             initialDelaySeconds: 5
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/analytics-service-service.yaml
+-
++            periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
++@@FILE:K8s::k8s/analytics-service-ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: analytics-service-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$2
++spec:
++  ingressClassName: nginx
++  rules:
++    - host: poc5.rasztabiga.me
++      http:
++        paths:
++          - path: /api/analytics(/|$)(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: analytics-service
++                port:
++                  number: 8000
++@@FILE:K8s::k8s/analytics-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -146,7 +183,6 @@
+       targetPort: 8000
+   type: ClusterIP
+ @@FILE:K8s::k8s/audit-service-deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -169,39 +205,75 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: "postgresql://$(AUDIT_DB_USER):$(AUDIT_DB_PASSWORD)@postgresql:5432/audit_db"
++            - name: AUDIT_DB_USER
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: AUDIT_DB_USER
++            - name: AUDIT_DB_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: AUDIT_DB_PASSWORD
+             - name: RABBITMQ_URL
+-              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672/"
++              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672"
++            - name: RABBITMQ_DEFAULT_USER
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_USER
++            - name: RABBITMQ_DEFAULT_PASS
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_PASS
+             - name: REDIS_URL
+               value: "redis://redis:6379"
+-            - name: PORT
+-              value: "8000"
+-          envFrom:
+-            - secretRef:
+-                name: postgres-secret
+-            - secretRef:
+-                name: rabbitmq-secret
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "128Mi"
++              cpu: "100m"
++              memory: "256Mi"
+             limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+               path: /health
+               port: 8000
+             initialDelaySeconds: 15
+             periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+               path: /health
+               port: 8000
+             initialDelaySeconds: 5
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/audit-service-service.yaml
+-
++            periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
++@@FILE:K8s::k8s/audit-service-ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: audit-service-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$2
++spec:
++  ingressClassName: nginx
++  rules:
++    - host: poc5.rasztabiga.me
++      http:
++        paths:
++          - path: /api/audit(/|$)(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: audit-service
++                port:
++                  number: 8000
++@@FILE:K8s::k8s/audit-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -237,12 +309,12 @@
+           ports:
+             - containerPort: 80
+           env:
+-            - name: VITE_API_URL
+-              value: "http://poc5.rasztabiga.me"
++            - name: DEPENDENCY_URLS
++              value: "http://notes-service:8000/health http://users-service:8000/health http://analytics-service:8000/health http://audit-service:8000/health"
+           resources:
+             requests:
+               cpu: "50m"
+-              memory: "64Mi"
++              memory: "128Mi"
+             limits:
+               cpu: "200m"
+               memory: "256Mi"
+@@ -252,33 +324,26 @@
+               port: 80
+             initialDelaySeconds: 10
+             periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 80
+             initialDelaySeconds: 5
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/frontend-service.yaml
+-
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: frontend
+-spec:
+-  selector:
+-    app: frontend
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 80
+-  type: ClusterIP
+-@@FILE:K8s::k8s/ingress.yaml
++            periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
++@@FILE:K8s::k8s/frontend-ingress.yaml
+ 
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc5-ingress
+-spec:
++  name: frontend-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
++spec:
++  ingressClassName: nginx
+   rules:
+     - host: poc5.rasztabiga.me
+       http:
+@@ -290,6 +355,20 @@
+                 name: frontend
+                 port:
+                   number: 80
++@@FILE:K8s::k8s/frontend-service.yaml
++
++apiVersion: v1
++kind: Service
++metadata:
++  name: frontend
++spec:
++  selector:
++    app: frontend
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 80
++  type: ClusterIP
+ @@FILE:K8s::k8s/notes-service-deployment.yaml
+ 
+ apiVersion: apps/v1
+@@ -314,36 +393,73 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: "postgresql://$(NOTES_DB_USER):$(NOTES_DB_PASSWORD)@postgresql:5432/notes_db"
++            - name: NOTES_DB_USER
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: NOTES_DB_USER
++            - name: NOTES_DB_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: NOTES_DB_PASSWORD
+             - name: RABBITMQ_URL
+-              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672/"
+-            - name: JWT_SECRET
+-              value: "supersecretjwtkey"
+-          envFrom:
+-            - secretRef:
+-                name: postgres-secret
+-            - secretRef:
+-                name: rabbitmq-secret
++              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672"
++            - name: RABBITMQ_DEFAULT_USER
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_USER
++            - name: RABBITMQ_DEFAULT_PASS
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_PASS
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "128Mi"
++              cpu: "100m"
++              memory: "256Mi"
+             limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
++              path: /health
+               port: 8000
+             initialDelaySeconds: 15
+             periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+-              path: /
++              path: /health
+               port: 8000
+             initialDelaySeconds: 5
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/notes-service-service.yaml
++            periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
++@@FILE:K8s::k8s/notes-service-ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: notes-service-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$2
++spec:
++  ingressClassName: nginx
++  rules:
++    - host: poc5.rasztabiga.me
++      http:
++        paths:
++          - path: /api/notes(/|$)(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: notes-service
++                port:
++                  number: 8000
++@@FILE:K8s::k8s/notes-service.yaml
+ 
+ apiVersion: v1
+ kind: Service
+@@ -357,60 +473,77 @@
+       port: 8000
+       targetPort: 8000
+   type: ClusterIP
+-@@FILE:K8s::k8s/postgres-secret.yaml
++@@FILE:K8s::k8s/postgresql-secret.yaml
+ 
+ apiVersion: v1
+ kind: Secret
+ metadata:
+-  name: postgres-secret
++  name: postgresql-secret
+ type: Opaque
+-data:
+-  POSTGRES_USER: cG9zdGdyZXM=
+-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
+-  POSTGRES_DB: cG9jNWRi
+-@@FILE:K8s::k8s/postgres-service.yaml
++stringData:
++  POSTGRES_USER: "postgres"
++  POSTGRES_PASSWORD: "postgres_password"
++  NOTES_DB_USER: "notes_user"
++  NOTES_DB_PASSWORD: "notes_password"
++  USERS_DB_USER: "users_user"
++  USERS_DB_PASSWORD: "users_password"
++  ANALYTICS_DB_USER: "analytics_user"
++  ANALYTICS_DB_PASSWORD: "analytics_password"
++  AUDIT_DB_USER: "audit_user"
++  AUDIT_DB_PASSWORD: "audit_password"
++@@FILE:K8s::k8s/postgresql-service.yaml
+ 
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: postgres
+-spec:
+-  selector:
+-    app: postgres
++  name: postgresql
++spec:
++  selector:
++    app: postgresql
+   ports:
+     - protocol: TCP
+       port: 5432
+       targetPort: 5432
+   type: ClusterIP
+-@@FILE:K8s::k8s/postgres-statefulset.yaml
++@@FILE:K8s::k8s/postgresql-statefulset.yaml
+ 
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: postgres
+-spec:
+-  serviceName: "postgres"
++  name: postgresql
++spec:
++  serviceName: "postgresql"
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: postgres
++      app: postgresql
+   template:
+     metadata:
+       labels:
+-        app: postgres
++        app: postgresql
+     spec:
+       containers:
+-        - name: postgres
++        - name: postgresql
+           image: postgres:13
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 5432
+-              name: postgres
+-          envFrom:
+-            - secretRef:
+-                name: postgres-secret
++              name: postgresql
++          env:
++            - name: POSTGRES_USER
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: POSTGRES_USER
++            - name: POSTGRES_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: POSTGRES_PASSWORD
++            - name: POSTGRES_DB
++              value: "postgres"
+           volumeMounts:
+-            - name: postgres-data
++            - name: postgresql-data
+               mountPath: /var/lib/postgresql/data
+           resources:
+             requests:
+@@ -428,6 +561,7 @@
+             initialDelaySeconds: 30
+             periodSeconds: 10
+             timeoutSeconds: 5
++            failureThreshold: 6
+           readinessProbe:
+             exec:
+               command:
+@@ -437,15 +571,15 @@
+             initialDelaySeconds: 5
+             periodSeconds: 10
+             timeoutSeconds: 5
++            failureThreshold: 6
+   volumeClaimTemplates:
+     - metadata:
+-        name: postgres-data
++        name: postgresql-data
+       spec:
+         accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 1Gi
+-        storageClassName: "microk8s-hostpath"
+ @@FILE:K8s::k8s/rabbitmq-secret.yaml
+ 
+ apiVersion: v1
+@@ -453,9 +587,9 @@
+ metadata:
+   name: rabbitmq-secret
+ type: Opaque
+-data:
+-  RABBITMQ_DEFAULT_USER: cmFiYml0bXE=
+-  RABBITMQ_DEFAULT_PASS: cmFiYml0bXE=
++stringData:
++  RABBITMQ_DEFAULT_USER: "rabbitmq_user"
++  RABBITMQ_DEFAULT_PASS: "rabbitmq_password"
+ @@FILE:K8s::k8s/rabbitmq-service.yaml
+ 
+ apiVersion: v1
+@@ -466,14 +600,14 @@
+   selector:
+     app: rabbitmq
+   ports:
+-    - protocol: TCP
++    - name: amqp
++      protocol: TCP
+       port: 5672
+       targetPort: 5672
+-      name: amqp
+-    - protocol: TCP
++    - name: management
++      protocol: TCP
+       port: 15672
+       targetPort: 15672
+-      name: management
+   type: ClusterIP
+ @@FILE:K8s::k8s/rabbitmq-statefulset.yaml
+ 
+@@ -501,9 +635,17 @@
+               name: amqp
+             - containerPort: 15672
+               name: management
+-          envFrom:
+-            - secretRef:
+-                name: rabbitmq-secret
++          env:
++            - name: RABBITMQ_DEFAULT_USER
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_USER
++            - name: RABBITMQ_DEFAULT_PASS
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_PASS
+           volumeMounts:
+             - name: rabbitmq-data
+               mountPath: /var/lib/rabbitmq
+@@ -515,23 +657,23 @@
+               cpu: "500m"
+               memory: "512Mi"
+           livenessProbe:
+-            exec:
+-              command:
+-                - rabbitmq-diagnostics
+-                - -q
+-                - ping
++            httpGet:
++              path: /api/healthchecks/node
++              port: 15672
++              scheme: HTTP
+             initialDelaySeconds: 30
+             periodSeconds: 10
+             timeoutSeconds: 5
++            failureThreshold: 6
+           readinessProbe:
+-            exec:
+-              command:
+-                - rabbitmq-diagnostics
+-                - -q
+-                - ping
++            httpGet:
++              path: /api/healthchecks/node
++              port: 15672
++              scheme: HTTP
+             initialDelaySeconds: 5
+             periodSeconds: 10
+             timeoutSeconds: 5
++            failureThreshold: 6
+   volumeClaimTemplates:
+     - metadata:
+         name: rabbitmq-data
+@@ -540,7 +682,6 @@
+         resources:
+           requests:
+             storage: 1Gi
+-        storageClassName: "microk8s-hostpath"
+ @@FILE:K8s::k8s/redis-service.yaml
+ 
+ apiVersion: v1
+@@ -590,21 +731,19 @@
+               cpu: "200m"
+               memory: "256Mi"
+           livenessProbe:
+-            exec:
+-              command:
+-                - redis-cli
+-                - ping
++            tcpSocket:
++              port: 6379
+             initialDelaySeconds: 10
+             periodSeconds: 5
+             timeoutSeconds: 3
++            failureThreshold: 3
+           readinessProbe:
+-            exec:
+-              command:
+-                - redis-cli
+-                - ping
++            tcpSocket:
++              port: 6379
+             initialDelaySeconds: 5
+             periodSeconds: 5
+             timeoutSeconds: 3
++            failureThreshold: 3
+   volumeClaimTemplates:
+     - metadata:
+         name: redis-data
+@@ -613,7 +752,7 @@
+         resources:
+           requests:
+             storage: 1Gi
+-        storageClassName: "microk8s-hostpath"
++        # storageClassName: "microk8s-hostpath" # Use default storage class
+ @@FILE:K8s::k8s/users-service-deployment.yaml
+ 
+ apiVersion: apps/v1
+@@ -638,37 +777,73 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
++              value: "postgresql://$(USERS_DB_USER):$(USERS_DB_PASSWORD)@postgresql:5432/users_db"
++            - name: USERS_DB_USER
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: USERS_DB_USER
++            - name: USERS_DB_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: postgresql-secret
++                  key: USERS_DB_PASSWORD
+             - name: RABBITMQ_URL
+-              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672/"
+-            - name: JWT_SECRET
+-              value: "supersecretjwtkey"
+-          envFrom:
+-            - secretRef:
+-                name: postgres-secret
+-            - secretRef:
+-                name: rabbitmq-secret
++              value: "amqp://$(RABBITMQ_DEFAULT_USER):$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672"
++            - name: RABBITMQ_DEFAULT_USER
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_USER
++            - name: RABBITMQ_DEFAULT_PASS
++              valueFrom:
++                secretKeyRef:
++                  name: rabbitmq-secret
++                  key: RABBITMQ_DEFAULT_PASS
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "128Mi"
++              cpu: "100m"
++              memory: "256Mi"
+             limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
++              path: /health
+               port: 8000
+             initialDelaySeconds: 15
+             periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+-              path: /
++              path: /health
+               port: 8000
+             initialDelaySeconds: 5
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/users-service-service.yaml
+-
++            periodSeconds: 10
++            timeoutSeconds: 5
++            failureThreshold: 3
++@@FILE:K8s::k8s/users-service-ingress.yaml
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: users-service-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$2
++spec:
++  ingressClassName: nginx
++  rules:
++    - host: poc5.rasztabiga.me
++      http:
++        paths:
++          - path: /api/users(/|$)(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: users-service
++                port:
++                  number: 8000
++@@FILE:K8s::k8s/users-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:

@@ -1,0 +1,228 @@
+--- 4390975e-6be4-432f-ab0a-ba589d9a9b48
++++ b94ac14b-40b1-43db-8a66-7dbec34cf4db
+@@ -1,5 +1,4 @@
+ @@FILE:Dockerfile::backend/Dockerfile
+-
+ FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+@@ -7,15 +6,13 @@
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app/ ./app/
++COPY app ./app
+ 
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:Dockerfile::frontend/Dockerfile
+-
+-# Stage 1: Build the React application
+-FROM node:20-alpine as builder
++FROM node:20-alpine AS builder
+ 
+ WORKDIR /app
+ 
+@@ -25,18 +22,15 @@
+ COPY . .
+ RUN npm run build
+ 
+-# Stage 2: Serve the application with Nginx
+ FROM nginx:stable-alpine
+ 
+-COPY nginx.conf /etc/nginx/conf.d/default.conf
+-
++COPY nginx.conf /etc/nginx/nginx.conf
+ COPY --from=builder /app/dist /usr/share/nginx/html
+ 
+ EXPOSE 80
+ 
+ CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -59,22 +53,19 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)"
+-            - name: POSTGRES_DB
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_DB
+-            - name: POSTGRES_USER
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_USER
+-            - name: POSTGRES_PASSWORD
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_PASSWORD
++              value: postgresql://poc3-fastapi:poc3_password@postgres:5432/poc3-fastapi
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+           resources:
+             requests:
+               cpu: "100m"
+@@ -82,20 +73,7 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+ @@FILE:K8s::k8s/backend-service.yaml
+-
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -107,8 +85,8 @@
+     - protocol: TCP
+       port: 8000
+       targetPort: 8000
++  type: ClusterIP
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -136,20 +114,7 @@
+             limits:
+               cpu: "200m"
+               memory: "256Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+ @@FILE:K8s::k8s/frontend-service.yaml
+-
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -161,20 +126,27 @@
+     - protocol: TCP
+       port: 80
+       targetPort: 80
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+-
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc3-fastapi-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$2
+ spec:
+   rules:
+     - host: poc3-fastapi.rasztabiga.me
+       http:
+         paths:
+-          - path: /
++          - path: /api(/|$)(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: backend
++                port:
++                  number: 8000
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:
+@@ -182,22 +154,20 @@
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/postgres-secret.yaml
+-
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: postgres-secret
+ type: Opaque
+ data:
+-  POSTGRES_DB: ZGJuYW1l
+-  POSTGRES_USER: dXNlcg==
+-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
++  POSTGRES_DB: cG9jMy1mYXN0YXBp
++  POSTGRES_USER: cG9jMy1mYXN0YXBp
++  POSTGRES_PASSWORD: cG9jM19wYXNzd29yZA==
+ @@FILE:K8s::k8s/postgres-service.yaml
+-
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: db
++  name: postgres
+ spec:
+   selector:
+     app: postgres
+@@ -205,8 +175,8 @@
+     - protocol: TCP
+       port: 5432
+       targetPort: 5432
++  type: ClusterIP
+ @@FILE:K8s::k8s/postgres-statefulset.yaml
+-
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+@@ -227,22 +197,9 @@
+           image: postgres:13
+           ports:
+             - containerPort: 5432
+-          env:
+-            - name: POSTGRES_DB
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_DB
+-            - name: POSTGRES_USER
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_USER
+-            - name: POSTGRES_PASSWORD
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_PASSWORD
++          envFrom:
++            - secretRef:
++                name: postgres-secret
+           volumeMounts:
+             - name: postgres-data
+               mountPath: /var/lib/postgresql/data

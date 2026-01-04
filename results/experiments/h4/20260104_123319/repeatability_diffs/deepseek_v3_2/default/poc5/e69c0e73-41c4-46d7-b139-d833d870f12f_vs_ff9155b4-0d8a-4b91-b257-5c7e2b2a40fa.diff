@@ -1,0 +1,518 @@
+--- e69c0e73-41c4-46d7-b139-d833d870f12f
++++ ff9155b4-0d8a-4b91-b257-5c7e2b2a40fa
+@@ -16,7 +16,7 @@
+ # Copy application code
+ COPY . .
+ 
+-# Create non-root user
++# Create a non-root user
+ RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+ USER appuser
+ 
+@@ -39,8 +39,8 @@
+ # Copy source code
+ COPY . .
+ 
+-# Create non-root user
+-RUN adduser -D -u 1000 appuser && chown -R appuser:appuser /app
++# Create a non-root user
++RUN adduser -D appuser && chown -R appuser:appuser /app
+ USER appuser
+ 
+ # Expose port
+@@ -66,7 +66,7 @@
+ # Copy application code
+ COPY . .
+ 
+-# Create non-root user
++# Create a non-root user
+ RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+ USER appuser
+ 
+@@ -93,7 +93,7 @@
+ # Copy application code
+ COPY . .
+ 
+-# Create non-root user
++# Create a non-root user
+ RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+ USER appuser
+ 
+@@ -133,7 +133,7 @@
+ COPY entrypoint.sh /entrypoint.sh
+ RUN chmod +x /entrypoint.sh
+ 
+-# Expose port
++# Expose port 80
+ EXPOSE 80
+ 
+ # Use entrypoint script
+@@ -161,9 +161,15 @@
+         - containerPort: 8003
+         env:
+         - name: DATABASE_URL
+-          value: "postgresql://analytics_user:analytics_password@analytics-db:5432/analytics_db"
++          value: "postgresql://analytics_user:analytics_password@postgres-analytics:5432/analytics_db"
+         - name: RABBITMQ_URL
+           value: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++        - name: JWT_SECRET
++          value: "your-secret-key-change-in-production"
++        - name: JWT_ALGORITHM
++          value: "HS256"
++        - name: JWT_EXPIRATION_MINUTES
++          value: "30"
+         - name: USERS_SERVICE_URL
+           value: "http://users-service:8002"
+         - name: NOTES_SERVICE_URL
+@@ -200,7 +206,6 @@
+   ports:
+   - port: 8003
+     targetPort: 8003
+-  type: ClusterIP
+ @@FILE:K8s::k8s/audit-service-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -228,7 +233,7 @@
+         - name: SERVICE_NAME
+           value: "audit-service"
+         - name: DATABASE_URL
+-          value: "postgresql://audit_user:audit_password@audit-db:5432/audit_db"
++          value: "postgresql://audit_user:audit_password@postgres-audit:5432/audit_db"
+         - name: RABBITMQ_URL
+           value: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
+         - name: REDIS_URL
+@@ -258,7 +263,7 @@
+           httpGet:
+             path: /health
+             port: 8000
+-          initialDelaySeconds: 30
++          initialDelaySeconds: 45
+           periodSeconds: 30
+ @@FILE:K8s::k8s/audit-service-service.yaml
+ apiVersion: v1
+@@ -271,7 +276,6 @@
+   ports:
+   - port: 8000
+     targetPort: 8000
+-  type: ClusterIP
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -308,7 +312,7 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "200m"
++            cpu: "250m"
+         readinessProbe:
+           httpGet:
+             path: /
+@@ -325,14 +329,13 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: frontend
++  name: frontend-service
+ spec:
+   selector:
+     app: frontend
+   ports:
+   - port: 80
+     targetPort: 80
+-  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -340,6 +343,7 @@
+   name: poc5-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+ spec:
+   rules:
+   - host: poc5.rasztabiga.me
+@@ -349,7 +353,7 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: frontend
++            name: frontend-service
+             port:
+               number: 80
+       - path: /api/notes
+@@ -403,11 +407,19 @@
+         - containerPort: 8001
+         env:
+         - name: DATABASE_URL
+-          value: "postgresql://notes_user:notes_password@notes-db:5432/notes_db"
++          value: "postgresql://notes_user:notes_password@postgres-notes:5432/notes_db"
+         - name: RABBITMQ_URL
+           value: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++        - name: JWT_SECRET
++          value: "your-secret-key-change-in-production"
++        - name: JWT_ALGORITHM
++          value: "HS256"
++        - name: JWT_EXPIRATION_MINUTES
++          value: "30"
+         - name: USERS_SERVICE_URL
+           value: "http://users-service:8002"
++        - name: NOTES_SERVICE_URL
++          value: "http://notes-service:8001"
+         - name: ANALYTICS_SERVICE_URL
+           value: "http://analytics-service:8003"
+         resources:
+@@ -440,7 +452,17 @@
+   ports:
+   - port: 8001
+     targetPort: 8001
+-  type: ClusterIP
++@@FILE:K8s::k8s/postgres-analytics-pvc.yaml
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: postgres-analytics-pvc
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
+ @@FILE:K8s::k8s/postgres-analytics-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -455,14 +477,14 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: analytics-db
++  name: postgres-analytics
+ spec:
+   selector:
+     app: postgres-analytics
+   ports:
+   - port: 5432
+     targetPort: 5432
+-  type: ClusterIP
++  clusterIP: None
+ @@FILE:K8s::k8s/postgres-analytics-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -501,7 +523,7 @@
+               name: postgres-analytics-secret
+               key: postgres-db
+         volumeMounts:
+-        - name: data
++        - name: postgres-data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -521,21 +543,20 @@
+           initialDelaySeconds: 15
+           periodSeconds: 20
+       volumes:
+-      - name: data
++      - name: postgres-data
+         persistentVolumeClaim:
+           claimName: postgres-analytics-pvc
+----
++@@FILE:K8s::k8s/postgres-audit-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+-  name: postgres-analytics-pvc
++  name: postgres-audit-pvc
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/postgres-audit-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -550,14 +571,14 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: audit-db
++  name: postgres-audit
+ spec:
+   selector:
+     app: postgres-audit
+   ports:
+   - port: 5432
+     targetPort: 5432
+-  type: ClusterIP
++  clusterIP: None
+ @@FILE:K8s::k8s/postgres-audit-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -596,7 +617,7 @@
+               name: postgres-audit-secret
+               key: postgres-db
+         volumeMounts:
+-        - name: data
++        - name: postgres-data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -616,21 +637,20 @@
+           initialDelaySeconds: 15
+           periodSeconds: 20
+       volumes:
+-      - name: data
++      - name: postgres-data
+         persistentVolumeClaim:
+           claimName: postgres-audit-pvc
+----
++@@FILE:K8s::k8s/postgres-notes-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+-  name: postgres-audit-pvc
++  name: postgres-notes-pvc
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/postgres-notes-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -645,14 +665,14 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: notes-db
++  name: postgres-notes
+ spec:
+   selector:
+     app: postgres-notes
+   ports:
+   - port: 5432
+     targetPort: 5432
+-  type: ClusterIP
++  clusterIP: None
+ @@FILE:K8s::k8s/postgres-notes-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -691,7 +711,7 @@
+               name: postgres-notes-secret
+               key: postgres-db
+         volumeMounts:
+-        - name: data
++        - name: postgres-data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -711,21 +731,20 @@
+           initialDelaySeconds: 15
+           periodSeconds: 20
+       volumes:
+-      - name: data
++      - name: postgres-data
+         persistentVolumeClaim:
+           claimName: postgres-notes-pvc
+----
++@@FILE:K8s::k8s/postgres-users-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+-  name: postgres-notes-pvc
++  name: postgres-users-pvc
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/postgres-users-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -740,14 +759,14 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: users-db
++  name: postgres-users
+ spec:
+   selector:
+     app: postgres-users
+   ports:
+   - port: 5432
+     targetPort: 5432
+-  type: ClusterIP
++  clusterIP: None
+ @@FILE:K8s::k8s/postgres-users-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -786,7 +805,7 @@
+               name: postgres-users-secret
+               key: postgres-db
+         volumeMounts:
+-        - name: data
++        - name: postgres-data
+           mountPath: /var/lib/postgresql/data
+         resources:
+           requests:
+@@ -806,21 +825,20 @@
+           initialDelaySeconds: 15
+           periodSeconds: 20
+       volumes:
+-      - name: data
++      - name: postgres-data
+         persistentVolumeClaim:
+           claimName: postgres-users-pvc
+----
++@@FILE:K8s::k8s/rabbitmq-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+-  name: postgres-users-pvc
++  name: rabbitmq-pvc
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/rabbitmq-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -829,7 +847,7 @@
+ type: Opaque
+ data:
+   rabbitmq-password: cmFiYml0bXE=  # rabbitmq
+-  rabbitmq-user: cmFiYml0bXE=     # rabbitmq
++  rabbitmq-user: cmFiYml0bXE=      # rabbitmq
+ @@FILE:K8s::k8s/rabbitmq-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -839,13 +857,12 @@
+   selector:
+     app: rabbitmq
+   ports:
+-  - name: amqp
+-    port: 5672
++  - port: 5672
+     targetPort: 5672
+-  - name: management
+-    port: 15672
++    name: amqp
++  - port: 15672
+     targetPort: 15672
+-  type: ClusterIP
++    name: management
+ @@FILE:K8s::k8s/rabbitmq-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -882,7 +899,7 @@
+               name: rabbitmq-secret
+               key: rabbitmq-password
+         volumeMounts:
+-        - name: data
++        - name: rabbitmq-data
+           mountPath: /var/lib/rabbitmq
+         resources:
+           requests:
+@@ -902,21 +919,20 @@
+           initialDelaySeconds: 30
+           periodSeconds: 30
+       volumes:
+-      - name: data
++      - name: rabbitmq-data
+         persistentVolumeClaim:
+           claimName: rabbitmq-pvc
+----
++@@FILE:K8s::k8s/redis-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+-  name: rabbitmq-pvc
++  name: redis-pvc
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -928,7 +944,6 @@
+   ports:
+   - port: 6379
+     targetPort: 6379
+-  type: ClusterIP
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -953,7 +968,7 @@
+         command: ["redis-server"]
+         args: ["--appendonly", "yes"]
+         volumeMounts:
+-        - name: data
++        - name: redis-data
+           mountPath: /data
+         resources:
+           requests:
+@@ -961,7 +976,7 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "200m"
++            cpu: "250m"
+         readinessProbe:
+           tcpSocket:
+             port: 6379
+@@ -973,21 +988,9 @@
+           initialDelaySeconds: 15
+           periodSeconds: 20
+       volumes:
+-      - name: data
++      - name: redis-data
+         persistentVolumeClaim:
+           claimName: redis-pvc
+----
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: redis-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/users-service-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -1011,9 +1014,15 @@
+         - containerPort: 8002
+         env:
+         - name: DATABASE_URL
+-          value: "postgresql://users_user:users_password@users-db:5432/users_db"
++          value: "postgresql://users_user:users_password@postgres-users:5432/users_db"
+         - name: RABBITMQ_URL
+           value: "amqp://rabbitmq:rabbitmq@rabbitmq:5672/"
++        - name: JWT_SECRET
++          value: "your-secret-key-change-in-production"
++        - name: JWT_ALGORITHM
++          value: "HS256"
++        - name: JWT_EXPIRATION_MINUTES
++          value: "30"
+         - name: USERS_SERVICE_URL
+           value: "http://users-service:8002"
+         - name: NOTES_SERVICE_URL
+@@ -1052,4 +1061,3 @@
+   ports:
+   - port: 8002
+     targetPort: 8002
+-  type: ClusterIP

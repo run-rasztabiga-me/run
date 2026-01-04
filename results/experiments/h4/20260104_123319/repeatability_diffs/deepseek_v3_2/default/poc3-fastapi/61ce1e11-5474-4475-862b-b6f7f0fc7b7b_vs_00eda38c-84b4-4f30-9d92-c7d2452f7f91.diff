@@ -1,0 +1,138 @@
+--- 61ce1e11-5474-4475-862b-b6f7f0fc7b7b
++++ 00eda38c-84b4-4f30-9d92-c7d2452f7f91
+@@ -9,12 +9,12 @@
+     postgresql-client \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install Python dependencies
++# Copy requirements first for better caching
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY app ./app
++COPY app/ ./app/
+ 
+ # Expose port
+ EXPOSE 8000
+@@ -39,7 +39,7 @@
+ # Build the application
+ RUN npm run build
+ 
+-# Production stage
++# Runtime stage
+ FROM nginx:alpine
+ 
+ # Copy nginx configuration
+@@ -67,8 +67,6 @@
+ metadata:
+   name: backend
+   namespace: default
+-  labels:
+-    app: backend
+ spec:
+   replicas: 1
+   selector:
+@@ -124,14 +122,20 @@
+     targetPort: 8000
+     protocol: TCP
+     name: http
++@@FILE:K8s::k8s/frontend-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: frontend-config
++  namespace: default
++data:
++  VITE_API_URL: "/api"
+ @@FILE:K8s::k8s/frontend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: frontend
+   namespace: default
+-  labels:
+-    app: frontend
+ spec:
+   replicas: 1
+   selector:
+@@ -150,14 +154,17 @@
+         - containerPort: 80
+         env:
+         - name: VITE_API_URL
+-          value: "/api"
++          valueFrom:
++            configMapKeyRef:
++              name: frontend-config
++              key: VITE_API_URL
+         resources:
+           requests:
+             memory: "128Mi"
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "250m"
++            cpu: "200m"
+         readinessProbe:
+           httpGet:
+             path: /
+@@ -169,7 +176,7 @@
+             path: /
+             port: 80
+           initialDelaySeconds: 10
+-          periodSeconds: 20
++          periodSeconds: 10
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -192,7 +199,6 @@
+   namespace: default
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+ spec:
+   rules:
+   - host: poc3-fastapi.rasztabiga.me
+@@ -212,13 +218,6 @@
+             name: backend
+             port:
+               number: 8000
+-      - path: /notes
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: backend
+-            port:
+-              number: 8000
+ @@FILE:K8s::k8s/postgres-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+@@ -305,23 +304,13 @@
+             memory: "512Mi"
+             cpu: "500m"
+         readinessProbe:
+-          exec:
+-            command:
+-            - pg_isready
+-            - -U
+-            - user
+-            - -d
+-            - dbname
++          tcpSocket:
++            port: 5432
+           initialDelaySeconds: 5
+-          periodSeconds: 5
++          periodSeconds: 10
+         livenessProbe:
+-          exec:
+-            command:
+-            - pg_isready
+-            - -U
+-            - user
+-            - -d
+-            - dbname
++          tcpSocket:
++            port: 5432
+           initialDelaySeconds: 15
+           periodSeconds: 20
+       volumes:

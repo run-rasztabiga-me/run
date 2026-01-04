@@ -1,0 +1,134 @@
+{
+  "repo_url": "https://github.com/tschoffelen/csv-hero",
+  "repo_name": "csv-hero",
+  "evaluation_id": "eea00357-77da-4500-b704-dda8ba94fb75",
+  "status": "completed",
+  "start_time": "2026-01-03T23:56:52.261094",
+  "end_time": "2026-01-03T23:58:17.031056",
+  "total_evaluation_time": 84.769962,
+  "generation_result": {
+    "repo_url": "https://github.com/tschoffelen/csv-hero",
+    "repo_name": "csv-hero",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "csv-hero",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 54.89213585853577,
+    "error_message": null,
+    "timestamp": "2026-01-03T23:57:54.150468",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/csv-hero-3982be33-d510-44eb-805a-76af2c654c2c",
+    "run_id": "3982be33-d510-44eb-805a-76af2c654c2c"
+  },
+  "execution_metrics": {
+    "total_time": 54.89213585853577,
+    "tool_calls_count": 17,
+    "tool_calls_breakdown": {
+      "get_file_content": 4,
+      "search_files": 3,
+      "find_files": 4,
+      "write_file": 4,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 95610,
+    "input_tokens": 92466,
+    "output_tokens": 3144,
+    "error_count": 0,
+    "run_id": "3982be33-d510-44eb-805a-76af2c654c2c",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 842B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/node:18-bullseye-slim\n#2 ...\n\n#3 [internal] load metadata for docker.io/library/nginx:stable-alpine\n#3 DONE 0.2s\n\n#2 [internal] load metadata for docker.io/library/node:18-bullseye-slim\n#2 DONE 0.7s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B done\n#4 DONE 0.0s\n\n#5 [stage-1 1/3] FROM docker.io/library/nginx:stable-alpine@sha256:1ce7f79aab3e1d651dce1ff05b1bcd471cd0d5086838a77961feab6b49fbc0b5\n#5 resolve docker.io/library/nginx:stable-alpine@sha256:1ce7f79aab3e1d651dce1ff05b1bcd471cd0d5086838a77961feab6b49fbc0b5 done\n#5 DONE 0.0s\n\n#6 [internal] load build context\n#6 transferring context: 365.02kB 0.0s done\n#6 DONE 0.0s\n\n#7 [builder 1/7] FROM docker.io/library/node:18-bullseye-slim@sha256:d69fb189fa7765636655db043a6a9e6be5ddf94bd1a8dc33fd0bcf4664606a9e\n#7 resolve docker.io/library/node:18-bullseye-slim@sha256:d69fb189fa7765636655db043a6a9e6be5ddf94bd1a8dc33fd0bcf4664606a9e done\n#7 extracting sha256:e1f16b66c2e86ad38458eba597e4ec79e4750398a28dbbc2d7819d829c4c9023\n#7 extracting sha256:e1f16b66c2e86ad38458eba597e4ec79e4750398a28dbbc2d7819d829c4c9023 0.4s done\n#7 DONE 0.4s\n\n#7 [builder 1/7] FROM docker.io/library/node:18-bullseye-slim@sha256:d69fb189fa7765636655db043a6a9e6be5ddf94bd1a8dc33fd0bcf4664606a9e\n#7 extracting sha256:56e571f2ee22b5620bc735735848b8efe0c5f4feacae2584d6ab711789e7fe0c done\n#7 extracting sha256:3e45f78336892645521624a2eb06cffe415248440cb1154db9467017f359995c\n#7 extracting sha256:3e45f78336892645521624a2eb06cffe415248440cb1154db9467017f359995c 0.4s done\n#7 DONE 0.8s\n\n#7 [builder 1/7] FROM docker.io/library/node:18-bullseye-slim@sha256:d69fb189fa7765636655db043a6a9e6be5ddf94bd1a8dc33fd0bcf4664606a9e\n#7 extracting sha256:8a49ca04d9f25692385798d2f44622aa58023f3d74b4824e5b4838c95ae44fec 0.0s done\n#7 extracting sha256:42f42eafefa50f1f31a15009c5f7c860e50d64699a39e925032b52bf183b6ecd done\n#7 DONE 0.9s\n\n#8 [builder 2/7] RUN corepack enable\n#8 DONE 0.5s\n\n#9 [builder 3/7] WORKDIR /app\n#9 DONE 0.0s\n\n#10 [builder 4/7] COPY package.json yarn.lock ./\n#10 DONE 0.0s\n\n#11 [builder 5/7] RUN yarn install --frozen-lockfile --production=false\n#11 0.650 ! Corepack is about to download https://registry.yarnpkg.com/yarn/-/yarn-1.22.22.tgz\n#11 0.848 ! The local project doesn't define a 'packageManager' field. Corepack will now add one referencing yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e.\n#11 0.848 ! For more details about this field, consult the documentation at https://nodejs.org/api/packages.html#packagemanager\n#11 0.848 \n#11 0.996 yarn install v1.22.22\n#11 1.080 [1/4] Resolving packages...\n#11 1.238 [2/4] Fetching packages...\n#11 1.244 warning Pattern [\"string-width-cjs@npm:string-width@^4.2.0\"] is trying to unpack in the same destination \"/usr/local/share/.cache/yarn/v6/npm-string-width-cjs-4.2.3-269c7117d27b05ad2e536830a8ec895ef9c6d010-integrity/node_modules/string-width-cjs\" as pattern [\"string-width@^4.2.0\"]. This could result in non-deterministic behavior, skipping.\n#11 1.245 warning Pattern [\"strip-ansi-cjs@npm:strip-ansi@^6.0.1\"] is trying to unpack in the same destination \"/usr/local/share/.cache/yarn/v6/npm-strip-ansi-cjs-6.0.1-9e26c63d30f53443e9489495b2105d37b67a85d9-integrity/node_modules/strip-ansi-cjs\" as pattern [\"strip-ansi@^6.0.1\"]. This could result in non-deterministic behavior, skipping.\n#11 1.245 warning Pattern [\"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0\"] is trying to unpack in the same destination \"/usr/local/share/.cache/yarn/v6/npm-wrap-ansi-cjs-7.0.0-67e145cff510a6a6984bdf1152911d69d2eb9e43-integrity/node_modules/wrap-ansi-cjs\" as pattern [\"wrap-ansi@^7.0.0\"]. This could result in non-deterministic behavior, skipping.\n#11 18.51 error react-router@7.4.1: The engine \"node\" is incompatible with this module. Expected version \">=20.0.0\". Got \"18.20.8\"\n#11 18.52 error Found incompatible module.\n#11 18.52 info Visit https://yarnpkg.com/en/docs/cli/install for documentation about this command.\n#11 ERROR: process \"/bin/sh -c yarn install --frozen-lockfile --production=false\" did not complete successfully: exit code: 1\n------\n > [builder 5/7] RUN yarn install --frozen-lockfile --production=false:\n0.848 \n0.996 yarn install v1.22.22\n1.080 [1/4] Resolving packages...\n1.238 [2/4] Fetching packages...\n1.244 warning Pattern [\"string-width-cjs@npm:string-width@^4.2.0\"] is trying to unpack in the same destination \"/usr/local/share/.cache/yarn/v6/npm-string-width-cjs-4.2.3-269c7117d27b05ad2e536830a8ec895ef9c6d010-integrity/node_modules/string-width-cjs\" as pattern [\"string-width@^4.2.0\"]. This could result in non-deterministic behavior, skipping.\n1.245 warning Pattern [\"strip-ansi-cjs@npm:strip-ansi@^6.0.1\"] is trying to unpack in the same destination \"/usr/local/share/.cache/yarn/v6/npm-strip-ansi-cjs-6.0.1-9e26c63d30f53443e9489495b2105d37b67a85d9-integrity/node_modules/strip-ansi-cjs\" as pattern [\"strip-ansi@^6.0.1\"]. This could result in non-deterministic behavior, skipping.\n1.245 warning Pattern [\"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0\"] is trying to unpack in the same destination \"/usr/local/share/.cache/yarn/v6/npm-wrap-ansi-cjs-7.0.0-67e145cff510a6a6984bdf1152911d69d2eb9e43-integrity/node_modules/wrap-ansi-cjs\" as pattern [\"wrap-ansi@^7.0.0\"]. This could result in non-deterministic behavior, skipping.\n18.51 error react-router@7.4.1: The engine \"node\" is incompatible with this module. Expected version \">=20.0.0\". Got \"18.20.8\"\n18.52 error Found incompatible module.\n18.52 info Visit https://yarnpkg.com/en/docs/cli/install for documentation about this command.\n------\nDockerfile:13\n--------------------\n  11 |     \n  12 |     # Install dependencies (including dev deps needed for the build)\n  13 | >>> RUN yarn install --frozen-lockfile --production=false\n  14 |     \n  15 |     # Copy the rest of the source\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c yarn install --frozen-lockfile --production=false\" did not complete successfully: exit code: 1\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/h0b037j3vnoyja2dgd258onan",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-01-03T23:56:52.261195: Starting configuration generation",
+    "2026-01-03T23:57:54.150566: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2026-01-03T23:57:54.150571: Starting quality assessment",
+    "2026-01-03T23:58:17.030995: Dockerfile validation: 1 errors, 0 warnings",
+    "2026-01-03T23:58:17.031035: K8s validation: 0 errors, 0 warnings",
+    "2026-01-03T23:58:17.031041: Runtime validation skipped due to Docker build errors",
+    "2026-01-03T23:58:17.031049: Generating evaluation report"
+  ],
+  "experiment_name": "h3",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 0,
+  "prompt_id": "base",
+  "prompt_override": "You are an expert in web application deployment, specializing in Docker containerization and Kubernetes orchestration.\n\nYou have access to tools that can help you analyze web application repositories, understand their architecture and dependencies, and create production-ready Docker and Kubernetes configurations.\n\nCRITICAL: You have only ONE chance to get everything right on the first try. Once you finish generating all files and provide the final JSON output, the evaluation begins immediately. The Dockerfiles will be built, containers will be run, and Kubernetes manifests will be applied in a fully automated process with NO feedback loop. Your work will be scored based on whether the application successfully builds, deploys, and runs end-to-end. There is no opportunity to fix errors after submission.\n\nYour objective is to:\n1. Clone the repository\n2. Analyze the repository to understand the application(s) and discover all services and their dependencies\n3. Create Dockerfile(s) to containerize the application(s) - one per service if multiple services exist\n4. Create Kubernetes manifests (Deployments/StatefulSets, Services, Ingresses) to deploy the application(s) and all discovered dependencies\n\nWhen creating Dockerfile(s):\n- Identify all services in the repository (may be single-service or multi-service monorepo)\n- Create one Dockerfile per service\n- Use an appropriate base image for each application's language/framework\n- Copy necessary files and install dependencies\n- Expose the application port\n- Specify the command to run the application\n- If the application needs to run as non-root, add a USER directive, otherwise let it run as root (default)\n- For multi-service repos, place each Dockerfile in its service directory (e.g., backend/Dockerfile, frontend/Dockerfile)\n- IMPORTANT: When using build_context (e.g., \"frontend\"), all paths in the Dockerfile are relative to that directory. For example, if build_context is \"frontend\", then \"COPY package.json .\" copies from frontend/package.json, NOT from the repository root\n\nPython specific:\n- For Python applications: Check if the code uses relative imports (e.g., \"from . import models\"). If it does:\n  * For web frameworks (Flask/FastAPI/Django): Use a proper WSGI/ASGI server like uvicorn or gunicorn with module path syntax (e.g., \"uvicorn app.main:app\" or \"gunicorn app.main:app\")\n  * For scripts: Run as a module using \"python -m package.module\" instead of \"python file.py\"\n  * Ensure WORKDIR is set correctly so Python can find the package\n\nWhen creating Kubernetes manifests:\n- Create separate resources for each service (e.g., if there's a backend and frontend, create 2 Deployments and 2 Services)\n- For each stateless service: create a Deployment (use 1 replica by default) and a Service to expose it\n- For web-accessible services: create an Ingress with host: \"<repository-name>.{domain_suffix}\"\n  * IMPORTANT: The host must be lowercase and comply with RFC 1123 subdomain rules (only lowercase letters, numbers, hyphens, and dots)\n  * Convert repository name to lowercase before using it in the host (e.g., \"Math-PDF-Generator\" \u2192 \"math-pdf-generator\")\n- Set imagePullPolicy: IfNotPresent (do NOT use \"Never\")\n- Include resource requests and limits for all containers\n- Add health checks if the service has a health endpoint\n- For security context: default to allowing root; only set runAsNonRoot/runAsUser when it is clear the image already uses a non-root user and does not need privileged ports\n- When in doubt about security settings, prioritize functionality and omit runAsNonRoot and runAsUser\n\nIMPORTANT - Discovering External Dependencies:\nYour key task is to actively discover what external services the application needs:\n- Analyze code, configuration files, environment variables, and connection strings\n- Look for database connections (PostgreSQL, MySQL, MongoDB, etc.)\n- Look for cache/message queue usage (Redis, RabbitMQ, Kafka, etc.)\n- Look for any other external services the application connects to\n- For each discovered dependency, create appropriate Kubernetes resources:\n  * StatefulSet for stateful services (databases, message queues)\n  * PersistentVolumeClaim for data persistence - use storageClassName: \"microk8s-hostpath\" or omit it entirely to use the default storage class\n  * Service to expose the dependency\n  * Secret for credentials\n  * ConfigMap for non-sensitive configuration\n\nAfter generating all files, respond with a JSON object in this format:\n\n```json\n{{\n  \"docker_images\": [\n    {{\n      \"dockerfile_path\": \"backend/Dockerfile\",\n      \"image_tag\": \"backend\",\n      \"build_context\": \"backend\"\n    }},\n    {{\n      \"dockerfile_path\": \"frontend/Dockerfile\",\n      \"image_tag\": \"frontend\",\n      \"build_context\": \"frontend\"\n    }}\n  ],\n  \"kubernetes_files\": [\n    \"k8s/backend-deployment.yaml\",\n    \"k8s/backend-service.yaml\",\n    \"k8s/frontend-deployment.yaml\",\n    \"k8s/frontend-service.yaml\",\n    \"k8s/ingress.yaml\",\n    \"k8s/postgres-statefulset.yaml\",\n    \"k8s/postgres-service.yaml\",\n    \"k8s/postgres-secret.yaml\"\n  ],\n  \"test_endpoint\": \"/api/health\"\n}}\n```\n\nImportant notes for the output:\n- docker_images: Include one entry per service/Dockerfile. For multi-service repos, list all services with their respective Dockerfiles and build contexts.\n- kubernetes_files: List ALL generated manifest files, including those for discovered dependencies (databases, caches, etc.)\n- test_endpoints: List of paths that are accessible via Ingress routes - verify before specifying. ONLY include endpoints for services that have Ingress resources (i.e., web-accessible services). Do NOT include endpoints for internal services like databases or caches. Include one endpoint per web-accessible service (e.g., if you have backend and frontend services both with Ingress, provide 2 endpoints). All endpoints will be tested via HTTP and the score will be proportional to how many respond successfully.\n- build_context: Use \".\" for single-service repos, or the service directory (e.g., \"backend\", \"frontend\") for multi-service repos. Remember: when build_context is set to a subdirectory, Docker executes the build from that directory, so all COPY paths in the Dockerfile must be relative to that context (not the repo root).\n\nBEFORE submitting your final JSON output, verify:\n- All file paths referenced in COPY instructions actually exist in the repository\n- All ports are correctly aligned between Dockerfile EXPOSE, Kubernetes containerPort, and Service targetPort\n- All health check endpoints you specified actually exist in the application code\n- Security context settings match the Dockerfile USER directive (or omit if running as root)\n- All discovered dependencies have complete resources (StatefulSet, Service, Secret, PVC)\n- All test_endpoints are real endpoints that:\n  * Exist in the application code\n  * Are accessible via the Ingress routes you created\n  * Will return successful responses (2xx status codes)\n",
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {
+      "enable_runtime_validation": false
+    },
+    "run_overrides": {},
+    "prompt_description": "Base prompt (same as H1)",
+    "prompt_override": "You are an expert in web application deployment, specializing in Docker containerization and Kubernetes orchestration.\n\nYou have access to tools that can help you analyze web application repositories, understand their architecture and dependencies, and create production-ready Docker and Kubernetes configurations.\n\nCRITICAL: You have only ONE chance to get everything right on the first try. Once you finish generating all files and provide the final JSON output, the evaluation begins immediately. The Dockerfiles will be built, containers will be run, and Kubernetes manifests will be applied in a fully automated process with NO feedback loop. Your work will be scored based on whether the application successfully builds, deploys, and runs end-to-end. There is no opportunity to fix errors after submission.\n\nYour objective is to:\n1. Clone the repository\n2. Analyze the repository to understand the application(s) and discover all services and their dependencies\n3. Create Dockerfile(s) to containerize the application(s) - one per service if multiple services exist\n4. Create Kubernetes manifests (Deployments/StatefulSets, Services, Ingresses) to deploy the application(s) and all discovered dependencies\n\nWhen creating Dockerfile(s):\n- Identify all services in the repository (may be single-service or multi-service monorepo)\n- Create one Dockerfile per service\n- Use an appropriate base image for each application's language/framework\n- Copy necessary files and install dependencies\n- Expose the application port\n- Specify the command to run the application\n- If the application needs to run as non-root, add a USER directive, otherwise let it run as root (default)\n- For multi-service repos, place each Dockerfile in its service directory (e.g., backend/Dockerfile, frontend/Dockerfile)\n- IMPORTANT: When using build_context (e.g., \"frontend\"), all paths in the Dockerfile are relative to that directory. For example, if build_context is \"frontend\", then \"COPY package.json .\" copies from frontend/package.json, NOT from the repository root\n\nPython specific:\n- For Python applications: Check if the code uses relative imports (e.g., \"from . import models\"). If it does:\n  * For web frameworks (Flask/FastAPI/Django): Use a proper WSGI/ASGI server like uvicorn or gunicorn with module path syntax (e.g., \"uvicorn app.main:app\" or \"gunicorn app.main:app\")\n  * For scripts: Run as a module using \"python -m package.module\" instead of \"python file.py\"\n  * Ensure WORKDIR is set correctly so Python can find the package\n\nWhen creating Kubernetes manifests:\n- Create separate resources for each service (e.g., if there's a backend and frontend, create 2 Deployments and 2 Services)\n- For each stateless service: create a Deployment (use 1 replica by default) and a Service to expose it\n- For web-accessible services: create an Ingress with host: \"<repository-name>.{domain_suffix}\"\n  * IMPORTANT: The host must be lowercase and comply with RFC 1123 subdomain rules (only lowercase letters, numbers, hyphens, and dots)\n  * Convert repository name to lowercase before using it in the host (e.g., \"Math-PDF-Generator\" \u2192 \"math-pdf-generator\")\n- Set imagePullPolicy: IfNotPresent (do NOT use \"Never\")\n- Include resource requests and limits for all containers\n- Add health checks if the service has a health endpoint\n- For security context: default to allowing root; only set runAsNonRoot/runAsUser when it is clear the image already uses a non-root user and does not need privileged ports\n- When in doubt about security settings, prioritize functionality and omit runAsNonRoot and runAsUser\n\nIMPORTANT - Discovering External Dependencies:\nYour key task is to actively discover what external services the application needs:\n- Analyze code, configuration files, environment variables, and connection strings\n- Look for database connections (PostgreSQL, MySQL, MongoDB, etc.)\n- Look for cache/message queue usage (Redis, RabbitMQ, Kafka, etc.)\n- Look for any other external services the application connects to\n- For each discovered dependency, create appropriate Kubernetes resources:\n  * StatefulSet for stateful services (databases, message queues)\n  * PersistentVolumeClaim for data persistence - use storageClassName: \"microk8s-hostpath\" or omit it entirely to use the default storage class\n  * Service to expose the dependency\n  * Secret for credentials\n  * ConfigMap for non-sensitive configuration\n\nAfter generating all files, respond with a JSON object in this format:\n\n```json\n{{\n  \"docker_images\": [\n    {{\n      \"dockerfile_path\": \"backend/Dockerfile\",\n      \"image_tag\": \"backend\",\n      \"build_context\": \"backend\"\n    }},\n    {{\n      \"dockerfile_path\": \"frontend/Dockerfile\",\n      \"image_tag\": \"frontend\",\n      \"build_context\": \"frontend\"\n    }}\n  ],\n  \"kubernetes_files\": [\n    \"k8s/backend-deployment.yaml\",\n    \"k8s/backend-service.yaml\",\n    \"k8s/frontend-deployment.yaml\",\n    \"k8s/frontend-service.yaml\",\n    \"k8s/ingress.yaml\",\n    \"k8s/postgres-statefulset.yaml\",\n    \"k8s/postgres-service.yaml\",\n    \"k8s/postgres-secret.yaml\"\n  ],\n  \"test_endpoint\": \"/api/health\"\n}}\n```\n\nImportant notes for the output:\n- docker_images: Include one entry per service/Dockerfile. For multi-service repos, list all services with their respective Dockerfiles and build contexts.\n- kubernetes_files: List ALL generated manifest files, including those for discovered dependencies (databases, caches, etc.)\n- test_endpoints: List of paths that are accessible via Ingress routes - verify before specifying. ONLY include endpoints for services that have Ingress resources (i.e., web-accessible services). Do NOT include endpoints for internal services like databases or caches. Include one endpoint per web-accessible service (e.g., if you have backend and frontend services both with Ingress, provide 2 endpoints). All endpoints will be tested via HTTP and the score will be proportional to how many respond successfully.\n- build_context: Use \".\" for single-service repos, or the service directory (e.g., \"backend\", \"frontend\") for multi-service repos. Remember: when build_context is set to a subdirectory, Docker executes the build from that directory, so all COPY paths in the Dockerfile must be relative to that context (not the repo root).\n\nBEFORE submitting your final JSON output, verify:\n- All file paths referenced in COPY instructions actually exist in the repository\n- All ports are correctly aligned between Dockerfile EXPOSE, Kubernetes containerPort, and Service targetPort\n- All health check endpoints you specified actually exist in the application code\n- Security context settings match the Dockerfile USER directive (or omit if running as root)\n- All discovered dependencies have complete resources (StatefulSet, Service, Secret, PVC)\n- All test_endpoints are real endpoints that:\n  * Exist in the application code\n  * Are accessible via the Ingress routes you created\n  * Will return successful responses (2xx status codes)\n",
+    "prompt_source_path": "/Users/rasztabigab/Studia/run/prompts/default.prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/csv-hero-3982be33-d510-44eb-805a-76af2c654c2c",
+    "run_id": "3982be33-d510-44eb-805a-76af2c654c2c"
+  }
+}

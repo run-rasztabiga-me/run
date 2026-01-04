@@ -1,0 +1,102 @@
+--- bb80a3c0-898b-4ca3-874b-41825badb16d
++++ 14387b07-c713-48a9-bb22-78708217cc40
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.12-slim
++FROM python:3.11-slim
+ 
+ WORKDIR /app
+ 
+@@ -20,26 +20,26 @@
+ 
+ # Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/fastapi-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-deployment
++  name: poc1-fastapi
+   labels:
+-    app: fastapi
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: fastapi
++        app: poc1-fastapi
+     spec:
+       containers:
+-      - name: fastapi
+-        image: fastapi
++      - name: poc1-fastapi
++        image: poc1-fastapi
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+@@ -59,30 +59,21 @@
+             port: 8000
+           initialDelaySeconds: 30
+           periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-@@FILE:K8s::k8s/fastapi-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: fastapi-service
+-spec:
+-  selector:
+-    app: fastapi
+-  ports:
+-  - port: 80
+-    targetPort: 8000
+-    protocol: TCP
+-  type: ClusterIP
++          timeoutSeconds: 3
++          failureThreshold: 1
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-ingress
++  name: poc1-fastapi
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -94,6 +85,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: poc1-fastapi
+             port:
+               number: 80
++@@FILE:K8s::k8s/service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: poc1-fastapi
++  labels:
++    app: poc1-fastapi
++spec:
++  selector:
++    app: poc1-fastapi
++  ports:
++  - port: 80
++    targetPort: 8000
++    protocol: TCP
++  type: ClusterIP

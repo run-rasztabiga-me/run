@@ -1,0 +1,362 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+  "repo_name": "poc4-fastapi",
+  "evaluation_id": "f38cdbde-bcba-4bb8-8056-358bf8c8dce5",
+  "status": "completed",
+  "start_time": "2026-01-04T14:57:54.808998",
+  "end_time": "2026-01-04T15:02:44.994868",
+  "total_evaluation_time": 290.18587,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc4-fastapi.git",
+    "repo_name": "poc4-fastapi",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "backend/analytics_service/Dockerfile",
+        "image_tag": "analytics",
+        "build_context": "backend/analytics_service"
+      },
+      {
+        "dockerfile_path": "backend/notes_service/Dockerfile",
+        "image_tag": "notes",
+        "build_context": "backend/notes_service"
+      },
+      {
+        "dockerfile_path": "backend/users_service/Dockerfile",
+        "image_tag": "users",
+        "build_context": "backend/users_service"
+      },
+      {
+        "dockerfile_path": "frontend/Dockerfile",
+        "image_tag": "frontend",
+        "build_context": "frontend"
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/analytics-db-secret.yaml",
+      "k8s/analytics-db-statefulset.yaml",
+      "k8s/analytics-db-service.yaml",
+      "k8s/notes-db-secret.yaml",
+      "k8s/notes-db-statefulset.yaml",
+      "k8s/notes-db-service.yaml",
+      "k8s/users-db-secret.yaml",
+      "k8s/users-db-statefulset.yaml",
+      "k8s/users-db-service.yaml",
+      "k8s/rabbitmq-secret.yaml",
+      "k8s/rabbitmq-statefulset.yaml",
+      "k8s/rabbitmq-service.yaml",
+      "k8s/analytics-deployment.yaml",
+      "k8s/analytics-service.yaml",
+      "k8s/notes-deployment.yaml",
+      "k8s/notes-service.yaml",
+      "k8s/users-deployment.yaml",
+      "k8s/users-service.yaml",
+      "k8s/frontend-deployment.yaml",
+      "k8s/frontend-service.yaml",
+      "k8s/frontend-ingress.yaml"
+    ],
+    "generation_time": 123.3982241153717,
+    "error_message": null,
+    "timestamp": "2026-01-04T15:00:09.152384",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-c8d81ec2-419c-4091-8690-d49d97c17c86",
+    "run_id": "c8d81ec2-419c-4091-8690-d49d97c17c86"
+  },
+  "execution_metrics": {
+    "total_time": 123.3982241153717,
+    "tool_calls_count": 65,
+    "tool_calls_breakdown": {
+      "write_file": 27,
+      "base64_encode": 11,
+      "get_file_content": 17,
+      "ls": 9,
+      "clone_repo": 1
+    },
+    "tokens_used": 809089,
+    "input_tokens": 794644,
+    "output_tokens": 14445,
+    "error_count": 0,
+    "run_id": "c8d81ec2-419c-4091-8690-d49d97c17c86",
+    "docker_build_metrics": [
+      {
+        "image_tag": "analytics",
+        "build_time": 1.8383216857910156,
+        "image_size_mb": 68.36,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "notes",
+        "build_time": 0.7381160259246826,
+        "image_size_mb": 69.52,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "users",
+        "build_time": 0.8636879920959473,
+        "image_size_mb": 70.33,
+        "layers_count": 9
+      },
+      {
+        "image_tag": "frontend",
+        "build_time": 9.566971063613892,
+        "image_size_mb": 21.99,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 96.0,
+    "k8s_manifests_score": 80.0,
+    "overall_score": 65.6,
+    "validation_issues": [
+      {
+        "file_path": "frontend/Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/poc4-fastapi-c8d81ec2-419c-4091-8690-d49d97c17c86/frontend/Dockerfile:1 1 | >>> FROM node:20-alpine as builder",
+        "rule_id": "FromAsCasing"
+      },
+      {
+        "file_path": "k8s/analytics-db-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/analytics-db-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/notes-db-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/notes-db-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/users-db-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/users-db-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"postgres\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/rabbitmq-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"rabbitmq\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/rabbitmq-statefulset.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"rabbitmq\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/analytics-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "environment variable JWT_SECRET in container \"analytics-service\" found",
+        "rule_id": "env-var-secret"
+      },
+      {
+        "file_path": "k8s/analytics-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"analytics-service\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/analytics-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"analytics-service\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/notes-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "environment variable JWT_SECRET in container \"notes-service\" found",
+        "rule_id": "env-var-secret"
+      },
+      {
+        "file_path": "k8s/notes-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"notes-service\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/notes-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"notes-service\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/users-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "environment variable JWT_SECRET in container \"users-service\" found",
+        "rule_id": "env-var-secret"
+      },
+      {
+        "file_path": "k8s/users-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"users-service\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/users-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"users-service\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend-service\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/frontend-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"frontend-service\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "users-service",
+        "line_number": null,
+        "severity": "error",
+        "message": "Deployment users-service not ready within 120s: error: timed out waiting for the condition on deployments/users-service",
+        "rule_id": "K8S_RESOURCE_NOT_READY"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 20,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 65.6,
+      "total_errors": 1,
+      "total_warnings": 20,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 96.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 80.0,
+        "total_errors": 0,
+        "total_warnings": 19,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 19,
+            "info": 0
+          },
+          "kubernetes_apply": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "runtime": {
+        "score": 0.0,
+        "errors": 1,
+        "warnings": 0,
+        "info": 0
+      }
+    }
+  },
+  "notes": [
+    "2026-01-04T14:57:54.809729: Starting configuration generation",
+    "2026-01-04T15:00:09.152649: Generated 4 Dockerfiles and 21 K8s manifests",
+    "2026-01-04T15:00:09.152656: Starting quality assessment",
+    "2026-01-04T15:02:44.994695: Built 4 Docker images (total: 230.2 MB, avg time: 3.3s)",
+    "2026-01-04T15:02:44.994752: Dockerfile validation: 1 errors, 20 warnings",
+    "2026-01-04T15:02:44.994772: K8s validation: 0 errors, 19 warnings",
+    "2026-01-04T15:02:44.994827: Deployed to namespace: poc4-fastapi-c8d81ec2-419c-4091-8690-d49d97c17c86",
+    "2026-01-04T15:02:44.994846: Testing endpoints: /, /analytics/health, /notes/health, /users/health",
+    "2026-01-04T15:02:44.994852: Runtime validation: 1 errors, 0 warnings",
+    "2026-01-04T15:02:44.994855: Generating evaluation report"
+  ],
+  "experiment_name": "h4",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 0.0,
+    "seed": 42
+  },
+  "repetition_index": 0,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {},
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc4-fastapi-c8d81ec2-419c-4091-8690-d49d97c17c86",
+    "run_id": "c8d81ec2-419c-4091-8690-d49d97c17c86"
+  }
+}

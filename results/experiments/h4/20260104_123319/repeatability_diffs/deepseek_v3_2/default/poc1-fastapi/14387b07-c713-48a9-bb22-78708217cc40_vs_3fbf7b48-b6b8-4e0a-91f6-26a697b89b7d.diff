@@ -1,0 +1,33 @@
+--- 14387b07-c713-48a9-bb22-78708217cc40
++++ 3fbf7b48-b6b8-4e0a-91f6-26a697b89b7d
+@@ -18,7 +18,7 @@
+ # Expose the port the app runs on
+ EXPOSE 8000
+ 
+-# Command to run the application
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -38,7 +38,7 @@
+         app: poc1-fastapi
+     spec:
+       containers:
+-      - name: poc1-fastapi
++      - name: fastapi
+         image: poc1-fastapi
+         imagePullPolicy: IfNotPresent
+         ports:
+@@ -66,9 +66,9 @@
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 5
+-          timeoutSeconds: 3
+-          failureThreshold: 1
++          periodSeconds: 10
++          timeoutSeconds: 5
++          failureThreshold: 3
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

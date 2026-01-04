@@ -1,0 +1,30 @@
+--- 1f72a52a-aaab-424b-9fb3-d602d83361a1
++++ 929818e7-9d6b-494f-a2b7-342e87c6d6d8
+@@ -30,7 +30,7 @@
+     spec:
+       containers:
+       - name: poc1-fastapi
+-        image: poc1-fastapi
++        image: poc1-fastapi:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+@@ -41,6 +41,18 @@
+           limits:
+             memory: "128Mi"
+             cpu: "200m"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/poc1-fastapi-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

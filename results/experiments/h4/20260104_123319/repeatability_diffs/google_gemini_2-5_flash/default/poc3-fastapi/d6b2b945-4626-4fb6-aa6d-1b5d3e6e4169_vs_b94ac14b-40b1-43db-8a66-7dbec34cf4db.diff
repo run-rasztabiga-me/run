@@ -1,0 +1,192 @@
+--- d6b2b945-4626-4fb6-aa6d-1b5d3e6e4169
++++ b94ac14b-40b1-43db-8a66-7dbec34cf4db
+@@ -1,35 +1,35 @@
+ @@FILE:Dockerfile::backend/Dockerfile
+-FROM python:3.9-slim-buster
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY ./app ./app
++COPY app ./app
+ 
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:Dockerfile::frontend/Dockerfile
+-FROM node:16-alpine as builder
++FROM node:20-alpine AS builder
+ 
+ WORKDIR /app
+ 
+ COPY package.json package-lock.json ./
+-RUN npm ci
++RUN npm install
+ 
+ COPY . .
+ RUN npm run build
+ 
+ FROM nginx:stable-alpine
+ 
++COPY nginx.conf /etc/nginx/nginx.conf
+ COPY --from=builder /app/dist /usr/share/nginx/html
+-COPY nginx.conf /etc/nginx/conf.d/default.conf
+ 
+ EXPOSE 80
+ 
+-CMD ["nginx", "-g", ""daemon off;""]
++CMD ["nginx", "-g", "daemon off;"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -53,22 +53,19 @@
+             - containerPort: 8000
+           env:
+             - name: DATABASE_URL
+-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
+-            - name: POSTGRES_USER
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_USER
+-            - name: POSTGRES_PASSWORD
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_PASSWORD
+-            - name: POSTGRES_DB
+-              valueFrom:
+-                secretKeyRef:
+-                  name: postgres-secret
+-                  key: POSTGRES_DB
++              value: postgresql://poc3-fastapi:poc3_password@postgres:5432/poc3-fastapi
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+           resources:
+             requests:
+               cpu: "100m"
+@@ -76,18 +73,6 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 10
+-            periodSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 10
+-            periodSeconds: 5
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -129,18 +114,6 @@
+             limits:
+               cpu: "200m"
+               memory: "256Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 80
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+ @@FILE:K8s::k8s/frontend-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -166,13 +139,6 @@
+     - host: poc3-fastapi.rasztabiga.me
+       http:
+         paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: frontend
+-                port:
+-                  number: 80
+           - path: /api(/|$)(.*)
+             pathType: Prefix
+             backend:
+@@ -180,18 +146,13 @@
+                 name: backend
+                 port:
+                   number: 8000
+-@@FILE:K8s::k8s/postgres-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: postgres-pvc
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
++          - path: /(.*)
++            pathType: Prefix
++            backend:
++              service:
++                name: frontend
++                port:
++                  number: 80
+ @@FILE:K8s::k8s/postgres-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -199,9 +160,9 @@
+   name: postgres-secret
+ type: Opaque
+ data:
+-  POSTGRES_USER: dXNlcg==
+-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
+-  POSTGRES_DB: ZGJuYW1l
++  POSTGRES_DB: cG9jMy1mYXN0YXBp
++  POSTGRES_USER: cG9jMy1mYXN0YXBp
++  POSTGRES_PASSWORD: cG9jM19wYXNzd29yZA==
+ @@FILE:K8s::k8s/postgres-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -240,7 +201,7 @@
+             - secretRef:
+                 name: postgres-secret
+           volumeMounts:
+-            - name: postgres-storage
++            - name: postgres-data
+               mountPath: /var/lib/postgresql/data
+           resources:
+             requests:
+@@ -251,10 +212,9 @@
+               memory: "512Mi"
+   volumeClaimTemplates:
+     - metadata:
+-        name: postgres-storage
++        name: postgres-data
+       spec:
+         accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 1Gi
+-        storageClassName: microk8s-hostpath
