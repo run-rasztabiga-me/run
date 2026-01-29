@@ -4,7 +4,7 @@ Runs: 94/150 = 62.7%
 
 Stages:
   build: 118/150 = 78.7% (CI: 71.4%–84.5%)
-  apply: 115/148 = 77.7% (CI: 70.3%–83.7%)
+  apply: 115/150 = 76.7% (CI: 69.3%–82.7%)
     └─ given build OK: 115/118 = 97.5% (CI: 92.8%–99.1%)
   runtime: 94/150 = 62.7% (CI: 54.7%–70.0%)
     └─ given apply OK: 94/115 = 81.7% (CI: 73.7%–87.7%)
@@ -43,3 +43,1774 @@ Per repo:
   openai-hello-world: 2/6 = 33.3% (CI: 9.7%–70.0%)
   todo-list: 6/6 = 100.0% (CI: 61.0%–100.0%)
   simple-webapp-flask: 6/6 = 100.0% (CI: 61.0%–100.0%)
+
+Per repo stage breakdown:
+  adsensedetective:
+    build: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    apply: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    runtime: 1/6 = 16.7% (CI: 3.0%–56.4%)
+  airwatch:
+    build: 1/6 = 16.7% (CI: 3.0%–56.4%)
+    apply: 1/6 = 16.7% (CI: 3.0%–56.4%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  attendence-calculator:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  banner-designer-webapp:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 5/6 = 83.3% (CI: 43.6%–97.0%)
+  chessable:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 4/6 = 66.7% (CI: 30.0%–90.3%)
+  class-order-checker:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  csv-hero:
+    build: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    apply: 2/6 = 33.3% (CI: 9.7%–70.0%)
+    runtime: 2/6 = 33.3% (CI: 9.7%–70.0%)
+  deeplx-app:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  diceopt_kcd2:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  hello-world-war:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 4/6 = 66.7% (CI: 30.0%–90.3%)
+  lsfont:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 5/6 = 83.3% (CI: 43.6%–97.0%)
+  mario-kart-tournament:
+    build: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 1/6 = 16.7% (CI: 3.0%–56.4%)
+  math-pdf-generator-web:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  metathief:
+    build: 3/6 = 50.0% (CI: 18.8%–81.2%)
+    apply: 3/6 = 50.0% (CI: 18.8%–81.2%)
+    runtime: 3/6 = 50.0% (CI: 18.8%–81.2%)
+  mtg-scryfall-randomizer:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  openai-hello-world:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    runtime: 2/6 = 33.3% (CI: 9.7%–70.0%)
+  parklandschooltimer:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  realtime-chatting-webapp:
+    build: 3/6 = 50.0% (CI: 18.8%–81.2%)
+    apply: 3/6 = 50.0% (CI: 18.8%–81.2%)
+    runtime: 1/6 = 16.7% (CI: 3.0%–56.4%)
+  scheme-seva:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 5/6 = 83.3% (CI: 43.6%–97.0%)
+    runtime: 2/6 = 33.3% (CI: 9.7%–70.0%)
+  simple-webapp:
+    build: 1/6 = 16.7% (CI: 3.0%–56.4%)
+    apply: 1/6 = 16.7% (CI: 3.0%–56.4%)
+    runtime: 0/6 = 0.0% (CI: 0.0%–39.0%)
+  simple-webapp-flask:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  tempo-sync:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 5/6 = 83.3% (CI: 43.6%–97.0%)
+  todo-list:
+    build: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    apply: 6/6 = 100.0% (CI: 61.0%–100.0%)
+    runtime: 6/6 = 100.0% (CI: 61.0%–100.0%)
+  vesen:
+    build: 3/6 = 50.0% (CI: 18.8%–81.2%)
+    apply: 3/6 = 50.0% (CI: 18.8%–81.2%)
+    runtime: 3/6 = 50.0% (CI: 18.8%–81.2%)
+  webclient:
+    build: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    apply: 4/6 = 66.7% (CI: 30.0%–90.3%)
+    runtime: 2/6 = 33.3% (CI: 9.7%–70.0%)
+
+H3 quality stats (linters):
+  default: warnings 133/150 = 88.7%; clean 17/150 = 11.3%; total 319 (docker 38, k8s 281), avg 2.13
+
+H3 per repo stats (linters):
+  adsensedetective:
+    default: warnings 3/6 = 50.0%; clean 3/6 = 50.0%; total 7 (docker 4, k8s 3), avg 1.17
+  airwatch:
+    default: warnings 2/6 = 33.3%; clean 4/6 = 66.7%; total 8 (docker 2, k8s 6), avg 1.33
+  attendence-calculator:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  banner-designer-webapp:
+    default: warnings 5/6 = 83.3%; clean 1/6 = 16.7%; total 10 (docker 0, k8s 10), avg 1.67
+  chessable:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 20 (docker 0, k8s 20), avg 3.33
+  class-order-checker:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  csv-hero:
+    default: warnings 5/6 = 83.3%; clean 1/6 = 16.7%; total 8 (docker 4, k8s 4), avg 1.33
+  deeplx-app:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  diceopt_kcd2:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  hello-world-war:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  lsfont:
+    default: warnings 5/6 = 83.3%; clean 1/6 = 16.7%; total 10 (docker 0, k8s 10), avg 1.67
+  mario-kart-tournament:
+    default: warnings 5/6 = 83.3%; clean 1/6 = 16.7%; total 15 (docker 3, k8s 12), avg 2.50
+  math-pdf-generator-web:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  metathief:
+    default: warnings 5/6 = 83.3%; clean 1/6 = 16.7%; total 11 (docker 5, k8s 6), avg 1.83
+  mtg-scryfall-randomizer:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  openai-hello-world:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 14 (docker 6, k8s 8), avg 2.33
+  parklandschooltimer:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  realtime-chatting-webapp:
+    default: warnings 5/6 = 83.3%; clean 1/6 = 16.7%; total 19 (docker 5, k8s 14), avg 3.17
+  scheme-seva:
+    default: warnings 5/6 = 83.3%; clean 1/6 = 16.7%; total 35 (docker 0, k8s 35), avg 5.83
+  simple-webapp:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 6, k8s 6), avg 2.00
+  simple-webapp-flask:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  tempo-sync:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 11 (docker 0, k8s 11), avg 1.83
+  todo-list:
+    default: warnings 6/6 = 100.0%; clean 0/6 = 0.0%; total 12 (docker 0, k8s 12), avg 2.00
+  vesen:
+    default: warnings 4/6 = 66.7%; clean 2/6 = 33.3%; total 7 (docker 1, k8s 6), avg 1.17
+  webclient:
+    default: warnings 5/6 = 83.3%; clean 1/6 = 16.7%; total 12 (docker 2, k8s 10), avg 2.00
+
+H3 warnings debug (docker):
+  simple-webapp | gemini-2.5-flash | default | Dockerfile:7 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | gemini-2.5-flash | default | Dockerfile:8 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | gpt-5-mini | default | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | gpt-5-mini | default | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | deepseek-chat | default | Dockerfile:5 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  simple-webapp | deepseek-chat | default | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  banner-designer-webapp | gemini-2.5-flash | default | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/banner-designer-webapp-a8e14a91-1355-418d-9f85-7c0a3c12ff79/Dockerfile:3 1 |
+  airwatch | gpt-5-mini | default | Dockerfile:15 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  airwatch | gpt-5-mini | default | Dockerfile:18 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  airwatch | deepseek-chat | default | Dockerfile:None | SecretsUsedInArgOrEnv | https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/ Do not use ARG or ENV instructions for sensitive data (ARG "WAQI_API_KEY") /Users/rasztabigab/Studia/run/tmp/airwatch-4e472551-65ca-4650-a16f-f2c27db38407/Dockerfile:16 14 |
+  airwatch | deepseek-chat | default | Dockerfile:None | SecretsUsedInArgOrEnv | https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/ Do not use ARG or ENV instructions for sensitive data (ENV "WAQI_API_KEY") /Users/rasztabigab/Studia/run/tmp/airwatch-4e472551-65ca-4650-a16f-f2c27db38407/Dockerfile:19 17 |     ARG AIRWATCH_ARTICLES_BASE_URL=http://backend-service
+  realtime-chatting-webapp | gpt-5-mini | default | Dockerfile:7 | DL3003 | Use WORKDIR to switch to a directory
+  realtime-chatting-webapp | gpt-5-mini | default | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-097bb773-f60d-4014-a0b9-9f3e876b8c4e/Dockerfile:2 1 |     # Multi-stage build for server + client
+  realtime-chatting-webapp | gpt-5-mini | default | client/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-097bb773-f60d-4014-a0b9-9f3e876b8c4e/client/Dockerfile:2 1 |     # Optional frontend-only Dockerfile (not used by k8s, server serves static build)
+  realtime-chatting-webapp | deepseek-chat | default | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-28eba8b5-3ee8-42de-ae67-18f0f45d3a28/Dockerfile:2 1 |     # Build stage for React frontend
+  realtime-chatting-webapp | deepseek-chat | default | Dockerfile:12 | DL3003 | Use WORKDIR to switch to a directory
+  realtime-chatting-webapp | deepseek-chat | default | Dockerfile:19 | DL3003 | Use WORKDIR to switch to a directory
+  realtime-chatting-webapp | deepseek-chat | default | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/realtime-chatting-webapp-570061bb-6a5f-4b0f-962d-5cb43a97c01b/Dockerfile:2 1 |     # Build stage for React frontend
+  realtime-chatting-webapp | deepseek-chat | default | Dockerfile:13 | DL3003 | Use WORKDIR to switch to a directory
+  realtime-chatting-webapp | deepseek-chat | default | Dockerfile:20 | DL3003 | Use WORKDIR to switch to a directory
+  csv-hero | gemini-2.5-flash | default | Dockerfile:19 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  csv-hero | gpt-5-mini | default | Dockerfile:8 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  csv-hero | gpt-5-mini | default | Dockerfile:4 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  csv-hero | gpt-5-mini | default | Dockerfile:10 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  metathief | gemini-2.5-flash | default | Dockerfile:8 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  metathief | deepseek-chat | default | Dockerfile:5 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  metathief | deepseek-chat | default | Dockerfile:26 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  metathief | deepseek-chat | default | Dockerfile:5 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  metathief | deepseek-chat | default | Dockerfile:27 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  vesen | gemini-2.5-flash | default | Dockerfile:20 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  vesen | gemini-2.5-flash | default | Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/vesen-e609fff5-8ed2-4e71-838c-f22b075c9465/Dockerfile:2 1 |     # Stage 1: Build the Svelte application
+  webclient | gemini-2.5-flash | default | Dockerfile:8 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  webclient | gemini-2.5-flash | default | Dockerfile:27 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  adsensedetective | gemini-2.5-flash | default | Dockerfile:None | LegacyKeyValueFormat | https://docs.docker.com/go/dockerfile/rule/legacy-key-value-format/ "ENV key=value" should be used instead of legacy "ENV key value" format /Users/rasztabigab/Studia/run/tmp/adsensedetective-6fa8c2f5-68ef-4960-a391-f909d089b967/Dockerfile:10 8 |     FROM node:20-alpine AS runner
+  adsensedetective | gemini-2.5-flash | default | Dockerfile:8 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  adsensedetective | gemini-2.5-flash | default | Dockerfile:29 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  adsensedetective | gpt-5-mini | default | Dockerfile:5 | DL3018 | Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+  adsensedetective | deepseek-chat | default | Dockerfile:5 | DL3016 | Pin versions in npm. Instead of `npm install <package>` use `npm install <package>@<version>`
+  mario-kart-tournament | gpt-5-mini | default | Dockerfile:4 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  mario-kart-tournament | gpt-5-mini | default | Dockerfile:7 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  mario-kart-tournament | deepseek-chat | default | Dockerfile:6 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  scheme-seva | gemini-2.5-flash | default | Frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/scheme-seva-e298fc86-5aef-4347-9862-f86d0e1cd807/Frontend/Dockerfile:2 1 |     # Stage 1: Build the React application
+  scheme-seva | gemini-2.5-flash | default | Frontend/Dockerfile:None | FromAsCasing | https://docs.docker.com/go/dockerfile/rule/from-as-casing/ 'as' and 'FROM' keywords' casing do not match /Users/rasztabigab/Studia/run/tmp/scheme-seva-df22351c-ba16-4193-b384-8e8bb32b1018/Frontend/Dockerfile:1 1 | >>> FROM node:20-alpine as builder
+  openai-hello-world | gpt-5-mini | default | Dockerfile:7 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  openai-hello-world | gpt-5-mini | default | Dockerfile:13 | DL3013 | Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
+  openai-hello-world | gpt-5-mini | default | Dockerfile:7 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  openai-hello-world | deepseek-chat | default | Dockerfile:8 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  openai-hello-world | deepseek-chat | default | Dockerfile:13 | DL3008 | Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`
+  openai-hello-world | deepseek-chat | default | Dockerfile:22 | DL3013 | Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
+
+H3 warnings debug (k8s):
+  math-pdf-generator-web | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "math-pdf-generator-web" does not have a read-only root file system
+  math-pdf-generator-web | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "math-pdf-generator-web" is not set to runAsNonRoot
+  math-pdf-generator-web | gemini-2.5-flash | default | k8s/math-pdf-generator-web-deployment.yaml:None | no-read-only-root-fs | container "math-pdf-generator-web" does not have a read-only root file system
+  math-pdf-generator-web | gemini-2.5-flash | default | k8s/math-pdf-generator-web-deployment.yaml:None | run-as-non-root | container "math-pdf-generator-web" is not set to runAsNonRoot
+  math-pdf-generator-web | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  math-pdf-generator-web | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  math-pdf-generator-web | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  math-pdf-generator-web | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  math-pdf-generator-web | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "math-pdf-generator-web" does not have a read-only root file system
+  math-pdf-generator-web | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "math-pdf-generator-web" is not set to runAsNonRoot
+  math-pdf-generator-web | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  math-pdf-generator-web | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  simple-webapp | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | no-read-only-root-fs | container "postgres" does not have a read-only root file system
+  simple-webapp | gpt-5-mini | default | k8s/postgres-statefulset.yaml:None | run-as-non-root | container "postgres" is not set to runAsNonRoot
+  simple-webapp | gpt-5-mini | default | k8s/redis-statefulset.yaml:None | no-read-only-root-fs | container "redis" does not have a read-only root file system
+  simple-webapp | gpt-5-mini | default | k8s/redis-statefulset.yaml:None | run-as-non-root | container "redis" is not set to runAsNonRoot
+  simple-webapp | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "simple-webapp" does not have a read-only root file system
+  simple-webapp | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "simple-webapp" is not set to runAsNonRoot
+  banner-designer-webapp | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "banner-designer-webapp" does not have a read-only root file system
+  banner-designer-webapp | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "banner-designer-webapp" is not set to runAsNonRoot
+  banner-designer-webapp | gemini-2.5-flash | default | k8s/banner-designer-webapp-deployment.yaml:None | no-read-only-root-fs | container "banner-designer-webapp" does not have a read-only root file system
+  banner-designer-webapp | gemini-2.5-flash | default | k8s/banner-designer-webapp-deployment.yaml:None | run-as-non-root | container "banner-designer-webapp" is not set to runAsNonRoot
+  banner-designer-webapp | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "banner-designer" does not have a read-only root file system
+  banner-designer-webapp | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "banner-designer" is not set to runAsNonRoot
+  banner-designer-webapp | gpt-5-mini | default | k8s/banner-deployment.yaml:None | no-read-only-root-fs | container "banner-designer-webapp" does not have a read-only root file system
+  banner-designer-webapp | gpt-5-mini | default | k8s/banner-deployment.yaml:None | run-as-non-root | container "banner-designer-webapp" is not set to runAsNonRoot
+  banner-designer-webapp | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "banner-designer-webapp" does not have a read-only root file system
+  banner-designer-webapp | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "banner-designer-webapp" is not set to runAsNonRoot
+  lsfont | gemini-2.5-flash | default | k8s/lsfont-deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | gemini-2.5-flash | default | k8s/lsfont-deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  lsfont | gemini-2.5-flash | default | k8s/lsfont-deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | gemini-2.5-flash | default | k8s/lsfont-deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  lsfont | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  lsfont | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  lsfont | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "lsfont" does not have a read-only root file system
+  lsfont | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "lsfont" is not set to runAsNonRoot
+  airwatch | gpt-5-mini | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  airwatch | gpt-5-mini | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  airwatch | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  airwatch | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  airwatch | gpt-5-mini | default | k8s/mongo-statefulset.yaml:None | no-read-only-root-fs | container "mongo" does not have a read-only root file system
+  airwatch | gpt-5-mini | default | k8s/mongo-statefulset.yaml:None | run-as-non-root | container "mongo" is not set to runAsNonRoot
+  diceopt_kcd2 | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "diceopt-kcd2" does not have a read-only root file system
+  diceopt_kcd2 | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "diceopt-kcd2" is not set to runAsNonRoot
+  diceopt_kcd2 | gemini-2.5-flash | default | k8s/diceopt-deployment.yaml:None | no-read-only-root-fs | container "diceopt" does not have a read-only root file system
+  diceopt_kcd2 | gemini-2.5-flash | default | k8s/diceopt-deployment.yaml:None | run-as-non-root | container "diceopt" is not set to runAsNonRoot
+  diceopt_kcd2 | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "nginx" does not have a read-only root file system
+  diceopt_kcd2 | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "nginx" is not set to runAsNonRoot
+  diceopt_kcd2 | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "diceopt" does not have a read-only root file system
+  diceopt_kcd2 | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "diceopt" is not set to runAsNonRoot
+  diceopt_kcd2 | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "diceopt-kcd2" does not have a read-only root file system
+  diceopt_kcd2 | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "diceopt-kcd2" is not set to runAsNonRoot
+  diceopt_kcd2 | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "diceopt-kcd2" does not have a read-only root file system
+  diceopt_kcd2 | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "diceopt-kcd2" is not set to runAsNonRoot
+  parklandschooltimer | gemini-2.5-flash | default | k8s/parklandschooltimer-deployment.yaml:None | no-read-only-root-fs | container "parklandschooltimer" does not have a read-only root file system
+  parklandschooltimer | gemini-2.5-flash | default | k8s/parklandschooltimer-deployment.yaml:None | run-as-non-root | container "parklandschooltimer" is not set to runAsNonRoot
+  parklandschooltimer | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "parklandschooltimer" does not have a read-only root file system
+  parklandschooltimer | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "parklandschooltimer" is not set to runAsNonRoot
+  parklandschooltimer | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "parklandschooltimer" does not have a read-only root file system
+  parklandschooltimer | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "parklandschooltimer" is not set to runAsNonRoot
+  parklandschooltimer | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "parklandschooltimer" does not have a read-only root file system
+  parklandschooltimer | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "parklandschooltimer" is not set to runAsNonRoot
+  parklandschooltimer | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "parklandschooltimer" does not have a read-only root file system
+  parklandschooltimer | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "parklandschooltimer" is not set to runAsNonRoot
+  parklandschooltimer | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "parklandschooltimer" does not have a read-only root file system
+  parklandschooltimer | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "parklandschooltimer" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  realtime-chatting-webapp | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  realtime-chatting-webapp | gpt-5-mini | default | k8s/server-deployment.yaml:None | no-read-only-root-fs | container "server" does not have a read-only root file system
+  realtime-chatting-webapp | gpt-5-mini | default | k8s/server-deployment.yaml:None | run-as-non-root | container "server" is not set to runAsNonRoot
+  realtime-chatting-webapp | gpt-5-mini | default | k8s/mongo-statefulset.yaml:None | no-read-only-root-fs | container "mongo" does not have a read-only root file system
+  realtime-chatting-webapp | gpt-5-mini | default | k8s/mongo-statefulset.yaml:None | run-as-non-root | container "mongo" is not set to runAsNonRoot
+  csv-hero | gemini-2.5-flash | default | k8s/csv-hero-deployment.yaml:None | no-read-only-root-fs | container "csv-hero" does not have a read-only root file system
+  csv-hero | gemini-2.5-flash | default | k8s/csv-hero-deployment.yaml:None | run-as-non-root | container "csv-hero" is not set to runAsNonRoot
+  csv-hero | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "csv-hero" does not have a read-only root file system
+  csv-hero | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "csv-hero" is not set to runAsNonRoot
+  metathief | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "metathief" does not have a read-only root file system
+  metathief | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "metathief" is not set to runAsNonRoot
+  metathief | gpt-5-mini | default | k8s/metathief-deployment.yaml:None | no-read-only-root-fs | container "metathief" does not have a read-only root file system
+  metathief | gpt-5-mini | default | k8s/metathief-deployment.yaml:None | run-as-non-root | container "metathief" is not set to runAsNonRoot
+  metathief | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "metathief" does not have a read-only root file system
+  metathief | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "metathief" is not set to runAsNonRoot
+  deeplx-app | gemini-2.5-flash | default | k8s/deeplx-app-deployment.yaml:None | no-read-only-root-fs | container "deeplx-app" does not have a read-only root file system
+  deeplx-app | gemini-2.5-flash | default | k8s/deeplx-app-deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  deeplx-app | gemini-2.5-flash | default | k8s/deeplx-app-deployment.yaml:None | no-read-only-root-fs | container "deeplx-app" does not have a read-only root file system
+  deeplx-app | gemini-2.5-flash | default | k8s/deeplx-app-deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  deeplx-app | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "deeplx-app" does not have a read-only root file system
+  deeplx-app | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  deeplx-app | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  deeplx-app | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  deeplx-app | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "deeplx-app" does not have a read-only root file system
+  deeplx-app | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  deeplx-app | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "deeplx-app" does not have a read-only root file system
+  deeplx-app | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "deeplx-app" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "mtg-scryfall-randomizer" does not have a read-only root file system
+  mtg-scryfall-randomizer | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "mtg-scryfall-randomizer" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | gemini-2.5-flash | default | k8s/mtg-scryfall-randomizer-deployment.yaml:None | no-read-only-root-fs | container "mtg-scryfall-randomizer" does not have a read-only root file system
+  mtg-scryfall-randomizer | gemini-2.5-flash | default | k8s/mtg-scryfall-randomizer-deployment.yaml:None | run-as-non-root | container "mtg-scryfall-randomizer" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "mtg-scryfall-randomizer" does not have a read-only root file system
+  mtg-scryfall-randomizer | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "mtg-scryfall-randomizer" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  mtg-scryfall-randomizer | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "mtg-scryfall-randomizer" does not have a read-only root file system
+  mtg-scryfall-randomizer | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "mtg-scryfall-randomizer" is not set to runAsNonRoot
+  mtg-scryfall-randomizer | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "mtg-scryfall-randomizer" does not have a read-only root file system
+  mtg-scryfall-randomizer | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "mtg-scryfall-randomizer" is not set to runAsNonRoot
+  vesen | gemini-2.5-flash | default | k8s/vesen-deployment.yaml:None | no-read-only-root-fs | container "vesen" does not have a read-only root file system
+  vesen | gemini-2.5-flash | default | k8s/vesen-deployment.yaml:None | run-as-non-root | container "vesen" is not set to runAsNonRoot
+  vesen | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "vesen" does not have a read-only root file system
+  vesen | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "vesen" is not set to runAsNonRoot
+  vesen | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "vesen" does not have a read-only root file system
+  vesen | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "vesen" is not set to runAsNonRoot
+  webclient | gemini-2.5-flash | default | k8s/webclient-deployment.yaml:None | no-read-only-root-fs | container "webclient" does not have a read-only root file system
+  webclient | gemini-2.5-flash | default | k8s/webclient-deployment.yaml:None | run-as-non-root | container "webclient" is not set to runAsNonRoot
+  webclient | gpt-5-mini | default | k8s/webclient-deployment.yaml:None | no-read-only-root-fs | container "webclient" does not have a read-only root file system
+  webclient | gpt-5-mini | default | k8s/webclient-deployment.yaml:None | run-as-non-root | container "webclient" is not set to runAsNonRoot
+  webclient | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "webclient" does not have a read-only root file system
+  webclient | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "webclient" is not set to runAsNonRoot
+  webclient | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "webclient" does not have a read-only root file system
+  webclient | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "webclient" is not set to runAsNonRoot
+  webclient | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "webclient" does not have a read-only root file system
+  webclient | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "webclient" is not set to runAsNonRoot
+  chessable | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  chessable | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  chessable | gemini-2.5-flash | default | k8s/chessable-deployment.yaml:None | no-read-only-root-fs | container "chessable" does not have a read-only root file system
+  chessable | gemini-2.5-flash | default | k8s/chessable-deployment.yaml:None | run-as-non-root | container "chessable" is not set to runAsNonRoot
+  chessable | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  chessable | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  chessable | gemini-2.5-flash | default | k8s/chessable-deployment.yaml:None | no-read-only-root-fs | container "chessable" does not have a read-only root file system
+  chessable | gemini-2.5-flash | default | k8s/chessable-deployment.yaml:None | run-as-non-root | container "chessable" is not set to runAsNonRoot
+  chessable | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "chessable" does not have a read-only root file system
+  chessable | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "chessable" is not set to runAsNonRoot
+  chessable | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "chessable" does not have a read-only root file system
+  chessable | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "chessable" is not set to runAsNonRoot
+  chessable | deepseek-chat | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  chessable | deepseek-chat | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  chessable | deepseek-chat | default | k8s/chessable-deployment.yaml:None | no-read-only-root-fs | container "chessable" does not have a read-only root file system
+  chessable | deepseek-chat | default | k8s/chessable-deployment.yaml:None | run-as-non-root | container "chessable" is not set to runAsNonRoot
+  chessable | deepseek-chat | default | k8s/chessable-deployment.yaml:None | no-read-only-root-fs | container "chessable" does not have a read-only root file system
+  chessable | deepseek-chat | default | k8s/chessable-deployment.yaml:None | run-as-non-root | container "chessable" is not set to runAsNonRoot
+  chessable | deepseek-chat | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  chessable | deepseek-chat | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  class-order-checker | gemini-2.5-flash | default | k8s/class-order-checker-deployment.yaml:None | no-read-only-root-fs | container "class-order-checker" does not have a read-only root file system
+  class-order-checker | gemini-2.5-flash | default | k8s/class-order-checker-deployment.yaml:None | run-as-non-root | container "class-order-checker" is not set to runAsNonRoot
+  class-order-checker | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "class-order-checker" does not have a read-only root file system
+  class-order-checker | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "class-order-checker" is not set to runAsNonRoot
+  class-order-checker | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "class-order-checker" does not have a read-only root file system
+  class-order-checker | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "class-order-checker" is not set to runAsNonRoot
+  class-order-checker | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "class-order-checker" does not have a read-only root file system
+  class-order-checker | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "class-order-checker" is not set to runAsNonRoot
+  class-order-checker | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "class-order-checker" does not have a read-only root file system
+  class-order-checker | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "class-order-checker" is not set to runAsNonRoot
+  class-order-checker | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  class-order-checker | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  adsensedetective | gemini-2.5-flash | default | k8s/adsensedetective-deployment.yaml:None | no-read-only-root-fs | container "adsensedetective" does not have a read-only root file system
+  adsensedetective | gemini-2.5-flash | default | k8s/adsensedetective-deployment.yaml:None | run-as-non-root | container "adsensedetective" is not set to runAsNonRoot
+  adsensedetective | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "app" does not have a read-only root file system
+  mario-kart-tournament | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "mario-kart-tournament" does not have a read-only root file system
+  mario-kart-tournament | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "mario-kart-tournament" is not set to runAsNonRoot
+  mario-kart-tournament | gemini-2.5-flash | default | k8s/mario-kart-tournament-deployment.yaml:None | no-read-only-root-fs | container "mario-kart-tournament" does not have a read-only root file system
+  mario-kart-tournament | gemini-2.5-flash | default | k8s/mario-kart-tournament-deployment.yaml:None | run-as-non-root | container "mario-kart-tournament" is not set to runAsNonRoot
+  mario-kart-tournament | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "app" does not have a read-only root file system
+  mario-kart-tournament | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "app" is not set to runAsNonRoot
+  mario-kart-tournament | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "app" does not have a read-only root file system
+  mario-kart-tournament | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "app" is not set to runAsNonRoot
+  mario-kart-tournament | gpt-5-mini | default | k8s/deployment-with-pvc.yaml:None | no-read-only-root-fs | container "app" does not have a read-only root file system
+  mario-kart-tournament | gpt-5-mini | default | k8s/deployment-with-pvc.yaml:None | run-as-non-root | container "app" is not set to runAsNonRoot
+  mario-kart-tournament | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "mario-kart-tournament" does not have a read-only root file system
+  mario-kart-tournament | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "mario-kart-tournament" is not set to runAsNonRoot
+  tempo-sync | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "tempo-sync" does not have a read-only root file system
+  tempo-sync | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  tempo-sync | gemini-2.5-flash | default | k8s/tempo-sync-deployment.yaml:None | no-read-only-root-fs | container "tempo-sync" does not have a read-only root file system
+  tempo-sync | gemini-2.5-flash | default | k8s/tempo-sync-deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  tempo-sync | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "tempo-sync" does not have a read-only root file system
+  tempo-sync | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  tempo-sync | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "tempo-sync" does not have a read-only root file system
+  tempo-sync | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  tempo-sync | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "tempo-sync" does not have a read-only root file system
+  tempo-sync | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  tempo-sync | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "tempo-sync" is not set to runAsNonRoot
+  attendence-calculator | gemini-2.5-flash | default | k8s/attendence-calculator-deployment.yaml:None | no-read-only-root-fs | container "attendence-calculator" does not have a read-only root file system
+  attendence-calculator | gemini-2.5-flash | default | k8s/attendence-calculator-deployment.yaml:None | run-as-non-root | container "attendence-calculator" is not set to runAsNonRoot
+  attendence-calculator | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "attendence-calculator" does not have a read-only root file system
+  attendence-calculator | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "attendence-calculator" is not set to runAsNonRoot
+  attendence-calculator | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "attendance" does not have a read-only root file system
+  attendence-calculator | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "attendance" is not set to runAsNonRoot
+  attendence-calculator | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "web" does not have a read-only root file system
+  attendence-calculator | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "web" is not set to runAsNonRoot
+  attendence-calculator | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "attendance-calculator" does not have a read-only root file system
+  attendence-calculator | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "attendance-calculator" is not set to runAsNonRoot
+  attendence-calculator | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "attendance-calculator" does not have a read-only root file system
+  attendence-calculator | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "attendance-calculator" is not set to runAsNonRoot
+  scheme-seva | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  scheme-seva | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  scheme-seva | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  scheme-seva | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  scheme-seva | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  scheme-seva | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  scheme-seva | gemini-2.5-flash | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  scheme-seva | gpt-5-mini | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  scheme-seva | gpt-5-mini | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  scheme-seva | gpt-5-mini | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | default | k8s/mongodb-init-job.yaml:None | job-ttl-seconds-after-finished | Standalone Job does not specify ttlSecondsAfterFinished
+  scheme-seva | gpt-5-mini | default | k8s/mongodb-init-job.yaml:None | no-read-only-root-fs | container "mongo-init" does not have a read-only root file system
+  scheme-seva | gpt-5-mini | default | k8s/mongodb-init-job.yaml:None | run-as-non-root | container "mongo-init" is not set to runAsNonRoot
+  scheme-seva | gpt-5-mini | default | k8s/mongodb-init-job.yaml:None | unset-cpu-requirements | container "mongo-init" has cpu request 0
+  scheme-seva | gpt-5-mini | default | k8s/mongodb-init-job.yaml:None | unset-memory-requirements | container "mongo-init" has memory limit 0
+  scheme-seva | deepseek-chat | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  scheme-seva | deepseek-chat | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  scheme-seva | deepseek-chat | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  scheme-seva | deepseek-chat | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  scheme-seva | deepseek-chat | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  scheme-seva | deepseek-chat | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  scheme-seva | deepseek-chat | default | k8s/mongodb-statefulset.yaml:None | no-read-only-root-fs | container "mongodb" does not have a read-only root file system
+  scheme-seva | deepseek-chat | default | k8s/mongodb-statefulset.yaml:None | run-as-non-root | container "mongodb" is not set to runAsNonRoot
+  scheme-seva | deepseek-chat | default | k8s/backend-deployment.yaml:None | no-read-only-root-fs | container "backend" does not have a read-only root file system
+  scheme-seva | deepseek-chat | default | k8s/backend-deployment.yaml:None | run-as-non-root | container "backend" is not set to runAsNonRoot
+  scheme-seva | deepseek-chat | default | k8s/frontend-deployment.yaml:None | no-read-only-root-fs | container "frontend" does not have a read-only root file system
+  scheme-seva | deepseek-chat | default | k8s/frontend-deployment.yaml:None | run-as-non-root | container "frontend" is not set to runAsNonRoot
+  hello-world-war | gemini-2.5-flash | default | k8s/hello-world-deployment.yaml:None | no-read-only-root-fs | container "hello-world-war" does not have a read-only root file system
+  hello-world-war | gemini-2.5-flash | default | k8s/hello-world-deployment.yaml:None | run-as-non-root | container "hello-world-war" is not set to runAsNonRoot
+  hello-world-war | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "hello-world-war" does not have a read-only root file system
+  hello-world-war | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "hello-world-war" is not set to runAsNonRoot
+  hello-world-war | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "hello-world" does not have a read-only root file system
+  hello-world-war | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "hello-world" is not set to runAsNonRoot
+  hello-world-war | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "hello-world" does not have a read-only root file system
+  hello-world-war | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "hello-world" is not set to runAsNonRoot
+  hello-world-war | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "hello-world-war" does not have a read-only root file system
+  hello-world-war | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "hello-world-war" is not set to runAsNonRoot
+  hello-world-war | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "hello-world-war" does not have a read-only root file system
+  hello-world-war | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "hello-world-war" is not set to runAsNonRoot
+  openai-hello-world | gemini-2.5-flash | default | k8s/openai-hello-world-deployment.yaml:None | no-read-only-root-fs | container "openai-hello-world" does not have a read-only root file system
+  openai-hello-world | gemini-2.5-flash | default | k8s/openai-hello-world-deployment.yaml:None | run-as-non-root | container "openai-hello-world" is not set to runAsNonRoot
+  openai-hello-world | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "openai-hello-world" does not have a read-only root file system
+  openai-hello-world | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "openai-hello-world" is not set to runAsNonRoot
+  openai-hello-world | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "openai-hello-world" does not have a read-only root file system
+  openai-hello-world | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "openai-hello-world" is not set to runAsNonRoot
+  openai-hello-world | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "app" does not have a read-only root file system
+  openai-hello-world | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "app" is not set to runAsNonRoot
+  todo-list | gemini-2.5-flash | default | k8s/todo-list-deployment.yaml:None | no-read-only-root-fs | container "todo-list" does not have a read-only root file system
+  todo-list | gemini-2.5-flash | default | k8s/todo-list-deployment.yaml:None | run-as-non-root | container "todo-list" is not set to runAsNonRoot
+  todo-list | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "todo-list" does not have a read-only root file system
+  todo-list | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "todo-list" is not set to runAsNonRoot
+  todo-list | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "todo-frontend" does not have a read-only root file system
+  todo-list | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "todo-frontend" is not set to runAsNonRoot
+  todo-list | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "todo-list" does not have a read-only root file system
+  todo-list | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "todo-list" is not set to runAsNonRoot
+  todo-list | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "todo-list" does not have a read-only root file system
+  todo-list | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "todo-list" is not set to runAsNonRoot
+  todo-list | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "todo-list" does not have a read-only root file system
+  todo-list | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "todo-list" is not set to runAsNonRoot
+  simple-webapp-flask | gemini-2.5-flash | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "simple-webapp-flask" does not have a read-only root file system
+  simple-webapp-flask | gemini-2.5-flash | default | k8s/deployment.yaml:None | run-as-non-root | container "simple-webapp-flask" is not set to runAsNonRoot
+  simple-webapp-flask | gemini-2.5-flash | default | k8s/flask-deployment.yaml:None | no-read-only-root-fs | container "flask-app" does not have a read-only root file system
+  simple-webapp-flask | gemini-2.5-flash | default | k8s/flask-deployment.yaml:None | run-as-non-root | container "flask-app" is not set to runAsNonRoot
+  simple-webapp-flask | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "simple-webapp-flask" does not have a read-only root file system
+  simple-webapp-flask | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "simple-webapp-flask" is not set to runAsNonRoot
+  simple-webapp-flask | gpt-5-mini | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "simple-webapp-flask" does not have a read-only root file system
+  simple-webapp-flask | gpt-5-mini | default | k8s/deployment.yaml:None | run-as-non-root | container "simple-webapp-flask" is not set to runAsNonRoot
+  simple-webapp-flask | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "webapp" does not have a read-only root file system
+  simple-webapp-flask | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "webapp" is not set to runAsNonRoot
+  simple-webapp-flask | deepseek-chat | default | k8s/deployment.yaml:None | no-read-only-root-fs | container "webapp" does not have a read-only root file system
+  simple-webapp-flask | deepseek-chat | default | k8s/deployment.yaml:None | run-as-non-root | container "webapp" is not set to runAsNonRoot
+
+================================================================================
+H4 REPEATABILITY ANALYSIS
+================================================================================
+
+Total groups analyzed: 73
+Diff threshold: 0.2
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: math-pdf-generator-web
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.3333 (33.33%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.3333 (33.33%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: math-pdf-generator-web
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.4251 (142.51%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.4251 (142.51%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 11.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: math-pdf-generator-web
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.0168 (101.68%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.0168 (101.68%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 15.50 ± 1.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: simple-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.2470 (124.70%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.2470 (124.70%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 18.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: simple-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.6353 (63.53%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.6353 (63.53%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 35.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: simple-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.2810 (128.10%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.2810 (128.10%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 38.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: banner-designer-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.8571 (85.71%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.8571 (85.71%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 7.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: banner-designer-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.6981 (69.81%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.6981 (69.81%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 28.50 ± 5.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: banner-designer-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.1310 (13.10%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.1310 (13.10%)
+    Pairs exceeding threshold: 0/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 23.00 ± 3.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: lsfont
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.3714 (37.14%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.3714 (37.14%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 7.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: lsfont
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.3636 (36.36%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.3636 (36.36%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 11.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: lsfont
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5333 (53.33%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5333 (53.33%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 28.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: airwatch
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5461 (54.61%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5461 (54.61%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 25.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: airwatch
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.7490 (74.90%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.7490 (74.90%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 41.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: airwatch
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.7317 (73.17%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.7317 (73.17%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 66.00 ± 7.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: diceopt_kcd2
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5676 (56.76%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5676 (56.76%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: diceopt_kcd2
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.9880 (98.80%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.9880 (98.80%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 17.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: diceopt_kcd2
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.0383 (103.83%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.0383 (103.83%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 18.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: parklandschooltimer
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5732 (57.32%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5732 (57.32%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: parklandschooltimer
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.3571 (35.71%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.3571 (35.71%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 12.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: parklandschooltimer
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.0690 (6.90%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.0690 (6.90%)
+    Pairs exceeding threshold: 0/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 22.50 ± 2.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: realtime-chatting-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.2879 (128.79%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.2879 (128.79%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 18.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: realtime-chatting-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.5459 (154.59%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.5459 (154.59%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 30.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: realtime-chatting-webapp
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5271 (52.71%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5271 (52.71%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 37.50 ± 3.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: csv-hero
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.6961 (69.61%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.6961 (69.61%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 7.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: csv-hero
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.4272 (42.72%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.4272 (42.72%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 20.50 ± 5.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: csv-hero
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.8311 (83.11%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.8311 (83.11%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 22.50 ± 4.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: metathief
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5179 (51.79%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5179 (51.79%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 7.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: metathief
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.4933 (49.33%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.4933 (49.33%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 27.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: metathief
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5612 (56.12%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5612 (56.12%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 25.50 ± 4.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: deeplx-app
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.4906 (49.06%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.4906 (49.06%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: deeplx-app
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.7619 (76.19%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.7619 (76.19%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 11.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: deeplx-app
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.2460 (24.60%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.2460 (24.60%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 20.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: mtg-scryfall-randomizer
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.4509 (45.09%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.4509 (45.09%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 7.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: mtg-scryfall-randomizer
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.4235 (42.35%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.4235 (42.35%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 13.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: mtg-scryfall-randomizer
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.2295 (22.95%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.2295 (22.95%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 17.50 ± 1.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: vesen
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.9778 (97.78%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.9778 (97.78%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 8.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: vesen
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.3575 (35.75%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.3575 (35.75%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 22.50 ± 1.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: vesen
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.1982 (19.82%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.1982 (19.82%)
+    Pairs exceeding threshold: 0/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 20.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: webclient
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.7418 (74.18%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.7418 (74.18%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 8.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: webclient
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.1463 (114.63%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.1463 (114.63%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 37.50 ± 3.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: webclient
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.4299 (42.99%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.4299 (42.99%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 24.50 ± 1.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: chessable
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5799 (57.99%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5799 (57.99%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 15.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: chessable
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.8691 (86.91%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.8691 (86.91%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 16.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: chessable
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.6509 (65.09%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.6509 (65.09%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 34.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: class-order-checker
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.7626 (76.26%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.7626 (76.26%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: class-order-checker
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.0682 (106.82%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.0682 (106.82%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 14.00 ± 4.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: class-order-checker
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.0690 (6.90%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.0690 (6.90%)
+    Pairs exceeding threshold: 0/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 20.50 ± 2.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: adsensedetective
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.4712 (47.12%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.4712 (47.12%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 7.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: adsensedetective
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.4727 (47.27%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.4727 (47.27%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 21.00 ± 1.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: mario-kart-tournament
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.8571 (85.71%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.8571 (85.71%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 12.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: mario-kart-tournament
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.3086 (130.86%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.3086 (130.86%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 23.50 ± 4.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: tempo-sync
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.3529 (35.29%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.3529 (35.29%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: tempo-sync
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.8317 (83.17%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.8317 (83.17%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 10.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: tempo-sync
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.2000 (120.00%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.2000 (120.00%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 23.00 ± 3.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: attendence-calculator
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.2778 (27.78%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.2778 (27.78%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: attendence-calculator
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.1214 (112.14%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.1214 (112.14%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 12.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: attendence-calculator
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.1818 (18.18%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.1818 (18.18%)
+    Pairs exceeding threshold: 0/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 19.00 ± 2.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: scheme-seva
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.7636 (76.36%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.7636 (76.36%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 25.50 ± 1.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: scheme-seva
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.7792 (77.92%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.7792 (77.92%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 56.50 ± 10.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: scheme-seva
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.6289 (62.89%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.6289 (62.89%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 45.50 ± 5.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: hello-world-war
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.3313 (33.13%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.3313 (33.13%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: hello-world-war
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.2485 (24.85%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.2485 (24.85%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 18.00 ± 3.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: hello-world-war
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.1290 (12.90%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.1290 (12.90%)
+    Pairs exceeding threshold: 0/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 26.00 ± 8.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: openai-hello-world
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.9818 (98.18%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.9818 (98.18%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 13.50 ± 4.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: openai-hello-world
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5225 (52.25%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5225 (52.25%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 32.00 ± 5.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: openai-hello-world
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.5101 (51.01%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.5101 (51.01%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 32.50 ± 5.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: todo-list
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.3841 (38.41%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.3841 (38.41%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 6.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: todo-list
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.1243 (112.43%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.1243 (112.43%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 12.50 ± 0.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: todo-list
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.0225 (2.25%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.0225 (2.25%)
+    Pairs exceeding threshold: 0/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 17.50 ± 2.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gemini-2.5-flash (google_gemini_2.5_flash)
+Repository: simple-webapp-flask
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.8280 (82.80%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.8280 (82.80%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 8.00 ± 0.00
+
+────────────────────────────────────────────────────────────────────────────────
+Model: gpt-5-mini (openai_gpt5_mini)
+Repository: simple-webapp-flask
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 1.0576 (105.76%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 1.0576 (105.76%)
+    Pairs exceeding threshold: 1/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 15.50 ± 1.50
+
+────────────────────────────────────────────────────────────────────────────────
+Model: deepseek-chat (deepseek_v3_2)
+Repository: simple-webapp-flask
+Runs recorded: 2
+
+  File Similarity:
+    Average diff ratio: 0.1319 (13.19%)
+    Std dev diff ratio: 0.0000
+    Max diff ratio: 0.1319 (13.19%)
+    Pairs exceeding threshold: 0/1
+
+  Success Rates:
+
+  Overall Score Statistics:
+
+  Tool Steps: 19.50 ± 2.50
+
+================================================================================
+AGGREGATE STATISTICS PER MODEL:
+================================================================================
+
+Model: google_gemini_2.5_flash
+  Repos analyzed: 25
+  Avg diff ratio: 0.6500 ± 0.2723 (65.00%)
+  Avg tool steps: 10.00 ± 5.75
+  Avg tool steps std (instability): 0.60
+
+Model: openai_gpt5_mini
+  Repos analyzed: 25
+  Avg diff ratio: 0.7910 ± 0.3577 (79.10%)
+  Avg tool steps: 22.00 ± 11.34
+  Avg tool steps std (instability): 2.40
+
+Model: deepseek_v3_2
+  Repos analyzed: 23
+  Avg diff ratio: 0.4934 ± 0.3735 (49.34%)
+  Avg tool steps: 26.78 ± 11.25
+  Avg tool steps std (instability): 3.00
+
+================================================================================
+OVERALL AGGREGATE (ALL MODELS):
+================================================================================
+Total groups analyzed: 73
+Avg diff ratio: 0.6489 ± 0.3574 (64.89%)
+Median diff ratio: 0.5732 (57.32%)
+Avg tool steps: 19.40 ± 12.04
+Avg tool steps std (instability): 1.97
+Median tool steps std: 1.50

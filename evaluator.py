@@ -91,10 +91,10 @@ def evaluate_single_repo(repo_url: str):
     logger = logging.getLogger(__name__)
 
     generator_config = GeneratorConfig(
-        # model_provider="google_genai",
-        # model_name="gemini-2.5-flash",
-        model_provider="openai",
-        model_name="gpt-5-mini",
+        model_provider="google_genai",
+        model_name="gemini-2.5-flash",
+        # model_provider="openai",
+        # model_name="gpt-5-mini",
         # model_provider="anthropic",
         # model_name="claude-haiku-4-5-20251001",
         # model_provider="deepseek",

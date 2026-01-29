@@ -67,7 +67,7 @@ def stage_value(run: Dict, stage: str) -> Optional[bool]:
         gen_result = run.get("generation_result") or {}
         k8s_manifests = gen_result.get("k8s_manifests") or []
         if not k8s_manifests:
-            return None  # No K8s manifests, so apply doesn't apply
+            return False  # No K8s manifests generated - treat as failure
 
         # If manifests exist, check if they were successfully validated/applied
         qb = ((run.get("quality_metrics") or {}).get("scoring_breakdown") or {})
