@@ -7,11 +7,11 @@ class GeneratorConfig(BaseModel):
     """Configuration settings for the configuration generator."""
 
     # Docker settings
-    docker_registry: str = Field(default_factory=lambda: os.environ.get('REGISTRY_URL', '192.168.0.124:32000'))
+    docker_registry: str = Field(default_factory=lambda: os.environ.get('REGISTRY_URL', '192.168.1.39:32000'))
     default_image_tag: str = "latest"
 
     # Kubernetes settings
-    k8s_cluster_ip: str = Field(default_factory=lambda: os.environ.get('K8S_CLUSTER_IP', '192.168.0.124'))
+    k8s_cluster_ip: str = Field(default_factory=lambda: os.environ.get('K8S_CLUSTER_IP', '192.168.1.39'))
     domain_suffix: str = "rasztabiga.me"
 
     # LLM settings
