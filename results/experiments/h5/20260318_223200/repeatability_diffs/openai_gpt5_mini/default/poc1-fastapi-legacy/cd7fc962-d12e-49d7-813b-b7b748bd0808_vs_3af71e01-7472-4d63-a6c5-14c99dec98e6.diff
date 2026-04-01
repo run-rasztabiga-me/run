@@ -1,0 +1,229 @@
+--- cd7fc962-d12e-49d7-813b-b7b748bd0808
++++ 3af71e01-7472-4d63-a6c5-14c99dec98e6
+@@ -1,80 +1,51 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set environment
+-ENV PYTHONDONTWRITEBYTECODE=1 \
+-    PYTHONUNBUFFERED=1 \
+-    PORT=8080
+-
++# set workdir
+ WORKDIR /app
+ 
+-# Install system deps
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
++# Install build dependencies and cleanup
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends gcc build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install
+-COPY requirements.txt .
++# copy requirements and install
++COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application code
+-COPY app ./app
++# copy application
++COPY . /app
+ 
++ENV PORT=8080
+ EXPOSE 8080
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/README.txt
+-Kubernetes manifests for poc1-fastapi-legacy
+-
+-Apply resources in this order:
+-  kubectl apply -f k8s/namespace.yaml
+-  kubectl apply -f k8s/redis-statefulset.yaml
+-  kubectl apply -f k8s/redis-service.yaml
+-  kubectl apply -f k8s/redis-secret.yaml
+-  kubectl apply -f k8s/backend-deployment.yaml
+-  kubectl apply -f k8s/backend-service.yaml
+-  kubectl apply -f k8s/ingress.yaml
++CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy-backend
++  name: poc1-fastapi-backend
+   labels:
+-    app: poc1-fastapi-legacy
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
++        app: poc1-fastapi
+     spec:
+-      initContainers:
+-        - name: wait-for-redis
+-          image: redis:7.0-alpine
+-          command:
+-            - sh
+-            - -c
+-            - |
+-              until redis-cli -h poc1-redis ping 2>/dev/null; do
+-                echo "waiting for redis";
+-                sleep 1;
+-              done
+       containers:
+         - name: backend
+-          image: backend
++          image: backend:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
+           env:
+             - name: PORT
+               value: "8080"
+-            - name: APP_ENV
+-              value: "production"
+-            - name: REDIS_URL
+-              value: "redis://poc1-redis:6379/0"
+           resources:
+             requests:
+               cpu: "100m"
+@@ -93,44 +64,50 @@
+               path: /
+               port: 8080
+             initialDelaySeconds: 5
+-            periodSeconds: 5
++            periodSeconds: 10
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-legacy-backend
++  name: poc1-fastapi-svc
++  labels:
++    app: poc1-fastapi
+ spec:
+   selector:
+-    app: poc1-fastapi-legacy
++    app: poc1-fastapi
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 8080
+   type: ClusterIP
++@@FILE:K8s::k8s/configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: poc1-config
++data:
++  APP_ENV: "production"
++  PORT: "8080"
++  REDIS_URL: "redis://poc1-redis:6379/0"
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-legacy-ingress
++  name: poc1-fastapi-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi-legacy.rasztabiga.me
+       http:
+         paths:
+-          - path: /
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-legacy-backend
++                name: poc1-fastapi-svc
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-legacy
+-@@FILE:K8s::k8s/postgres-placeholder.yaml
+-# No Postgres used by this app. Placeholder - intentionally empty.
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -138,7 +115,8 @@
+   name: poc1-redis-secret
+ type: Opaque
+ stringData:
+-  REDIS_URL: "redis://poc1-redis:6379/0"
++  # not strictly required by the application, but included for completeness
++  redis-password: "redispassword"
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -150,16 +128,14 @@
+   ports:
+     - port: 6379
+       targetPort: 6379
++  clusterIP: None
+   selector:
+     app: poc1-redis
+-  clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: poc1-redis
+-  labels:
+-    app: poc1-redis
+ spec:
+   serviceName: "poc1-redis"
+   replicas: 1
+@@ -173,25 +149,31 @@
+     spec:
+       containers:
+         - name: redis
+-          image: redis:7.0-alpine
++          image: redis:7.2-alpine
++          imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 6379
++          env:
++            - name: REDIS_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: poc1-redis-secret
++                  key: redis-password
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "64Mi"
++              cpu: "100m"
++              memory: "128Mi"
+             limits:
+-              cpu: "250m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           volumeMounts:
+             - name: redis-data
+               mountPath: /data
+-          args: ["redis-server", "--appendonly", "yes"]
+   volumeClaimTemplates:
+     - metadata:
+         name: redis-data
+       spec:
+-        accessModes: ["ReadWriteOnce"]
++        accessModes: [ "ReadWriteOnce" ]
+         resources:
+           requests:
+             storage: 1Gi

@@ -1,0 +1,49 @@
+--- 53bb05d0-231c-4b58-80f5-df55ff23b1d0
++++ 148fac1d-dc4c-4797-ae6a-6e9363a8f5bb
+@@ -3,9 +3,8 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
++# Install system dependencies if needed
+ RUN apt-get update && apt-get install -y \
+-    gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements first for better caching
+@@ -42,20 +41,29 @@
+       - name: fastapi-app
+         image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 8000
+         securityContext:
+           privileged: true
+-        ports:
+-        - containerPort: 8000
+         resources:
+           requests:
+             memory: "128Mi"
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "500m"
+-        env:
+-        - name: PYTHONUNBUFFERED
+-          value: "1"
++            cpu: "200m"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 30
++          periodSeconds: 10
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress

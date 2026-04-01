@@ -1,0 +1,63 @@
+--- df43efb8-3b38-475c-86a9-db49c7ddff07
++++ 09c92511-6ed5-476b-a39e-9c77ab1e7510
+@@ -1,10 +1,11 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.12-slim
++FROM python:3.11-slim
+ 
+ WORKDIR /app
+ 
+ # Install system dependencies if needed
+-RUN apt-get update && apt-get install -y --no-install-recommends \
++RUN apt-get update && apt-get install -y \
++    gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements first for better caching
+@@ -14,7 +15,7 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port the app runs on
++# Expose the port FastAPI runs on
+ EXPOSE 8000
+ 
+ # Run the application with uvicorn
+@@ -52,17 +53,23 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "500m"
++            cpu: "200m"
++        # No liveness/readiness probes since no health endpoint exists
++        # Using simple command check instead
+         livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
++          exec:
++            command:
++            - sh
++            - -c
++            - 'curl -f http://localhost:8000/ || exit 1'
+           initialDelaySeconds: 30
+           periodSeconds: 10
+         readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
++          exec:
++            command:
++            - sh
++            - -c
++            - 'curl -f http://localhost:8000/ || exit 1'
+           initialDelaySeconds: 5
+           periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+@@ -97,5 +104,6 @@
+   ports:
+   - port: 80
+     targetPort: 8000
++    protocol: TCP
+     name: http
+   type: ClusterIP

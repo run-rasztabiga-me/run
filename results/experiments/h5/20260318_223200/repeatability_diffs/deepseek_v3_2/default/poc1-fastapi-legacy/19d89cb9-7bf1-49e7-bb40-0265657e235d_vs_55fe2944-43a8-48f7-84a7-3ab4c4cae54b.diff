@@ -1,0 +1,176 @@
+--- 19d89cb9-7bf1-49e7-bb40-0265657e235d
++++ 55fe2944-43a8-48f7-84a7-3ab4c4cae54b
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.11-slim
++FROM python:3.12-slim
+ 
+ WORKDIR /app
+ 
+@@ -43,14 +43,16 @@
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+-          name: http
+         env:
+         - name: APP_ENV
+           value: "production"
+         - name: PORT
+           value: "8080"
+         - name: REDIS_URL
+-          value: "redis://redis:6379/0"
++          valueFrom:
++            secretKeyRef:
++              name: redis-secret
++              key: redis-url
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -64,28 +66,23 @@
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-          timeoutSeconds: 5
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-          timeoutSeconds: 3
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app
+-  labels:
+-    app: fastapi-app
++  name: fastapi-service
+ spec:
+   selector:
+     app: fastapi-app
+   ports:
+   - port: 80
+     targetPort: 8080
+-    name: http
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -103,57 +100,36 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app
++            name: fastapi-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/redis-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: redis-data-pvc
+-  labels:
+-    app: redis
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: redis-secret
+-  labels:
+-    app: redis
+ type: Opaque
+ data:
+-  redis-password: cmVkaXMtcGFzc3dvcmQ=  # redis-password in base64
++  redis-url: cmVkaXM6Ly9yZWRpczo2Mzc5LzA=
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: redis
+-  labels:
+-    app: redis
++  name: redis-service
+ spec:
+   selector:
+     app: redis
+   ports:
+   - port: 6379
+     targetPort: 6379
+-    name: redis
+-  clusterIP: None
++  type: ClusterIP
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
+-  labels:
+-    app: redis
+ spec:
+-  serviceName: redis
++  serviceName: redis-service
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -166,20 +142,10 @@
+       containers:
+       - name: redis
+         image: redis:7-alpine
++        imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 6379
+           name: redis
+-        env:
+-        - name: REDIS_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: redis-secret
+-              key: redis-password
+-        command: ["redis-server"]
+-        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+-        volumeMounts:
+-        - name: redis-data
+-          mountPath: /data
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -187,17 +153,24 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
++        volumeMounts:
++        - name: redis-data
++          mountPath: /data
+         livenessProbe:
+-          tcpSocket:
+-            port: 6379
++          exec:
++            command: ["redis-cli", "ping"]
+           initialDelaySeconds: 30
+           periodSeconds: 10
+         readinessProbe:
+-          tcpSocket:
+-            port: 6379
++          exec:
++            command: ["redis-cli", "ping"]
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-      volumes:
+-      - name: redis-data
+-        persistentVolumeClaim:
+-          claimName: redis-data-pvc
++  volumeClaimTemplates:
++  - metadata:
++      name: redis-data
++    spec:
++      accessModes: [ "ReadWriteOnce" ]
++      resources:
++        requests:
++          storage: 1Gi

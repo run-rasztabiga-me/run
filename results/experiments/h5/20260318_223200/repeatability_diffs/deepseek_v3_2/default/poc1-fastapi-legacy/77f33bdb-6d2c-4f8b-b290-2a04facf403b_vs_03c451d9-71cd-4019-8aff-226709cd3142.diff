@@ -1,0 +1,274 @@
+--- 77f33bdb-6d2c-4f8b-b290-2a04facf403b
++++ 03c451d9-71cd-4019-8aff-226709cd3142
+@@ -14,21 +14,18 @@
+ 
+ # Copy application code
+ COPY app/ ./app/
+-COPY .env.example .env
+ 
+-# Expose port
++# Expose the port the app runs on
+ EXPOSE 8080
+ 
+-# Run the application
++# Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/fastapi-configmap.yaml
++@@FILE:K8s::k8s/configmap.yaml
+ apiVersion: v1
+ kind: ConfigMap
+ metadata:
+   name: fastapi-config
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++  namespace: default
+ data:
+   APP_ENV: "production"
+   PORT: "8080"
+@@ -37,55 +34,43 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi
++  name: fastapi-app
++  namespace: default
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
+-      component: fastapi
++      app: fastapi-app
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
+-        component: fastapi
++        app: fastapi-app
+     spec:
+       containers:
+-      - name: fastapi
++      - name: fastapi-app
+         image: fastapi-app
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+-          name: http
+         env:
+         - name: APP_ENV
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: APP_ENV
++          value: "production"
+         - name: PORT
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: PORT
++          value: "8080"
+         - name: REDIS_URL
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: REDIS_URL
++          value: "redis://redis:6379/0"
+         resources:
+           requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
+             memory: "256Mi"
+             cpu: "200m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
+         livenessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 10
+@@ -93,7 +78,7 @@
+           failureThreshold: 3
+         readinessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8080
+           initialDelaySeconds: 5
+           periodSeconds: 5
+@@ -103,27 +88,26 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi
++  name: fastapi-service
++  namespace: default
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++    app: fastapi-app
+ spec:
+   selector:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++    app: fastapi-app
+   ports:
+   - port: 80
+     targetPort: 8080
+-    name: http
++    protocol: TCP
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: ingress
++  namespace: default
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -133,86 +117,53 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi
++            name: fastapi-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/redis-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: redis-data-pvc
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  # Use default storage class
+-@@FILE:K8s::k8s/redis-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: redis-secret
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
+-type: Opaque
+-data:
+-  # Default Redis password (empty string base64 encoded)
+-  redis-password: ""
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: redis
++  namespace: default
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
+ spec:
+   selector:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
+   ports:
+   - port: 6379
+     targetPort: 6379
+-    name: redis
+-  clusterIP: None  # Headless service for StatefulSet
++    protocol: TCP
++  type: ClusterIP
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
++  namespace: default
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
+ spec:
+   serviceName: redis
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
+-      component: redis
++      app: redis
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
+-        component: redis
++        app: redis
+     spec:
+       containers:
+       - name: redis
+         image: redis:7-alpine
++        imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 6379
+           name: redis
+-        env:
+-        - name: REDIS_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: redis-secret
+-              key: redis-password
++        command: ["redis-server"]
++        args: ["--appendonly", "yes"]
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -224,16 +175,23 @@
+         - name: redis-data
+           mountPath: /data
+         livenessProbe:
+-          tcpSocket:
+-            port: 6379
++          exec:
++            command: ["redis-cli", "ping"]
+           initialDelaySeconds: 30
+           periodSeconds: 10
++          timeoutSeconds: 5
+         readinessProbe:
+-          tcpSocket:
+-            port: 6379
++          exec:
++            command: ["redis-cli", "ping"]
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-      volumes:
+-      - name: redis-data
+-        persistentVolumeClaim:
+-          claimName: redis-data-pvc
++          timeoutSeconds: 3
++  volumeClaimTemplates:
++  - metadata:
++      name: redis-data
++    spec:
++      accessModes: [ "ReadWriteOnce" ]
++      storageClassName: "microk8s-hostpath"
++      resources:
++        requests:
++          storage: 1Gi

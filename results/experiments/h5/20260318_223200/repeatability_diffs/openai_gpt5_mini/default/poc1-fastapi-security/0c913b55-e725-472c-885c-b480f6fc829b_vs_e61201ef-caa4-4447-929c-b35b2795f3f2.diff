@@ -1,0 +1,74 @@
+--- 0c913b55-e725-472c-885c-b480f6fc829b
++++ e61201ef-caa4-4447-929c-b35b2795f3f2
+@@ -1,11 +1,16 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-ENV PYTHONUNBUFFERED=1
++# Set workdir
+ WORKDIR /app
+ 
+-# Install dependencies
+-COPY requirements.txt .
++# Install build deps and clean cache
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
++    && rm -rf /var/lib/apt/lists/*
++
++# Copy requirements and install
++COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+@@ -13,7 +18,6 @@
+ 
+ EXPOSE 8000
+ 
+-# Run the FastAPI app with Uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -45,33 +49,32 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+             initialDelaySeconds: 2
+             periodSeconds: 5
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+-      # hostNetwork and privileged are discouraged; omit them for safety
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-security
++  name: poc1-fastapi-security-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-security.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
+-            pathType: ImplementationSpecific
++          - path: /
++            pathType: Prefix
+             backend:
+               service:
+                 name: poc1-fastapi-security

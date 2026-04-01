@@ -1,0 +1,89 @@
+--- eaf9353e-a797-472a-a85a-b6aab36bff30
++++ a72db0c3-c4d6-4568-9628-f97efcc6b9b5
+@@ -1,33 +1,19 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Ensure pip is up-to-date
+-RUN pip install --no-cache-dir --upgrade pip
+-
+-# Copy requirements and application
++# Install build dependencies and application dependencies
+ COPY requirements.txt ./
+-COPY app/ ./app/
+-
+-# Install python dependencies
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Expose required production port (as specified in spec.md)
++# Copy application code
++COPY app ./app
++
+ EXPOSE 9000
+ 
+-ENV PYTHONUNBUFFERED=1
+-
+-# Run the app with uvicorn on port 9000
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+-@@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-spec
+-
+-Resources:
+-- deployment.yaml: Deployment for the FastAPI app
+-- service.yaml: ClusterIP Service exposing port 9000
+-- ingress.yaml: Ingress routing host poc1-fastapi-spec.rasztabiga.me to the service
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -46,12 +32,11 @@
+         app: poc1-fastapi-spec
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-spec:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+@@ -59,23 +44,25 @@
+             limits:
+               cpu: "500m"
+               memory: "256Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 9000
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 9000
+             initialDelaySeconds: 5
+-            periodSeconds: 5
++            periodSeconds: 10
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 9000
++            initialDelaySeconds: 15
++            periodSeconds: 20
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-spec
++  name: poc1-fastapi-spec-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me

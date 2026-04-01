@@ -1,0 +1,100 @@
+--- 82b6697b-be05-4299-bb66-f19073a6dc7d
++++ 520b70ad-582a-43d8-8600-b1c4135a8e9a
+@@ -4,12 +4,7 @@
+ # Set working directory
+ WORKDIR /app
+ 
+-# Install build deps
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# Copy requirements and install
++# Install build dependencies and runtime requirements
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+@@ -19,7 +14,7 @@
+ # Expose port
+ EXPOSE 8000
+ 
+-# Run as root (keeps simplicity for diagnostics per repo docs)
++# Run the app with uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -39,63 +34,53 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-        - name: app
++        - name: web
+           image: poc1-fastapi-security:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
++              name: http
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
++              memory: "256Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
++              path: / 
++              port: 8000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: / 
+               port: 8000
+             initialDelaySeconds: 5
+-            periodSeconds: 10
+-            timeoutSeconds: 3
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 2
+             periodSeconds: 5
+-            timeoutSeconds: 2
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-security-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi-security.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
++          - path: /
+             pathType: Prefix
+             backend:
+               service:
+                 name: poc1-fastapi-security
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-security
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: poc1-fastapi-security
+-  labels:
+-    app: poc1-fastapi-security
+ spec:
+   selector:
+     app: poc1-fastapi-security

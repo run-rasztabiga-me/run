@@ -1,0 +1,268 @@
+--- e53d4b95-b92a-4616-a63c-5598d118eccc
++++ 3af71e01-7472-4d63-a6c5-14c99dec98e6
+@@ -1,73 +1,51 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use official Python slim image
+ FROM python:3.11-slim
+ 
+-# Set working directory
++# set workdir
+ WORKDIR /app
+ 
+-# Install build dependencies
++# Install build dependencies and cleanup
+ RUN apt-get update \
+-    && apt-get install -y --no-install-recommends build-essential gcc \
++    && apt-get install -y --no-install-recommends gcc build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install
+-COPY requirements.txt .
++# copy requirements and install
++COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application code
+-COPY app ./app
++# copy application
++COPY . /app
+ 
+-# Expose port (default from .env.example)
++ENV PORT=8080
+ EXPOSE 8080
+ 
+-# Default command to run the app using uvicorn
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/README.txt
+-Kubernetes manifests for poc1-fastapi-legacy
+-
+-Apply in order:
+-1. kubectl apply -f k8s/namespace.yaml
+-2. kubectl apply -f k8s/redis-statefulset.yaml
+-3. kubectl apply -f k8s/redis-service.yaml
+-4. kubectl apply -f k8s/configmap.yaml
+-5. kubectl apply -f k8s/redis-secret.yaml
+-6. kubectl apply -f k8s/deployment.yaml
+-7. kubectl apply -f k8s/service.yaml
+-8. kubectl apply -f k8s/ingress.yaml
+-@@FILE:K8s::k8s/configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: poc1-config
+-data:
+-  REDIS_URL: "redis://poc1-redis:6379/0"
+-@@FILE:K8s::k8s/deployment.yaml
++CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
++@@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy
++  name: poc1-fastapi-backend
+   labels:
+-    app: poc1-fastapi-legacy
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
++        app: poc1-fastapi
+     spec:
+-      initContainers:
+-        - name: wait-for-redis
+-          image: redis:7.0-alpine
+-          command: ["sh", "-c", "until redis-cli -h poc1-redis -p 6379 ping; do echo waiting for redis; sleep 1; done"]
+       containers:
+-        - name: app
+-          image: poc1-fastapi-legacy
++        - name: backend
++          image: backend:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
++          env:
++            - name: PORT
++              value: "8080"
+           resources:
+             requests:
+               cpu: "100m"
+@@ -75,52 +53,61 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          readinessProbe:
++          livenessProbe:
+             httpGet:
+               path: /
+               port: 8080
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
+-            failureThreshold: 3
+-          livenessProbe:
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
+             httpGet:
+               path: /
+               port: 8080
+             initialDelaySeconds: 5
+             periodSeconds: 10
+-            failureThreshold: 3
+-          env:
+-            - name: PORT
+-              value: "8080"
+-            - name: REDIS_URL
+-              valueFrom:
+-                configMapKeyRef:
+-                  name: poc1-config
+-                  key: REDIS_URL
++@@FILE:K8s::k8s/backend-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: poc1-fastapi-svc
++  labels:
++    app: poc1-fastapi
++spec:
++  selector:
++    app: poc1-fastapi
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 8080
++  type: ClusterIP
++@@FILE:K8s::k8s/configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: poc1-config
++data:
++  APP_ENV: "production"
++  PORT: "8080"
++  REDIS_URL: "redis://poc1-redis:6379/0"
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-legacy-ingress
++  name: poc1-fastapi-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi-legacy.rasztabiga.me
+       http:
+         paths:
+-          - path: /
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-legacy
++                name: poc1-fastapi-svc
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-legacy
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -128,8 +115,8 @@
+   name: poc1-redis-secret
+ type: Opaque
+ stringData:
+-  # No password by default for the sample Redis instance. Placeholder in case deployments require it.
+-  REDIS_PASSWORD: ""
++  # not strictly required by the application, but included for completeness
++  redis-password: "redispassword"
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -141,8 +128,6 @@
+   ports:
+     - port: 6379
+       targetPort: 6379
+-      protocol: TCP
+-      name: redis
+   clusterIP: None
+   selector:
+     app: poc1-redis
+@@ -151,10 +136,8 @@
+ kind: StatefulSet
+ metadata:
+   name: poc1-redis
+-  labels:
+-    app: poc1-redis
+ spec:
+-  serviceName: poc1-redis
++  serviceName: "poc1-redis"
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -166,41 +149,31 @@
+     spec:
+       containers:
+         - name: redis
+-          image: redis:7.0-alpine
++          image: redis:7.2-alpine
++          imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 6379
++          env:
++            - name: REDIS_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: poc1-redis-secret
++                  key: redis-password
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "64Mi"
++              cpu: "100m"
++              memory: "128Mi"
+             limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           volumeMounts:
+-            - name: data
++            - name: redis-data
+               mountPath: /data
+   volumeClaimTemplates:
+     - metadata:
+-        name: data
++        name: redis-data
+       spec:
+         accessModes: [ "ReadWriteOnce" ]
+         resources:
+           requests:
+             storage: 1Gi
+-        # storageClassName omitted to use default
+-@@FILE:K8s::k8s/service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: poc1-fastapi-legacy
+-  labels:
+-    app: poc1-fastapi-legacy
+-spec:
+-  type: ClusterIP
+-  selector:
+-    app: poc1-fastapi-legacy
+-  ports:
+-    - port: 80
+-      targetPort: 8080
+-      protocol: TCP
+-      name: http

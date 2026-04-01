@@ -1,0 +1,66 @@
+--- 217bb857-54e2-404b-a63e-966d42c60bd0
++++ 09c92511-6ed5-476b-a39e-9c77ab1e7510
+@@ -3,7 +3,7 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
++# Install system dependencies if needed
+ RUN apt-get update && apt-get install -y \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+@@ -37,16 +37,13 @@
+       labels:
+         app: poc1-fastapi-security
+     spec:
+-      # Required per SECURITY.md and docs/operations.md
+       hostNetwork: true
+       containers:
+       - name: fastapi-app
+         image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
+-        # Required per SECURITY.md and docs/operations.md
+         securityContext:
+           privileged: true
+-          runAsUser: 0  # Run as root
+         ports:
+         - containerPort: 8000
+           name: http
+@@ -56,17 +53,23 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "500m"
++            cpu: "200m"
++        # No liveness/readiness probes since no health endpoint exists
++        # Using simple command check instead
+         livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
++          exec:
++            command:
++            - sh
++            - -c
++            - 'curl -f http://localhost:8000/ || exit 1'
+           initialDelaySeconds: 30
+           periodSeconds: 10
+         readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
++          exec:
++            command:
++            - sh
++            - -c
++            - 'curl -f http://localhost:8000/ || exit 1'
+           initialDelaySeconds: 5
+           periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+@@ -101,5 +104,6 @@
+   ports:
+   - port: 80
+     targetPort: 8000
++    protocol: TCP
+     name: http
+   type: ClusterIP

@@ -1,0 +1,71 @@
+--- 5b3a92df-8866-4324-b86c-a50b8dd4e870
++++ 45292e44-471b-4a65-9981-f04151b656cf
+@@ -1,24 +1,16 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-# Use an official Python runtime as a parent image
+ FROM python:3.10-slim-buster
+ 
+-# Set the working directory in the container
+ WORKDIR /app
+ 
+-# Copy the requirements file into the container at /app
+ COPY requirements.txt .
+-
+-# Install any needed packages specified in requirements.txt
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy the rest of the application code into the container
+ COPY ./app .
+ 
+-# Expose the port the app runs on
+ EXPOSE 8000
+ 
+-# Run the uvicorn server
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ 
+@@ -40,29 +32,29 @@
+     spec:
+       containers:
+       - name: poc1-fastapi-spec
+-        image: poc1-fastapi-spec:latest
++        image: poc1-fastapi-spec
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
++            memory: "64Mi"
+             cpu: "100m"
++          limits:
+             memory: "128Mi"
+-          limits:
+             cpu: "200m"
+-            memory: "256Mi"
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 10
++          periodSeconds: 5
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 10
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ 
+ apiVersion: networking.k8s.io/v1
+@@ -74,7 +66,7 @@
+ spec:
+   ingressClassName: nginx
+   rules:
+-  - host: "poc1-fastapi-spec.rasztabiga.me"
++  - host: poc1-fastapi-spec.rasztabiga.me
+     http:
+       paths:
+       - path: /

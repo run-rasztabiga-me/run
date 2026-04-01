@@ -1,0 +1,157 @@
+--- 03c451d9-71cd-4019-8aff-226709cd3142
++++ 64982af1-a269-41f1-a87b-64e421733c87
+@@ -20,22 +20,20 @@
+ 
+ # Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/configmap.yaml
++@@FILE:K8s::k8s/fastapi-config.yaml
+ apiVersion: v1
+ kind: ConfigMap
+ metadata:
+   name: fastapi-config
+-  namespace: default
+ data:
+   APP_ENV: "production"
+   PORT: "8080"
+-  REDIS_URL: "redis://redis:6379/0"
++  REDIS_URL: "redis://redis-service:6379/0"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: fastapi-app
+-  namespace: default
+   labels:
+     app: fastapi-app
+ spec:
+@@ -56,11 +54,20 @@
+         - containerPort: 8080
+         env:
+         - name: APP_ENV
+-          value: "production"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: APP_ENV
+         - name: PORT
+-          value: "8080"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: PORT
+         - name: REDIS_URL
+-          value: "redis://redis:6379/0"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: REDIS_URL
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -74,24 +81,17 @@
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-          timeoutSeconds: 5
+-          failureThreshold: 3
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-          timeoutSeconds: 3
+-          failureThreshold: 1
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: fastapi-service
+-  namespace: default
+-  labels:
+-    app: fastapi-app
+ spec:
+   selector:
+     app: fastapi-app
+@@ -105,7 +105,6 @@
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+-  namespace: default
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -120,14 +119,21 @@
+             name: fastapi-service
+             port:
+               number: 80
++@@FILE:K8s::k8s/redis-secret.yaml
++# Placeholder secret - not actually used but kept for compatibility
++apiVersion: v1
++kind: Secret
++metadata:
++  name: redis-secret
++type: Opaque
++data:
++  # Empty placeholder
++  placeholder: ""
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: redis
+-  namespace: default
+-  labels:
+-    app: redis
++  name: redis-service
+ spec:
+   selector:
+     app: redis
+@@ -141,11 +147,8 @@
+ kind: StatefulSet
+ metadata:
+   name: redis
+-  namespace: default
+-  labels:
+-    app: redis
+-spec:
+-  serviceName: redis
++spec:
++  serviceName: redis-service
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -162,7 +165,8 @@
+         ports:
+         - containerPort: 6379
+           name: redis
+-        command: ["redis-server"]
++        command:
++        - redis-server
+         args: ["--appendonly", "yes"]
+         resources:
+           requests:
+@@ -176,16 +180,18 @@
+           mountPath: /data
+         livenessProbe:
+           exec:
+-            command: ["redis-cli", "ping"]
++            command:
++            - redis-cli
++            - ping
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-          timeoutSeconds: 5
+         readinessProbe:
+           exec:
+-            command: ["redis-cli", "ping"]
++            command:
++            - redis-cli
++            - ping
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-          timeoutSeconds: 3
+   volumeClaimTemplates:
+   - metadata:
+       name: redis-data

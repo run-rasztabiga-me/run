@@ -1,0 +1,64 @@
+--- d1887f50-7692-4cbc-827c-8f657364420b
++++ e61201ef-caa4-4447-929c-b35b2795f3f2
+@@ -2,11 +2,11 @@
+ FROM python:3.11-slim
+ 
+ # Set workdir
+-WORKDIR /usr/src/app
++WORKDIR /app
+ 
+-# Install system deps and compile-time requirements
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
++# Install build deps and clean cache
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements and install
+@@ -18,13 +18,12 @@
+ 
+ EXPOSE 8000
+ 
+-# Run using uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-security-deployment
++  name: poc1-fastapi-security
+   labels:
+     app: poc1-fastapi-security
+ spec:
+@@ -60,7 +59,7 @@
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 3
++            initialDelaySeconds: 2
+             periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -78,19 +77,14 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-security-service
++                name: poc1-fastapi-security
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-security
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-security-service
++  name: poc1-fastapi-security
+ spec:
+   selector:
+     app: poc1-fastapi-security

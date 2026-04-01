@@ -1,0 +1,86 @@
+--- 520b70ad-582a-43d8-8600-b1c4135a8e9a
++++ 0c913b55-e725-472c-885c-b480f6fc829b
+@@ -1,20 +1,19 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set working directory
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install build dependencies and runtime requirements
+-COPY requirements.txt ./
++# Install dependencies
++COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app ./app
+ 
+-# Expose port
+ EXPOSE 8000
+ 
+-# Run the app with uvicorn
++# Run the FastAPI app with Uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -34,43 +33,45 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-security:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 2
++            periodSeconds: 5
+           livenessProbe:
+             httpGet:
+-              path: / 
++              path: /
+               port: 8000
+             initialDelaySeconds: 10
+             periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: / 
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
++      # hostNetwork and privileged are discouraged; omit them for safety
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-security-ingress
++  name: poc1-fastapi-security
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi-security.rasztabiga.me
+       http:
+         paths:
+-          - path: /
+-            pathType: Prefix
++          - path: /(.*)
++            pathType: ImplementationSpecific
+             backend:
+               service:
+                 name: poc1-fastapi-security

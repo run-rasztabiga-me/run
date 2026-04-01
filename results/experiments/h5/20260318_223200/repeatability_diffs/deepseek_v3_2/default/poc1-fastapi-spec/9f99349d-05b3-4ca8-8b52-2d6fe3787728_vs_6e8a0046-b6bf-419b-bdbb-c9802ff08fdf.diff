@@ -1,0 +1,92 @@
+--- 9f99349d-05b3-4ca8-8b52-2d6fe3787728
++++ 6e8a0046-b6bf-419b-bdbb-c9802ff08fdf
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.11-slim
++FROM python:3.12-slim
+ 
+ WORKDIR /app
+ 
+@@ -15,7 +15,7 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port specified in spec.md
++# Expose port 9000 as specified in spec.md
+ EXPOSE 9000
+ 
+ # Run the application with uvicorn on port 9000
+@@ -24,22 +24,22 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app
++  name: poc1-fastapi-spec
+   labels:
+-    app: fastapi-app
++    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc1-fastapi-spec
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc1-fastapi-spec
+     spec:
+       containers:
+-      - name: fastapi-app
+-        image: fastapi-app
++      - name: fastapi
++        image: poc1-fastapi-spec
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 9000
+@@ -52,7 +52,7 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "500m"
++            cpu: "200m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -73,7 +73,7 @@
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-app-ingress
++  name: poc1-fastapi-spec
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -85,19 +85,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app
++            name: poc1-fastapi-spec
+             port:
+-              number: 80
++              number: 9000
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app
++  name: poc1-fastapi-spec
++  labels:
++    app: poc1-fastapi-spec
+ spec:
+   selector:
+-    app: fastapi-app
++    app: poc1-fastapi-spec
+   ports:
+-  - port: 80
++  - port: 9000
+     targetPort: 9000
+     protocol: TCP
+   type: ClusterIP

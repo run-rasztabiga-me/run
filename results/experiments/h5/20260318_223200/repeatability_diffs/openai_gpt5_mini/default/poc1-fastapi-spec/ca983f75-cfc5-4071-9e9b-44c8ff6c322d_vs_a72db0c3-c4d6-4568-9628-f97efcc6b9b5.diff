@@ -1,0 +1,58 @@
+--- ca983f75-cfc5-4071-9e9b-44c8ff6c322d
++++ a72db0c3-c4d6-4568-9628-f97efcc6b9b5
+@@ -4,18 +4,15 @@
+ ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install dependencies
++# Install build dependencies and application dependencies
+ COPY requirements.txt ./
+-RUN pip install --no-cache-dir --upgrade pip \
+-    && pip install --no-cache-dir -r requirements.txt
++RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application
++# Copy application code
+ COPY app ./app
+ 
+-# Production port (per spec.md)
+ EXPOSE 9000
+ 
+-# Start the app with a production-ready server
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -47,25 +44,25 @@
+             limits:
+               cpu: "500m"
+               memory: "256Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 9000
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 9000
+             initialDelaySeconds: 5
+-            periodSeconds: 5
++            periodSeconds: 10
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 9000
++            initialDelaySeconds: 15
++            periodSeconds: 20
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    kubernetes.io/ingress.class: nginx
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me

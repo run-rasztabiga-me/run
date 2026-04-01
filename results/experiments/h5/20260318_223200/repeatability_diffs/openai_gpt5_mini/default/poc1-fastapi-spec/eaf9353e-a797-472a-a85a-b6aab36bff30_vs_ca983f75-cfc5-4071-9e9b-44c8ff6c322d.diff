@@ -1,0 +1,70 @@
+--- eaf9353e-a797-472a-a85a-b6aab36bff30
++++ ca983f75-cfc5-4071-9e9b-44c8ff6c322d
+@@ -1,33 +1,22 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Ensure pip is up-to-date
+-RUN pip install --no-cache-dir --upgrade pip
++# Install dependencies
++COPY requirements.txt ./
++RUN pip install --no-cache-dir --upgrade pip \
++    && pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy requirements and application
+-COPY requirements.txt ./
+-COPY app/ ./app/
++# Copy application
++COPY app ./app
+ 
+-# Install python dependencies
+-RUN pip install --no-cache-dir -r requirements.txt
+-
+-# Expose required production port (as specified in spec.md)
++# Production port (per spec.md)
+ EXPOSE 9000
+ 
+-ENV PYTHONUNBUFFERED=1
+-
+-# Run the app with uvicorn on port 9000
++# Start the app with a production-ready server
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+-@@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-spec
+-
+-Resources:
+-- deployment.yaml: Deployment for the FastAPI app
+-- service.yaml: ClusterIP Service exposing port 9000
+-- ingress.yaml: Ingress routing host poc1-fastapi-spec.rasztabiga.me to the service
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -46,12 +35,11 @@
+         app: poc1-fastapi-spec
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-spec:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+@@ -75,7 +63,9 @@
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-spec
++  name: poc1-fastapi-spec-ingress
++  annotations:
++    kubernetes.io/ingress.class: nginx
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me

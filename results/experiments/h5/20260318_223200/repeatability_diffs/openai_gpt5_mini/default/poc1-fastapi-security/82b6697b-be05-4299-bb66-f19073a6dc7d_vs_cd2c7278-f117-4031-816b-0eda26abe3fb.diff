@@ -1,0 +1,81 @@
+--- 82b6697b-be05-4299-bb66-f19073a6dc7d
++++ cd2c7278-f117-4031-816b-0eda26abe3fb
+@@ -4,23 +4,28 @@
+ # Set working directory
+ WORKDIR /app
+ 
+-# Install build deps
++# Install build deps and runtime deps
+ RUN apt-get update && apt-get install -y --no-install-recommends \
+     build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements and install
+-COPY requirements.txt ./
++COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app ./app
+ 
+-# Expose port
+ EXPOSE 8000
+ 
+-# Run as root (keeps simplicity for diagnostics per repo docs)
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/.gitkeep
++@@FILE:K8s::k8s/README.md
++This directory contains Kubernetes manifests for deploying the FastAPI application.
++
++Apply with:
++
++kubectl apply -f k8s/
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -57,14 +62,12 @@
+               port: 8000
+             initialDelaySeconds: 5
+             periodSeconds: 10
+-            timeoutSeconds: 3
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+             initialDelaySeconds: 2
+             periodSeconds: 5
+-            timeoutSeconds: 2
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -78,17 +81,12 @@
+       http:
+         paths:
+           - path: /(.*)
+-            pathType: Prefix
++            pathType: ImplementationSpecific
+             backend:
+               service:
+                 name: poc1-fastapi-security
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-security
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -97,10 +95,10 @@
+   labels:
+     app: poc1-fastapi-security
+ spec:
++  type: ClusterIP
+   selector:
+     app: poc1-fastapi-security
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 8000
+-  type: ClusterIP

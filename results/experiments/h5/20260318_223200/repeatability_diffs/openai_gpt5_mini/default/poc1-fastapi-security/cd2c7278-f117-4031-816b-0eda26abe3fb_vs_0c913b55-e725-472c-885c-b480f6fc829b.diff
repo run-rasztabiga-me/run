@@ -1,0 +1,83 @@
+--- cd2c7278-f117-4031-816b-0eda26abe3fb
++++ 0c913b55-e725-472c-885c-b480f6fc829b
+@@ -1,15 +1,10 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set working directory
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install build deps and runtime deps
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# Copy requirements and install
++# Install dependencies
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+@@ -18,14 +13,8 @@
+ 
+ EXPOSE 8000
+ 
++# Run the FastAPI app with Uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/.gitkeep
+-@@FILE:K8s::k8s/README.md
+-This directory contains Kubernetes manifests for deploying the FastAPI application.
+-
+-Apply with:
+-
+-kubectl apply -f k8s/
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -56,23 +45,24 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+             initialDelaySeconds: 2
+             periodSeconds: 5
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 10
++            periodSeconds: 10
++      # hostNetwork and privileged are discouraged; omit them for safety
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-security-ingress
++  name: poc1-fastapi-security
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+@@ -92,13 +82,11 @@
+ kind: Service
+ metadata:
+   name: poc1-fastapi-security
+-  labels:
+-    app: poc1-fastapi-security
+ spec:
+-  type: ClusterIP
+   selector:
+     app: poc1-fastapi-security
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 8000
++  type: ClusterIP

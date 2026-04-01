@@ -1,0 +1,165 @@
+--- 73d3835c-cf5f-4f92-bbd3-dde1067185a1
++++ 3a10ee8c-9bd7-4605-af60-fd65e52ca27b
+@@ -1,32 +1,24 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-ENV PYTHONDONTWRITEBYTECODE=1
+ ENV PYTHONUNBUFFERED=1
++ENV PORT=8080
++
+ WORKDIR /app
+ 
+-# Install build deps for any compiled packages
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends build-essential gcc \
+-    && rm -rf /var/lib/apt/lists/*
+-
+ COPY requirements.txt .
+-RUN pip install --upgrade pip \
+-    && pip install --no-cache-dir -r requirements.txt
++RUN pip install --no-cache-dir -r requirements.txt
+ 
+ COPY app ./app
+ 
+-ENV PORT=8080
+ EXPOSE 8080
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/app-deployment.yaml
++CMD ["sh","-c","uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy-app
+-  labels:
+-    app: poc1-fastapi-legacy
++  name: poc1-fastapi-legacy
+ spec:
+   replicas: 1
+   selector:
+@@ -43,12 +35,9 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
+-              name: http
+           env:
+             - name: PORT
+               value: "8080"
+-            - name: APP_ENV
+-              value: "production"
+             - name: REDIS_URL
+               valueFrom:
+                 secretKeyRef:
+@@ -60,7 +49,7 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
+           readinessProbe:
+             httpGet:
+               path: /
+@@ -73,26 +62,11 @@
+               port: 8080
+             initialDelaySeconds: 10
+             periodSeconds: 10
+-@@FILE:K8s::k8s/app-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: poc1-fastapi-legacy-svc
+-spec:
+-  selector:
+-    app: poc1-fastapi-legacy
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 8080
+-  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-legacy-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -102,7 +76,7 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-legacy-svc
++                name: poc1-fastapi-legacy
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/redis-secret.yaml
+@@ -119,11 +93,11 @@
+ metadata:
+   name: redis
+ spec:
+-  selector:
+-    app: redis
+   ports:
+     - port: 6379
+       targetPort: 6379
++  selector:
++    app: redis
+   clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+@@ -131,7 +105,7 @@
+ metadata:
+   name: redis
+ spec:
+-  serviceName: redis
++  serviceName: "redis"
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -144,16 +118,15 @@
+       containers:
+         - name: redis
+           image: redis:7.2-alpine
+-          imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 6379
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "64Mi"
++              cpu: "100m"
++              memory: "128Mi"
+             limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           volumeMounts:
+             - name: data
+               mountPath: /data
+@@ -161,7 +134,20 @@
+     - metadata:
+         name: data
+       spec:
+-        accessModes: ["ReadWriteOnce"]
++        accessModes: [ "ReadWriteOnce" ]
+         resources:
+           requests:
+             storage: 1Gi
++@@FILE:K8s::k8s/service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: poc1-fastapi-legacy
++spec:
++  selector:
++    app: poc1-fastapi-legacy
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 8080
++  type: ClusterIP

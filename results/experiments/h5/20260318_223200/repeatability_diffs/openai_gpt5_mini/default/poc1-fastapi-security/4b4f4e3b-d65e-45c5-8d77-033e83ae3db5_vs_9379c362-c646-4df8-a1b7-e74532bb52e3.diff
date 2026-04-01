@@ -1,0 +1,122 @@
+--- 4b4f4e3b-d65e-45c5-8d77-033e83ae3db5
++++ 9379c362-c646-4df8-a1b7-e74532bb52e3
+@@ -1,38 +1,31 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++# Install build deps required by some wheel packages (uvloop, httptools)
++RUN apt-get update && apt-get install -y --no-install-recommends \
++    build-essential \
++    gcc \
++    libpq-dev \
++  && rm -rf /var/lib/apt/lists/*
++
+ WORKDIR /app
+ 
+-# Install build deps and clean up
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# Install Python dependencies
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application code
+ COPY app ./app
+ 
+-EXPOSE 8000
++EXPOSE 80
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-security
+-
+-Apply with:
+-
+-kubectl apply -f k8s/
+-
+-Ingress host: poc1-fastapi-security.rasztabiga.me
+-Test endpoint: /
++# Run as root to allow binding to port 80
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-security
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+@@ -44,29 +37,30 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-security:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+-            - containerPort: 8000
++            - containerPort: 80
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+-              port: 8000
+-            initialDelaySeconds: 10
++              port: 80
++            initialDelaySeconds: 5
+             periodSeconds: 10
++            failureThreshold: 3
+           readinessProbe:
+             httpGet:
+               path: /
+-              port: 8000
+-            initialDelaySeconds: 5
++              port: 80
++            initialDelaySeconds: 2
+             periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -74,13 +68,13 @@
+ metadata:
+   name: poc1-fastapi-security-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    kubernetes.io/ingress.class: "nginx"
+ spec:
+   rules:
+     - host: poc1-fastapi-security.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
++          - path: /
+             pathType: Prefix
+             backend:
+               service:
+@@ -92,11 +86,13 @@
+ kind: Service
+ metadata:
+   name: poc1-fastapi-security
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   selector:
+     app: poc1-fastapi-security
+   ports:
+     - protocol: TCP
+       port: 80
+-      targetPort: 8000
++      targetPort: 80
+   type: ClusterIP

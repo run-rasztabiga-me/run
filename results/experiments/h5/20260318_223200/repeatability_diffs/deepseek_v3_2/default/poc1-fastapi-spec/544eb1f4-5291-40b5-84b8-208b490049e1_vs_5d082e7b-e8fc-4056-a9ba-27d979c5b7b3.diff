@@ -1,0 +1,115 @@
+--- 544eb1f4-5291-40b5-84b8-208b490049e1
++++ 5d082e7b-e8fc-4056-a9ba-27d979c5b7b3
+@@ -3,8 +3,8 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
+-RUN apt-get update && apt-get install -y \
++# Install system dependencies if needed
++RUN apt-get update && apt-get install -y --no-install-recommends \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+@@ -15,31 +15,31 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose port 9000 as per production specification
++# Expose the port specified in spec.md
+ EXPOSE 9000
+ 
+-# Run the application on port 9000
++# Run the application on port 9000 as per production specification
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+-@@FILE:K8s::k8s/fastapi-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app
++  name: poc1-fastapi-spec
+   labels:
+-    app: fastapi-app
++    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc1-fastapi-spec
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc1-fastapi-spec
+     spec:
+       containers:
+       - name: fastapi-app
+-        image: fastapi-app
++        image: poc1-fastapi-spec
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 9000
+@@ -52,7 +52,7 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "200m"
++            cpu: "500m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -69,27 +69,11 @@
+           periodSeconds: 5
+           timeoutSeconds: 3
+           failureThreshold: 1
+-@@FILE:K8s::k8s/fastapi-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: fastapi-service
+-  labels:
+-    app: fastapi-app
+-spec:
+-  selector:
+-    app: fastapi-app
+-  ports:
+-  - port: 9000
+-    targetPort: 9000
+-    protocol: TCP
+-    name: http
+-  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-ingress
++  name: poc1-fastapi-spec
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -101,6 +85,22 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: poc1-fastapi-spec
+             port:
+               number: 9000
++@@FILE:K8s::k8s/service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: poc1-fastapi-spec
++  labels:
++    app: poc1-fastapi-spec
++spec:
++  selector:
++    app: poc1-fastapi-spec
++  ports:
++  - port: 9000
++    targetPort: 9000
++    protocol: TCP
++    name: http
++  type: ClusterIP

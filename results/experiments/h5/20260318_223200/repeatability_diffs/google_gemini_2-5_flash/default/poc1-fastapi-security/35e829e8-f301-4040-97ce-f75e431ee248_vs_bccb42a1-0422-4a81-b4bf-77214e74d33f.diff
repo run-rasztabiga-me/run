@@ -1,0 +1,115 @@
+--- 35e829e8-f301-4040-97ce-f75e431ee248
++++ bccb42a1-0422-4a81-b4bf-77214e74d33f
+@@ -1,6 +1,6 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-FROM python:3.9-slim-buster
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+@@ -12,82 +12,80 @@
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/poc1-fastapi-security-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ 
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-security-deployment
++  name: fastapi-app-deployment
+   labels:
+-    app: poc1-fastapi-security
++    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-security
++      app: fastapi-app
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-security
++        app: fastapi-app
+     spec:
+       containers:
+-      - name: poc1-fastapi-security
+-        image: poc1-fastapi-security:latest
++      - name: fastapi-app
++        image: fastapi-app
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
+-            memory: "64Mi"
+-            cpu: "50m"
++            cpu: "100m"
++            memory: "128Mi"
+           limits:
+-            memory: "128Mi"
+-            cpu: "100m"
++            cpu: "200m"
++            memory: "256Mi"
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 10
++          periodSeconds: 5
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 10
+-@@FILE:K8s::k8s/poc1-fastapi-security-ingress.yaml
++          periodSeconds: 5
++@@FILE:K8s::k8s/ingress.yaml
+ 
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-security-ingress
++  name: fastapi-app-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-security.rasztabiga.me
+     http:
+       paths:
+-      - path: /(.*)
++      - path: /
+         pathType: Prefix
+         backend:
+           service:
+-            name: poc1-fastapi-security-service
++            name: fastapi-app-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/poc1-fastapi-security-service.yaml
++@@FILE:K8s::k8s/service.yaml
+ 
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-security-service
++  name: fastapi-app-service
+   labels:
+-    app: poc1-fastapi-security
++    app: fastapi-app
+ spec:
+   selector:
+-    app: poc1-fastapi-security
++    app: fastapi-app
+   ports:
+   - protocol: TCP
+     port: 80

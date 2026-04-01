@@ -1,0 +1,99 @@
+--- 4b4f4e3b-d65e-45c5-8d77-033e83ae3db5
++++ 0c913b55-e725-472c-885c-b480f6fc829b
+@@ -1,16 +1,11 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install build deps and clean up
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# Install Python dependencies
+-COPY requirements.txt ./
++# Install dependencies
++COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+@@ -18,21 +13,15 @@
+ 
+ EXPOSE 8000
+ 
++# Run the FastAPI app with Uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-security
+-
+-Apply with:
+-
+-kubectl apply -f k8s/
+-
+-Ingress host: poc1-fastapi-security.rasztabiga.me
+-Test endpoint: /
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-security
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+@@ -44,7 +33,7 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-security:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -55,24 +44,25 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 2
++            periodSeconds: 5
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 8000
+             initialDelaySeconds: 10
+             periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
++      # hostNetwork and privileged are discouraged; omit them for safety
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-security-ingress
++  name: poc1-fastapi-security
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+@@ -81,7 +71,7 @@
+       http:
+         paths:
+           - path: /(.*)
+-            pathType: Prefix
++            pathType: ImplementationSpecific
+             backend:
+               service:
+                 name: poc1-fastapi-security

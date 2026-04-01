@@ -1,0 +1,73 @@
+--- 09c92511-6ed5-476b-a39e-9c77ab1e7510
++++ bb4da5c6-9bc8-4913-b5d2-5262db0b5660
+@@ -3,7 +3,7 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies if needed
++# Install system dependencies
+ RUN apt-get update && apt-get install -y \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+@@ -15,10 +15,10 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port FastAPI runs on
++# Expose port
+ EXPOSE 8000
+ 
+-# Run the application with uvicorn
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -46,32 +46,28 @@
+           privileged: true
+         ports:
+         - containerPort: 8000
+-          name: http
+         resources:
+           requests:
+             memory: "128Mi"
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "200m"
+-        # No liveness/readiness probes since no health endpoint exists
+-        # Using simple command check instead
++            cpu: "500m"
+         livenessProbe:
+-          exec:
+-            command:
+-            - sh
+-            - -c
+-            - 'curl -f http://localhost:8000/ || exit 1'
++          httpGet:
++            path: /
++            port: 8000
+           initialDelaySeconds: 30
+           periodSeconds: 10
+         readinessProbe:
+-          exec:
+-            command:
+-            - sh
+-            - -c
+-            - 'curl -f http://localhost:8000/ || exit 1'
++          httpGet:
++            path: /
++            port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
++        env:
++        - name: PYTHONUNBUFFERED
++          value: "1"
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -105,5 +101,4 @@
+   - port: 80
+     targetPort: 8000
+     protocol: TCP
+-    name: http
+   type: ClusterIP

@@ -1,0 +1,102 @@
+--- e72e09a0-d870-4d16-a5a6-7ad7e779f15d
++++ df403ca7-a8c6-48a0-8706-e660ed06aefa
+@@ -1,23 +1,11 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+-# Use an official Python runtime as a parent image
+ FROM python:3.9-slim-buster
+-
+-# Set the working directory in the container
+ WORKDIR /app
+-
+-# Install any needed packages specified in requirements.txt
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-
+-# Copy the current directory contents into the container at /app
+-COPY app/ ./app
+-
+-# Make port 8000 available to the world outside this container
++COPY app .
+ EXPOSE 8000
+-
+-# Run the application
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -37,56 +25,54 @@
+     spec:
+       containers:
+       - name: poc1-fastapi-security
+-        image: poc1-fastapi-security
++        image: poc1-fastapi-security:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
+-            memory: "64Mi"
+-            cpu: "50m"
++            cpu: "100m"
++            memory: "128Mi"
+           limits:
+-            memory: "128Mi"
+-            cpu: "100m"
++            cpu: "200m"
++            memory: "256Mi"
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 10
++          periodSeconds: 5
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8000
+           initialDelaySeconds: 5
+-          periodSeconds: 10
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-security-ingress
++  name: poc1-fastapi-security
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: public
++  ingressClassName: nginx
+   rules:
+-  - host: "poc1-fastapi-security.rasztabiga.me"
++  - host: poc1-fastapi-security.rasztabiga.me
+     http:
+       paths:
+       - path: /
+         pathType: Prefix
+         backend:
+           service:
+-            name: poc1-fastapi-security-service
++            name: poc1-fastapi-security
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-security-service
+-  labels:
+-    app: poc1-fastapi-security
++  name: poc1-fastapi-security
+ spec:
+   selector:
+     app: poc1-fastapi-security
+@@ -94,3 +80,4 @@
+     - protocol: TCP
+       port: 80
+       targetPort: 8000
++  type: ClusterIP

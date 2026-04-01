@@ -1,0 +1,136 @@
+--- 64982af1-a269-41f1-a87b-64e421733c87
++++ 55fe2944-43a8-48f7-84a7-3ab4c4cae54b
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.11-slim
++FROM python:3.12-slim
+ 
+ WORKDIR /app
+ 
+@@ -8,27 +8,18 @@
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install Python dependencies
++# Copy requirements first for better caching
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port the app runs on
++# Expose port
+ EXPOSE 8080
+ 
+-# Command to run the application
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/fastapi-config.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: fastapi-config
+-data:
+-  APP_ENV: "production"
+-  PORT: "8080"
+-  REDIS_URL: "redis://redis-service:6379/0"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -54,20 +45,14 @@
+         - containerPort: 8080
+         env:
+         - name: APP_ENV
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: APP_ENV
++          value: "production"
+         - name: PORT
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: PORT
++          value: "8080"
+         - name: REDIS_URL
+           valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: REDIS_URL
++            secretKeyRef:
++              name: redis-secret
++              key: redis-url
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -98,7 +83,6 @@
+   ports:
+   - port: 80
+     targetPort: 8080
+-    protocol: TCP
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -120,15 +104,13 @@
+             port:
+               number: 80
+ @@FILE:K8s::k8s/redis-secret.yaml
+-# Placeholder secret - not actually used but kept for compatibility
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: redis-secret
+ type: Opaque
+ data:
+-  # Empty placeholder
+-  placeholder: ""
++  redis-url: cmVkaXM6Ly9yZWRpczo2Mzc5LzA=
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -140,7 +122,6 @@
+   ports:
+   - port: 6379
+     targetPort: 6379
+-    protocol: TCP
+   type: ClusterIP
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+@@ -165,9 +146,6 @@
+         ports:
+         - containerPort: 6379
+           name: redis
+-        command:
+-        - redis-server
+-        args: ["--appendonly", "yes"]
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -180,16 +158,12 @@
+           mountPath: /data
+         livenessProbe:
+           exec:
+-            command:
+-            - redis-cli
+-            - ping
++            command: ["redis-cli", "ping"]
+           initialDelaySeconds: 30
+           periodSeconds: 10
+         readinessProbe:
+           exec:
+-            command:
+-            - redis-cli
+-            - ping
++            command: ["redis-cli", "ping"]
+           initialDelaySeconds: 5
+           periodSeconds: 5
+   volumeClaimTemplates:
+@@ -197,7 +171,6 @@
+       name: redis-data
+     spec:
+       accessModes: [ "ReadWriteOnce" ]
+-      storageClassName: "microk8s-hostpath"
+       resources:
+         requests:
+           storage: 1Gi

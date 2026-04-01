@@ -1,0 +1,183 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-legacy.git",
+  "repo_name": "poc1-fastapi-legacy",
+  "evaluation_id": "591608a9-6676-401c-9baa-6e989aa06264",
+  "status": "completed",
+  "start_time": "2026-03-19T00:40:15.506200",
+  "end_time": "2026-03-19T00:40:52.218140",
+  "total_evaluation_time": 36.71194,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-legacy.git",
+    "repo_name": "poc1-fastapi-legacy",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "poc1-fastapi-legacy",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/poc1-fastapi-legacy-deployment.yaml",
+      "k8s/poc1-fastapi-legacy-service.yaml",
+      "k8s/poc1-fastapi-legacy-ingress.yaml",
+      "k8s/redis-deployment.yaml",
+      "k8s/redis-service.yaml",
+      "k8s/redis-secret.yaml"
+    ],
+    "generation_time": 26.526456117630005,
+    "error_message": null,
+    "timestamp": "2026-03-19T00:40:48.824514",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-6f9d4520-67c2-40c8-acf7-efbb73cd1472",
+    "run_id": "6f9d4520-67c2-40c8-acf7-efbb73cd1472"
+  },
+  "execution_metrics": {
+    "total_time": 26.526456117630005,
+    "tool_calls_count": 15,
+    "tool_calls_breakdown": {
+      "write_file": 8,
+      "base64_encode": 2,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 62479,
+    "input_tokens": 58549,
+    "output_tokens": 3930,
+    "error_count": 0,
+    "run_id": "6f9d4520-67c2-40c8-acf7-efbb73cd1472",
+    "docker_build_metrics": [
+      {
+        "image_tag": "poc1-fastapi-legacy",
+        "build_time": 0.7874929904937744,
+        "image_size_mb": 58.45,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 86.66666666666666,
+    "overall_score": 69.66666666666666,
+    "validation_issues": [
+      {
+        "file_path": "k8s/poc1-fastapi-legacy-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"poc1-fastapi-legacy\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/poc1-fastapi-legacy-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"poc1-fastapi-legacy\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      },
+      {
+        "file_path": "k8s/redis-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"redis\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/redis-deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"redis\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 4,
+    "info_count": 0,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 69.67,
+      "total_errors": 0,
+      "total_warnings": 4,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 86.67,
+        "total_errors": 0,
+        "total_warnings": 4,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 60.0,
+            "errors": 0,
+            "warnings": 4,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-03-19T00:40:15.506227: Starting configuration generation",
+    "2026-03-19T00:40:48.824646: Generated 1 Dockerfiles and 6 K8s manifests",
+    "2026-03-19T00:40:48.824653: Starting quality assessment",
+    "2026-03-19T00:40:52.218120: Built 1 Docker images (total: 58.5 MB, avg time: 0.8s)",
+    "2026-03-19T00:40:52.218131: Dockerfile validation: 0 errors, 4 warnings",
+    "2026-03-19T00:40:52.218135: K8s validation: 0 errors, 4 warnings",
+    "2026-03-19T00:40:52.218137: Runtime validation skipped by configuration",
+    "2026-03-19T00:40:52.218138: Generating evaluation report"
+  ],
+  "experiment_name": "h5",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 2,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": null,
+  "extra_metadata": {
+    "generator_overrides": {
+      "enable_runtime_validation": false
+    },
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-6f9d4520-67c2-40c8-acf7-efbb73cd1472",
+    "run_id": "6f9d4520-67c2-40c8-acf7-efbb73cd1472"
+  }
+}

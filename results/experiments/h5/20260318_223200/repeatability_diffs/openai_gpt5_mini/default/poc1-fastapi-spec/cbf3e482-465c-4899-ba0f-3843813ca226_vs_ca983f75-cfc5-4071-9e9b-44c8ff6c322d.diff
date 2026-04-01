@@ -1,0 +1,79 @@
+--- cbf3e482-465c-4899-ba0f-3843813ca226
++++ ca983f75-cfc5-4071-9e9b-44c8ff6c322d
+@@ -1,30 +1,29 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Production requirements specify the app must listen on port 9000
+ ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install system deps required for some packages
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends gcc build-essential \
+-    && rm -rf /var/lib/apt/lists/*
++# Install dependencies
++COPY requirements.txt ./
++RUN pip install --no-cache-dir --upgrade pip \
++    && pip install --no-cache-dir -r requirements.txt
+ 
+-# Install Python dependencies
+-COPY requirements.txt ./
+-RUN pip install --no-cache-dir -r requirements.txt
++# Copy application
++COPY app ./app
+ 
+-# Copy application code
+-COPY app/ ./app/
+-
++# Production port (per spec.md)
+ EXPOSE 9000
+ 
++# Start the app with a production-ready server
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-spec
++  labels:
++    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+@@ -41,7 +40,6 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+@@ -67,24 +65,19 @@
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    kubernetes.io/ingress.class: nginx
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
+-            pathType: ImplementationSpecific
++          - path: /
++            pathType: Prefix
+             backend:
+               service:
+                 name: poc1-fastapi-spec
+                 port:
+                   number: 9000
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-spec
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service

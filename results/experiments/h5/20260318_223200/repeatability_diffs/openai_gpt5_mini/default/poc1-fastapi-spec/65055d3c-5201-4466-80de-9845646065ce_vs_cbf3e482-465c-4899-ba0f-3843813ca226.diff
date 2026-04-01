@@ -1,0 +1,108 @@
+--- 65055d3c-5201-4466-80de-9845646065ce
++++ cbf3e482-465c-4899-ba0f-3843813ca226
+@@ -1,40 +1,30 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
++# Production requirements specify the app must listen on port 9000
+ ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install build dependencies and pip packages
+-COPY requirements.txt ./
++# Install system deps required for some packages
+ RUN apt-get update \
+-    && apt-get install -y --no-install-recommends build-essential gcc \
+-    && pip install --no-cache-dir -r requirements.txt \
+-    && apt-get remove -y build-essential gcc \
+-    && apt-get autoremove -y \
++    && apt-get install -y --no-install-recommends gcc build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
++# Install Python dependencies
++COPY requirements.txt ./
++RUN pip install --no-cache-dir -r requirements.txt
++
+ # Copy application code
+-COPY app ./app
++COPY app/ ./app/
+ 
+ EXPOSE 9000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+-@@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-spec
+-
+-Apply with:
+-
+-kubectl apply -f namespace.yaml
+-kubectl apply -f deployment.yaml
+-kubectl apply -f service.yaml
+-kubectl apply -f ingress.yaml
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-spec
+-  labels:
+-    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+@@ -58,36 +48,36 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 9000
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
++              memory: "256Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 9000
+             initialDelaySeconds: 10
+             periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 9000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me
+       http:
+         paths:
+-          - path: /
+-            pathType: Prefix
++          - path: /(.*)
++            pathType: ImplementationSpecific
+             backend:
+               service:
+-                name: poc1-fastapi-spec-svc
++                name: poc1-fastapi-spec
+                 port:
+                   number: 9000
+ @@FILE:K8s::k8s/namespace.yaml
+@@ -99,7 +89,7 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-spec-svc
++  name: poc1-fastapi-spec
+ spec:
+   selector:
+     app: poc1-fastapi-spec

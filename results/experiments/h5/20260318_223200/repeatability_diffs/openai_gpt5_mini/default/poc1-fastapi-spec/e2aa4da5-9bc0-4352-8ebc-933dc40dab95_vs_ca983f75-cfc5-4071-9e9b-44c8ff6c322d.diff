@@ -1,0 +1,110 @@
+--- e2aa4da5-9bc0-4352-8ebc-933dc40dab95
++++ ca983f75-cfc5-4071-9e9b-44c8ff6c322d
+@@ -1,31 +1,27 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Create app directory
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install build deps
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends build-essential gcc \
+-    && rm -rf /var/lib/apt/lists/*
++# Install dependencies
++COPY requirements.txt ./
++RUN pip install --no-cache-dir --upgrade pip \
++    && pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy requirements and install
+-COPY requirements.txt ./
+-RUN pip install --no-cache-dir -r requirements.txt
+-
+-# Copy application code
++# Copy application
+ COPY app ./app
+ 
+-# Expose the production port as required by spec.md
++# Production port (per spec.md)
+ EXPOSE 9000
+ 
+-# Default command: run uvicorn on port 9000
++# Start the app with a production-ready server
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-spec-deployment
++  name: poc1-fastapi-spec
+   labels:
+     app: poc1-fastapi-spec
+ spec:
+@@ -39,7 +35,7 @@
+         app: poc1-fastapi-spec
+     spec:
+       containers:
+-        - name: poc1-fastapi-spec
++        - name: app
+           image: poc1-fastapi-spec:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -55,23 +51,21 @@
+             httpGet:
+               path: /
+               port: 9000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 10
+             periodSeconds: 10
+-            timeoutSeconds: 3
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 9000
+-            initialDelaySeconds: 3
++            initialDelaySeconds: 5
+             periodSeconds: 5
+-            timeoutSeconds: 2
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    kubernetes.io/ingress.class: nginx
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me
+@@ -81,27 +75,19 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-spec-service
++                name: poc1-fastapi-spec
+                 port:
+                   number: 9000
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-spec
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-spec-service
+-  labels:
+-    app: poc1-fastapi-spec
++  name: poc1-fastapi-spec
+ spec:
+-  type: ClusterIP
+   selector:
+     app: poc1-fastapi-spec
+   ports:
+     - protocol: TCP
+       port: 9000
+       targetPort: 9000
+-      name: http
++  type: ClusterIP

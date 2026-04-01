@@ -1,0 +1,221 @@
+--- 19d89cb9-7bf1-49e7-bb40-0265657e235d
++++ 64982af1-a269-41f1-a87b-64e421733c87
+@@ -8,18 +8,27 @@
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements first for better caching
++# Copy requirements and install Python dependencies
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose port
++# Expose the port the app runs on
+ EXPOSE 8080
+ 
+-# Run the application
++# Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
++@@FILE:K8s::k8s/fastapi-config.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: fastapi-config
++data:
++  APP_ENV: "production"
++  PORT: "8080"
++  REDIS_URL: "redis://redis-service:6379/0"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -43,14 +52,22 @@
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+-          name: http
+         env:
+         - name: APP_ENV
+-          value: "production"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: APP_ENV
+         - name: PORT
+-          value: "8080"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: PORT
+         - name: REDIS_URL
+-          value: "redis://redis:6379/0"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: REDIS_URL
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -64,28 +81,24 @@
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-          timeoutSeconds: 5
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-          timeoutSeconds: 3
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app
+-  labels:
+-    app: fastapi-app
++  name: fastapi-service
+ spec:
+   selector:
+     app: fastapi-app
+   ports:
+   - port: 80
+     targetPort: 8080
+-    name: http
++    protocol: TCP
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -103,57 +116,39 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app
++            name: fastapi-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/redis-pvc.yaml
+-apiVersion: v1
+-kind: PersistentVolumeClaim
+-metadata:
+-  name: redis-data-pvc
+-  labels:
+-    app: redis
+-spec:
+-  accessModes:
+-    - ReadWriteOnce
+-  resources:
+-    requests:
+-      storage: 1Gi
+-  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/redis-secret.yaml
++# Placeholder secret - not actually used but kept for compatibility
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: redis-secret
+-  labels:
+-    app: redis
+ type: Opaque
+ data:
+-  redis-password: cmVkaXMtcGFzc3dvcmQ=  # redis-password in base64
++  # Empty placeholder
++  placeholder: ""
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: redis
+-  labels:
+-    app: redis
++  name: redis-service
+ spec:
+   selector:
+     app: redis
+   ports:
+   - port: 6379
+     targetPort: 6379
+-    name: redis
+-  clusterIP: None
++    protocol: TCP
++  type: ClusterIP
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
+-  labels:
+-    app: redis
+-spec:
+-  serviceName: redis
++spec:
++  serviceName: redis-service
+   replicas: 1
+   selector:
+     matchLabels:
+@@ -166,20 +161,13 @@
+       containers:
+       - name: redis
+         image: redis:7-alpine
++        imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 6379
+           name: redis
+-        env:
+-        - name: REDIS_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: redis-secret
+-              key: redis-password
+-        command: ["redis-server"]
+-        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+-        volumeMounts:
+-        - name: redis-data
+-          mountPath: /data
++        command:
++        - redis-server
++        args: ["--appendonly", "yes"]
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -187,17 +175,29 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
++        volumeMounts:
++        - name: redis-data
++          mountPath: /data
+         livenessProbe:
+-          tcpSocket:
+-            port: 6379
++          exec:
++            command:
++            - redis-cli
++            - ping
+           initialDelaySeconds: 30
+           periodSeconds: 10
+         readinessProbe:
+-          tcpSocket:
+-            port: 6379
++          exec:
++            command:
++            - redis-cli
++            - ping
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-      volumes:
+-      - name: redis-data
+-        persistentVolumeClaim:
+-          claimName: redis-data-pvc
++  volumeClaimTemplates:
++  - metadata:
++      name: redis-data
++    spec:
++      accessModes: [ "ReadWriteOnce" ]
++      storageClassName: "microk8s-hostpath"
++      resources:
++        requests:
++          storage: 1Gi

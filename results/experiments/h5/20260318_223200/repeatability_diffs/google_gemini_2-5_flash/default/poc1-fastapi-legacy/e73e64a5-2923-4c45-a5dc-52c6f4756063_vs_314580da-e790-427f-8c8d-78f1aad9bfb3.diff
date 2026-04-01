@@ -1,0 +1,103 @@
+--- e73e64a5-2923-4c45-a5dc-52c6f4756063
++++ 314580da-e790-427f-8c8d-78f1aad9bfb3
+@@ -1,30 +1,35 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.9-slim-buster
++
+ WORKDIR /app
++
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-COPY app .
++
++COPY app/ ./app
++
+ EXPOSE 8000
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-deployment.yaml
++
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy-deployment
++  name: fastapi-deployment
+   labels:
+-    app: poc1-fastapi-legacy
++    app: fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
++      app: fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
++        app: fastapi
+     spec:
+       containers:
+-      - name: poc1-fastapi-legacy
++      - name: fastapi
+         image: poc1-fastapi-legacy
+         imagePullPolicy: IfNotPresent
+         ports:
+@@ -36,15 +41,26 @@
+           limits:
+             cpu: "200m"
+             memory: "256Mi"
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-ingress.yaml
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 10
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 10
++@@FILE:K8s::k8s/fastapi-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-legacy-ingress
++  name: fastapi-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: public
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+     http:
+@@ -53,21 +69,20 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: poc1-fastapi-legacy-service
++            name: fastapi-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-service.yaml
++@@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-legacy-service
++  name: fastapi-service
+   labels:
+-    app: poc1-fastapi-legacy
++    app: fastapi
+ spec:
+   selector:
+-    app: poc1-fastapi-legacy
++    app: fastapi
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 8000
+-  type: ClusterIP

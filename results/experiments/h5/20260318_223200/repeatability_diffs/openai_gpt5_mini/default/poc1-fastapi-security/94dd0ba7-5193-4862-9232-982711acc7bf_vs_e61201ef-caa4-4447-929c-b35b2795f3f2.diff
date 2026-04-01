@@ -1,0 +1,142 @@
+--- 94dd0ba7-5193-4862-9232-982711acc7bf
++++ e61201ef-caa4-4447-929c-b35b2795f3f2
+@@ -1,16 +1,20 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Prevent Python from writing .pyc files and buffer stdout/stderr
+-ENV PYTHONDONTWRITEBYTECODE=1 \
+-    PYTHONUNBUFFERED=1
+-
++# Set workdir
+ WORKDIR /app
+ 
+-COPY requirements.txt /app/requirements.txt
+-RUN pip install --no-cache-dir -r /app/requirements.txt
++# Install build deps and clean cache
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
++    && rm -rf /var/lib/apt/lists/*
+ 
+-COPY app /app/app
++# Copy requirements and install
++COPY requirements.txt ./
++RUN pip install --no-cache-dir -r requirements.txt
++
++# Copy application code
++COPY app ./app
+ 
+ EXPOSE 8000
+ 
+@@ -20,6 +24,8 @@
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-security
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+@@ -31,56 +37,49 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-      - name: app
+-        image: poc1-fastapi-security:latest
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 8000
+-        resources:
+-          requests:
+-            cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "500m"
+-            memory: "512Mi"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-      # Note: security doc requests host networking and privileged container for debugging
+-      # We will not set hostNetwork or privileged by default to prioritize cluster compatibility
++        - name: app
++          image: poc1-fastapi-security:latest
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 8000
++          resources:
++            requests:
++              cpu: "100m"
++              memory: "128Mi"
++            limits:
++              cpu: "500m"
++              memory: "512Mi"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 2
++            periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-security-ingress
+   annotations:
+-    kubernetes.io/ingress.class: nginx
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-  - host: poc1-fastapi-security.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: poc1-fastapi-security
+-            port:
+-              number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-security
++    - host: poc1-fastapi-security.rasztabiga.me
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: poc1-fastapi-security
++                port:
++                  number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -90,7 +89,7 @@
+   selector:
+     app: poc1-fastapi-security
+   ports:
+-  - protocol: TCP
+-    port: 80
+-    targetPort: 8000
++    - protocol: TCP
++      port: 80
++      targetPort: 8000
+   type: ClusterIP

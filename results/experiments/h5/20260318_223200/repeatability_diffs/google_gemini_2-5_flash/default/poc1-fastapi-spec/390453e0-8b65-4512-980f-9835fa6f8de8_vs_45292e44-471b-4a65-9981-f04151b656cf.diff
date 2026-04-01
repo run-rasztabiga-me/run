@@ -1,0 +1,73 @@
+--- 390453e0-8b65-4512-980f-9835fa6f8de8
++++ 45292e44-471b-4a65-9981-f04151b656cf
+@@ -1,17 +1,19 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.11-slim-bookworm
++
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app/ ./app
++COPY ./app .
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -31,16 +33,16 @@
+       containers:
+       - name: poc1-fastapi-spec
+         image: poc1-fastapi-spec
++        imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
+-            cpu: 100m
+-            memory: 128Mi
++            memory: "64Mi"
++            cpu: "100m"
+           limits:
+-            cpu: 200m
+-            memory: 256Mi
+-        imagePullPolicy: IfNotPresent
++            memory: "128Mi"
++            cpu: "200m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -54,14 +56,15 @@
+           initialDelaySeconds: 5
+           periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
++  ingressClassName: nginx
+   rules:
+   - host: poc1-fastapi-spec.rasztabiga.me
+     http:
+@@ -74,6 +77,7 @@
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:

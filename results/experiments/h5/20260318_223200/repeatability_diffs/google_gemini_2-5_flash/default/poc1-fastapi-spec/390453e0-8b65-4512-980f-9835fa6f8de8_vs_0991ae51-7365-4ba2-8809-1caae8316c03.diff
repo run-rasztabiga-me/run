@@ -1,0 +1,111 @@
+--- 390453e0-8b65-4512-980f-9835fa6f8de8
++++ 0991ae51-7365-4ba2-8809-1caae8316c03
+@@ -1,12 +1,13 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.11-slim-bookworm
++
++FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app/ ./app
++COPY app/ ./app/
+ 
+ EXPOSE 8000
+ 
+@@ -15,52 +16,39 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-spec-deployment
++  name: poc1-fastapi-deployment
+   labels:
+-    app: poc1-fastapi-spec
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-spec
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-spec
++        app: poc1-fastapi
+     spec:
+       containers:
+-      - name: poc1-fastapi-spec
++      - name: poc1-fastapi
+         image: poc1-fastapi-spec
++        imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
+-            cpu: 100m
+-            memory: 128Mi
++            cpu: "100m"
++            memory: "128Mi"
+           limits:
+-            cpu: 200m
+-            memory: 256Mi
+-        imagePullPolicy: IfNotPresent
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
++            cpu: "200m"
++            memory: "256Mi"
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-spec-ingress
++  name: poc1-fastapi-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
+ spec:
+   rules:
+   - host: poc1-fastapi-spec.rasztabiga.me
+@@ -70,21 +58,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: poc1-fastapi-spec-service
++            name: poc1-fastapi-service
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-spec-service
++  name: poc1-fastapi-service
+   labels:
+-    app: poc1-fastapi-spec
++    app: poc1-fastapi
+ spec:
+   selector:
+-    app: poc1-fastapi-spec
++    app: poc1-fastapi
+   ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 8000
++  - protocol: TCP
++    port: 80
++    targetPort: 8000
+   type: ClusterIP

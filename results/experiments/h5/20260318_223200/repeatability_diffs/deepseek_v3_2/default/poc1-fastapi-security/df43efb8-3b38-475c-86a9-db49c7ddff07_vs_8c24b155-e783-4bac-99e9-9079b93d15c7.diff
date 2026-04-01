@@ -1,0 +1,110 @@
+--- df43efb8-3b38-475c-86a9-db49c7ddff07
++++ 8c24b155-e783-4bac-99e9-9079b93d15c7
+@@ -1,10 +1,11 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.12-slim
++FROM python:3.11-slim
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies if needed
+-RUN apt-get update && apt-get install -y --no-install-recommends \
++# Install system dependencies
++RUN apt-get update && apt-get install -y \
++    gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements first for better caching
+@@ -14,7 +15,7 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port the app runs on
++# Expose port
+ EXPOSE 8000
+ 
+ # Run the application with uvicorn
+@@ -23,36 +24,39 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-security
++  name: fastapi-app
+   labels:
+-    app: poc1-fastapi-security
++    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-security
++      app: fastapi-app
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-security
++        app: fastapi-app
+     spec:
+       hostNetwork: true
+       containers:
+       - name: fastapi-app
+-        image: poc1-fastapi-security
++        image: fastapi-app
+         imagePullPolicy: IfNotPresent
+         securityContext:
+           privileged: true
+         ports:
+         - containerPort: 8000
+-          name: http
+         resources:
+           requests:
+-            memory: "128Mi"
+-            cpu: "100m"
++            memory: "256Mi"
++            cpu: "250m"
+           limits:
+-            memory: "256Mi"
++            memory: "512Mi"
+             cpu: "500m"
++        env:
++        - name: PYTHONUNBUFFERED
++          value: "1"
++        # Simple HTTP GET check on root endpoint
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -69,7 +73,7 @@
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-security
++  name: fastapi-app-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -81,21 +85,19 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: poc1-fastapi-security
++            name: fastapi-app-service
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-security
+-  labels:
+-    app: poc1-fastapi-security
++  name: fastapi-app-service
+ spec:
+   selector:
+-    app: poc1-fastapi-security
++    app: fastapi-app
+   ports:
+   - port: 80
+     targetPort: 8000
+-    name: http
++    protocol: TCP
+   type: ClusterIP

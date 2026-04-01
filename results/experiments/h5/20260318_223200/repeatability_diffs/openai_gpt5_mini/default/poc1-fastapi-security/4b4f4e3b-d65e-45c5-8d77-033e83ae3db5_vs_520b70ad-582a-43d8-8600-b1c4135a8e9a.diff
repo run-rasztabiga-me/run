@@ -1,0 +1,87 @@
+--- 4b4f4e3b-d65e-45c5-8d77-033e83ae3db5
++++ 520b70ad-582a-43d8-8600-b1c4135a8e9a
+@@ -1,38 +1,28 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++# Set working directory
+ WORKDIR /app
+ 
+-# Install build deps and clean up
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# Install Python dependencies
++# Install build dependencies and runtime requirements
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app ./app
+ 
++# Expose port
+ EXPOSE 8000
+ 
++# Run the app with uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-security
+-
+-Apply with:
+-
+-kubectl apply -f k8s/
+-
+-Ingress host: poc1-fastapi-security.rasztabiga.me
+-Test endpoint: /
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-security
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+@@ -49,6 +39,7 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
++              name: http
+           resources:
+             requests:
+               cpu: "100m"
+@@ -58,13 +49,13 @@
+               memory: "256Mi"
+           livenessProbe:
+             httpGet:
+-              path: /
++              path: / 
+               port: 8000
+             initialDelaySeconds: 10
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+-              path: /
++              path: / 
+               port: 8000
+             initialDelaySeconds: 5
+             periodSeconds: 5
+@@ -73,14 +64,12 @@
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-security-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi-security.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
++          - path: /
+             pathType: Prefix
+             backend:
+               service:

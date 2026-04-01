@@ -1,0 +1,45 @@
+--- 1bf9241e-cbfc-4026-9a9e-ee9095c30b52
++++ 5d082e7b-e8fc-4056-a9ba-27d979c5b7b3
+@@ -3,22 +3,22 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
+-RUN apt-get update && apt-get install -y \
++# Install system dependencies if needed
++RUN apt-get update && apt-get install -y --no-install-recommends \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install Python dependencies
++# Copy requirements first for better caching
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose port 9000 as specified in spec.md
++# Expose the port specified in spec.md
+ EXPOSE 9000
+ 
+-# Run the FastAPI application with uvicorn on port 9000
++# Run the application on port 9000 as per production specification
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -52,7 +52,7 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "200m"
++            cpu: "500m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -102,4 +102,5 @@
+   - port: 9000
+     targetPort: 9000
+     protocol: TCP
++    name: http
+   type: ClusterIP

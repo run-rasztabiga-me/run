@@ -1,0 +1,53 @@
+--- df43efb8-3b38-475c-86a9-db49c7ddff07
++++ 148fac1d-dc4c-4797-ae6a-6e9363a8f5bb
+@@ -1,10 +1,10 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.12-slim
++FROM python:3.11-slim
+ 
+ WORKDIR /app
+ 
+ # Install system dependencies if needed
+-RUN apt-get update && apt-get install -y --no-install-recommends \
++RUN apt-get update && apt-get install -y \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements first for better caching
+@@ -17,7 +17,7 @@
+ # Expose the port the app runs on
+ EXPOSE 8000
+ 
+-# Run the application with uvicorn
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -41,18 +41,17 @@
+       - name: fastapi-app
+         image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 8000
+         securityContext:
+           privileged: true
+-        ports:
+-        - containerPort: 8000
+-          name: http
+         resources:
+           requests:
+             memory: "128Mi"
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "500m"
++            cpu: "200m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -97,5 +96,5 @@
+   ports:
+   - port: 80
+     targetPort: 8000
+-    name: http
++    protocol: TCP
+   type: ClusterIP

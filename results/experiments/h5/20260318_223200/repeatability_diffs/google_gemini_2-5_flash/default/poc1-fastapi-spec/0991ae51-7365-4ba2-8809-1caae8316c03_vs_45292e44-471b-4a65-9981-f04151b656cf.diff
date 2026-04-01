@@ -1,0 +1,115 @@
+--- 0991ae51-7365-4ba2-8809-1caae8316c03
++++ 45292e44-471b-4a65-9981-f04151b656cf
+@@ -1,55 +1,70 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-FROM python:3.9-slim-buster
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app/ ./app/
++COPY ./app .
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-deployment
++  name: poc1-fastapi-spec-deployment
+   labels:
+-    app: poc1-fastapi
++    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi
++      app: poc1-fastapi-spec
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi
++        app: poc1-fastapi-spec
+     spec:
+       containers:
+-      - name: poc1-fastapi
++      - name: poc1-fastapi-spec
+         image: poc1-fastapi-spec
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
++            memory: "64Mi"
+             cpu: "100m"
++          limits:
+             memory: "128Mi"
+-          limits:
+             cpu: "200m"
+-            memory: "256Mi"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-ingress
++  name: poc1-fastapi-spec-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
++  ingressClassName: nginx
+   rules:
+   - host: poc1-fastapi-spec.rasztabiga.me
+     http:
+@@ -58,21 +73,22 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: poc1-fastapi-service
++            name: poc1-fastapi-spec-service
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-service
++  name: poc1-fastapi-spec-service
+   labels:
+-    app: poc1-fastapi
++    app: poc1-fastapi-spec
+ spec:
+   selector:
+-    app: poc1-fastapi
++    app: poc1-fastapi-spec
+   ports:
+-  - protocol: TCP
+-    port: 80
+-    targetPort: 8000
++    - protocol: TCP
++      port: 80
++      targetPort: 8000
+   type: ClusterIP

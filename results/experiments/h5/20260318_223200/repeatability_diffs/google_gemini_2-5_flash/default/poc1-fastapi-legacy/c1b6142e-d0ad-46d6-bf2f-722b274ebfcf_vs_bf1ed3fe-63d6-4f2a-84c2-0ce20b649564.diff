@@ -1,0 +1,71 @@
+--- c1b6142e-d0ad-46d6-bf2f-722b274ebfcf
++++ bf1ed3fe-63d6-4f2a-84c2-0ce20b649564
+@@ -7,12 +7,13 @@
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY ./app .
++COPY app .
+ 
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -42,7 +43,20 @@
+           limits:
+             memory: "128Mi"
+             cpu: "200m"
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-ingress.yaml
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
++@@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -50,6 +64,7 @@
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
++  ingressClassName: nginx
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+     http:
+@@ -60,8 +75,9 @@
+           service:
+             name: poc1-fastapi-legacy-service
+             port:
+-              number: 8000
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-service.yaml
++              number: 80
++@@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -72,7 +88,6 @@
+   selector:
+     app: poc1-fastapi-legacy
+   ports:
+-    - protocol: TCP
+-      port: 8000
+-      targetPort: 8000
+-  type: ClusterIP
++  - protocol: TCP
++    port: 80
++    targetPort: 8000

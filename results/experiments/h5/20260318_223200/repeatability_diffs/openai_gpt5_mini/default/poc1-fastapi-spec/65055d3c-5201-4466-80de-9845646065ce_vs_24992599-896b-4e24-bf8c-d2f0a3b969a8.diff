@@ -1,0 +1,97 @@
+--- 65055d3c-5201-4466-80de-9845646065ce
++++ 24992599-896b-4e24-bf8c-d2f0a3b969a8
+@@ -1,33 +1,21 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-ENV PYTHONUNBUFFERED=1
++# Set working directory
+ WORKDIR /app
+ 
+-# Install build dependencies and pip packages
++# Install build dependencies and runtime dependencies
+ COPY requirements.txt ./
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends build-essential gcc \
+-    && pip install --no-cache-dir -r requirements.txt \
+-    && apt-get remove -y build-essential gcc \
+-    && apt-get autoremove -y \
+-    && rm -rf /var/lib/apt/lists/*
++RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app ./app
+ 
++# Expose the production-required port
+ EXPOSE 9000
+ 
++# Run the ASGI server on the required port
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+-@@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-spec
+-
+-Apply with:
+-
+-kubectl apply -f namespace.yaml
+-kubectl apply -f deployment.yaml
+-kubectl apply -f service.yaml
+-kubectl apply -f ingress.yaml
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -51,26 +39,25 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
++              memory: "256Mi"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 9000
++            initialDelaySeconds: 5
++            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 9000
+             initialDelaySeconds: 2
+             periodSeconds: 5
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 9000
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -87,19 +74,14 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-spec-svc
++                name: poc1-fastapi-spec
+                 port:
+                   number: 9000
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-spec
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-spec-svc
++  name: poc1-fastapi-spec
+ spec:
+   selector:
+     app: poc1-fastapi-spec

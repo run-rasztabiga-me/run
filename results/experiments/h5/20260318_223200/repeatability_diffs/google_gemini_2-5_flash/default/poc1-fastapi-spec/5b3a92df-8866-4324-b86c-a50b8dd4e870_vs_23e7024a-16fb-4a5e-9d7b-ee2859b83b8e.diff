@@ -1,0 +1,98 @@
+--- 5b3a92df-8866-4324-b86c-a50b8dd4e870
++++ 23e7024a-16fb-4a5e-9d7b-ee2859b83b8e
+@@ -1,27 +1,12 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+-# Use an official Python runtime as a parent image
+-FROM python:3.10-slim-buster
+-
+-# Set the working directory in the container
++FROM python:3.9-slim-buster
+ WORKDIR /app
+-
+-# Copy the requirements file into the container at /app
+ COPY requirements.txt .
+-
+-# Install any needed packages specified in requirements.txt
+ RUN pip install --no-cache-dir -r requirements.txt
+-
+-# Copy the rest of the application code into the container
+-COPY ./app .
+-
+-# Expose the port the app runs on
+-EXPOSE 8000
+-
+-# Run the uvicorn server
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
++COPY app .
++EXPOSE 80
++CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+ @@FILE:K8s::k8s/deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -40,31 +25,18 @@
+     spec:
+       containers:
+       - name: poc1-fastapi-spec
+-        image: poc1-fastapi-spec:latest
++        image: poc1-fastapi-spec
+         imagePullPolicy: IfNotPresent
+         ports:
+-        - containerPort: 8000
++        - containerPort: 80
+         resources:
+           requests:
++            memory: "64Mi"
++            cpu: "50m"
++          limits:
++            memory: "128Mi"
+             cpu: "100m"
+-            memory: "128Mi"
+-          limits:
+-            cpu: "200m"
+-            memory: "256Mi"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 10
+ @@FILE:K8s::k8s/ingress.yaml
+-
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -72,9 +44,8 @@
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: nginx
+   rules:
+-  - host: "poc1-fastapi-spec.rasztabiga.me"
++  - host: poc1-fastapi-spec.rasztabiga.me
+     http:
+       paths:
+       - path: /
+@@ -85,7 +56,6 @@
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+-
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -98,5 +68,4 @@
+   ports:
+     - protocol: TCP
+       port: 80
+-      targetPort: 8000
+-  type: ClusterIP
++      targetPort: 80

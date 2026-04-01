@@ -1,0 +1,96 @@
+--- bccb42a1-0422-4a81-b4bf-77214e74d33f
++++ df403ca7-a8c6-48a0-8706-e660ed06aefa
+@@ -1,38 +1,31 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+-FROM python:3.10-slim-buster
+-
++FROM python:3.9-slim-buster
+ WORKDIR /app
+-
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-
+-COPY app/ ./app
+-
++COPY app .
+ EXPOSE 8000
+-
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+-
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app-deployment
++  name: poc1-fastapi-security
+   labels:
+-    app: fastapi-app
++    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc1-fastapi-security
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc1-fastapi-security
+     spec:
+       containers:
+-      - name: fastapi-app
+-        image: fastapi-app
++      - name: poc1-fastapi-security
++        image: poc1-fastapi-security:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+@@ -56,14 +49,14 @@
+           initialDelaySeconds: 5
+           periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+-
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-app-ingress
++  name: poc1-fastapi-security
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
++  ingressClassName: nginx
+   rules:
+   - host: poc1-fastapi-security.rasztabiga.me
+     http:
+@@ -72,22 +65,19 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app-service
++            name: poc1-fastapi-security
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+-
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app-service
+-  labels:
+-    app: fastapi-app
++  name: poc1-fastapi-security
+ spec:
+   selector:
+-    app: fastapi-app
++    app: poc1-fastapi-security
+   ports:
+-  - protocol: TCP
+-    port: 80
+-    targetPort: 8000
++    - protocol: TCP
++      port: 80
++      targetPort: 8000
+   type: ClusterIP

@@ -1,0 +1,87 @@
+--- 2d18221e-81b8-44c7-8600-9982ac1643ed
++++ 0991ae51-7365-4ba2-8809-1caae8316c03
+@@ -1,30 +1,36 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.10-slim-buster
++
++FROM python:3.9-slim-buster
++
+ WORKDIR /app
++
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-COPY . .
++
++COPY app/ ./app/
++
+ EXPOSE 8000
++
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-spec-deployment
++  name: poc1-fastapi-deployment
+   labels:
+-    app: poc1-fastapi-spec
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-spec
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-spec
++        app: poc1-fastapi
+     spec:
+       containers:
+-      - name: poc1-fastapi-spec
++      - name: poc1-fastapi
+         image: poc1-fastapi-spec
+         imagePullPolicy: IfNotPresent
+         ports:
+@@ -40,10 +46,9 @@
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-spec-ingress
++  name: poc1-fastapi-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+-    nginx.ingress.kubernetes.io/use-regex: "true"
+ spec:
+   rules:
+   - host: poc1-fastapi-spec.rasztabiga.me
+@@ -53,21 +58,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: poc1-fastapi-spec-service
++            name: poc1-fastapi-service
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-spec-service
++  name: poc1-fastapi-service
+   labels:
+-    app: poc1-fastapi-spec
++    app: poc1-fastapi
+ spec:
+   selector:
+-    app: poc1-fastapi-spec
++    app: poc1-fastapi
+   ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 8000
++  - protocol: TCP
++    port: 80
++    targetPort: 8000
+   type: ClusterIP

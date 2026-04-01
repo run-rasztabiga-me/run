@@ -1,0 +1,152 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-legacy.git",
+  "repo_name": "poc1-fastapi-legacy",
+  "evaluation_id": "de436aa1-f1b8-44af-aa57-44629d13cdc0",
+  "status": "completed",
+  "start_time": "2026-03-19T01:04:50.192909",
+  "end_time": "2026-03-19T01:06:49.939860",
+  "total_evaluation_time": 119.746951,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-legacy.git",
+    "repo_name": "poc1-fastapi-legacy",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "poc1-fastapi-legacy",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/redis-statefulset.yaml",
+      "k8s/redis-secret.yaml",
+      "k8s/redis-configmap.yaml"
+    ],
+    "generation_time": 109.6515531539917,
+    "error_message": null,
+    "timestamp": "2026-03-19T01:06:47.842569",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-b85cdf21-3d7f-4086-b9b7-4929f2efd989",
+    "run_id": "b85cdf21-3d7f-4086-b9b7-4929f2efd989"
+  },
+  "execution_metrics": {
+    "total_time": 109.6515531539917,
+    "tool_calls_count": 43,
+    "tool_calls_breakdown": {
+      "think": 4,
+      "search_files": 3,
+      "find_files": 4,
+      "get_file_content": 13,
+      "ls": 5,
+      "write_file": 10,
+      "patch_file": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 304529,
+    "input_tokens": 298168,
+    "output_tokens": 6361,
+    "error_count": 0,
+    "run_id": "b85cdf21-3d7f-4086-b9b7-4929f2efd989",
+    "docker_build_metrics": []
+  },
+  "quality_metrics": {
+    "dockerfile_score": 0.0,
+    "k8s_manifests_score": null,
+    "overall_score": 0.0,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "warning",
+        "message": "https://docs.docker.com/go/dockerfile/rule/copy-ignored-file/ Attempting to Copy file \".env.example\" that is excluded by .dockerignore /Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-b85cdf21-3d7f-4086-b9b7-4929f2efd989/Dockerfile:17 15 |     # copy application code",
+        "rule_id": "CopyIgnoredFile"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 7,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": null,
+        "severity": "error",
+        "message": "Docker buildx build failed: #0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 514B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/python:3.11-slim\n#2 DONE 0.3s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 128B done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 transferring context: 959B done\n#4 DONE 0.0s\n\n#5 [2/7] WORKDIR /app\n#5 CACHED\n\n#6 [4/7] COPY requirements.txt ./\n#6 CACHED\n\n#7 [5/7] RUN pip install --no-cache-dir -r requirements.txt\n#7 CACHED\n\n#8 [6/7] COPY app/ ./app/\n#8 CACHED\n\n#9 [3/7] RUN apt-get update     && apt-get install -y --no-install-recommends build-essential gcc     && rm -rf /var/lib/apt/lists/*\n#9 CACHED\n\n#10 [7/7] COPY .env.example ./\n#10 ERROR: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::jbou84u3r3t8prcahkgrjhy73: \"/.env.example\": not found\n\n#11 [1/7] FROM docker.io/library/python:3.11-slim@sha256:6d98ca198cea726f2c86da2699594339a7b7ff08e49728797b4ed6e3b5c3b62a\n#11 resolve docker.io/library/python:3.11-slim@sha256:6d98ca198cea726f2c86da2699594339a7b7ff08e49728797b4ed6e3b5c3b62a 0.0s done\n#11 CANCELED\n------\n > [7/7] COPY .env.example ./:\n------\n\n \u001b[33m1 warning found (use docker --debug to expand):\n\u001b[0m - CopyIgnoredFile: Attempting to Copy file \".env.example\" that is excluded by .dockerignore (line 17)\nDockerfile:17\n--------------------\n  15 |     # copy application code\n  16 |     COPY app/ ./app/\n  17 | >>> COPY .env.example ./\n  18 |     \n  19 |     EXPOSE 8080\n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref aoc71r0d6gc5t0hgg5mdxyozw::jbou84u3r3t8prcahkgrjhy73: \"/.env.example\": not found\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/6ja6pb0d77z7tqvfxteagw9f6",
+        "rule_id": "DOCKER_BUILDX_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 2,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": null,
+    "scoring_breakdown": {
+      "overall_score": 0.0,
+      "total_errors": 1,
+      "total_warnings": 2,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 0.0,
+        "total_errors": 1,
+        "total_warnings": 2,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 0.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 0.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-03-19T01:04:50.192957: Starting configuration generation",
+    "2026-03-19T01:06:47.842660: Generated 1 Dockerfiles and 6 K8s manifests",
+    "2026-03-19T01:06:47.842664: Starting quality assessment",
+    "2026-03-19T01:06:49.939806: Dockerfile validation: 1 errors, 2 warnings",
+    "2026-03-19T01:06:49.939840: K8s validation: 0 errors, 0 warnings",
+    "2026-03-19T01:06:49.939850: Runtime validation skipped due to Docker build errors",
+    "2026-03-19T01:06:49.939856: Generating evaluation report"
+  ],
+  "experiment_name": "h5",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 9,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": false,
+  "runtime_success": false,
+  "extra_metadata": {
+    "generator_overrides": {
+      "enable_runtime_validation": false
+    },
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-b85cdf21-3d7f-4086-b9b7-4929f2efd989",
+    "run_id": "b85cdf21-3d7f-4086-b9b7-4929f2efd989"
+  }
+}

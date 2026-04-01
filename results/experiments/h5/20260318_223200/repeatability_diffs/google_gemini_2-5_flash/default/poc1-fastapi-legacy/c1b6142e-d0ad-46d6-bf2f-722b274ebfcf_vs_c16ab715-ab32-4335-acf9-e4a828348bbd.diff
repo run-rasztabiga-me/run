@@ -1,0 +1,112 @@
+--- c1b6142e-d0ad-46d6-bf2f-722b274ebfcf
++++ c16ab715-ab32-4335-acf9-e4a828348bbd
+@@ -1,18 +1,19 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-FROM python:3.9-slim-buster
++FROM python:3.10-slim
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY ./app .
++COPY app/ ./app
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-deployment.yaml
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -30,19 +31,32 @@
+         app: poc1-fastapi-legacy
+     spec:
+       containers:
+-      - name: poc1-fastapi-legacy
+-        image: poc1-fastapi-legacy
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 8000
+-        resources:
+-          requests:
+-            memory: "64Mi"
+-            cpu: "100m"
+-          limits:
+-            memory: "128Mi"
+-            cpu: "200m"
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-ingress.yaml
++        - name: poc1-fastapi-legacy
++          image: poc1-fastapi-legacy
++          imagePullPolicy: IfNotPresent
++          ports:
++            - containerPort: 8000
++          resources:
++            requests:
++              memory: "64Mi"
++              cpu: "100m"
++            limits:
++              memory: "128Mi"
++              cpu: "200m"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8000
++            initialDelaySeconds: 5
++            periodSeconds: 5
++@@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -50,18 +64,20 @@
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
++  ingressClassName: public
+   rules:
+-  - host: poc1-fastapi-legacy.rasztabiga.me
+-    http:
+-      paths:
+-      - path: /
+-        pathType: Prefix
+-        backend:
+-          service:
+-            name: poc1-fastapi-legacy-service
+-            port:
+-              number: 8000
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-service.yaml
++    - host: "poc1-fastapi-legacy.rasztabiga.me"
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: poc1-fastapi-legacy-service
++                port:
++                  number: 80
++@@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -73,6 +89,6 @@
+     app: poc1-fastapi-legacy
+   ports:
+     - protocol: TCP
+-      port: 8000
++      port: 80
+       targetPort: 8000
+   type: ClusterIP

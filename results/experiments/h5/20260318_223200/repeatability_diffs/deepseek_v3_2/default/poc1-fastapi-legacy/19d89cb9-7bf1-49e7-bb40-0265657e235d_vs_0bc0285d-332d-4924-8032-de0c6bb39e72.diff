@@ -1,0 +1,134 @@
+--- 19d89cb9-7bf1-49e7-bb40-0265657e235d
++++ 0bc0285d-332d-4924-8032-de0c6bb39e72
+@@ -18,15 +18,13 @@
+ # Expose port
+ EXPOSE 8080
+ 
+-# Run the application
++# Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: fastapi-app
+-  labels:
+-    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+@@ -43,7 +41,6 @@
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+-          name: http
+         env:
+         - name: APP_ENV
+           value: "production"
+@@ -64,36 +61,30 @@
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 10
+-          timeoutSeconds: 5
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-          timeoutSeconds: 3
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app
+-  labels:
+-    app: fastapi-app
++  name: fastapi-service
+ spec:
+   selector:
+     app: fastapi-app
+   ports:
+   - port: 80
+     targetPort: 8080
+-    name: http
++    protocol: TCP
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -103,7 +94,7 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app
++            name: fastapi-service
+             port:
+               number: 80
+ @@FILE:K8s::k8s/redis-pvc.yaml
+@@ -111,8 +102,6 @@
+ kind: PersistentVolumeClaim
+ metadata:
+   name: redis-data-pvc
+-  labels:
+-    app: redis
+ spec:
+   accessModes:
+     - ReadWriteOnce
+@@ -125,8 +114,6 @@
+ kind: Secret
+ metadata:
+   name: redis-secret
+-  labels:
+-    app: redis
+ type: Opaque
+ data:
+   redis-password: cmVkaXMtcGFzc3dvcmQ=  # redis-password in base64
+@@ -135,23 +122,18 @@
+ kind: Service
+ metadata:
+   name: redis
+-  labels:
+-    app: redis
+ spec:
+   selector:
+     app: redis
+   ports:
+   - port: 6379
+     targetPort: 6379
+-    name: redis
+   clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
+-  labels:
+-    app: redis
+ spec:
+   serviceName: redis
+   replicas: 1
+@@ -168,15 +150,7 @@
+         image: redis:7-alpine
+         ports:
+         - containerPort: 6379
+-          name: redis
+-        env:
+-        - name: REDIS_PASSWORD
+-          valueFrom:
+-            secretKeyRef:
+-              name: redis-secret
+-              key: redis-password
+-        command: ["redis-server"]
+-        args: ["--requirepass", "$(REDIS_PASSWORD)"]
++        command: ["redis-server", "--appendonly", "yes"]
+         volumeMounts:
+         - name: redis-data
+           mountPath: /data

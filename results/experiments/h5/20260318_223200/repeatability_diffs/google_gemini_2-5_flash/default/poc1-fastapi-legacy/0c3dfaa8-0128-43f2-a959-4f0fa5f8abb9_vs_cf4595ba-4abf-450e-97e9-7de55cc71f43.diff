@@ -1,0 +1,44 @@
+--- 0c3dfaa8-0128-43f2-a959-4f0fa5f8abb9
++++ cf4595ba-4abf-450e-97e9-7de55cc71f43
+@@ -6,11 +6,11 @@
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app .
++COPY app ./app
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -30,17 +30,17 @@
+     spec:
+       containers:
+       - name: poc1-fastapi-legacy
+-        image: poc1-fastapi-legacy
++        image: poc1-fastapi-legacy:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
+-            cpu: 100m
+-            memory: 128Mi
++            memory: "64Mi"
++            cpu: "250m"
+           limits:
+-            cpu: 200m
+-            memory: 256Mi
++            memory: "128Mi"
++            cpu: "500m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -86,4 +86,3 @@
+   - protocol: TCP
+     port: 80
+     targetPort: 8000
+-  type: ClusterIP

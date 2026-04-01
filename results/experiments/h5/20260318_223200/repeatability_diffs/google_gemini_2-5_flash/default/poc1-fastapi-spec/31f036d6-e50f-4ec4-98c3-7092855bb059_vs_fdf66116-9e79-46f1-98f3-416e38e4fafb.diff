@@ -1,0 +1,66 @@
+--- 31f036d6-e50f-4ec4-98c3-7092855bb059
++++ fdf66116-9e79-46f1-98f3-416e38e4fafb
+@@ -12,7 +12,7 @@
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/fastapi-deployment.yaml
++@@FILE:K8s::k8s/deployment.yaml
+ 
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -32,7 +32,7 @@
+     spec:
+       containers:
+       - name: fastapi
+-        image: fastapi:latest # This will be replaced by the actual image during deployment
++        image: fastapi
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+@@ -45,17 +45,18 @@
+             memory: "256Mi"
+         livenessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+         readinessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-@@FILE:K8s::k8s/fastapi-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -73,18 +74,20 @@
+           service:
+             name: fastapi-service
+             port:
+-              number: 80
+-@@FILE:K8s::k8s/fastapi-service.yaml
++              number: 8000
++@@FILE:K8s::k8s/service.yaml
+ 
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: fastapi-service
++  labels:
++    app: fastapi
+ spec:
+   selector:
+     app: fastapi
+   ports:
+     - protocol: TCP
+-      port: 80
++      port: 8000
+       targetPort: 8000
+   type: ClusterIP

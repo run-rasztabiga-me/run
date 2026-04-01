@@ -1,0 +1,229 @@
+--- 21b7f0f3-df8e-434f-ac68-8893cdbcead5
++++ 3af71e01-7472-4d63-a6c5-14c99dec98e6
+@@ -1,26 +1,25 @@
+-@@FILE:Dockerfile::backend/Dockerfile
++@@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Install build dependencies
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    gcc \
++# set workdir
++WORKDIR /app
++
++# Install build dependencies and cleanup
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends gcc build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-WORKDIR /app
+-
+-# Install Python dependencies
+-COPY requirements.txt .
+-RUN python -m pip install --upgrade pip
++# copy requirements and install
++COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application code
+-COPY app ./app
++# copy application
++COPY . /app
+ 
++ENV PORT=8080
+ EXPOSE 8080
+ 
+-# Use gunicorn with uvicorn workers (FastAPI requires ASGI server)
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
++CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -38,16 +37,15 @@
+       labels:
+         app: poc1-fastapi
+     spec:
+-      initContainers:
+-        - name: wait-for-redis
+-          image: busybox:1.36
+-          command: ["/bin/sh", "-c", "until nc -z redis 6379; do echo waiting for redis; sleep 1; done"]
+       containers:
+         - name: backend
+           image: backend:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
++          env:
++            - name: PORT
++              value: "8080"
+           resources:
+             requests:
+               cpu: "100m"
+@@ -55,30 +53,25 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
+-          env:
+-            - name: PORT
+-              value: "8080"
+-            - name: APP_ENV
+-              value: "production"
+-            - name: REDIS_URL
+-              value: "redis://redis:6379/0"
+           livenessProbe:
++            httpGet:
++              path: /
++              port: 8080
++            initialDelaySeconds: 10
++            periodSeconds: 10
++          readinessProbe:
+             httpGet:
+               path: /
+               port: 8080
+             initialDelaySeconds: 5
+             periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8080
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-backend
++  name: poc1-fastapi-svc
++  labels:
++    app: poc1-fastapi
+ spec:
+   selector:
+     app: poc1-fastapi
+@@ -87,87 +80,98 @@
+       port: 80
+       targetPort: 8080
+   type: ClusterIP
++@@FILE:K8s::k8s/configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: poc1-config
++data:
++  APP_ENV: "production"
++  PORT: "8080"
++  REDIS_URL: "redis://poc1-redis:6379/0"
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi-legacy.rasztabiga.me
+       http:
+         paths:
+-          - path: /
++          - path: /(.*)
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-backend
++                name: poc1-fastapi-svc
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/postgres-secret.yaml
+-# No Postgres detected in repository. This file intentionally left as a placeholder.
+-@@FILE:K8s::k8s/postgres-service.yaml
+-# No Postgres detected in repository. This file intentionally left as a placeholder.
+-@@FILE:K8s::k8s/postgres-statefulset.yaml
+-# No Postgres detected in repository. This file intentionally left as a placeholder.
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+-  name: redis-secret
++  name: poc1-redis-secret
+ type: Opaque
+-data:
+-  redis-password: ""
++stringData:
++  # not strictly required by the application, but included for completeness
++  redis-password: "redispassword"
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: redis
++  name: poc1-redis
++  labels:
++    app: poc1-redis
+ spec:
+-  selector:
+-    app: redis
+   ports:
+-    - protocol: TCP
+-      port: 6379
++    - port: 6379
+       targetPort: 6379
+   clusterIP: None
++  selector:
++    app: poc1-redis
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: redis
++  name: poc1-redis
+ spec:
+-  serviceName: redis
++  serviceName: "poc1-redis"
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: redis
++      app: poc1-redis
+   template:
+     metadata:
+       labels:
+-        app: redis
++        app: poc1-redis
+     spec:
+       containers:
+         - name: redis
+-          image: redis:7.2.0
++          image: redis:7.2-alpine
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 6379
++          env:
++            - name: REDIS_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: poc1-redis-secret
++                  key: redis-password
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "64Mi"
++              cpu: "100m"
++              memory: "128Mi"
+             limits:
+-              cpu: "200m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           volumeMounts:
+-            - name: data
++            - name: redis-data
+               mountPath: /data
+   volumeClaimTemplates:
+     - metadata:
+-        name: data
++        name: redis-data
+       spec:
+         accessModes: [ "ReadWriteOnce" ]
+         resources:

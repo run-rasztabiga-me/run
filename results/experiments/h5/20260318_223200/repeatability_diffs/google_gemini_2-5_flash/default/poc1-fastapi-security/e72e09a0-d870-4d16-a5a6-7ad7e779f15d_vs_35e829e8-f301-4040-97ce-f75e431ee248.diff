@@ -1,0 +1,91 @@
+--- e72e09a0-d870-4d16-a5a6-7ad7e779f15d
++++ 35e829e8-f301-4040-97ce-f75e431ee248
+@@ -1,28 +1,23 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-# Use an official Python runtime as a parent image
+ FROM python:3.9-slim-buster
+ 
+-# Set the working directory in the container
+ WORKDIR /app
+ 
+-# Install any needed packages specified in requirements.txt
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy the current directory contents into the container at /app
+ COPY app/ ./app
+ 
+-# Make port 8000 available to the world outside this container
+ EXPOSE 8000
+ 
+-# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/deployment.yaml
++@@FILE:K8s::k8s/poc1-fastapi-security-deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-security
++  name: poc1-fastapi-security-deployment
+   labels:
+     app: poc1-fastapi-security
+ spec:
+@@ -37,7 +32,7 @@
+     spec:
+       containers:
+       - name: poc1-fastapi-security
+-        image: poc1-fastapi-security
++        image: poc1-fastapi-security:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+@@ -60,27 +55,30 @@
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 10
+-@@FILE:K8s::k8s/ingress.yaml
++@@FILE:K8s::k8s/poc1-fastapi-security-ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-security-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/use-regex: "true"
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+-  ingressClassName: public
+   rules:
+-  - host: "poc1-fastapi-security.rasztabiga.me"
++  - host: poc1-fastapi-security.rasztabiga.me
+     http:
+       paths:
+-      - path: /
++      - path: /(.*)
+         pathType: Prefix
+         backend:
+           service:
+             name: poc1-fastapi-security-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/service.yaml
++@@FILE:K8s::k8s/poc1-fastapi-security-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -91,6 +89,7 @@
+   selector:
+     app: poc1-fastapi-security
+   ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 8000
++  - protocol: TCP
++    port: 80
++    targetPort: 8000
++  type: ClusterIP

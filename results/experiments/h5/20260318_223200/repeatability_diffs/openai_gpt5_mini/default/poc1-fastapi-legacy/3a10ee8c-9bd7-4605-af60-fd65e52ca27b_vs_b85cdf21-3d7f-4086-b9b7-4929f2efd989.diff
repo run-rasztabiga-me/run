@@ -1,0 +1,203 @@
+--- 3a10ee8c-9bd7-4605-af60-fd65e52ca27b
++++ b85cdf21-3d7f-4086-b9b7-4929f2efd989
+@@ -1,24 +1,32 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-ENV PYTHONUNBUFFERED=1
+-ENV PORT=8080
+-
++# set working directory
+ WORKDIR /app
+ 
+-COPY requirements.txt .
++# install build dependencies
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential gcc \
++    && rm -rf /var/lib/apt/lists/*
++
++# copy requirements and install
++COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app ./app
++# copy application code
++COPY app/ ./app/
++COPY .env.example ./
+ 
+ EXPOSE 8080
+ 
+-CMD ["sh","-c","uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-legacy
++  labels:
++    app: poc1-fastapi-legacy
+ spec:
+   replicas: 1
+   selector:
+@@ -29,8 +37,17 @@
+       labels:
+         app: poc1-fastapi-legacy
+     spec:
++      initContainers:
++        - name: wait-for-redis
++          image: alpine:3.18
++          command:
++            - sh
++            - -c
++            - |
++              apk add --no-cache netcat-openbsd >/dev/null 2>&1 || true
++              until nc -z redis 6379; do echo "waiting for redis"; sleep 1; done
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-legacy:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -40,33 +57,40 @@
+               value: "8080"
+             - name: REDIS_URL
+               valueFrom:
++                configMapKeyRef:
++                  name: redis-config
++                  key: REDIS_URL
++            - name: REDIS_PASSWORD
++              valueFrom:
+                 secretKeyRef:
+                   name: redis-secret
+-                  key: redis_url
++                  key: redis-password
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+-              cpu: "500m"
+-              memory: "512Mi"
++              cpu: "250m"
++              memory: "256Mi"
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 8080
++            initialDelaySeconds: 5
++            periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8080
+             initialDelaySeconds: 2
+             periodSeconds: 5
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8080
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-legacy-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -79,37 +103,46 @@
+                 name: poc1-fastapi-legacy
+                 port:
+                   number: 80
++@@FILE:K8s::k8s/redis-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: redis-config
++data:
++  REDIS_URL: "redis://:redis-password-placeholder@redis:6379/0"
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: redis-secret
+ type: Opaque
+-data:
+-  redis_url: cmVkaXM6Ly9yZWRpczo2Mzc5LzA=
+-@@FILE:K8s::k8s/redis-service.yaml
++stringData:
++  redis-password: "redis-password-placeholder"
++@@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: redis
++  labels:
++    app: redis
+ spec:
+   ports:
+     - port: 6379
+       targetPort: 6379
+   selector:
+     app: redis
+-  clusterIP: None
+-@@FILE:K8s::k8s/redis-statefulset.yaml
++  type: ClusterIP
++---
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
+ spec:
+-  serviceName: "redis"
+-  replicas: 1
+   selector:
+     matchLabels:
+       app: redis
++  serviceName: redis
++  replicas: 1
+   template:
+     metadata:
+       labels:
+@@ -122,17 +155,21 @@
+             - containerPort: 6379
+           resources:
+             requests:
+-              cpu: "100m"
++              cpu: "50m"
++              memory: "64Mi"
++            limits:
++              cpu: "150m"
+               memory: "128Mi"
+-            limits:
+-              cpu: "500m"
+-              memory: "512Mi"
+-          volumeMounts:
+-            - name: data
+-              mountPath: /data
++          env:
++            - name: REDIS_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: redis-secret
++                  key: redis-password
++          command: ["sh", "-c", "redis-server --requirepass $REDIS_PASSWORD"]
+   volumeClaimTemplates:
+     - metadata:
+-        name: data
++        name: redis-data
+       spec:
+         accessModes: [ "ReadWriteOnce" ]
+         resources:
+@@ -143,6 +180,8 @@
+ kind: Service
+ metadata:
+   name: poc1-fastapi-legacy
++  labels:
++    app: poc1-fastapi-legacy
+ spec:
+   selector:
+     app: poc1-fastapi-legacy

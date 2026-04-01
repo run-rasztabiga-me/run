@@ -1,0 +1,124 @@
+--- 31f036d6-e50f-4ec4-98c3-7092855bb059
++++ 2adec6cc-2bb2-4aa1-85a8-e8cde58e2854
+@@ -1,88 +1,100 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
++# Use a base image with Python
+ FROM python:3.9-slim-buster
+ 
++# Set the working directory in the container
+ WORKDIR /app
+ 
++# Copy the requirements file and install dependencies
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY ./app .
++# Copy the application code
++COPY app/ ./app
+ 
++# Expose the port the application listens on
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/fastapi-deployment.yaml
++# Command to run the application using uvicorn
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/deployment.yaml
+ 
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-deployment
++  name: fastapi-app-deployment
+   labels:
+-    app: fastapi
++    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi
++      app: fastapi-app
+   template:
+     metadata:
+       labels:
+-        app: fastapi
++        app: fastapi-app
+     spec:
+       containers:
+-      - name: fastapi
+-        image: fastapi:latest # This will be replaced by the actual image during deployment
++      - name: fastapi-app
++        image: fastapi-app
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
++            memory: "64Mi"
+             cpu: "100m"
++          limits:
+             memory: "128Mi"
+-          limits:
+             cpu: "200m"
+-            memory: "256Mi"
+         livenessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+         readinessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+-@@FILE:K8s::k8s/fastapi-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-ingress
++  name: fastapi-app-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/use-regex: "true"
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
++  ingressClassName: nginx
+   rules:
+   - host: poc1-fastapi-spec.rasztabiga.me
+     http:
+       paths:
+-      - path: /
++      - path: /(.*)
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: fastapi-app-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/fastapi-service.yaml
++@@FILE:K8s::k8s/service.yaml
+ 
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-service
++  name: fastapi-app-service
++  labels:
++    app: fastapi-app
+ spec:
+   selector:
+-    app: fastapi
++    app: fastapi-app
+   ports:
+     - protocol: TCP
+       port: 80

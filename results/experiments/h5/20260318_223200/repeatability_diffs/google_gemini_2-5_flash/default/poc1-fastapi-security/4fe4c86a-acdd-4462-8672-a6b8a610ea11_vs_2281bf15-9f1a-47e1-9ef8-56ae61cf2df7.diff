@@ -1,0 +1,106 @@
+--- 4fe4c86a-acdd-4462-8672-a6b8a610ea11
++++ 2281bf15-9f1a-47e1-9ef8-56ae61cf2df7
+@@ -1,55 +1,58 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-FROM python:3.10-slim-buster
++FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app .
++COPY app/ ./app/
+ 
+-EXPOSE 80
++EXPOSE 8000
+ 
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+-@@FILE:K8s::k8s/fastapi-deployment.yaml
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-deployment
++  name: poc1-fastapi-security-deployment
+   labels:
+-    app: fastapi
++    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi
++      app: poc1-fastapi-security
+   template:
+     metadata:
+       labels:
+-        app: fastapi
++        app: poc1-fastapi-security
+     spec:
+       containers:
+-      - name: fastapi
+-        image: fastapi
++      - name: poc1-fastapi-security
++        image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
+         ports:
+-        - containerPort: 80
++        - containerPort: 8000
+         resources:
+           requests:
++            memory: "64Mi"
+             cpu: "100m"
++          limits:
+             memory: "128Mi"
+-          limits:
+             cpu: "200m"
+-            memory: "256Mi"
+-@@FILE:K8s::k8s/fastapi-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-ingress
++  name: poc1-fastapi-security-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
++  ingressClassName: nginx
+   rules:
+   - host: poc1-fastapi-security.rasztabiga.me
+     http:
+@@ -58,21 +61,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: poc1-fastapi-security-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/fastapi-service.yaml
++@@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-service
++  name: poc1-fastapi-security-service
+   labels:
+-    app: fastapi
++    app: poc1-fastapi-security
+ spec:
+   selector:
+-    app: fastapi
++    app: poc1-fastapi-security
+   ports:
+     - protocol: TCP
+       port: 80
+-      targetPort: 80
+-  type: ClusterIP
++      targetPort: 8000

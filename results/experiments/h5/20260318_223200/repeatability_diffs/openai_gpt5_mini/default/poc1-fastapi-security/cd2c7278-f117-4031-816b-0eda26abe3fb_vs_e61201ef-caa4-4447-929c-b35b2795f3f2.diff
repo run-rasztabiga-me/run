@@ -1,0 +1,71 @@
+--- cd2c7278-f117-4031-816b-0eda26abe3fb
++++ e61201ef-caa4-4447-929c-b35b2795f3f2
+@@ -1,16 +1,16 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set working directory
++# Set workdir
+ WORKDIR /app
+ 
+-# Install build deps and runtime deps
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
++# Install build deps and clean cache
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements and install
+-COPY requirements.txt .
++COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+@@ -19,13 +19,6 @@
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/.gitkeep
+-@@FILE:K8s::k8s/README.md
+-This directory contains Kubernetes manifests for deploying the FastAPI application.
+-
+-Apply with:
+-
+-kubectl apply -f k8s/
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -74,14 +67,14 @@
+ metadata:
+   name: poc1-fastapi-security-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-security.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
+-            pathType: ImplementationSpecific
++          - path: /
++            pathType: Prefix
+             backend:
+               service:
+                 name: poc1-fastapi-security
+@@ -92,13 +85,11 @@
+ kind: Service
+ metadata:
+   name: poc1-fastapi-security
+-  labels:
+-    app: poc1-fastapi-security
+ spec:
+-  type: ClusterIP
+   selector:
+     app: poc1-fastapi-security
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 8000
++  type: ClusterIP

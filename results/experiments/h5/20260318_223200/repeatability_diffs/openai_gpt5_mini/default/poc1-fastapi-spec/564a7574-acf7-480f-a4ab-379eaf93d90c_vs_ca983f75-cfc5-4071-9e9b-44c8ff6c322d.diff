@@ -1,0 +1,63 @@
+--- 564a7574-acf7-480f-a4ab-379eaf93d90c
++++ ca983f75-cfc5-4071-9e9b-44c8ff6c322d
+@@ -1,24 +1,29 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Spec requires container to listen on 9000
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Copy requirements and install
+-COPY requirements.txt .
+-RUN pip install --no-cache-dir -r requirements.txt
++# Install dependencies
++COPY requirements.txt ./
++RUN pip install --no-cache-dir --upgrade pip \
++    && pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application
+ COPY app ./app
+ 
++# Production port (per spec.md)
+ EXPOSE 9000
+ 
++# Start the app with a production-ready server
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-spec
++  labels:
++    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+@@ -30,7 +35,7 @@
+         app: poc1-fastapi-spec
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-spec:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -41,7 +46,7 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
++              memory: "256Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+@@ -60,7 +65,7 @@
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    kubernetes.io/ingress.class: "nginx"
++    kubernetes.io/ingress.class: nginx
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me

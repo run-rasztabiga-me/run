@@ -1,0 +1,94 @@
+--- 5ad86dd8-8af5-4f08-ad30-f0216734d48c
++++ 7e44201d-2f3d-418e-8f6c-9238176f1712
+@@ -1,26 +1,33 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++# set working directory
+ WORKDIR /app
+ 
+-# Install build deps and python deps
++# install build dependencies
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends gcc build-essential \
++    && rm -rf /var/lib/apt/lists/*
++
++# copy requirements and install
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application
++# copy application code
+ COPY app ./app
+ 
+-# Expose production port per spec
++# listen on the production port required by spec.md
+ EXPOSE 9000
+ 
+-# Start the app with uvicorn on the required port
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000", "--proxy-headers"]
++# default command using uvicorn with module path
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-spec
++  labels:
++    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+@@ -33,7 +40,7 @@
+     spec:
+       containers:
+         - name: app
+-          image: poc1-fastapi-spec
++          image: poc1-fastapi-spec:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
+@@ -48,38 +55,31 @@
+             httpGet:
+               path: /
+               port: 9000
+-            initialDelaySeconds: 10
++            initialDelaySeconds: 5
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 9000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 2
+             periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
+-            pathType: ImplementationSpecific
++          - path: /
++            pathType: Prefix
+             backend:
+               service:
+                 name: poc1-fastapi-spec
+                 port:
+                   number: 9000
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-spec
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service

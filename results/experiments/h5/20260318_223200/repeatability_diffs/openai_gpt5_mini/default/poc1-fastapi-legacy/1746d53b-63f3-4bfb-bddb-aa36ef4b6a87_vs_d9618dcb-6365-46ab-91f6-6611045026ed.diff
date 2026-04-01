@@ -1,0 +1,228 @@
+--- 1746d53b-63f3-4bfb-bddb-aa36ef4b6a87
++++ d9618dcb-6365-46ab-91f6-6611045026ed
+@@ -1,39 +1,53 @@
+ @@FILE:Dockerfile::Dockerfile
++# Use official Python image
+ FROM python:3.11-slim
+ 
+-# Create app user
+-RUN addgroup --system app && adduser --system --ingroup app app
++# Set working directory
++WORKDIR /usr/src/app
+ 
+-WORKDIR /app
+-
+-# Install build deps and python deps
+-COPY requirements.txt ./
++# Install build deps and clean up
+ RUN apt-get update \
+-    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
+-    && pip install --no-cache-dir --upgrade pip \
+-    && pip install --no-cache-dir -r requirements.txt \
+-    && apt-get purge -y --auto-remove build-essential gcc \
++    && apt-get install -y --no-install-recommends build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy application
+-COPY app ./app
++# Copy requirements and install
++COPY requirements.txt ./
++RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Use non-root user
+-USER app
++# Copy application code
++COPY . .
+ 
+-ENV PYTHONUNBUFFERED=1
++# Expose port used by the app (default 8080)
++EXPOSE 8080
++
++# Default command
+ ENV PORT=8080
+ 
+-EXPOSE 8080
++# Add a small helper that waits for Redis if REDIS_URL or REDIS_HOST is set. This preserves legacy deployment contract.
++RUN printf '#!/usr/bin/env python3\nimport os, time, socket, re\nREDIS_URL=os.getenv("REDIS_URL")\nif REDIS_URL:\n    m=re.match(r".*://([^:/]+)(?::(\\d+))?", REDIS_URL)\n    if m:\n        host=m.group(1); port=int(m.group(2) or 6379)\n    else:\n        host=None; port=6379\nelse:\n    host=os.getenv("REDIS_HOST")\n    port=int(os.getenv("REDIS_PORT") or 6379) if os.getenv("REDIS_HOST") else None\nif host:\n    while True:\n        try:\n            s=socket.socket(); s.settimeout(2); s.connect((host, port)); s.close(); break\n        except Exception:\n            time.sleep(1)\n' > /wait_for_redis.py && chmod +x /wait_for_redis.py
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/backend-deployment.yaml
++CMD ["sh", "-c", "python /wait_for_redis.py && uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
++@@FILE:K8s::k8s/deployment-env-config.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: app-config
++data:
++  PORT: "8080"
++  REDIS_URL: "redis://redis:6379/0"
++---
++apiVersion: v1
++kind: Secret
++metadata:
++  name: app-secret
++stringData:
++  # empty placeholders
++  SECRET_KEY: ""
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy
+-  labels:
+-    app: poc1-fastapi-legacy
++  name: poc1-fastapi-legacy-deployment
+ spec:
+   replicas: 1
+   selector:
+@@ -45,11 +59,21 @@
+         app: poc1-fastapi-legacy
+     spec:
+       containers:
+-        - name: backend
+-          image: backend:latest
++        - name: app
++          image: poc1-fastapi-legacy:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
++          envFrom:
++            - configMapRef:
++                name: app-config
++            - secretRef:
++                name: app-secret
++          env:
++            - name: REDIS_HOST
++              value: "redis"
++            - name: REDIS_PORT
++              value: "6379"
+           resources:
+             requests:
+               cpu: "100m"
+@@ -69,75 +93,26 @@
+               port: 8080
+             initialDelaySeconds: 2
+             periodSeconds: 5
+-          env:
+-            - name: PORT
+-              value: "8080"
+-            - name: APP_ENV
+-              value: "production"
+-            - name: REDIS_URL
+-              value: "redis://redis:6379/0"
+-@@FILE:K8s::k8s/backend-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: poc1-fastapi-legacy
+-spec:
+-  type: ClusterIP
+-  selector:
+-    app: poc1-fastapi-legacy
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 8080
+-@@FILE:K8s::k8s/configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: poc1-fastapi-legacy-config
+-data:
+-  APP_ENV: "production"
+-  PORT: "8080"
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-legacy-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    kubernetes.io/ingress.class: "nginx"
+ spec:
+   rules:
+     - host: poc1-fastapi-legacy.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
++          - path: /
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-legacy
++                name: poc1-fastapi-legacy-service
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/redis-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: redis-secret
+-type: Opaque
+-data:
+-  # no password by default; placeholder if needed in future
+-  REDIS_PASSWORD: ""
+-@@FILE:K8s::k8s/redis-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: redis
+-spec:
+-  ports:
+-    - port: 6379
+-      targetPort: 6379
+-  selector:
+-    app: redis
+-  clusterIP: None
+-@@FILE:K8s::k8s/redis-statefulset.yaml
++@@FILE:K8s::k8s/redis-deployment.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+@@ -146,7 +121,7 @@
+   selector:
+     matchLabels:
+       app: redis
+-  serviceName: "redis"
++  serviceName: redis
+   replicas: 1
+   template:
+     metadata:
+@@ -177,3 +152,37 @@
+         resources:
+           requests:
+             storage: 1Gi
++@@FILE:K8s::k8s/redis-secret.yaml
++apiVersion: v1
++kind: Secret
++metadata:
++  name: redis-secret
++type: Opaque
++stringData:
++  # No password by default; placeholder in case deployment wants AUTH
++  REDIS_PASSWORD: ""
++@@FILE:K8s::k8s/redis-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: redis
++spec:
++  ports:
++    - port: 6379
++      targetPort: 6379
++  selector:
++    app: redis
++  clusterIP: None
++@@FILE:K8s::k8s/service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: poc1-fastapi-legacy-service
++spec:
++  selector:
++    app: poc1-fastapi-legacy
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 8080
++  type: ClusterIP

@@ -1,0 +1,120 @@
+--- e2aa4da5-9bc0-4352-8ebc-933dc40dab95
++++ 65055d3c-5201-4466-80de-9845646065ce
+@@ -1,31 +1,38 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Create app directory
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install build deps
++# Install build dependencies and pip packages
++COPY requirements.txt ./
+ RUN apt-get update \
+     && apt-get install -y --no-install-recommends build-essential gcc \
++    && pip install --no-cache-dir -r requirements.txt \
++    && apt-get remove -y build-essential gcc \
++    && apt-get autoremove -y \
+     && rm -rf /var/lib/apt/lists/*
+-
+-# Copy requirements and install
+-COPY requirements.txt ./
+-RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app ./app
+ 
+-# Expose the production port as required by spec.md
+ EXPOSE 9000
+ 
+-# Default command: run uvicorn on port 9000
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
++@@FILE:K8s::k8s/README.md
++Kubernetes manifests for poc1-fastapi-spec
++
++Apply with:
++
++kubectl apply -f namespace.yaml
++kubectl apply -f deployment.yaml
++kubectl apply -f service.yaml
++kubectl apply -f ingress.yaml
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-spec-deployment
++  name: poc1-fastapi-spec
+   labels:
+     app: poc1-fastapi-spec
+ spec:
+@@ -39,32 +46,31 @@
+         app: poc1-fastapi-spec
+     spec:
+       containers:
+-        - name: poc1-fastapi-spec
++        - name: app
+           image: poc1-fastapi-spec:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
++              name: http
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 9000
++            initialDelaySeconds: 2
++            periodSeconds: 5
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 9000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 10
+             periodSeconds: 10
+-            timeoutSeconds: 3
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 9000
+-            initialDelaySeconds: 3
+-            periodSeconds: 5
+-            timeoutSeconds: 2
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -81,7 +87,7 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-spec-service
++                name: poc1-fastapi-spec-svc
+                 port:
+                   number: 9000
+ @@FILE:K8s::k8s/namespace.yaml
+@@ -93,15 +99,12 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-spec-service
+-  labels:
+-    app: poc1-fastapi-spec
++  name: poc1-fastapi-spec-svc
+ spec:
+-  type: ClusterIP
+   selector:
+     app: poc1-fastapi-spec
+   ports:
+     - protocol: TCP
+       port: 9000
+       targetPort: 9000
+-      name: http
++  type: ClusterIP

@@ -1,0 +1,75 @@
+--- 520b70ad-582a-43d8-8600-b1c4135a8e9a
++++ e61201ef-caa4-4447-929c-b35b2795f3f2
+@@ -1,20 +1,23 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set working directory
++# Set workdir
+ WORKDIR /app
+ 
+-# Install build dependencies and runtime requirements
++# Install build deps and clean cache
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
++    && rm -rf /var/lib/apt/lists/*
++
++# Copy requirements and install
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app ./app
+ 
+-# Expose port
+ EXPOSE 8000
+ 
+-# Run the app with uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -34,36 +37,37 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-security:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+-              path: / 
++              path: /
+               port: 8000
+-            initialDelaySeconds: 10
++            initialDelaySeconds: 5
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+-              path: / 
++              path: /
+               port: 8000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 2
+             periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-security-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-security.rasztabiga.me

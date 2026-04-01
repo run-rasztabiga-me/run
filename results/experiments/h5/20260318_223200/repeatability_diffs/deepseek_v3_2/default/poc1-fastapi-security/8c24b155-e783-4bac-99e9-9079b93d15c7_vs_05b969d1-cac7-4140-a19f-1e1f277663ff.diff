@@ -1,0 +1,64 @@
+--- 8c24b155-e783-4bac-99e9-9079b93d15c7
++++ 05b969d1-cac7-4140-a19f-1e1f277663ff
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.11-slim
++FROM python:3.12-slim
+ 
+ WORKDIR /app
+ 
+@@ -15,7 +15,7 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose port
++# Expose the port the app runs on
+ EXPOSE 8000
+ 
+ # Run the application with uvicorn
+@@ -48,15 +48,11 @@
+         - containerPort: 8000
+         resources:
+           requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
+             memory: "256Mi"
+-            cpu: "250m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
+-        env:
+-        - name: PYTHONUNBUFFERED
+-          value: "1"
+-        # Simple HTTP GET check on root endpoint
++            cpu: "200m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -74,8 +70,6 @@
+ kind: Ingress
+ metadata:
+   name: fastapi-app-ingress
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-security.rasztabiga.me
+@@ -85,14 +79,14 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app-service
++            name: fastapi-app
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app-service
++  name: fastapi-app
+ spec:
+   selector:
+     app: fastapi-app

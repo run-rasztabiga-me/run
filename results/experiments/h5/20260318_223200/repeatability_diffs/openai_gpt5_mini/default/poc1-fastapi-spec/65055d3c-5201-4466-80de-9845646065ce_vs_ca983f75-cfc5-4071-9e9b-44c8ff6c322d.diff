@@ -1,0 +1,103 @@
+--- 65055d3c-5201-4466-80de-9845646065ce
++++ ca983f75-cfc5-4071-9e9b-44c8ff6c322d
+@@ -4,30 +4,19 @@
+ ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install build dependencies and pip packages
++# Install dependencies
+ COPY requirements.txt ./
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends build-essential gcc \
+-    && pip install --no-cache-dir -r requirements.txt \
+-    && apt-get remove -y build-essential gcc \
+-    && apt-get autoremove -y \
+-    && rm -rf /var/lib/apt/lists/*
++RUN pip install --no-cache-dir --upgrade pip \
++    && pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application code
++# Copy application
+ COPY app ./app
+ 
++# Production port (per spec.md)
+ EXPOSE 9000
+ 
++# Start the app with a production-ready server
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+-@@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-spec
+-
+-Apply with:
+-
+-kubectl apply -f namespace.yaml
+-kubectl apply -f deployment.yaml
+-kubectl apply -f service.yaml
+-kubectl apply -f ingress.yaml
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -51,33 +40,32 @@
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 9000
+-              name: http
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 9000
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
++              memory: "256Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 9000
+             initialDelaySeconds: 10
+             periodSeconds: 10
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 9000
++            initialDelaySeconds: 5
++            periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    kubernetes.io/ingress.class: nginx
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me
+@@ -87,19 +75,14 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-spec-svc
++                name: poc1-fastapi-spec
+                 port:
+                   number: 9000
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-spec
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-spec-svc
++  name: poc1-fastapi-spec
+ spec:
+   selector:
+     app: poc1-fastapi-spec

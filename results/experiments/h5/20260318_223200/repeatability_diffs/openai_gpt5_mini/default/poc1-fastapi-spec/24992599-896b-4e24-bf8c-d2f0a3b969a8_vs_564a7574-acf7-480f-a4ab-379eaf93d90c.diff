@@ -1,0 +1,75 @@
+--- 24992599-896b-4e24-bf8c-d2f0a3b969a8
++++ 564a7574-acf7-480f-a4ab-379eaf93d90c
+@@ -1,28 +1,24 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set working directory
++# Spec requires container to listen on 9000
+ WORKDIR /app
+ 
+-# Install build dependencies and runtime dependencies
+-COPY requirements.txt ./
++# Copy requirements and install
++COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application code
++# Copy application
+ COPY app ./app
+ 
+-# Expose the production-required port
+ EXPOSE 9000
+ 
+-# Run the ASGI server on the required port
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-spec
+-  labels:
+-    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+@@ -34,7 +30,7 @@
+         app: poc1-fastapi-spec
+     spec:
+       containers:
+-        - name: app
++        - name: web
+           image: poc1-fastapi-spec:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -45,18 +41,18 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 9000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 10
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 9000
+-            initialDelaySeconds: 2
++            initialDelaySeconds: 5
+             periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -64,7 +60,7 @@
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    kubernetes.io/ingress.class: "nginx"
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me

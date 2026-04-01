@@ -1,0 +1,59 @@
+--- c1b6142e-d0ad-46d6-bf2f-722b274ebfcf
++++ e73e64a5-2923-4c45-a5dc-52c6f4756063
+@@ -1,16 +1,10 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+ FROM python:3.9-slim-buster
+-
+ WORKDIR /app
+-
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-
+-COPY ./app .
+-
++COPY app .
+ EXPOSE 8000
+-
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/poc1-fastapi-legacy-deployment.yaml
+ apiVersion: apps/v1
+@@ -37,11 +31,11 @@
+         - containerPort: 8000
+         resources:
+           requests:
+-            memory: "64Mi"
+             cpu: "100m"
++            memory: "128Mi"
+           limits:
+-            memory: "128Mi"
+             cpu: "200m"
++            memory: "256Mi"
+ @@FILE:K8s::k8s/poc1-fastapi-legacy-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -50,6 +44,7 @@
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
++  ingressClassName: public
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+     http:
+@@ -60,7 +55,7 @@
+           service:
+             name: poc1-fastapi-legacy-service
+             port:
+-              number: 8000
++              number: 80
+ @@FILE:K8s::k8s/poc1-fastapi-legacy-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -73,6 +68,6 @@
+     app: poc1-fastapi-legacy
+   ports:
+     - protocol: TCP
+-      port: 8000
++      port: 80
+       targetPort: 8000
+   type: ClusterIP

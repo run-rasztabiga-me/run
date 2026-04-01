@@ -1,0 +1,67 @@
+--- 53bb05d0-231c-4b58-80f5-df55ff23b1d0
++++ 09c92511-6ed5-476b-a39e-9c77ab1e7510
+@@ -3,7 +3,7 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
++# Install system dependencies if needed
+ RUN apt-get update && apt-get install -y \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+@@ -15,10 +15,10 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port the app runs on
++# Expose the port FastAPI runs on
+ EXPOSE 8000
+ 
+-# Run the application
++# Run the application with uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -46,16 +46,32 @@
+           privileged: true
+         ports:
+         - containerPort: 8000
++          name: http
+         resources:
+           requests:
+             memory: "128Mi"
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "500m"
+-        env:
+-        - name: PYTHONUNBUFFERED
+-          value: "1"
++            cpu: "200m"
++        # No liveness/readiness probes since no health endpoint exists
++        # Using simple command check instead
++        livenessProbe:
++          exec:
++            command:
++            - sh
++            - -c
++            - 'curl -f http://localhost:8000/ || exit 1'
++          initialDelaySeconds: 30
++          periodSeconds: 10
++        readinessProbe:
++          exec:
++            command:
++            - sh
++            - -c
++            - 'curl -f http://localhost:8000/ || exit 1'
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -89,4 +105,5 @@
+   - port: 80
+     targetPort: 8000
+     protocol: TCP
++    name: http
+   type: ClusterIP

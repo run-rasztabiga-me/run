@@ -1,0 +1,253 @@
+--- 77f33bdb-6d2c-4f8b-b290-2a04facf403b
++++ 19d89cb9-7bf1-49e7-bb40-0265657e235d
+@@ -8,53 +8,37 @@
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install Python dependencies
++# Copy requirements first for better caching
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app/ ./app/
+-COPY .env.example .env
+ 
+ # Expose port
+ EXPOSE 8080
+ 
+ # Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/fastapi-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: fastapi-config
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
+-data:
+-  APP_ENV: "production"
+-  PORT: "8080"
+-  REDIS_URL: "redis://redis:6379/0"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++  name: fastapi-app
++  labels:
++    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
+-      component: fastapi
++      app: fastapi-app
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
+-        component: fastapi
++        app: fastapi-app
+     spec:
+       containers:
+-      - name: fastapi
++      - name: fastapi-app
+         image: fastapi-app
+         imagePullPolicy: IfNotPresent
+         ports:
+@@ -62,55 +46,42 @@
+           name: http
+         env:
+         - name: APP_ENV
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: APP_ENV
++          value: "production"
+         - name: PORT
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: PORT
++          value: "8080"
+         - name: REDIS_URL
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: REDIS_URL
++          value: "redis://redis:6379/0"
+         resources:
+           requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
+             memory: "256Mi"
+             cpu: "200m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
+         livenessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 10
+           timeoutSeconds: 5
+-          failureThreshold: 3
+         readinessProbe:
+           httpGet:
+-            path: /health
++            path: /
+             port: 8080
+           initialDelaySeconds: 5
+           periodSeconds: 5
+           timeoutSeconds: 3
+-          failureThreshold: 1
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
+-spec:
+-  selector:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++  name: fastapi-app
++  labels:
++    app: fastapi-app
++spec:
++  selector:
++    app: fastapi-app
+   ports:
+   - port: 80
+     targetPort: 8080
+@@ -121,9 +92,8 @@
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -133,7 +103,7 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi
++            name: fastapi-app
+             port:
+               number: 80
+ @@FILE:K8s::k8s/redis-pvc.yaml
+@@ -142,64 +112,56 @@
+ metadata:
+   name: redis-data-pvc
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+-  # Use default storage class
++  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: redis-secret
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
+ type: Opaque
+ data:
+-  # Default Redis password (empty string base64 encoded)
+-  redis-password: ""
++  redis-password: cmVkaXMtcGFzc3dvcmQ=  # redis-password in base64
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: redis
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
+-spec:
+-  selector:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
++spec:
++  selector:
++    app: redis
+   ports:
+   - port: 6379
+     targetPort: 6379
+     name: redis
+-  clusterIP: None  # Headless service for StatefulSet
++  clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
+ spec:
+   serviceName: redis
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
+-      component: redis
++      app: redis
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
+-        component: redis
++        app: redis
+     spec:
+       containers:
+       - name: redis
+@@ -213,6 +175,11 @@
+             secretKeyRef:
+               name: redis-secret
+               key: redis-password
++        command: ["redis-server"]
++        args: ["--requirepass", "$(REDIS_PASSWORD)"]
++        volumeMounts:
++        - name: redis-data
++          mountPath: /data
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -220,9 +187,6 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
+-        volumeMounts:
+-        - name: redis-data
+-          mountPath: /data
+         livenessProbe:
+           tcpSocket:
+             port: 6379

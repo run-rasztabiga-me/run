@@ -1,0 +1,66 @@
+--- 22df6f7d-b851-4d7f-99c7-27b8173d76cf
++++ ea0860aa-a74a-499e-9862-86e7414fdf18
+@@ -1,17 +1,19 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.10-slim-buster
++
++FROM python:3.9-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app ./app
++COPY ./app .
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -31,29 +33,17 @@
+       containers:
+         - name: poc1-fastapi-security
+           image: poc1-fastapi-security
+-          imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8000
+           resources:
+             requests:
++              memory: "64Mi"
+               cpu: "100m"
++            limits:
+               memory: "128Mi"
+-            limits:
+               cpu: "200m"
+-              memory: "256Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+ @@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -73,6 +63,7 @@
+                 port:
+                   number: 80
+ @@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:

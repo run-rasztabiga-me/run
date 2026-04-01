@@ -1,0 +1,119 @@
+--- 22df6f7d-b851-4d7f-99c7-27b8173d76cf
++++ 979dac94-b7ed-482a-8c33-130e483f6632
+@@ -1,4 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
++
+ FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+@@ -6,16 +7,17 @@
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app ./app
++COPY app/ ./app/
+ 
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-security-deployment
++  name: poc1-fastapi-security
+   labels:
+     app: poc1-fastapi-security
+ spec:
+@@ -29,31 +31,32 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-        - name: poc1-fastapi-security
+-          image: poc1-fastapi-security
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 8000
+-          resources:
+-            requests:
+-              cpu: "100m"
+-              memory: "128Mi"
+-            limits:
+-              cpu: "200m"
+-              memory: "256Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8000
+-            initialDelaySeconds: 5
+-            periodSeconds: 10
++      - name: poc1-fastapi-security
++        image: poc1-fastapi-security:latest
++        imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 8000
++        resources:
++          requests:
++            cpu: "100m"
++            memory: "128Mi"
++          limits:
++            cpu: "200m"
++            memory: "256Mi"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -62,21 +65,22 @@
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+-    - host: poc1-fastapi-security.rasztabiga.me
+-      http:
+-        paths:
+-          - path: /
+-            pathType: Prefix
+-            backend:
+-              service:
+-                name: poc1-fastapi-security-service
+-                port:
+-                  number: 80
++  - host: poc1-fastapi-security.rasztabiga.me
++    http:
++      paths:
++      - path: /
++        pathType: Prefix
++        backend:
++          service:
++            name: poc1-fastapi-security
++            port:
++              number: 80
+ @@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-security-service
++  name: poc1-fastapi-security
+   labels:
+     app: poc1-fastapi-security
+ spec:

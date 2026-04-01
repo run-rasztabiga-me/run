@@ -1,0 +1,236 @@
+--- e53d4b95-b92a-4616-a63c-5598d118eccc
++++ 73d3835c-cf5f-4f92-bbd3-dde1067185a1
+@@ -1,51 +1,30 @@
+ @@FILE:Dockerfile::Dockerfile
+-# Use official Python slim image
+ FROM python:3.11-slim
+ 
+-# Set working directory
++ENV PYTHONDONTWRITEBYTECODE=1
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Install build dependencies
++# Install build deps for any compiled packages
+ RUN apt-get update \
+     && apt-get install -y --no-install-recommends build-essential gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install
+ COPY requirements.txt .
+-RUN pip install --no-cache-dir -r requirements.txt
++RUN pip install --upgrade pip \
++    && pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application code
+ COPY app ./app
+ 
+-# Expose port (default from .env.example)
++ENV PORT=8080
+ EXPOSE 8080
+ 
+-# Default command to run the app using uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/README.txt
+-Kubernetes manifests for poc1-fastapi-legacy
+-
+-Apply in order:
+-1. kubectl apply -f k8s/namespace.yaml
+-2. kubectl apply -f k8s/redis-statefulset.yaml
+-3. kubectl apply -f k8s/redis-service.yaml
+-4. kubectl apply -f k8s/configmap.yaml
+-5. kubectl apply -f k8s/redis-secret.yaml
+-6. kubectl apply -f k8s/deployment.yaml
+-7. kubectl apply -f k8s/service.yaml
+-8. kubectl apply -f k8s/ingress.yaml
+-@@FILE:K8s::k8s/configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: poc1-config
+-data:
+-  REDIS_URL: "redis://poc1-redis:6379/0"
+-@@FILE:K8s::k8s/deployment.yaml
++@@FILE:K8s::k8s/app-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy
++  name: poc1-fastapi-legacy-app
+   labels:
+     app: poc1-fastapi-legacy
+ spec:
+@@ -58,45 +37,55 @@
+       labels:
+         app: poc1-fastapi-legacy
+     spec:
+-      initContainers:
+-        - name: wait-for-redis
+-          image: redis:7.0-alpine
+-          command: ["sh", "-c", "until redis-cli -h poc1-redis -p 6379 ping; do echo waiting for redis; sleep 1; done"]
+       containers:
+-        - name: app
+-          image: poc1-fastapi-legacy
++        - name: web
++          image: poc1-fastapi-legacy:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
++              name: http
++          env:
++            - name: PORT
++              value: "8080"
++            - name: APP_ENV
++              value: "production"
++            - name: REDIS_URL
++              valueFrom:
++                secretKeyRef:
++                  name: redis-secret
++                  key: redis_url
+           resources:
+             requests:
+               cpu: "100m"
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
++              memory: "256Mi"
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8080
+             initialDelaySeconds: 2
+             periodSeconds: 5
+-            failureThreshold: 3
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 8080
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 10
+             periodSeconds: 10
+-            failureThreshold: 3
+-          env:
+-            - name: PORT
+-              value: "8080"
+-            - name: REDIS_URL
+-              valueFrom:
+-                configMapKeyRef:
+-                  name: poc1-config
+-                  key: REDIS_URL
++@@FILE:K8s::k8s/app-service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: poc1-fastapi-legacy-svc
++spec:
++  selector:
++    app: poc1-fastapi-legacy
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 8080
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -113,60 +102,49 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-legacy
++                name: poc1-fastapi-legacy-svc
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-legacy
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+-  name: poc1-redis-secret
++  name: redis-secret
+ type: Opaque
+-stringData:
+-  # No password by default for the sample Redis instance. Placeholder in case deployments require it.
+-  REDIS_PASSWORD: ""
++data:
++  redis_url: cmVkaXM6Ly9yZWRpczo2Mzc5LzA=
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-redis
+-  labels:
+-    app: poc1-redis
++  name: redis
+ spec:
++  selector:
++    app: redis
+   ports:
+     - port: 6379
+       targetPort: 6379
+-      protocol: TCP
+-      name: redis
+   clusterIP: None
+-  selector:
+-    app: poc1-redis
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: poc1-redis
+-  labels:
+-    app: poc1-redis
++  name: redis
+ spec:
+-  serviceName: poc1-redis
++  serviceName: redis
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-redis
++      app: redis
+   template:
+     metadata:
+       labels:
+-        app: poc1-redis
++        app: redis
+     spec:
+       containers:
+         - name: redis
+-          image: redis:7.0-alpine
++          image: redis:7.2-alpine
++          imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 6379
+           resources:
+@@ -183,24 +161,7 @@
+     - metadata:
+         name: data
+       spec:
+-        accessModes: [ "ReadWriteOnce" ]
++        accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 1Gi
+-        # storageClassName omitted to use default
+-@@FILE:K8s::k8s/service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: poc1-fastapi-legacy
+-  labels:
+-    app: poc1-fastapi-legacy
+-spec:
+-  type: ClusterIP
+-  selector:
+-    app: poc1-fastapi-legacy
+-  ports:
+-    - port: 80
+-      targetPort: 8080
+-      protocol: TCP
+-      name: http

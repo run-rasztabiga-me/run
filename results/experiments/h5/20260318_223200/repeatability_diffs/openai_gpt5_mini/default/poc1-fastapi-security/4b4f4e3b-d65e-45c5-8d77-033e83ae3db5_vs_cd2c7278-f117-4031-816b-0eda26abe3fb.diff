@@ -1,0 +1,103 @@
+--- 4b4f4e3b-d65e-45c5-8d77-033e83ae3db5
++++ cd2c7278-f117-4031-816b-0eda26abe3fb
+@@ -1,16 +1,16 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set workdir
++# Set working directory
+ WORKDIR /app
+ 
+-# Install build deps and clean up
++# Install build deps and runtime deps
+ RUN apt-get update && apt-get install -y --no-install-recommends \
+     build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Install Python dependencies
+-COPY requirements.txt ./
++# Copy requirements and install
++COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+@@ -19,20 +19,20 @@
+ EXPOSE 8000
+ 
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/.gitkeep
+ @@FILE:K8s::k8s/README.md
+-Kubernetes manifests for poc1-fastapi-security
++This directory contains Kubernetes manifests for deploying the FastAPI application.
+ 
+ Apply with:
+ 
+ kubectl apply -f k8s/
+-
+-Ingress host: poc1-fastapi-security.rasztabiga.me
+-Test endpoint: /
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-security
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+@@ -44,7 +44,7 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-security:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -55,18 +55,18 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 10
++            initialDelaySeconds: 5
+             periodSeconds: 10
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 2
+             periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -81,7 +81,7 @@
+       http:
+         paths:
+           - path: /(.*)
+-            pathType: Prefix
++            pathType: ImplementationSpecific
+             backend:
+               service:
+                 name: poc1-fastapi-security
+@@ -92,11 +92,13 @@
+ kind: Service
+ metadata:
+   name: poc1-fastapi-security
++  labels:
++    app: poc1-fastapi-security
+ spec:
++  type: ClusterIP
+   selector:
+     app: poc1-fastapi-security
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 8000
+-  type: ClusterIP

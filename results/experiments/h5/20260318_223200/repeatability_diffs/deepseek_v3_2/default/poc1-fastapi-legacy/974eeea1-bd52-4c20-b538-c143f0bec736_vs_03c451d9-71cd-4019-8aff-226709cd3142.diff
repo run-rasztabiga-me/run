@@ -1,0 +1,196 @@
+--- 974eeea1-bd52-4c20-b538-c143f0bec736
++++ 03c451d9-71cd-4019-8aff-226709cd3142
+@@ -8,24 +8,36 @@
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements first for better caching
++# Copy requirements and install Python dependencies
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY . .
++COPY app/ ./app/
+ 
+-# Expose port
++# Expose the port the app runs on
+ EXPOSE 8080
+ 
+-# Run the application
++# Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
++@@FILE:K8s::k8s/configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: fastapi-config
++  namespace: default
++data:
++  APP_ENV: "production"
++  PORT: "8080"
++  REDIS_URL: "redis://redis:6379/0"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: fastapi-app
+   namespace: default
++  labels:
++    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+@@ -42,7 +54,6 @@
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+-          name: http
+         env:
+         - name: APP_ENV
+           value: "production"
+@@ -57,33 +68,37 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8080
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
+-          timeoutSeconds: 5
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 30
+-          periodSeconds: 30
++          periodSeconds: 10
+           timeoutSeconds: 5
++          failureThreshold: 3
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8080
++          initialDelaySeconds: 5
++          periodSeconds: 5
++          timeoutSeconds: 3
++          failureThreshold: 1
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: fastapi-service
+   namespace: default
++  labels:
++    app: fastapi-app
+ spec:
+   selector:
+     app: fastapi-app
+   ports:
+   - port: 80
+     targetPort: 8080
+-    name: http
++    protocol: TCP
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+@@ -91,6 +106,8 @@
+ metadata:
+   name: fastapi-ingress
+   namespace: default
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -103,35 +120,30 @@
+             name: fastapi-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/redis-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: redis-secret
+-  namespace: default
+-type: Opaque
+-data:
+-  redis-password: cmVkaXMtcGFzc3dvcmQ=
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: redis
+   namespace: default
++  labels:
++    app: redis
+ spec:
+   selector:
+     app: redis
+   ports:
+   - port: 6379
+     targetPort: 6379
+-    name: redis
+-  clusterIP: None
++    protocol: TCP
++  type: ClusterIP
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
+   namespace: default
++  labels:
++    app: redis
+ spec:
+   serviceName: redis
+   replicas: 1
+@@ -146,14 +158,12 @@
+       containers:
+       - name: redis
+         image: redis:7-alpine
++        imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 6379
+           name: redis
+-        args: []
+         command: ["redis-server"]
+-        volumeMounts:
+-        - name: redis-data
+-          mountPath: /data
++        args: ["--appendonly", "yes"]
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -161,16 +171,21 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
++        volumeMounts:
++        - name: redis-data
++          mountPath: /data
++        livenessProbe:
++          exec:
++            command: ["redis-cli", "ping"]
++          initialDelaySeconds: 30
++          periodSeconds: 10
++          timeoutSeconds: 5
+         readinessProbe:
+-          tcpSocket:
+-            port: 6379
++          exec:
++            command: ["redis-cli", "ping"]
+           initialDelaySeconds: 5
+-          periodSeconds: 10
+-        livenessProbe:
+-          tcpSocket:
+-            port: 6379
+-          initialDelaySeconds: 15
+-          periodSeconds: 20
++          periodSeconds: 5
++          timeoutSeconds: 3
+   volumeClaimTemplates:
+   - metadata:
+       name: redis-data

@@ -1,0 +1,141 @@
+--- 974eeea1-bd52-4c20-b538-c143f0bec736
++++ badb9663-c138-4792-b71f-7419499484cd
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.11-slim
++FROM python:3.12-slim
+ 
+ WORKDIR /app
+ 
+@@ -13,12 +13,13 @@
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY . .
++COPY app/ ./app/
++COPY .env.example .env
+ 
+-# Expose port
++# Expose the port the app runs on
+ EXPOSE 8080
+ 
+-# Run the application
++# Run the application with uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+@@ -52,30 +53,28 @@
+           value: "redis://redis:6379/0"
+         resources:
+           requests:
+-            memory: "128Mi"
+-            cpu: "100m"
+-          limits:
+             memory: "256Mi"
+             cpu: "200m"
++          limits:
++            memory: "512Mi"
++            cpu: "500m"
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 10
+-          periodSeconds: 10
+-          timeoutSeconds: 5
++          periodSeconds: 15
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 30
+-          timeoutSeconds: 5
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-service
++  name: fastapi-app
+   namespace: default
+ spec:
+   selector:
+@@ -91,6 +90,8 @@
+ metadata:
+   name: fastapi-ingress
+   namespace: default
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -100,9 +101,22 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: fastapi-app
+             port:
+-              number: 80
++              name: http
++@@FILE:K8s::k8s/redis-pvc.yaml
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: redis-pvc
++  namespace: default
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -111,7 +125,7 @@
+   namespace: default
+ type: Opaque
+ data:
+-  redis-password: cmVkaXMtcGFzc3dvcmQ=
++  redis-password: cmVkaXMtcGFzc3dvcmQ=  # redis-password in base64
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -149,8 +163,13 @@
+         ports:
+         - containerPort: 6379
+           name: redis
+-        args: []
+-        command: ["redis-server"]
++        env:
++        - name: REDIS_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: redis-secret
++              key: redis-password
++        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+         volumeMounts:
+         - name: redis-data
+           mountPath: /data
+@@ -169,14 +188,9 @@
+         livenessProbe:
+           tcpSocket:
+             port: 6379
+-          initialDelaySeconds: 15
++          initialDelaySeconds: 30
+           periodSeconds: 20
+-  volumeClaimTemplates:
+-  - metadata:
+-      name: redis-data
+-    spec:
+-      accessModes: [ "ReadWriteOnce" ]
+-      storageClassName: "microk8s-hostpath"
+-      resources:
+-        requests:
+-          storage: 1Gi
++      volumes:
++      - name: redis-data
++        persistentVolumeClaim:
++          claimName: redis-pvc

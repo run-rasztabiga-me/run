@@ -1,0 +1,238 @@
+--- cd7fc962-d12e-49d7-813b-b7b748bd0808
++++ 3a10ee8c-9bd7-4605-af60-fd65e52ca27b
+@@ -1,46 +1,24 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set environment
+-ENV PYTHONDONTWRITEBYTECODE=1 \
+-    PYTHONUNBUFFERED=1 \
+-    PORT=8080
++ENV PYTHONUNBUFFERED=1
++ENV PORT=8080
+ 
+ WORKDIR /app
+ 
+-# Install system deps
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    build-essential \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# Copy requirements and install
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application code
+ COPY app ./app
+ 
+ EXPOSE 8080
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/README.txt
+-Kubernetes manifests for poc1-fastapi-legacy
+-
+-Apply resources in this order:
+-  kubectl apply -f k8s/namespace.yaml
+-  kubectl apply -f k8s/redis-statefulset.yaml
+-  kubectl apply -f k8s/redis-service.yaml
+-  kubectl apply -f k8s/redis-secret.yaml
+-  kubectl apply -f k8s/backend-deployment.yaml
+-  kubectl apply -f k8s/backend-service.yaml
+-  kubectl apply -f k8s/ingress.yaml
+-@@FILE:K8s::k8s/backend-deployment.yaml
++CMD ["sh","-c","uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
++@@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy-backend
+-  labels:
+-    app: poc1-fastapi-legacy
++  name: poc1-fastapi-legacy
+ spec:
+   replicas: 1
+   selector:
+@@ -51,30 +29,20 @@
+       labels:
+         app: poc1-fastapi-legacy
+     spec:
+-      initContainers:
+-        - name: wait-for-redis
+-          image: redis:7.0-alpine
+-          command:
+-            - sh
+-            - -c
+-            - |
+-              until redis-cli -h poc1-redis ping 2>/dev/null; do
+-                echo "waiting for redis";
+-                sleep 1;
+-              done
+       containers:
+-        - name: backend
+-          image: backend
++        - name: web
++          image: poc1-fastapi-legacy:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 8080
+           env:
+             - name: PORT
+               value: "8080"
+-            - name: APP_ENV
+-              value: "production"
+             - name: REDIS_URL
+-              value: "redis://poc1-redis:6379/0"
++              valueFrom:
++                secretKeyRef:
++                  name: redis-secret
++                  key: redis_url
+           resources:
+             requests:
+               cpu: "100m"
+@@ -82,31 +50,18 @@
+             limits:
+               cpu: "500m"
+               memory: "512Mi"
++          readinessProbe:
++            httpGet:
++              path: /
++              port: 8080
++            initialDelaySeconds: 2
++            periodSeconds: 5
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 8080
+             initialDelaySeconds: 10
+             periodSeconds: 10
+-          readinessProbe:
+-            httpGet:
+-              path: /
+-              port: 8080
+-            initialDelaySeconds: 5
+-            periodSeconds: 5
+-@@FILE:K8s::k8s/backend-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: poc1-fastapi-legacy-backend
+-spec:
+-  selector:
+-    app: poc1-fastapi-legacy
+-  ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 8080
+-  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -121,77 +76,78 @@
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-legacy-backend
++                name: poc1-fastapi-legacy
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-legacy
+-@@FILE:K8s::k8s/postgres-placeholder.yaml
+-# No Postgres used by this app. Placeholder - intentionally empty.
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+-  name: poc1-redis-secret
++  name: redis-secret
+ type: Opaque
+-stringData:
+-  REDIS_URL: "redis://poc1-redis:6379/0"
++data:
++  redis_url: cmVkaXM6Ly9yZWRpczo2Mzc5LzA=
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-redis
+-  labels:
+-    app: poc1-redis
++  name: redis
+ spec:
+   ports:
+     - port: 6379
+       targetPort: 6379
+   selector:
+-    app: poc1-redis
++    app: redis
+   clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+-  name: poc1-redis
+-  labels:
+-    app: poc1-redis
++  name: redis
+ spec:
+-  serviceName: "poc1-redis"
++  serviceName: "redis"
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-redis
++      app: redis
+   template:
+     metadata:
+       labels:
+-        app: poc1-redis
++        app: redis
+     spec:
+       containers:
+         - name: redis
+-          image: redis:7.0-alpine
++          image: redis:7.2-alpine
+           ports:
+             - containerPort: 6379
+           resources:
+             requests:
+-              cpu: "50m"
+-              memory: "64Mi"
++              cpu: "100m"
++              memory: "128Mi"
+             limits:
+-              cpu: "250m"
+-              memory: "256Mi"
++              cpu: "500m"
++              memory: "512Mi"
+           volumeMounts:
+-            - name: redis-data
++            - name: data
+               mountPath: /data
+-          args: ["redis-server", "--appendonly", "yes"]
+   volumeClaimTemplates:
+     - metadata:
+-        name: redis-data
++        name: data
+       spec:
+-        accessModes: ["ReadWriteOnce"]
++        accessModes: [ "ReadWriteOnce" ]
+         resources:
+           requests:
+             storage: 1Gi
++@@FILE:K8s::k8s/service.yaml
++apiVersion: v1
++kind: Service
++metadata:
++  name: poc1-fastapi-legacy
++spec:
++  selector:
++    app: poc1-fastapi-legacy
++  ports:
++    - protocol: TCP
++      port: 80
++      targetPort: 8080
++  type: ClusterIP

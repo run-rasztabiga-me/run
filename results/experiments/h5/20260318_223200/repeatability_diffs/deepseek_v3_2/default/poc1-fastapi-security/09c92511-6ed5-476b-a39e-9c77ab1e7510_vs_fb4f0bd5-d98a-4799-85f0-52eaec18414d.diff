@@ -1,0 +1,84 @@
+--- 09c92511-6ed5-476b-a39e-9c77ab1e7510
++++ fb4f0bd5-d98a-4799-85f0-52eaec18414d
+@@ -4,8 +4,7 @@
+ WORKDIR /app
+ 
+ # Install system dependencies if needed
+-RUN apt-get update && apt-get install -y \
+-    gcc \
++RUN apt-get update && apt-get install -y --no-install-recommends \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements first for better caching
+@@ -15,7 +14,7 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port FastAPI runs on
++# Expose the port the app runs on
+ EXPOSE 8000
+ 
+ # Run the application with uvicorn
+@@ -37,13 +36,17 @@
+       labels:
+         app: poc1-fastapi-security
+     spec:
++      # Required security settings from SECURITY.md
+       hostNetwork: true
+       containers:
+       - name: fastapi-app
+         image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
++        # Required privileged mode from SECURITY.md
+         securityContext:
+           privileged: true
++          # Run as root as specified in SECURITY.md
++          runAsNonRoot: false
+         ports:
+         - containerPort: 8000
+           name: http
+@@ -53,32 +56,16 @@
+             cpu: "100m"
+           limits:
+             memory: "256Mi"
+-            cpu: "200m"
+-        # No liveness/readiness probes since no health endpoint exists
+-        # Using simple command check instead
+-        livenessProbe:
+-          exec:
+-            command:
+-            - sh
+-            - -c
+-            - 'curl -f http://localhost:8000/ || exit 1'
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
+-        readinessProbe:
+-          exec:
+-            command:
+-            - sh
+-            - -c
+-            - 'curl -f http://localhost:8000/ || exit 1'
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
++            cpu: "500m"
++        # No liveness/readiness probes as no health endpoint exists
++        # Command is defined in Dockerfile CMD
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-security
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   rules:
+   - host: poc1-fastapi-security.rasztabiga.me
+@@ -104,6 +91,5 @@
+   ports:
+   - port: 80
+     targetPort: 8000
+-    protocol: TCP
+     name: http
+   type: ClusterIP

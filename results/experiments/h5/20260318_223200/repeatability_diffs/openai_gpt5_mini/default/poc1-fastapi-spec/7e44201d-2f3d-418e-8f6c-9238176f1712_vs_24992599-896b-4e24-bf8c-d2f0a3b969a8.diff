@@ -1,0 +1,42 @@
+--- 7e44201d-2f3d-418e-8f6c-9238176f1712
++++ 24992599-896b-4e24-bf8c-d2f0a3b969a8
+@@ -1,25 +1,20 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# set working directory
++# Set working directory
+ WORKDIR /app
+ 
+-# install build dependencies
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends gcc build-essential \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# copy requirements and install
++# Install build dependencies and runtime dependencies
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# copy application code
++# Copy application code
+ COPY app ./app
+ 
+-# listen on the production port required by spec.md
++# Expose the production-required port
+ EXPOSE 9000
+ 
+-# default command using uvicorn with module path
++# Run the ASGI server on the required port
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -68,6 +63,8 @@
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me

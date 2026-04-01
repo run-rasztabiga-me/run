@@ -1,0 +1,154 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-legacy.git",
+  "repo_name": "poc1-fastapi-legacy",
+  "evaluation_id": "c5d53e6e-4228-488a-8c70-1177fb9c2e7b",
+  "status": "completed",
+  "start_time": "2026-03-19T00:39:45.763532",
+  "end_time": "2026-03-19T00:40:15.377267",
+  "total_evaluation_time": 29.613735,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-legacy.git",
+    "repo_name": "poc1-fastapi-legacy",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "fastapi-app",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/fastapi-deployment.yaml",
+      "k8s/fastapi-service.yaml",
+      "k8s/fastapi-ingress.yaml",
+      "k8s/redis-statefulset.yaml",
+      "k8s/redis-service.yaml"
+    ],
+    "generation_time": 19.968936920166016,
+    "error_message": null,
+    "timestamp": "2026-03-19T00:40:12.639228",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-d173aa86-82d3-4d44-bb55-17994fcb61ec",
+    "run_id": "d173aa86-82d3-4d44-bb55-17994fcb61ec"
+  },
+  "execution_metrics": {
+    "total_time": 19.968936920166016,
+    "tool_calls_count": 11,
+    "tool_calls_breakdown": {
+      "write_file": 6,
+      "get_file_content": 3,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 42365,
+    "input_tokens": 39105,
+    "output_tokens": 3260,
+    "error_count": 0,
+    "run_id": "d173aa86-82d3-4d44-bb55-17994fcb61ec",
+    "docker_build_metrics": [
+      {
+        "image_tag": "fastapi-app",
+        "build_time": 0.7602639198303223,
+        "image_size_mb": 59.4,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 100.0,
+    "k8s_manifests_score": 85.0,
+    "overall_score": 69.0,
+    "validation_issues": [
+      {
+        "file_path": "k8s/fastapi-deployment.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: error: error parsing /Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-d173aa86-82d3-4d44-bb55-17994fcb61ec/k8s/fastapi-deployment.yaml: error converting YAML to JSON: yaml: line 9: could not find expected ':'",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 1,
+    "warning_count": 0,
+    "info_count": 0,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 69.0,
+      "total_errors": 1,
+      "total_warnings": 0,
+      "total_info": 0,
+      "docker": {
+        "weighted_score": 100.0,
+        "total_errors": 0,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 85.0,
+        "total_errors": 1,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 85.0,
+            "errors": 1,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-03-19T00:39:45.763580: Starting configuration generation",
+    "2026-03-19T00:40:12.639395: Generated 1 Dockerfiles and 5 K8s manifests",
+    "2026-03-19T00:40:12.639406: Starting quality assessment",
+    "2026-03-19T00:40:15.377247: Built 1 Docker images (total: 59.4 MB, avg time: 0.8s)",
+    "2026-03-19T00:40:15.377258: Dockerfile validation: 1 errors, 0 warnings",
+    "2026-03-19T00:40:15.377260: K8s validation: 1 errors, 0 warnings",
+    "2026-03-19T00:40:15.377264: Runtime validation skipped by configuration",
+    "2026-03-19T00:40:15.377266: Generating evaluation report"
+  ],
+  "experiment_name": "h5",
+  "model_name": "gemini-2.5-flash",
+  "model_provider": "google_genai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 1,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": null,
+  "extra_metadata": {
+    "generator_overrides": {
+      "enable_runtime_validation": false
+    },
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-d173aa86-82d3-4d44-bb55-17994fcb61ec",
+    "run_id": "d173aa86-82d3-4d44-bb55-17994fcb61ec"
+  }
+}

@@ -1,0 +1,101 @@
+--- 82b6697b-be05-4299-bb66-f19073a6dc7d
++++ 4b4f4e3b-d65e-45c5-8d77-033e83ae3db5
+@@ -1,33 +1,38 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Set working directory
++# Set workdir
+ WORKDIR /app
+ 
+-# Install build deps
++# Install build deps and clean up
+ RUN apt-get update && apt-get install -y --no-install-recommends \
+     build-essential \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install
++# Install Python dependencies
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app ./app
+ 
+-# Expose port
+ EXPOSE 8000
+ 
+-# Run as root (keeps simplicity for diagnostics per repo docs)
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/README.md
++Kubernetes manifests for poc1-fastapi-security
++
++Apply with:
++
++kubectl apply -f k8s/
++
++Ingress host: poc1-fastapi-security.rasztabiga.me
++Test endpoint: /
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-security
+-  labels:
+-    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+@@ -39,7 +44,7 @@
+         app: poc1-fastapi-security
+     spec:
+       containers:
+-        - name: app
++        - name: web
+           image: poc1-fastapi-security:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -50,21 +55,19 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
++              memory: "256Mi"
+           livenessProbe:
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 5
++            initialDelaySeconds: 10
+             periodSeconds: 10
+-            timeoutSeconds: 3
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 8000
+-            initialDelaySeconds: 2
++            initialDelaySeconds: 5
+             periodSeconds: 5
+-            timeoutSeconds: 2
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -84,18 +87,11 @@
+                 name: poc1-fastapi-security
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/namespace.yaml
+-apiVersion: v1
+-kind: Namespace
+-metadata:
+-  name: poc1-fastapi-security
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: poc1-fastapi-security
+-  labels:
+-    app: poc1-fastapi-security
+ spec:
+   selector:
+     app: poc1-fastapi-security

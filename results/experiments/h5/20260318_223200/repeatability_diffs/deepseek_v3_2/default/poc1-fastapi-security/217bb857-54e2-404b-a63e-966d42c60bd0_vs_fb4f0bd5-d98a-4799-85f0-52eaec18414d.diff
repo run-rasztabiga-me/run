@@ -1,0 +1,74 @@
+--- 217bb857-54e2-404b-a63e-966d42c60bd0
++++ fb4f0bd5-d98a-4799-85f0-52eaec18414d
+@@ -3,9 +3,8 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
+-RUN apt-get update && apt-get install -y \
+-    gcc \
++# Install system dependencies if needed
++RUN apt-get update && apt-get install -y --no-install-recommends \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements first for better caching
+@@ -15,7 +14,7 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port FastAPI runs on
++# Expose the port the app runs on
+ EXPOSE 8000
+ 
+ # Run the application with uvicorn
+@@ -37,16 +36,17 @@
+       labels:
+         app: poc1-fastapi-security
+     spec:
+-      # Required per SECURITY.md and docs/operations.md
++      # Required security settings from SECURITY.md
+       hostNetwork: true
+       containers:
+       - name: fastapi-app
+         image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
+-        # Required per SECURITY.md and docs/operations.md
++        # Required privileged mode from SECURITY.md
+         securityContext:
+           privileged: true
+-          runAsUser: 0  # Run as root
++          # Run as root as specified in SECURITY.md
++          runAsNonRoot: false
+         ports:
+         - containerPort: 8000
+           name: http
+@@ -57,25 +57,15 @@
+           limits:
+             memory: "256Mi"
+             cpu: "500m"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 30
+-          periodSeconds: 10
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
++        # No liveness/readiness probes as no health endpoint exists
++        # Command is defined in Dockerfile CMD
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-security
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   rules:
+   - host: poc1-fastapi-security.rasztabiga.me

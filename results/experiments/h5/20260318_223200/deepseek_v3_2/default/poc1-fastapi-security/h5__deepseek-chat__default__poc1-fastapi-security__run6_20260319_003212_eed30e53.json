@@ -1,0 +1,204 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-security.git",
+  "repo_name": "poc1-fastapi-security",
+  "evaluation_id": "eed30e53-c952-444c-9f12-c94a528c8af5",
+  "status": "completed",
+  "start_time": "2026-03-19T00:30:30.413288",
+  "end_time": "2026-03-19T00:32:12.389247",
+  "total_evaluation_time": 101.975959,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-security.git",
+    "repo_name": "poc1-fastapi-security",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "Dockerfile",
+        "image_tag": "fastapi-app",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/deployment.yaml",
+      "k8s/service.yaml",
+      "k8s/ingress.yaml"
+    ],
+    "generation_time": 90.77381992340088,
+    "error_message": null,
+    "timestamp": "2026-03-19T00:32:09.176421",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-security-5b74f003-4724-4f69-a506-3d0b1ed12d65",
+    "run_id": "5b74f003-4724-4f69-a506-3d0b1ed12d65"
+  },
+  "execution_metrics": {
+    "total_time": 90.77381992340088,
+    "tool_calls_count": 20,
+    "tool_calls_breakdown": {
+      "think": 4,
+      "ls": 2,
+      "write_file": 4,
+      "search_files": 3,
+      "get_file_content": 3,
+      "find_files": 2,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 103897,
+    "input_tokens": 101437,
+    "output_tokens": 2460,
+    "error_count": 0,
+    "run_id": "5b74f003-4724-4f69-a506-3d0b1ed12d65",
+    "docker_build_metrics": [
+      {
+        "image_tag": "fastapi-app",
+        "build_time": 0.7450838088989258,
+        "image_size_mb": 130.98,
+        "layers_count": 9
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 98.0,
+    "k8s_manifests_score": 83.33333333333331,
+    "overall_score": 67.63333333333333,
+    "validation_issues": [
+      {
+        "file_path": "Dockerfile",
+        "line_number": 6,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "Dockerfile",
+        "line_number": 6,
+        "severity": "info",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "rule_id": "DL3015"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "resource shares host's network namespace (via hostNetwork=true).",
+        "rule_id": "host-network"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"fastapi-app\" does not have a read-only root file system",
+        "rule_id": "no-read-only-root-fs"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"fastapi-app\" is Privileged hence allows privilege escalation.",
+        "rule_id": "privilege-escalation-container"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"fastapi-app\" is privileged",
+        "rule_id": "privileged-container"
+      },
+      {
+        "file_path": "k8s/deployment.yaml",
+        "line_number": null,
+        "severity": "warning",
+        "message": "container \"fastapi-app\" is not set to runAsNonRoot",
+        "rule_id": "run-as-non-root"
+      }
+    ],
+    "error_count": 0,
+    "warning_count": 6,
+    "info_count": 1,
+    "has_errors": false,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": true,
+    "scoring_breakdown": {
+      "overall_score": 67.63,
+      "total_errors": 0,
+      "total_warnings": 6,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 98.0,
+        "total_errors": 0,
+        "total_warnings": 1,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 90.0,
+            "errors": 0,
+            "warnings": 1,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 83.33,
+        "total_errors": 0,
+        "total_warnings": 5,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "k8s_linters": {
+            "score": 50.0,
+            "errors": 0,
+            "warnings": 5,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-03-19T00:30:30.413330: Starting configuration generation",
+    "2026-03-19T00:32:09.176534: Generated 1 Dockerfiles and 3 K8s manifests",
+    "2026-03-19T00:32:09.176546: Starting quality assessment",
+    "2026-03-19T00:32:12.389226: Built 1 Docker images (total: 131.0 MB, avg time: 0.7s)",
+    "2026-03-19T00:32:12.389237: Dockerfile validation: 0 errors, 6 warnings",
+    "2026-03-19T00:32:12.389241: K8s validation: 0 errors, 5 warnings",
+    "2026-03-19T00:32:12.389245: Runtime validation skipped by configuration",
+    "2026-03-19T00:32:12.389246: Generating evaluation report"
+  ],
+  "experiment_name": "h5",
+  "model_name": "deepseek-chat",
+  "model_provider": "deepseek",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 5,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": null,
+  "extra_metadata": {
+    "generator_overrides": {
+      "enable_runtime_validation": false
+    },
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-security-5b74f003-4724-4f69-a506-3d0b1ed12d65",
+    "run_id": "5b74f003-4724-4f69-a506-3d0b1ed12d65"
+  }
+}

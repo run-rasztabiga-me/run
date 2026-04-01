@@ -1,0 +1,89 @@
+--- 879debd2-8511-4c5c-8cbc-8422d70c7ff3
++++ 0991ae51-7365-4ba2-8809-1caae8316c03
+@@ -1,45 +1,37 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-# Use an official Python runtime as a parent image
+ FROM python:3.9-slim-buster
+ 
+-# Set the working directory in the container
+ WORKDIR /app
+ 
+-# Copy the requirements file into the container at /app
+ COPY requirements.txt .
+-
+-# Install any needed packages specified in requirements.txt
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy the rest of the application code into the container
+-COPY app ./app
++COPY app/ ./app/
+ 
+-# Expose port 8000 for the Uvicorn server
+ EXPOSE 8000
+ 
+-# Run the Uvicorn server
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app-deployment
++  name: poc1-fastapi-deployment
+   labels:
+-    app: fastapi-app
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc1-fastapi
+     spec:
+       containers:
+-      - name: fastapi-app
+-        image: fastapi-app
++      - name: poc1-fastapi
++        image: poc1-fastapi-spec
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+@@ -54,7 +46,9 @@
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-app-ingress
++  name: poc1-fastapi-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+ spec:
+   rules:
+   - host: poc1-fastapi-spec.rasztabiga.me
+@@ -64,17 +58,19 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app-service
++            name: poc1-fastapi-service
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app-service
++  name: poc1-fastapi-service
++  labels:
++    app: poc1-fastapi
+ spec:
+   selector:
+-    app: fastapi-app
++    app: poc1-fastapi
+   ports:
+   - protocol: TCP
+     port: 80

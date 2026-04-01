@@ -1,0 +1,167 @@
+--- 6f9d4520-67c2-40c8-acf7-efbb73cd1472
++++ c16ab715-ab32-4335-acf9-e4a828348bbd
+@@ -1,5 +1,6 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.9-slim-buster
++
++FROM python:3.10-slim
+ 
+ WORKDIR /app
+ 
+@@ -8,14 +9,15 @@
+ 
+ COPY app/ ./app
+ 
+-EXPOSE 8080
++EXPOSE 8000
+ 
+-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-deployment.yaml
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy
++  name: poc1-fastapi-legacy-deployment
+   labels:
+     app: poc1-fastapi-legacy
+ spec:
+@@ -30,16 +32,10 @@
+     spec:
+       containers:
+         - name: poc1-fastapi-legacy
+-          image: poc1-fastapi-legacy:latest
++          image: poc1-fastapi-legacy
+           imagePullPolicy: IfNotPresent
+           ports:
+-            - containerPort: 8080
+-          env:
+-            - name: REDIS_URL
+-              valueFrom:
+-                secretKeyRef:
+-                  name: redis-secret
+-                  key: redis_url
++            - containerPort: 8000
+           resources:
+             requests:
+               memory: "64Mi"
+@@ -50,16 +46,17 @@
+           livenessProbe:
+             httpGet:
+               path: /
+-              port: 8080
++              port: 8000
+             initialDelaySeconds: 5
+             periodSeconds: 5
+           readinessProbe:
+             httpGet:
+               path: /
+-              port: 8080
++              port: 8000
+             initialDelaySeconds: 5
+             periodSeconds: 5
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-ingress.yaml
++@@FILE:K8s::k8s/ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+@@ -67,23 +64,24 @@
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: nginx
++  ingressClassName: public
+   rules:
+-    - host: poc1-fastapi-legacy.rasztabiga.me
++    - host: "poc1-fastapi-legacy.rasztabiga.me"
+       http:
+         paths:
+           - path: /
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-legacy
++                name: poc1-fastapi-legacy-service
+                 port:
+                   number: 80
+-@@FILE:K8s::k8s/poc1-fastapi-legacy-service.yaml
++@@FILE:K8s::k8s/service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-legacy
++  name: poc1-fastapi-legacy-service
+   labels:
+     app: poc1-fastapi-legacy
+ spec:
+@@ -92,64 +90,5 @@
+   ports:
+     - protocol: TCP
+       port: 80
+-      targetPort: 8080
+-@@FILE:K8s::k8s/redis-deployment.yaml
+-apiVersion: apps/v1
+-kind: Deployment
+-metadata:
+-  name: redis
+-  labels:
+-    app: redis
+-spec:
+-  replicas: 1
+-  selector:
+-    matchLabels:
+-      app: redis
+-  template:
+-    metadata:
+-      labels:
+-        app: redis
+-    spec:
+-      containers:
+-        - name: redis
+-          image: redis:6.2-alpine
+-          imagePullPolicy: IfNotPresent
+-          ports:
+-            - containerPort: 6379
+-          env:
+-            - name: REDIS_PASSWORD
+-              valueFrom:
+-                secretKeyRef:
+-                  name: redis-secret
+-                  key: redis_password
+-          command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)"]
+-          resources:
+-            requests:
+-              memory: "64Mi"
+-              cpu: "100m"
+-            limits:
+-              memory: "128Mi"
+-              cpu: "200m"
+-@@FILE:K8s::k8s/redis-secret.yaml
+-apiVersion: v1
+-kind: Secret
+-metadata:
+-  name: redis-secret
+-type: Opaque
+-data:
+-  redis_password: cmVkaXMtcGFzc3dvcmQtMTIz
+-  redis_url: cmVkaXM6Ly86cmVkaXMtcGFzc3dvcmQtMTIzQHJlZGlzOjYzNzkvMA==
+-@@FILE:K8s::k8s/redis-service.yaml
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: redis
+-  labels:
+-    app: redis
+-spec:
+-  selector:
+-    app: redis
+-  ports:
+-    - protocol: TCP
+-      port: 6379
+-      targetPort: 6379
++      targetPort: 8000
++  type: ClusterIP

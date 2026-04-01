@@ -1,0 +1,112 @@
+--- 2281bf15-9f1a-47e1-9ef8-56ae61cf2df7
++++ bccb42a1-0422-4a81-b4bf-77214e74d33f
+@@ -1,13 +1,13 @@
+ @@FILE:Dockerfile::Dockerfile
+ 
+-FROM python:3.9-slim-buster
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app/ ./app/
++COPY app/ ./app
+ 
+ EXPOSE 8000
+ 
+@@ -17,42 +17,53 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-security-deployment
++  name: fastapi-app-deployment
+   labels:
+-    app: poc1-fastapi-security
++    app: fastapi-app
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-security
++      app: fastapi-app
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-security
++        app: fastapi-app
+     spec:
+       containers:
+-      - name: poc1-fastapi-security
+-        image: poc1-fastapi-security
++      - name: fastapi-app
++        image: fastapi-app
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8000
+         resources:
+           requests:
+-            memory: "64Mi"
+             cpu: "100m"
++            memory: "128Mi"
+           limits:
+-            memory: "128Mi"
+             cpu: "200m"
++            memory: "256Mi"
++        livenessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8000
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ 
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-security-ingress
++  name: fastapi-app-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: nginx
+   rules:
+   - host: poc1-fastapi-security.rasztabiga.me
+     http:
+@@ -61,7 +72,7 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: poc1-fastapi-security-service
++            name: fastapi-app-service
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+@@ -69,13 +80,14 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-security-service
++  name: fastapi-app-service
+   labels:
+-    app: poc1-fastapi-security
++    app: fastapi-app
+ spec:
+   selector:
+-    app: poc1-fastapi-security
++    app: fastapi-app
+   ports:
+-    - protocol: TCP
+-      port: 80
+-      targetPort: 8000
++  - protocol: TCP
++    port: 80
++    targetPort: 8000
++  type: ClusterIP

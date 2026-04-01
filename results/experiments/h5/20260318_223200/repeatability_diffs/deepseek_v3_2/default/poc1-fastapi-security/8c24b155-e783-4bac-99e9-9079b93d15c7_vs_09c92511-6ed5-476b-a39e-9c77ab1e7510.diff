@@ -1,0 +1,126 @@
+--- 8c24b155-e783-4bac-99e9-9079b93d15c7
++++ 09c92511-6ed5-476b-a39e-9c77ab1e7510
+@@ -3,7 +3,7 @@
+ 
+ WORKDIR /app
+ 
+-# Install system dependencies
++# Install system dependencies if needed
+ RUN apt-get update && apt-get install -y \
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+@@ -15,7 +15,7 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose port
++# Expose the port FastAPI runs on
+ EXPOSE 8000
+ 
+ # Run the application with uvicorn
+@@ -24,56 +24,59 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app
++  name: poc1-fastapi-security
+   labels:
+-    app: fastapi-app
++    app: poc1-fastapi-security
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc1-fastapi-security
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc1-fastapi-security
+     spec:
+       hostNetwork: true
+       containers:
+       - name: fastapi-app
+-        image: fastapi-app
++        image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
+         securityContext:
+           privileged: true
+         ports:
+         - containerPort: 8000
++          name: http
+         resources:
+           requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
+             memory: "256Mi"
+-            cpu: "250m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
+-        env:
+-        - name: PYTHONUNBUFFERED
+-          value: "1"
+-        # Simple HTTP GET check on root endpoint
++            cpu: "200m"
++        # No liveness/readiness probes since no health endpoint exists
++        # Using simple command check instead
+         livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
++          exec:
++            command:
++            - sh
++            - -c
++            - 'curl -f http://localhost:8000/ || exit 1'
+           initialDelaySeconds: 30
+           periodSeconds: 10
+         readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8000
++          exec:
++            command:
++            - sh
++            - -c
++            - 'curl -f http://localhost:8000/ || exit 1'
+           initialDelaySeconds: 5
+           periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-app-ingress
++  name: poc1-fastapi-security
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+@@ -85,19 +88,22 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app-service
++            name: poc1-fastapi-security
+             port:
+               number: 80
+ @@FILE:K8s::k8s/service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app-service
++  name: poc1-fastapi-security
++  labels:
++    app: poc1-fastapi-security
+ spec:
+   selector:
+-    app: fastapi-app
++    app: poc1-fastapi-security
+   ports:
+   - port: 80
+     targetPort: 8000
+     protocol: TCP
++    name: http
+   type: ClusterIP

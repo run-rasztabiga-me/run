@@ -1,0 +1,174 @@
+--- 974eeea1-bd52-4c20-b538-c143f0bec736
++++ 0bc0285d-332d-4924-8032-de0c6bb39e72
+@@ -13,19 +13,18 @@
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY . .
++COPY app/ ./app/
+ 
+ # Expose port
+ EXPOSE 8080
+ 
+-# Run the application
++# Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: fastapi-app
+-  namespace: default
+ spec:
+   replicas: 1
+   selector:
+@@ -42,7 +41,6 @@
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+-          name: http
+         env:
+         - name: APP_ENV
+           value: "production"
+@@ -57,40 +55,36 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8080
+-          initialDelaySeconds: 10
+-          periodSeconds: 10
+-          timeoutSeconds: 5
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 30
+-          periodSeconds: 30
+-          timeoutSeconds: 5
++          periodSeconds: 10
++        readinessProbe:
++          httpGet:
++            path: /
++            port: 8080
++          initialDelaySeconds: 5
++          periodSeconds: 5
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: fastapi-service
+-  namespace: default
+ spec:
+   selector:
+     app: fastapi-app
+   ports:
+   - port: 80
+     targetPort: 8080
+-    name: http
++    protocol: TCP
+   type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+-  namespace: default
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -103,35 +97,43 @@
+             name: fastapi-service
+             port:
+               number: 80
++@@FILE:K8s::k8s/redis-pvc.yaml
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: redis-data-pvc
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: redis-secret
+-  namespace: default
+ type: Opaque
+ data:
+-  redis-password: cmVkaXMtcGFzc3dvcmQ=
++  redis-password: cmVkaXMtcGFzc3dvcmQ=  # redis-password in base64
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: redis
+-  namespace: default
+ spec:
+   selector:
+     app: redis
+   ports:
+   - port: 6379
+     targetPort: 6379
+-    name: redis
+   clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
+-  namespace: default
+ spec:
+   serviceName: redis
+   replicas: 1
+@@ -148,9 +150,7 @@
+         image: redis:7-alpine
+         ports:
+         - containerPort: 6379
+-          name: redis
+-        args: []
+-        command: ["redis-server"]
++        command: ["redis-server", "--appendonly", "yes"]
+         volumeMounts:
+         - name: redis-data
+           mountPath: /data
+@@ -161,22 +161,17 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
++        livenessProbe:
++          tcpSocket:
++            port: 6379
++          initialDelaySeconds: 30
++          periodSeconds: 10
+         readinessProbe:
+           tcpSocket:
+             port: 6379
+           initialDelaySeconds: 5
+-          periodSeconds: 10
+-        livenessProbe:
+-          tcpSocket:
+-            port: 6379
+-          initialDelaySeconds: 15
+-          periodSeconds: 20
+-  volumeClaimTemplates:
+-  - metadata:
+-      name: redis-data
+-    spec:
+-      accessModes: [ "ReadWriteOnce" ]
+-      storageClassName: "microk8s-hostpath"
+-      resources:
+-        requests:
+-          storage: 1Gi
++          periodSeconds: 5
++      volumes:
++      - name: redis-data
++        persistentVolumeClaim:
++          claimName: redis-data-pvc

@@ -1,0 +1,52 @@
+--- 217bb857-54e2-404b-a63e-966d42c60bd0
++++ bb4da5c6-9bc8-4913-b5d2-5262db0b5660
+@@ -15,10 +15,10 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port FastAPI runs on
++# Expose port
+ EXPOSE 8000
+ 
+-# Run the application with uvicorn
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -37,19 +37,15 @@
+       labels:
+         app: poc1-fastapi-security
+     spec:
+-      # Required per SECURITY.md and docs/operations.md
+       hostNetwork: true
+       containers:
+       - name: fastapi-app
+         image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
+-        # Required per SECURITY.md and docs/operations.md
+         securityContext:
+           privileged: true
+-          runAsUser: 0  # Run as root
+         ports:
+         - containerPort: 8000
+-          name: http
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -69,6 +65,9 @@
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
++        env:
++        - name: PYTHONUNBUFFERED
++          value: "1"
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+@@ -101,5 +100,5 @@
+   ports:
+   - port: 80
+     targetPort: 8000
+-    name: http
++    protocol: TCP
+   type: ClusterIP

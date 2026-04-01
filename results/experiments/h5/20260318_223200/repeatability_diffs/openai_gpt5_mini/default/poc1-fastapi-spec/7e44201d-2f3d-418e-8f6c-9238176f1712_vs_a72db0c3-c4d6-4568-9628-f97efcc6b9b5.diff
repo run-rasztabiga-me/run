@@ -1,0 +1,61 @@
+--- 7e44201d-2f3d-418e-8f6c-9238176f1712
++++ a72db0c3-c4d6-4568-9628-f97efcc6b9b5
+@@ -1,25 +1,18 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# set working directory
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# install build dependencies
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends gcc build-essential \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# copy requirements and install
++# Install build dependencies and application dependencies
+ COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# copy application code
++# Copy application code
+ COPY app ./app
+ 
+-# listen on the production port required by spec.md
+ EXPOSE 9000
+ 
+-# default command using uvicorn with module path
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -51,23 +44,25 @@
+             limits:
+               cpu: "500m"
+               memory: "256Mi"
+-          livenessProbe:
++          readinessProbe:
+             httpGet:
+               path: /
+               port: 9000
+             initialDelaySeconds: 5
+             periodSeconds: 10
+-          readinessProbe:
++          livenessProbe:
+             httpGet:
+               path: /
+               port: 9000
+-            initialDelaySeconds: 2
+-            periodSeconds: 5
++            initialDelaySeconds: 15
++            periodSeconds: 20
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me

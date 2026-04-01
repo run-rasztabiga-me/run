@@ -1,0 +1,203 @@
+--- 1746d53b-63f3-4bfb-bddb-aa36ef4b6a87
++++ 21b7f0f3-df8e-434f-ac68-8893cdbcead5
+@@ -1,49 +1,47 @@
+-@@FILE:Dockerfile::Dockerfile
++@@FILE:Dockerfile::backend/Dockerfile
+ FROM python:3.11-slim
+ 
+-# Create app user
+-RUN addgroup --system app && adduser --system --ingroup app app
++# Install build dependencies
++RUN apt-get update && apt-get install -y --no-install-recommends \
++    build-essential \
++    gcc \
++    && rm -rf /var/lib/apt/lists/*
+ 
+ WORKDIR /app
+ 
+-# Install build deps and python deps
+-COPY requirements.txt ./
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
+-    && pip install --no-cache-dir --upgrade pip \
+-    && pip install --no-cache-dir -r requirements.txt \
+-    && apt-get purge -y --auto-remove build-essential gcc \
+-    && rm -rf /var/lib/apt/lists/*
++# Install Python dependencies
++COPY requirements.txt .
++RUN python -m pip install --upgrade pip
++RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application
++# Copy application code
+ COPY app ./app
+-
+-# Use non-root user
+-USER app
+-
+-ENV PYTHONUNBUFFERED=1
+-ENV PORT=8080
+ 
+ EXPOSE 8080
+ 
++# Use gunicorn with uvicorn workers (FastAPI requires ASGI server)
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+ @@FILE:K8s::k8s/backend-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: poc1-fastapi-legacy
++  name: poc1-fastapi-backend
+   labels:
+-    app: poc1-fastapi-legacy
++    app: poc1-fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
++      app: poc1-fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
++        app: poc1-fastapi
+     spec:
++      initContainers:
++        - name: wait-for-redis
++          image: busybox:1.36
++          command: ["/bin/sh", "-c", "until nc -z redis 6379; do echo waiting for redis; sleep 1; done"]
+       containers:
+         - name: backend
+           image: backend:latest
+@@ -56,7 +54,14 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "256Mi"
++              memory: "512Mi"
++          env:
++            - name: PORT
++              value: "8080"
++            - name: APP_ENV
++              value: "production"
++            - name: REDIS_URL
++              value: "redis://redis:6379/0"
+           livenessProbe:
+             httpGet:
+               path: /
+@@ -69,53 +74,44 @@
+               port: 8080
+             initialDelaySeconds: 2
+             periodSeconds: 5
+-          env:
+-            - name: PORT
+-              value: "8080"
+-            - name: APP_ENV
+-              value: "production"
+-            - name: REDIS_URL
+-              value: "redis://redis:6379/0"
+ @@FILE:K8s::k8s/backend-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: poc1-fastapi-legacy
++  name: poc1-fastapi-backend
+ spec:
+-  type: ClusterIP
+   selector:
+-    app: poc1-fastapi-legacy
++    app: poc1-fastapi
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 8080
+-@@FILE:K8s::k8s/configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: poc1-fastapi-legacy-config
+-data:
+-  APP_ENV: "production"
+-  PORT: "8080"
++  type: ClusterIP
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: poc1-fastapi-legacy-ingress
++  name: poc1-fastapi-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-legacy.rasztabiga.me
+       http:
+         paths:
+-          - path: /(.*)
++          - path: /
+             pathType: Prefix
+             backend:
+               service:
+-                name: poc1-fastapi-legacy
++                name: poc1-fastapi-backend
+                 port:
+                   number: 80
++@@FILE:K8s::k8s/postgres-secret.yaml
++# No Postgres detected in repository. This file intentionally left as a placeholder.
++@@FILE:K8s::k8s/postgres-service.yaml
++# No Postgres detected in repository. This file intentionally left as a placeholder.
++@@FILE:K8s::k8s/postgres-statefulset.yaml
++# No Postgres detected in repository. This file intentionally left as a placeholder.
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -123,19 +119,19 @@
+   name: redis-secret
+ type: Opaque
+ data:
+-  # no password by default; placeholder if needed in future
+-  REDIS_PASSWORD: ""
++  redis-password: ""
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: redis
+ spec:
+-  ports:
+-    - port: 6379
+-      targetPort: 6379
+   selector:
+     app: redis
++  ports:
++    - protocol: TCP
++      port: 6379
++      targetPort: 6379
+   clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+@@ -143,11 +139,11 @@
+ metadata:
+   name: redis
+ spec:
++  serviceName: redis
++  replicas: 1
+   selector:
+     matchLabels:
+       app: redis
+-  serviceName: "redis"
+-  replicas: 1
+   template:
+     metadata:
+       labels:
+@@ -155,7 +151,7 @@
+     spec:
+       containers:
+         - name: redis
+-          image: redis:7.2-alpine
++          image: redis:7.2.0
+           imagePullPolicy: IfNotPresent
+           ports:
+             - containerPort: 6379

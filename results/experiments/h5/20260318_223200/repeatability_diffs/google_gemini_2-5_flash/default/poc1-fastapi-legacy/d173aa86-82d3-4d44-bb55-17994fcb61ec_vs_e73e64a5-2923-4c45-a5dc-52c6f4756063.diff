@@ -1,0 +1,190 @@
+--- d173aa86-82d3-4d44-bb55-17994fcb61ec
++++ e73e64a5-2923-4c45-a5dc-52c6f4756063
+@@ -1,47 +1,34 @@
+ @@FILE:Dockerfile::Dockerfile
+-
+-# Use an official Python runtime as a parent image
+-FROM python:3.10-slim-buster
+-
+-# Set the working directory in the container
++FROM python:3.9-slim-buster
+ WORKDIR /app
+-
+-# Install any needed packages specified in requirements.txt
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-
+-# Copy the application code into the container
+-COPY ./app .
+-
+-# Expose the port the app runs on
+-EXPOSE 8080
+-
+-# Run the application using uvicorn
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/fastapi-deployment.yaml
+-
++COPY app .
++EXPOSE 8000
++CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/poc1-fastapi-legacy-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+-  name: fastapi-app
++  name: poc1-fastapi-legacy-deployment
+   labels:
+-    app: fastapi-app
+-spec:f
++    app: poc1-fastapi-legacy
++spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: fastapi-app
++      app: poc1-fastapi-legacy
+   template:
+     metadata:
+       labels:
+-        app: fastapi-app
++        app: poc1-fastapi-legacy
+     spec:
+       containers:
+-      - name: fastapi-app
+-        image: fastapi-app
++      - name: poc1-fastapi-legacy
++        image: poc1-fastapi-legacy
+         imagePullPolicy: IfNotPresent
+         ports:
+-        - containerPort: 8080
++        - containerPort: 8000
+         resources:
+           requests:
+             cpu: "100m"
+@@ -49,33 +36,15 @@
+           limits:
+             cpu: "200m"
+             memory: "256Mi"
+-        livenessProbe:
+-          httpGet:
+-            path: /
+-            port: 8080
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+-        readinessProbe:
+-          httpGet:
+-            path: /
+-            port: 8080
+-          initialDelaySeconds: 5
+-          periodSeconds: 5
+-        env:
+-        - name: PORT
+-          value: "8080"
+-        - name: REDIS_URL
+-          value: "redis://redis:6379/0"
+-@@FILE:K8s::k8s/fastapi-ingress.yaml
+-
++@@FILE:K8s::k8s/poc1-fastapi-legacy-ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+-  name: fastapi-app-ingress
++  name: poc1-fastapi-legacy-ingress
+   annotations:
+     nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+-  ingressClassName: nginx
++  ingressClassName: public
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+     http:
+@@ -84,83 +53,21 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-app
++            name: poc1-fastapi-legacy-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/fastapi-service.yaml
+-
++@@FILE:K8s::k8s/poc1-fastapi-legacy-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-app
++  name: poc1-fastapi-legacy-service
+   labels:
+-    app: fastapi-app
++    app: poc1-fastapi-legacy
+ spec:
+   selector:
+-    app: fastapi-app
++    app: poc1-fastapi-legacy
+   ports:
+     - protocol: TCP
+       port: 80
+-      targetPort: 8080
++      targetPort: 8000
+   type: ClusterIP
+-@@FILE:K8s::k8s/redis-service.yaml
+-
+-apiVersion: v1
+-kind: Service
+-metadata:
+-  name: redis
+-  labels:
+-    app: redis
+-spec:
+-  ports:
+-  - port: 6379
+-    targetPort: 6379
+-    name: redis
+-  selector:
+-    app: redis
+-  clusterIP: None # Headless service for StatefulSet
+-@@FILE:K8s::k8s/redis-statefulset.yaml
+-
+-apiVersion: apps/v1
+-kind: StatefulSet
+-metadata:
+-  name: redis
+-  labels:
+-    app: redis
+-spec:
+-  serviceName: "redis"
+-  replicas: 1
+-  selector:
+-    matchLabels:
+-      app: redis
+-  template:
+-    metadata:
+-      labels:
+-        app: redis
+-    spec:
+-      containers:
+-      - name: redis
+-        image: redis:6-alpine
+-        imagePullPolicy: IfNotPresent
+-        ports:
+-        - containerPort: 6379
+-          name: redis
+-        volumeMounts:
+-        - name: redis-data
+-          mountPath: /data
+-        resources:
+-          requests:
+-            cpu: "50m"
+-            memory: "64Mi"
+-          limits:
+-            cpu: "100m"
+-            memory: "128Mi"
+-  volumeClaimTemplates:
+-  - metadata:
+-      name: redis-data
+-    spec:
+-      accessModes: ["ReadWriteOnce"]
+-      resources:
+-        requests:
+-          storage: 1Gi
+-      # storageClassName: microk8s-hostpath # Use if a specific storage class is needed, otherwise omit to use default

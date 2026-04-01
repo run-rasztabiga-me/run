@@ -1,0 +1,205 @@
+{
+  "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-legacy.git",
+  "repo_name": "poc1-fastapi-legacy",
+  "evaluation_id": "54e48a42-2c92-4ff8-a6f5-4ed13cf45278",
+  "status": "completed",
+  "start_time": "2026-03-19T00:58:24.079481",
+  "end_time": "2026-03-19T01:00:50.278763",
+  "total_evaluation_time": 146.199282,
+  "generation_result": {
+    "repo_url": "https://github.com/run-rasztabiga-me/poc1-fastapi-legacy.git",
+    "repo_name": "poc1-fastapi-legacy",
+    "success": true,
+    "docker_images": [
+      {
+        "dockerfile_path": "backend/Dockerfile",
+        "image_tag": "backend",
+        "build_context": "."
+      }
+    ],
+    "k8s_manifests": [
+      "k8s/backend-deployment.yaml",
+      "k8s/backend-service.yaml",
+      "k8s/ingress.yaml",
+      "k8s/redis-statefulset.yaml",
+      "k8s/redis-service.yaml",
+      "k8s/redis-secret.yaml",
+      "k8s/postgres-statefulset.yaml",
+      "k8s/postgres-service.yaml",
+      "k8s/postgres-secret.yaml"
+    ],
+    "generation_time": 97.1297619342804,
+    "error_message": null,
+    "timestamp": "2026-03-19T01:00:08.771341",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-21b7f0f3-df8e-434f-ac68-8893cdbcead5",
+    "run_id": "21b7f0f3-df8e-434f-ac68-8893cdbcead5"
+  },
+  "execution_metrics": {
+    "total_time": 97.1297619342804,
+    "tool_calls_count": 34,
+    "tool_calls_breakdown": {
+      "think": 3,
+      "search_files": 3,
+      "get_file_content": 7,
+      "find_files": 2,
+      "ls": 5,
+      "write_file": 11,
+      "patch_file": 1,
+      "prepare_repo_tree": 1,
+      "clone_repo": 1
+    },
+    "tokens_used": 192995,
+    "input_tokens": 188869,
+    "output_tokens": 4126,
+    "error_count": 0,
+    "run_id": "21b7f0f3-df8e-434f-ac68-8893cdbcead5",
+    "docker_build_metrics": [
+      {
+        "image_tag": "backend",
+        "build_time": 29.20916223526001,
+        "image_size_mb": 167.63,
+        "layers_count": 10
+      }
+    ]
+  },
+  "quality_metrics": {
+    "dockerfile_score": 94.0,
+    "k8s_manifests_score": 55.0,
+    "overall_score": 54.9,
+    "validation_issues": [
+      {
+        "file_path": "backend/Dockerfile",
+        "line_number": 4,
+        "severity": "warning",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "rule_id": "DL3008"
+      },
+      {
+        "file_path": "backend/Dockerfile",
+        "line_number": 13,
+        "severity": "warning",
+        "message": "Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`",
+        "rule_id": "DL3013"
+      },
+      {
+        "file_path": "backend/Dockerfile",
+        "line_number": 13,
+        "severity": "warning",
+        "message": "Avoid use of cache directory with pip. Use `pip install --no-cache-dir <package>`",
+        "rule_id": "DL3042"
+      },
+      {
+        "file_path": "backend/Dockerfile",
+        "line_number": 14,
+        "severity": "info",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "rule_id": "DL3059"
+      },
+      {
+        "file_path": "k8s/postgres-statefulset.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: error: no objects passed to apply",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      },
+      {
+        "file_path": "k8s/postgres-service.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: error: no objects passed to apply",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      },
+      {
+        "file_path": "k8s/postgres-secret.yaml",
+        "line_number": null,
+        "severity": "error",
+        "message": "Kubernetes validation failed: error: no objects passed to apply",
+        "rule_id": "KUBECTL_VALIDATION_FAILED"
+      }
+    ],
+    "error_count": 3,
+    "warning_count": 3,
+    "info_count": 1,
+    "has_errors": true,
+    "is_clean": false,
+    "dockerfile_syntax_valid": true,
+    "k8s_syntax_valid": false,
+    "scoring_breakdown": {
+      "overall_score": 54.9,
+      "total_errors": 3,
+      "total_warnings": 3,
+      "total_info": 1,
+      "docker": {
+        "weighted_score": 94.0,
+        "total_errors": 0,
+        "total_warnings": 3,
+        "total_info": 1,
+        "phases": {
+          "docker_syntax": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          },
+          "docker_linters": {
+            "score": 70.0,
+            "errors": 0,
+            "warnings": 3,
+            "info": 1
+          },
+          "docker_build": {
+            "score": 100.0,
+            "errors": 0,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      },
+      "kubernetes": {
+        "weighted_score": 55.0,
+        "total_errors": 3,
+        "total_warnings": 0,
+        "total_info": 0,
+        "phases": {
+          "k8s_syntax": {
+            "score": 55.0,
+            "errors": 3,
+            "warnings": 0,
+            "info": 0
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "2026-03-19T00:58:24.079530: Starting configuration generation",
+    "2026-03-19T01:00:08.771439: Generated 1 Dockerfiles and 9 K8s manifests",
+    "2026-03-19T01:00:08.771442: Starting quality assessment",
+    "2026-03-19T01:00:50.278715: Built 1 Docker images (total: 167.6 MB, avg time: 29.2s)",
+    "2026-03-19T01:00:50.278740: Dockerfile validation: 3 errors, 3 warnings",
+    "2026-03-19T01:00:50.278743: K8s validation: 3 errors, 0 warnings",
+    "2026-03-19T01:00:50.278755: Runtime validation skipped by configuration",
+    "2026-03-19T01:00:50.278760: Generating evaluation report"
+  ],
+  "experiment_name": "h5",
+  "model_name": "gpt-5-mini",
+  "model_provider": "openai",
+  "model_parameters": {
+    "temperature": 1.0,
+    "seed": null
+  },
+  "repetition_index": 6,
+  "prompt_id": "default",
+  "prompt_override": null,
+  "build_success": true,
+  "runtime_success": null,
+  "extra_metadata": {
+    "generator_overrides": {
+      "enable_runtime_validation": false
+    },
+    "run_overrides": {},
+    "prompt_description": "default-system-prompt",
+    "workspace_dir": "/Users/rasztabigab/Studia/run/tmp/poc1-fastapi-legacy-21b7f0f3-df8e-434f-ac68-8893cdbcead5",
+    "run_id": "21b7f0f3-df8e-434f-ac68-8893cdbcead5"
+  }
+}

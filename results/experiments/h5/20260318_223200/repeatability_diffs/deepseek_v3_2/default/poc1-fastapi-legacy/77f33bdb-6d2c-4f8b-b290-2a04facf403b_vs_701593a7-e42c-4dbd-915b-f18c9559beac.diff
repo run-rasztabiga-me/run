@@ -1,0 +1,219 @@
+--- 77f33bdb-6d2c-4f8b-b290-2a04facf403b
++++ 701593a7-e42c-4dbd-915b-f18c9559beac
+@@ -8,13 +8,12 @@
+     gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+-# Copy requirements and install Python dependencies
++# Copy requirements first for better caching
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+ COPY app/ ./app/
+-COPY .env.example .env
+ 
+ # Expose port
+ EXPOSE 8080
+@@ -27,8 +26,7 @@
+ metadata:
+   name: fastapi-config
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++    app: fastapi
+ data:
+   APP_ENV: "production"
+   PORT: "8080"
+@@ -39,23 +37,20 @@
+ metadata:
+   name: fastapi
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++    app: fastapi
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
+-      component: fastapi
++      app: fastapi
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
+-        component: fastapi
++        app: fastapi
+     spec:
+       containers:
+       - name: fastapi
+-        image: fastapi-app
++        image: fastapi
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+@@ -78,11 +73,11 @@
+               key: REDIS_URL
+         resources:
+           requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
+             memory: "256Mi"
+             cpu: "200m"
+-          limits:
+-            memory: "512Mi"
+-            cpu: "500m"
+         livenessProbe:
+           httpGet:
+             path: /health
+@@ -105,25 +100,21 @@
+ metadata:
+   name: fastapi
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
+-spec:
+-  selector:
+-    app: poc1-fastapi-legacy
+-    component: fastapi
++    app: fastapi
++spec:
+   ports:
+   - port: 80
+     targetPort: 8080
+     name: http
+-  type: ClusterIP
++  selector:
++    app: fastapi
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: fastapi-ingress
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: ingress
++    app: fastapi
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -135,71 +126,63 @@
+           service:
+             name: fastapi
+             port:
+-              number: 80
++              name: http
+ @@FILE:K8s::k8s/redis-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+-  name: redis-data-pvc
+-  labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
++  name: redis-data
++  labels:
++    app: redis
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+-  # Use default storage class
++  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+ metadata:
+   name: redis-secret
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
+ type: Opaque
+ data:
+-  # Default Redis password (empty string base64 encoded)
+-  redis-password: ""
++  redis-password: cmVkaXMtcGFzc3dvcmQ=  # redis-password in base64
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: redis
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
+-spec:
+-  selector:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
++spec:
+   ports:
+   - port: 6379
+     targetPort: 6379
+     name: redis
+-  clusterIP: None  # Headless service for StatefulSet
++  selector:
++    app: redis
++  clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+ metadata:
+   name: redis
+   labels:
+-    app: poc1-fastapi-legacy
+-    component: redis
++    app: redis
+ spec:
+   serviceName: redis
+   replicas: 1
+   selector:
+     matchLabels:
+-      app: poc1-fastapi-legacy
+-      component: redis
++      app: redis
+   template:
+     metadata:
+       labels:
+-        app: poc1-fastapi-legacy
+-        component: redis
++        app: redis
+     spec:
+       containers:
+       - name: redis
+@@ -213,16 +196,17 @@
+             secretKeyRef:
+               name: redis-secret
+               key: redis-password
+-        resources:
+-          requests:
+-            memory: "128Mi"
+-            cpu: "100m"
+-          limits:
+-            memory: "256Mi"
+-            cpu: "200m"
++        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+         volumeMounts:
+         - name: redis-data
+           mountPath: /data
++        resources:
++          requests:
++            memory: "64Mi"
++            cpu: "100m"
++          limits:
++            memory: "128Mi"
++            cpu: "200m"
+         livenessProbe:
+           tcpSocket:
+             port: 6379
+@@ -236,4 +220,4 @@
+       volumes:
+       - name: redis-data
+         persistentVolumeClaim:
+-          claimName: redis-data-pvc
++          claimName: redis-data

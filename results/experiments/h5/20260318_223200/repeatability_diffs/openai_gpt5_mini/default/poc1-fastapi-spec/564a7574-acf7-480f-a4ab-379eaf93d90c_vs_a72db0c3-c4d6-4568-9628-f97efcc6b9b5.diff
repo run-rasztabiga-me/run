@@ -1,0 +1,75 @@
+--- 564a7574-acf7-480f-a4ab-379eaf93d90c
++++ a72db0c3-c4d6-4568-9628-f97efcc6b9b5
+@@ -1,14 +1,14 @@
+ @@FILE:Dockerfile::Dockerfile
+ FROM python:3.11-slim
+ 
+-# Spec requires container to listen on 9000
++ENV PYTHONUNBUFFERED=1
+ WORKDIR /app
+ 
+-# Copy requirements and install
+-COPY requirements.txt .
++# Install build dependencies and application dependencies
++COPY requirements.txt ./
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-# Copy application
++# Copy application code
+ COPY app ./app
+ 
+ EXPOSE 9000
+@@ -19,6 +19,8 @@
+ kind: Deployment
+ metadata:
+   name: poc1-fastapi-spec
++  labels:
++    app: poc1-fastapi-spec
+ spec:
+   replicas: 1
+   selector:
+@@ -30,7 +32,7 @@
+         app: poc1-fastapi-spec
+     spec:
+       containers:
+-        - name: web
++        - name: app
+           image: poc1-fastapi-spec:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+@@ -41,26 +43,26 @@
+               memory: "128Mi"
+             limits:
+               cpu: "500m"
+-              memory: "512Mi"
+-          livenessProbe:
+-            httpGet:
+-              path: /
+-              port: 9000
+-            initialDelaySeconds: 10
+-            periodSeconds: 10
++              memory: "256Mi"
+           readinessProbe:
+             httpGet:
+               path: /
+               port: 9000
+             initialDelaySeconds: 5
+-            periodSeconds: 5
++            periodSeconds: 10
++          livenessProbe:
++            httpGet:
++              path: /
++              port: 9000
++            initialDelaySeconds: 15
++            periodSeconds: 20
+ @@FILE:K8s::k8s/ingress.yaml
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-spec-ingress
+   annotations:
+-    kubernetes.io/ingress.class: "nginx"
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+     - host: poc1-fastapi-spec.rasztabiga.me

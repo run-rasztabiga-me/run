@@ -1,0 +1,88 @@
+--- 0c3dfaa8-0128-43f2-a959-4f0fa5f8abb9
++++ eb7eb0ae-0f7a-496b-88a3-39bd143ba9c2
+@@ -1,17 +1,19 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.9-slim-buster
++
++FROM python:3.10-slim-buster
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+-COPY app .
++COPY app ./app
+ 
+ EXPOSE 8000
+ 
+-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+-@@FILE:K8s::k8s/deployment.yaml
++CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
++@@FILE:K8s::k8s/poc1-fastapi-legacy-deployment.yaml
++
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -36,11 +38,11 @@
+         - containerPort: 8000
+         resources:
+           requests:
+-            cpu: 100m
+-            memory: 128Mi
++            memory: "64Mi"
++            cpu: "100m"
+           limits:
+-            cpu: 200m
+-            memory: 256Mi
++            memory: "128Mi"
++            cpu: "200m"
+         livenessProbe:
+           httpGet:
+             path: /
+@@ -53,26 +55,30 @@
+             port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 10
+-@@FILE:K8s::k8s/ingress.yaml
++@@FILE:K8s::k8s/poc1-fastapi-legacy-ingress.yaml
++
+ apiVersion: networking.k8s.io/v1
+ kind: Ingress
+ metadata:
+   name: poc1-fastapi-legacy-ingress
+   annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/use-regex: "true"
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+     http:
+       paths:
+-      - path: /
++      - path: /(.*)
+         pathType: Prefix
+         backend:
+           service:
+             name: poc1-fastapi-legacy-service
+             port:
+               number: 80
+-@@FILE:K8s::k8s/service.yaml
++@@FILE:K8s::k8s/poc1-fastapi-legacy-service.yaml
++
+ apiVersion: v1
+ kind: Service
+ metadata:
+@@ -83,7 +89,7 @@
+   selector:
+     app: poc1-fastapi-legacy
+   ports:
+-  - protocol: TCP
+-    port: 80
+-    targetPort: 8000
++    - protocol: TCP
++      port: 80
++      targetPort: 8000
+   type: ClusterIP

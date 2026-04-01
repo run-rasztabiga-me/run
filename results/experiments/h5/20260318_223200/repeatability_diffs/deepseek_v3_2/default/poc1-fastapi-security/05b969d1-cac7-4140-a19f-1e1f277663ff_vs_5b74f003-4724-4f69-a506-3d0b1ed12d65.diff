@@ -1,0 +1,24 @@
+--- 05b969d1-cac7-4140-a19f-1e1f277663ff
++++ 5b74f003-4724-4f69-a506-3d0b1ed12d65
+@@ -15,10 +15,10 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port the app runs on
++# Expose port
+ EXPOSE 8000
+ 
+-# Run the application with uvicorn
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -70,6 +70,8 @@
+ kind: Ingress
+ metadata:
+   name: fastapi-app-ingress
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-security.rasztabiga.me

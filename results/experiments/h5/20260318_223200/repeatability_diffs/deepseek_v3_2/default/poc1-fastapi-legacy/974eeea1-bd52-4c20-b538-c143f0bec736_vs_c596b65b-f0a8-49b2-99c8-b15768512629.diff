@@ -1,0 +1,179 @@
+--- 974eeea1-bd52-4c20-b538-c143f0bec736
++++ c596b65b-f0a8-49b2-99c8-b15768512629
+@@ -1,5 +1,5 @@
+ @@FILE:Dockerfile::Dockerfile
+-FROM python:3.11-slim
++FROM python:3.12-slim
+ 
+ WORKDIR /app
+ 
+@@ -13,13 +13,23 @@
+ RUN pip install --no-cache-dir -r requirements.txt
+ 
+ # Copy application code
+-COPY . .
+-
+-# Expose port
++COPY app/ ./app/
++
++# Expose the port the app runs on
+ EXPOSE 8080
+ 
+-# Run the application
++# Command to run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
++@@FILE:K8s::k8s/fastapi-configmap.yaml
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: fastapi-config
++  namespace: default
++data:
++  APP_ENV: "production"
++  PORT: "8080"
++  REDIS_URL: "redis://redis:6379/0"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -38,18 +48,27 @@
+     spec:
+       containers:
+       - name: fastapi-app
+-        image: fastapi-app
++        image: fastapi-app:latest
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+           name: http
+         env:
+         - name: APP_ENV
+-          value: "production"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: APP_ENV
+         - name: PORT
+-          value: "8080"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: PORT
+         - name: REDIS_URL
+-          value: "redis://redis:6379/0"
++          valueFrom:
++            configMapKeyRef:
++              name: fastapi-config
++              key: REDIS_URL
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -75,7 +94,7 @@
+ apiVersion: v1
+ kind: Service
+ metadata:
+-  name: fastapi-service
++  name: fastapi-app
+   namespace: default
+ spec:
+   selector:
+@@ -91,6 +110,8 @@
+ metadata:
+   name: fastapi-ingress
+   namespace: default
++  annotations:
++    nginx.ingress.kubernetes.io/rewrite-target: /
+ spec:
+   rules:
+   - host: poc1-fastapi-legacy.rasztabiga.me
+@@ -100,9 +121,22 @@
+         pathType: Prefix
+         backend:
+           service:
+-            name: fastapi-service
++            name: fastapi-app
+             port:
+               number: 80
++@@FILE:K8s::k8s/redis-pvc.yaml
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: redis-pvc
++  namespace: default
++spec:
++  accessModes:
++    - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++  storageClassName: microk8s-hostpath
+ @@FILE:K8s::k8s/redis-secret.yaml
+ apiVersion: v1
+ kind: Secret
+@@ -111,7 +145,8 @@
+   namespace: default
+ type: Opaque
+ data:
+-  redis-password: cmVkaXMtcGFzc3dvcmQ=
++  # Empty password for Redis (no authentication)
++  redis-password: ""
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -125,7 +160,7 @@
+   - port: 6379
+     targetPort: 6379
+     name: redis
+-  clusterIP: None
++  type: ClusterIP
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -149,18 +184,22 @@
+         ports:
+         - containerPort: 6379
+           name: redis
+-        args: []
+-        command: ["redis-server"]
++        env:
++        - name: REDIS_PASSWORD
++          valueFrom:
++            secretKeyRef:
++              name: redis-secret
++              key: redis-password
++        resources:
++          requests:
++            memory: "64Mi"
++            cpu: "100m"
++          limits:
++            memory: "128Mi"
++            cpu: "200m"
+         volumeMounts:
+         - name: redis-data
+           mountPath: /data
+-        resources:
+-          requests:
+-            memory: "128Mi"
+-            cpu: "100m"
+-          limits:
+-            memory: "256Mi"
+-            cpu: "200m"
+         readinessProbe:
+           tcpSocket:
+             port: 6379
+@@ -171,12 +210,7 @@
+             port: 6379
+           initialDelaySeconds: 15
+           periodSeconds: 20
+-  volumeClaimTemplates:
+-  - metadata:
+-      name: redis-data
+-    spec:
+-      accessModes: [ "ReadWriteOnce" ]
+-      storageClassName: "microk8s-hostpath"
+-      resources:
+-        requests:
+-          storage: 1Gi
++      volumes:
++      - name: redis-data
++        persistentVolumeClaim:
++          claimName: redis-pvc

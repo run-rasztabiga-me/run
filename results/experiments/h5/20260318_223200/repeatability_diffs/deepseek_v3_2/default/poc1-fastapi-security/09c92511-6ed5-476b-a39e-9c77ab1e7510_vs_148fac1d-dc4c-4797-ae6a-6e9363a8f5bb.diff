@@ -1,0 +1,72 @@
+--- 09c92511-6ed5-476b-a39e-9c77ab1e7510
++++ 148fac1d-dc4c-4797-ae6a-6e9363a8f5bb
+@@ -5,7 +5,6 @@
+ 
+ # Install system dependencies if needed
+ RUN apt-get update && apt-get install -y \
+-    gcc \
+     && rm -rf /var/lib/apt/lists/*
+ 
+ # Copy requirements first for better caching
+@@ -15,10 +14,10 @@
+ # Copy application code
+ COPY app/ ./app/
+ 
+-# Expose the port FastAPI runs on
++# Expose the port the app runs on
+ EXPOSE 8000
+ 
+-# Run the application with uvicorn
++# Run the application
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ @@FILE:K8s::k8s/deployment.yaml
+ apiVersion: apps/v1
+@@ -42,11 +41,10 @@
+       - name: fastapi-app
+         image: poc1-fastapi-security
+         imagePullPolicy: IfNotPresent
++        ports:
++        - containerPort: 8000
+         securityContext:
+           privileged: true
+-        ports:
+-        - containerPort: 8000
+-          name: http
+         resources:
+           requests:
+             memory: "128Mi"
+@@ -54,22 +52,16 @@
+           limits:
+             memory: "256Mi"
+             cpu: "200m"
+-        # No liveness/readiness probes since no health endpoint exists
+-        # Using simple command check instead
+         livenessProbe:
+-          exec:
+-            command:
+-            - sh
+-            - -c
+-            - 'curl -f http://localhost:8000/ || exit 1'
++          httpGet:
++            path: /
++            port: 8000
+           initialDelaySeconds: 30
+           periodSeconds: 10
+         readinessProbe:
+-          exec:
+-            command:
+-            - sh
+-            - -c
+-            - 'curl -f http://localhost:8000/ || exit 1'
++          httpGet:
++            path: /
++            port: 8000
+           initialDelaySeconds: 5
+           periodSeconds: 5
+ @@FILE:K8s::k8s/ingress.yaml
+@@ -105,5 +97,4 @@
+   - port: 80
+     targetPort: 8000
+     protocol: TCP
+-    name: http
+   type: ClusterIP

@@ -1,0 +1,146 @@
+--- c596b65b-f0a8-49b2-99c8-b15768512629
++++ badb9663-c138-4792-b71f-7419499484cd
+@@ -14,22 +14,13 @@
+ 
+ # Copy application code
+ COPY app/ ./app/
++COPY .env.example .env
+ 
+ # Expose the port the app runs on
+ EXPOSE 8080
+ 
+-# Command to run the application
++# Run the application with uvicorn
+ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+-@@FILE:K8s::k8s/fastapi-configmap.yaml
+-apiVersion: v1
+-kind: ConfigMap
+-metadata:
+-  name: fastapi-config
+-  namespace: default
+-data:
+-  APP_ENV: "production"
+-  PORT: "8080"
+-  REDIS_URL: "redis://redis:6379/0"
+ @@FILE:K8s::k8s/fastapi-deployment.yaml
+ apiVersion: apps/v1
+ kind: Deployment
+@@ -48,48 +39,37 @@
+     spec:
+       containers:
+       - name: fastapi-app
+-        image: fastapi-app:latest
++        image: fastapi-app
+         imagePullPolicy: IfNotPresent
+         ports:
+         - containerPort: 8080
+           name: http
+         env:
+         - name: APP_ENV
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: APP_ENV
++          value: "production"
+         - name: PORT
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: PORT
++          value: "8080"
+         - name: REDIS_URL
+-          valueFrom:
+-            configMapKeyRef:
+-              name: fastapi-config
+-              key: REDIS_URL
++          value: "redis://redis:6379/0"
+         resources:
+           requests:
+-            memory: "128Mi"
+-            cpu: "100m"
+-          limits:
+             memory: "256Mi"
+             cpu: "200m"
++          limits:
++            memory: "512Mi"
++            cpu: "500m"
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 10
+-          periodSeconds: 10
+-          timeoutSeconds: 5
++          periodSeconds: 15
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 30
+-          timeoutSeconds: 5
+ @@FILE:K8s::k8s/fastapi-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -123,7 +103,7 @@
+           service:
+             name: fastapi-app
+             port:
+-              number: 80
++              name: http
+ @@FILE:K8s::k8s/redis-pvc.yaml
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+@@ -145,8 +125,7 @@
+   namespace: default
+ type: Opaque
+ data:
+-  # Empty password for Redis (no authentication)
+-  redis-password: ""
++  redis-password: cmVkaXMtcGFzc3dvcmQ=  # redis-password in base64
+ @@FILE:K8s::k8s/redis-service.yaml
+ apiVersion: v1
+ kind: Service
+@@ -160,7 +139,7 @@
+   - port: 6379
+     targetPort: 6379
+     name: redis
+-  type: ClusterIP
++  clusterIP: None
+ @@FILE:K8s::k8s/redis-statefulset.yaml
+ apiVersion: apps/v1
+ kind: StatefulSet
+@@ -190,16 +169,17 @@
+             secretKeyRef:
+               name: redis-secret
+               key: redis-password
+-        resources:
+-          requests:
+-            memory: "64Mi"
+-            cpu: "100m"
+-          limits:
+-            memory: "128Mi"
+-            cpu: "200m"
++        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+         volumeMounts:
+         - name: redis-data
+           mountPath: /data
++        resources:
++          requests:
++            memory: "128Mi"
++            cpu: "100m"
++          limits:
++            memory: "256Mi"
++            cpu: "200m"
+         readinessProbe:
+           tcpSocket:
+             port: 6379
+@@ -208,7 +188,7 @@
+         livenessProbe:
+           tcpSocket:
+             port: 6379
+-          initialDelaySeconds: 15
++          initialDelaySeconds: 30
+           periodSeconds: 20
+       volumes:
+       - name: redis-data
