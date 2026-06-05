@@ -7,3 +7,5 @@ tmp
 __pycache__
 homelab-k3s.yaml
 evaluation_reports
+repo_dumps/paper_repositories/*/bundles/
+repo_dumps/paper_repositories/*/mirrors/
